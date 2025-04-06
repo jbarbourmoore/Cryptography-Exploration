@@ -54,6 +54,10 @@ class CaesarCipher():
         '''
 
         return self.encrypt(encrypted_message, is_encrypting=False)
+    
+class ROT13Cypher(CaesarCipher):
+    def __init__(self):
+        self.shift_value = 13
 
 if __name__ == '__main__':
     message = "This message is being encrypted using caesar's cypher with a shift of five"
@@ -68,6 +72,7 @@ if __name__ == '__main__':
     print(f"Original message: {message}")
     print(f"Encrypted message: {encrypted_message}")
     print(f"Decrypted message: {decrypted_message}")
+    assert message == decrypted_message
     second_message = "This is using a different caesar cypher with a shift of nine"
     second_shift_value = 9
     second_caesar_cyper = CaesarCipher(shift_value=second_shift_value)
@@ -77,11 +82,23 @@ if __name__ == '__main__':
     print(f"Second message: {second_message}")
     print(f"Encrypted second message: {second_encrypted_message}")
     print(f"Decrypted second message: {second_decrypted_message}")
+    assert second_message == second_decrypted_message
     print("- - - - - - - - - - - -")
-    incorrectly_decrypted_message = second_caesar_cyper.decrypt(encrypted_message=message)
-    second_incorrectly_decrypted_message = caesar_cyper.decrypt(encrypted_message=second_message)
+    incorrectly_decrypted_message = second_caesar_cyper.decrypt(encrypted_message=encrypted_message)
+    second_incorrectly_decrypted_message = caesar_cyper.decrypt(encrypted_message=second_encrypted_message)
+    assert message != incorrectly_decrypted_message
+    assert second_message != second_incorrectly_decrypted_message
     print(f"Original message decrypted with second caesar cypher: {incorrectly_decrypted_message}")
     print(f"Second message decrypted with original caesar cypher: {second_incorrectly_decrypted_message}")
     print("- - - - - - - - - - - -")
-    print("Without the correct shift value decryption will still leabe the message unreadable")
+    print("Without the correct shift value decryption will still leave the message unreadable")
     print("However shift options are limited bt the size of the alphabet so it is very easy to brute force")
+    print("- - - - - - - - - - - -")
+    rot13_cypher = ROT13Cypher()
+    rot13_message = "ROT13 is a special form of Caesar Cypher. It rotates 13 so halfway through the alphabet and can be decrypted by running the encryption again"
+    rot13_encrypted_message = rot13_cypher.encrypt(message=rot13_message)
+    rot13_decrypted_message = rot13_cypher.encrypt(message=rot13_encrypted_message)
+    print(f"ROT13 message: {rot13_message}")
+    print(f"Encrypted ROT13 message: {rot13_encrypted_message}")
+    print(f"Double Encrypted / Decrypted ROT13 message: {rot13_decrypted_message}")
+    assert rot13_message == rot13_decrypted_message
