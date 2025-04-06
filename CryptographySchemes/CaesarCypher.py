@@ -56,7 +56,17 @@ class CaesarCipher():
         return self.encrypt(encrypted_message, is_encrypting=False)
     
 class ROT13Cypher(CaesarCipher):
+    '''
+    This class inherits from CaesarCypher and implements a special version where the shift value is 13
+
+    As this is half way through the alphabet both encryption and decryption apply the same shift
+    '''
+
     def __init__(self):
+        '''
+        This method initializes the ROT13 object with a shift value of 13
+        '''
+
         self.shift_value = 13
 
 if __name__ == '__main__':
