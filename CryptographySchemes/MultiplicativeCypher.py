@@ -1,3 +1,5 @@
+from HelperFunctions.EuclidsAlgorithms import extendedEuclidAlgorithm
+
 class MultiplicativeCypher():
     '''
     This class creates a multiplication cypher based around a given multiplication value
@@ -7,15 +9,18 @@ class MultiplicativeCypher():
         '''
         This method initializes the multiplication cypher with a given multiplication value
 
-        It also uses the extended form of euclid's algorithm to calculation the multiplicative inverse to be used in decryption
-
+        It also uses the extended form of euclid's algorithm to calculate the multiplicative inverse to be used in decryption
+        
+        gcd(26, mult_val) = s * 26 + t * mult_val
+        inverse = t%26
+        
         Parameters :
             multiplication_value : int
                 The value to use for multiplication
         '''
 
         self.multiplication_value = multiplication_value
-        self.inverse_value = self.extendedEuclidAlgorithm(26,7)
+        _, _, self.inverse_value = extendedEuclidAlgorithm(26,self.multiplication_value)
         self.inverse_value = self.inverse_value % 26
 
     def encrypt(self, message, is_encrypting=True):
@@ -50,46 +55,6 @@ class MultiplicativeCypher():
         '''
 
         return self.encrypt(encrypted_message,False)
-
-    def extendedEuclidAlgorithm(self, larger_number, smaller_number):
-        '''
-        This method implements the extended form of euclids algorithm
-
-        Bezout Identity => s × a + t × b = gcd(a, b)
-
-        Parameters :
-            larger_number : int
-                The larger number to be used
-            smaller_number : int
-                The smaller number to be used
-
-        Returns : 
-            t : int
-                The number for t
-        '''
-        s = 1
-        t = 0
-        s_hat = 0
-        t_hat = 1
-
-        while smaller_number > 0:
-            
-            q = larger_number // smaller_number
-            r = larger_number % smaller_number
-
-            # m = q * n + r
-            # or r = m - q * n = ( s - ( q * s_hat ) ) * m_0 + (t - ( q * t_hat ) ) * n_0  
-            a = s - ( q * s_hat )
-            b = t - ( q * t_hat )
-
-            larger_number = smaller_number
-            smaller_number = r
-            s = s_hat
-            t = t_hat
-            s_hat = a
-            t_hat = b
-
-        return t
 
 if __name__ == '__main__':
     multiplicative_cypher = MultiplicativeCypher(7)

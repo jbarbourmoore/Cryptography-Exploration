@@ -1,3 +1,4 @@
+from HelperFunctions.EuclidsAlgorithms import extendedEuclidAlgorithm
 
 class RSACryptographyScheme():
     '''
@@ -49,7 +50,7 @@ class RSACryptographyScheme():
         e = None
         d = None
         for e in range( self.smaller_large_prime//3, self.smaller_large_prime ):
-            i, t = self.extendedEuclidAlgorithm(phi, e)
+            i, _, t = extendedEuclidAlgorithm(phi, e)
             if i == 1:
                 if t < 0:
                     d = phi + t
@@ -180,47 +181,6 @@ class RSACryptographyScheme():
                 message_block_number = message_block_number // self.number_system_base
 
         return ''.join(codes), "Success"
-    
-
-    def extendedEuclidAlgorithm(self, larger_number, smaller_number):
-        '''
-        This method implements the extended form or euclids algorithm
-
-        Parameters :
-            larger_number : int
-                The larger number to be used
-            smaller_number : int
-                The smaller number to be used
-
-        Returns : 
-            larger_number : int
-                The final value of the larger number at the algorithm's completion
-            t : int
-                The number for t
-        '''
-        s = 1
-        t = 0
-        s_hat = 0
-        t_hat = 1
-
-        while smaller_number > 0:
-            
-            q = larger_number // smaller_number
-            r = larger_number % smaller_number
-
-            # m = q * n + r
-            # or r = m - q * n = ( s - ( q * s_hat ) ) * m_0 + (t - ( q * t_hat ) ) * n_0  
-            a = s - ( q * s_hat )
-            b = t - ( q * t_hat )
-
-            larger_number = smaller_number
-            smaller_number = r
-            s = s_hat
-            t = t_hat
-            s_hat = a
-            t_hat = b
-
-        return larger_number, t        
 
     def modular_exp(self, message_number_block, is_encoding = True):
         '''
