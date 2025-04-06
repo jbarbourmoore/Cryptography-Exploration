@@ -197,7 +197,7 @@ def interpret_decryption_attempt(brute_force_attempt, decryption_attempt, encryp
 
 if __name__ == '__main__':
     multiplicative_cypher = MultiplicativeCypher(5)
-    first_message = "this is a super secret multiplicatice cypher that is being used to transit information"
+    first_message = "this is a super secret multiplicative cypher that is being used to transit information"
     first_message_encrypted = multiplicative_cypher.encrypt(first_message)
     second_message = "as such, it is totally fine to share our password in this chat"
     second_message_encrypted = multiplicative_cypher.encrypt(second_message)
