@@ -22,6 +22,7 @@ if __name__ == '__main__':
                 ("Note","Generate private key for receiver","right of",1),("Message",1,1,f"New private key is {second_diffie_hellman_key_pair.private_key}"),
                 ("Note","Calculate public key for receiver","right of",1),("Message",1,1,f"New public key is {second_diffie_hellman_key_pair.public_key}"),
                 ("Divider","Calculating Shared Secret"),
+                ("Note","Exchange Public Keys","across",None),("Message",0,1,f"Originator:{first_diffie_hellman_key_pair.public_key}, Receiver:{second_diffie_hellman_key_pair.public_key}",2),
                 ("Note","Calculating shared secret using originator's private\\n key and receiver's public key","left of",0),("Message",0,0,f"Shared secret is {first_diffie_hellman_key_pair.shared_secret}"),
                 ("Note","Calculating shared secret using receiver's private\\n key and originator's public key","right of",1),("Message",1,1,f"Shared secret is {second_diffie_hellman_key_pair.shared_secret}"),
                 ]
