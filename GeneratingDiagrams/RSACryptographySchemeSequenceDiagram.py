@@ -37,5 +37,5 @@ if __name__ == '__main__':
                 ("Note","Decrypting Message With Originator's Private Keys","left of",0),("Message",0,0,decrypted_reply),
                 ]
     
-    rsa_sequence = BasicSequenceDiagramSetup("Basic Multiplicative Cypher Example",participants_list=participants,messages_list=messages)
+    rsa_sequence = BasicSequenceDiagramSetup("RSA Cryptography Scheme Example",participants_list=participants,messages_list=messages)
     rsa_sequence.printAllDiagrams()
