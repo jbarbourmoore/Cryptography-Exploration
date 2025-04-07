@@ -1,0 +1,64 @@
+from HelperFunctions.EuclidsAlgorithms import euclidsAlgorithm
+
+def getPrimeNumbers_SieveOfEratosthenes(minimum_number=2, maximum_number=10000):
+    '''
+    This function finds all prime numbers between minimum and maximum numbers using the algorithm sieve of eratosthenes
+
+    Parameters :
+        minimum_number : int, optional
+            The lower bounds for the range in which we are finding prime numbers (default is 2)
+        maximum_number : int, optional
+            The upper bounds for the range in which we are finding prime numbers (default is 10000)
+    '''
+      
+    is_prime_list = [True for _ in range(0, maximum_number+1)]
+     
+    potential_prime_number = 2
+    while(potential_prime_number * potential_prime_number <= maximum_number):
+        # If the value in the array is still true it is not divisible by any number smaller than it
+        # so it must be a prime
+        if (is_prime_list[potential_prime_number] == True):
+            # find all multiples in the range as they cannot be primes
+            for i in range(potential_prime_number * potential_prime_number, maximum_number + 1, potential_prime_number):
+                is_prime_list[i] = False
+        potential_prime_number += 1
+ 
+    # create list of all prime numbers
+    list_of_primes = []
+    for potential_prime_number in range(minimum_number, maximum_number):
+        if is_prime_list[potential_prime_number]:
+            list_of_primes.append(potential_prime_number)
+    return list_of_primes
+ 
+def findPrimativeRoots(prime_number):
+    '''
+    This function finds the primative roots for a given prime number
+
+    Parameters :
+        prime_number : int
+            The number to which one is finding the primitive roots
+    '''
+
+    primative_roots = []
+    required_set = set(i for i in range (1, prime_number) if euclidsAlgorithm(i, prime_number) == 1)
+
+    for j in range(1, prime_number):
+        actual_set = set(calculatePowerWithModulo(j,i,prime_number) for i in range (1, prime_number))
+        if required_set == actual_set:
+            primative_roots.append(j)           
+    return primative_roots
+
+def calculatePowerWithModulo(a_number, a_power, a_modulo):
+    '''
+    This function raises a given number to a given power and finds the given modulo for it
+
+    Parameters :
+        a_number : int
+            The number to be raised to a power
+        a_power : int
+            The power to which to raise the number
+        a_modulo : int
+            The modulo value to take once the number has been raised to a power
+    '''
+
+    return (a_number**a_power) % a_modulo
