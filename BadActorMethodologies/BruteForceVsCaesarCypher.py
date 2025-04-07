@@ -177,10 +177,12 @@ def interpret_decryption_attempt(brute_force_attempt, decryption_attempt, encryp
             The minimum meaningful count for the algorithm to decide on a potential shift value
     '''
     
+    result = ""
     print(f"The bad actor has intercepted a new encrypted message : {encrypted_message}")
     if type(decryption_attempt) == str:
         print("Decryption Results:")
         print(f"The most likely decrypted message is: {decryption_attempt}")
+        result = f"The most likely decrypted message is: {decryption_attempt}"
     else:
         print("Outputting More Likely Shift Values:")
         brute_force_attempt.outputPossibleShiftValues(minimum_meaningful_count)
@@ -190,9 +192,12 @@ def interpret_decryption_attempt(brute_force_attempt, decryption_attempt, encryp
             most_likely_shift, potential_messages = decryption_attempt
             print(f"The most likely shift value for the cipher has been determined to be {most_likely_shift}")
             print(f"Most likely messages so far: {potential_messages}")
+            result = f"The most likely shift value is {most_likely_shift} and decrypted messages so far are: {potential_messages}"
         elif decryption_attempt == None:
+            result = f"The most likely message has yet to be determined as the total common word count of none of the shift values has passed the threshold of {total_meaningful_count}"
             print(f"The most likely message has yet to be determined as the total common word count of none of the shift values has passed the threshold of {total_meaningful_count}")
     print("- - - - - - - - - - - -")
+    return result
 
 if __name__ == '__main__':
     caesar_cipher = CaesarCipher(5)

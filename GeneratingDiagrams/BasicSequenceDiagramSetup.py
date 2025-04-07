@@ -70,8 +70,12 @@ class BasicSequenceDiagramSetup():
                 _,start_participant_number, end_participant_number, message, direction = event_tuple
                 self.events[self.number_of_events if index == None else index] = BasicCommunication(message=message, start_participant=self.participants[start_participant_number], end_participant=self.participants[end_participant_number], direction=direction)
         elif event_tuple[0] == "Note":
-            _,note_content, position, participant_number = event_tuple
-            self.events[self.number_of_events if index == None else index] = BasicNote(note_content=note_content,position=position,participant=(self.participants[participant_number] if participant_number!=None else None))
+            if len(event_tuple) == 4:
+                _,note_content, position, participant_number = event_tuple
+                self.events[self.number_of_events if index == None else index] = BasicNote(note_content=note_content,position=position,participant=(self.participants[participant_number] if participant_number!=None else None))
+            elif len(event_tuple) == 5:
+                _,note_content, position, participant_number,same_time = event_tuple
+                self.events[self.number_of_events if index == None else index] = BasicNote(note_content=note_content,position=position,participant=(self.participants[participant_number] if participant_number!=None else None),same_time=same_time)
         elif event_tuple[0] == "Divider":
             _, divider_name = event_tuple
             self.events[self.number_of_events if index == None else index] = BasicDivider(divider_name=divider_name)
@@ -109,7 +113,12 @@ class BasicSequenceDiagramSetup():
         print("\tautonumber")
         print(f"\tTitle {self.title}")
         for i in range(0, self.number_of_participants):
-            print(f"\tParticipant {self.participants[i].name}")
+            if self.participants[i].name == "Bad Actor":
+                print("\tbox pink")
+                print(f"\tParticipant {self.participants[i].name}")
+                print("\tend")
+            else:
+                print(f"\tParticipant {self.participants[i].name}")
         for i in range(0,self.number_of_events):
             if self.events[i].type == "Message":
                 if self.events[i].direction == 2:
@@ -119,11 +128,7 @@ class BasicSequenceDiagramSetup():
             elif self.events[i].type =="Lifeline":
                 print(f"\t{self.events[i].action} {self.events[i].participant.name}")
             elif self.events[i].type =="Divider":
-                command = "over "
-                for j in range(0, self.number_of_participants):
-                        command += self.participants[j].name
-                        if j < self.number_of_participants -1:
-                            command += ","
+                command = f"over {self.participants[0].name},{self.participants[self.number_of_participants-1].name}"
                 print("\trect rgb(191, 223, 255)")
                 print(f"\tNote {command} : {self.events[i].divider_name}")
                 print("\tend")
@@ -132,11 +137,7 @@ class BasicSequenceDiagramSetup():
                 if self.events[i].participant != None:
                     print(f"\tNote {self.events[i].position} {self.events[i].participant.name if self.events[i].participant != None else ""}: {content}")
                 else:
-                    command = "over "
-                    for j in range(0, self.number_of_participants):
-                        command += self.participants[j].name
-                        if j < self.number_of_participants -1:
-                            command += ","
+                    command = f"over {self.participants[0].name},{self.participants[self.number_of_participants-1].name}"
                     print(f"\tNote {command} : {content}")
 
 
@@ -156,7 +157,8 @@ class BasicSequenceDiagramSetup():
         '''
         This method prints the sequence diagram to the command line in the form of a PlantUML diagram
         '''
-
+        bad_actor_color = "#DarkRed"
+        bad_actor_note_color = "#LightCoral"
         print("@startuml")
         print("!theme reddress-lightblue")
         print("hide footbox")
@@ -177,7 +179,7 @@ class BasicSequenceDiagramSetup():
         print("skinparam SequenceDividerFontSize 12")
         print("skinparam SequenceDividerFontStyle Italic")
         for i in range(0, self.number_of_participants):
-            print(f"Participant \"{self.participants[i].name}\"")
+            print(f"Participant \"{self.participants[i].name}\" {bad_actor_color if self.participants[i].name == "Bad Actor" else ""}")
         for i in range(0,self.number_of_events):
             if self.events[i].type == "Message":
                 if self.events[i].start_participant.id == 0 and self.events[i].end_participant.id == 0:
@@ -188,11 +190,14 @@ class BasicSequenceDiagramSetup():
                     else:
                         print(f"\"{self.events[i].start_participant.name}\"->\"{self.events[i].end_participant.name}\": {self.events[i].message}")
             elif self.events[i].type == "Note":
-                print(f"hnote {self.events[i].position} {self.events[i].participant.name if self.events[i].participant != None else ""}: {self.events[i].note_content}")
+                if self.events[i].same_time == False:
+                    print(f"hnote {self.events[i].position} {f"\"{self.events[i].participant.name}\"" if self.events[i].participant != None else ""} {bad_actor_note_color if self.events[i].participant != None and self.events[i].participant.name == "Bad Actor" else ""}: {self.events[i].note_content}")
+                else:
+                    print(f"/ hnote {self.events[i].position} {f"\"{self.events[i].participant.name}\"" if self.events[i].participant != None else ""} {bad_actor_note_color if self.events[i].participant != None and self.events[i].participant.name == "Bad Actor" else ""}: {self.events[i].note_content}")
             elif self.events[i].type =="Divider":
                 print(f"=={self.events[i].divider_name}==")
             elif self.events[i].type =="Lifeline":
-                print(f"{self.events[i].action} {self.events[i].participant.name}")
+                print(f"{self.events[i].action} \"{self.events[i].participant.name}\" {bad_actor_note_color if self.events[i].action == "Activate" and self.events[i].participant.name == "Bad Actor" else ""}")
         print("@enduml")
 
     def printAllDiagrams(self):
@@ -229,7 +234,7 @@ class BasicNote(BasicEvent):
     This class holds the information for a basic note for the sequence
     '''
 
-    def __init__(self, note_content, position, participant = None):
+    def __init__(self, note_content, position, participant = None, same_time = False):
         '''
         This method initializes the basic note event with a type of "Note"
 
@@ -246,6 +251,7 @@ class BasicNote(BasicEvent):
         self.note_content = note_content
         self.position = position
         self.participant = participant
+        self.same_time = same_time
 
 class BasicDivider(BasicEvent):
     '''

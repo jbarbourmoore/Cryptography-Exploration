@@ -1,5 +1,5 @@
 from CryptographySchemes.RSACryptographyScheme import RSACryptographyScheme
-from BasicSequenceDiagramSetup import BasicSequenceDiagramSetup
+from GeneratingDiagrams.BasicSequenceDiagramSetup import BasicSequenceDiagramSetup
 
 if __name__ == '__main__':
 

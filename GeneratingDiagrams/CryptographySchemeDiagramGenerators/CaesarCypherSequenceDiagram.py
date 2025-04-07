@@ -1,18 +1,18 @@
-from CryptographySchemes.MultiplicativeCypher import MultiplicativeCypher
-from BasicSequenceDiagramSetup import BasicSequenceDiagramSetup
+from CryptographySchemes.CaesarCypher import CaesarCipher
+from GeneratingDiagrams.BasicSequenceDiagramSetup import BasicSequenceDiagramSetup
 
 if __name__ == '__main__':
     message = "Hello. How are you?"
-    multiplication_value = 4
-    multiplicative_cyper = MultiplicativeCypher(multiplication_value=multiplication_value)
-    encrypted_message = multiplicative_cyper.encrypt(message=message)
-    decrypted_message = multiplicative_cyper.decrypt(encrypted_message=encrypted_message)
+    shift_value = 5
+    caesar_cyper = CaesarCipher(shift_value=shift_value)
+    encrypted_message = caesar_cyper.encrypt(message=message)
+    decrypted_message = caesar_cyper.decrypt(encrypted_message=encrypted_message)
     reply = "Hi! I am doing well, thanks."
-    encrypted_reply = multiplicative_cyper.encrypt(message=reply)
-    decrypted_reply = multiplicative_cyper.decrypt(encrypted_message=encrypted_reply)
+    encrypted_reply = caesar_cyper.encrypt(message=reply)
+    decrypted_reply = caesar_cyper.decrypt(encrypted_message=encrypted_reply)
 
     participants = ["Originator","Receiver"]
-    messages = [("Note","Both participants are aware of the multiplication value, 4","across",None),
+    messages = [("Note","Both participants are aware of the caesar shift value, 5","across",None),
                 ("Divider","Sending Message"), ("Lifeline",0,"Activate"),
                 ("Note","Encrypting Message","left of",0),("Message",0,0,message),
                 ("Note","Transmitting Message","right of",0),("Message",0,1,encrypted_message),
@@ -23,5 +23,5 @@ if __name__ == '__main__':
                 ("Note","Transmitting Reply","left of",1),("Message",1,0,encrypted_reply),
                 ("Lifeline",1,"Deactivate"), ("Lifeline",0,"Activate"),
                 ("Note","Decrypting Reply","left of",0),("Message",0,0,decrypted_reply)]
-    caesar_sequence = BasicSequenceDiagramSetup("Basic Multiplicative Cypher Example",participants_list=participants,messages_list=messages)
+    caesar_sequence = BasicSequenceDiagramSetup("Basic Caesar Cypher Example",participants_list=participants,messages_list=messages)
     caesar_sequence.printAllDiagrams()

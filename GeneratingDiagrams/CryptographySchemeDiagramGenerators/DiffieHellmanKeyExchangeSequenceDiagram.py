@@ -1,5 +1,5 @@
 from CryptographySchemes.DiffieHellmanKeyExchange import DiffieHellmanKeyExchange,DiffieHellmanKeyPair
-from BasicSequenceDiagramSetup import BasicSequenceDiagramSetup
+from GeneratingDiagrams.BasicSequenceDiagramSetup import BasicSequenceDiagramSetup
 
 if __name__ == '__main__':
     diffie_hellman_key_exchange = DiffieHellmanKeyExchange(is_debug=True)
