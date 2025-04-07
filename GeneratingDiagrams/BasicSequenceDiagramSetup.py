@@ -103,12 +103,37 @@ class BasicSequenceDiagramSetup():
         '''
 
         print("sequenceDiagram")
+        print("\tautonumber")
         print(f"\tTitle {self.title}")
         for i in range(0, self.number_of_participants):
             print(f"\tParticipant {self.participants[i].name}")
         for i in range(0,self.number_of_events):
             if self.events[i].type == "Message":
-                print(f"\t{self.events[i].start_participant.name} ->> {self.events[i].end_participant.name}: {self.events[i].message}")
+                if self.events[i].direction == 2:
+                    print(f"\t{self.events[i].start_participant.name} <<->> {self.events[i].end_participant.name}: {self.events[i].message}")
+                else:
+                    print(f"\t{self.events[i].start_participant.name} ->> {self.events[i].end_participant.name}: {self.events[i].message}")
+            elif self.events[i].type =="Lifeline":
+                print(f"\t{self.events[i].action} {self.events[i].participant.name}")
+            elif self.events[i].type =="Divider":
+                command = "over "
+                for j in range(0, self.number_of_participants):
+                        command += self.participants[j].name
+                        if j < self.number_of_participants -1:
+                            command += ","
+                print(f"\tNote {command} : {self.events[i].divider_name}")
+            elif self.events[i].type == "Note":
+                content  = self.events[i].note_content.replace('\\n','<br/>')
+                if self.events[i].participant != None:
+                    print(f"\tNote {self.events[i].position} {self.events[i].participant.name if self.events[i].participant != None else ""}: {content}")
+                else:
+                    command = "over "
+                    for j in range(0, self.number_of_participants):
+                        command += self.participants[j].name
+                        if j < self.number_of_participants -1:
+                            command += ","
+                    print(f"\tNote {command} : {content}")
+
 
     def printZenUMLDiagram(self):
         '''
@@ -298,6 +323,6 @@ class BasicParticipant():
 
 if __name__ == '__main__':
     participant_list = ["Originator","Bad Actor","Recipient"]
-    communication_list = [("Message",0,2,"Hello"),("Message",2,0,"Hi"),("Message",1,1,"Thinking")]
+    communication_list = [("Message",0,2,"Hello"),("Message",2,0,"Hi"),("Message",1,1,"Thinking"),("Note","A long\\nnote","across",None)]
     sequence_diagram = BasicSequenceDiagramSetup("Basic Sequence",participants_list=participant_list,messages_list=communication_list)
     sequence_diagram.printAllDiagrams()
