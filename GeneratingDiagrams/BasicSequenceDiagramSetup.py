@@ -101,7 +101,10 @@ class BasicSequenceDiagramSetup():
         '''
         This method prints the sequence diagram to the command line in the form of a mermaid diagram
         '''
-
+        print("---")
+        print("config:")
+        print("  theme: forest")
+        print("---")
         print("sequenceDiagram")
         print("\tautonumber")
         print(f"\tTitle {self.title}")
@@ -121,7 +124,9 @@ class BasicSequenceDiagramSetup():
                         command += self.participants[j].name
                         if j < self.number_of_participants -1:
                             command += ","
+                print("\trect rgb(191, 223, 255)")
                 print(f"\tNote {command} : {self.events[i].divider_name}")
+                print("\tend")
             elif self.events[i].type == "Note":
                 content  = self.events[i].note_content.replace('\\n','<br/>')
                 if self.events[i].participant != None:
