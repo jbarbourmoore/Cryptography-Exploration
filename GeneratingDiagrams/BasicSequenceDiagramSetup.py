@@ -63,8 +63,12 @@ class BasicSequenceDiagramSetup():
         '''
 
         if event_tuple[0] == "Message":
-            _,start_participant_number, end_participant_number, message = event_tuple
-            self.events[self.number_of_events if index == None else index] = BasicCommunication(message=message, start_participant=self.participants[start_participant_number], end_participant=self.participants[end_participant_number])
+            if len(event_tuple) == 4:
+                _,start_participant_number, end_participant_number, message = event_tuple
+                self.events[self.number_of_events if index == None else index] = BasicCommunication(message=message, start_participant=self.participants[start_participant_number], end_participant=self.participants[end_participant_number])
+            elif len(event_tuple) == 5:
+                _,start_participant_number, end_participant_number, message, direction = event_tuple
+                self.events[self.number_of_events if index == None else index] = BasicCommunication(message=message, start_participant=self.participants[start_participant_number], end_participant=self.participants[end_participant_number], direction=direction)
         elif event_tuple[0] == "Note":
             _,note_content, position, participant_number = event_tuple
             self.events[self.number_of_events if index == None else index] = BasicNote(note_content=note_content,position=position,participant=(self.participants[participant_number] if participant_number!=None else None))
@@ -149,7 +153,10 @@ class BasicSequenceDiagramSetup():
                 if self.events[i].start_participant.id == 0 and self.events[i].end_participant.id == 0:
                     print(f"\"{self.events[i].start_participant.name}\"<-\"{self.events[i].end_participant.name}\": {self.events[i].message}")
                 else:
-                    print(f"\"{self.events[i].start_participant.name}\"->\"{self.events[i].end_participant.name}\": {self.events[i].message}")
+                    if self.events[i].direction == 2:
+                        print(f"\"{self.events[i].start_participant.name}\"<->\"{self.events[i].end_participant.name}\": {self.events[i].message}")
+                    else:
+                        print(f"\"{self.events[i].start_participant.name}\"->\"{self.events[i].end_participant.name}\": {self.events[i].message}")
             elif self.events[i].type == "Note":
                 print(f"hnote {self.events[i].position} {self.events[i].participant.name if self.events[i].participant != None else ""}: {self.events[i].note_content}")
             elif self.events[i].type =="Divider":
@@ -252,7 +259,7 @@ class BasicCommunication(BasicEvent):
     This class holds the information for a basic message in a sequence diagram
     '''
 
-    def __init__(self, message, start_participant, end_participant):
+    def __init__(self, message, start_participant, end_participant, direction=1):
         '''
         This method initializes the communication with a message, start_participant and end_participant
 
@@ -263,13 +270,16 @@ class BasicCommunication(BasicEvent):
                 The message originator
             end_participant
                 The message destination
+            direction : int, optional
+                Whether the message is going in one direction or two(default is 1)
         '''
 
         self.type = "Message"
         self.message = message
         self.start_participant = start_participant
         self.end_participant = end_participant
-    
+        self.direction = direction
+
 class BasicParticipant():
     '''
     This class holds the information for a basic participant in a sequence diagram
