@@ -28,7 +28,7 @@ class BasicSequenceDiagramSetup():
         else:
             participants_length = len(participants_list)
             for i in range(0, participants_length):
-                self.addParticipant(participant_name=participant_list[i], index=i)
+                self.addParticipant(participant_name=participants_list[i], index=i)
             if messages_list != None:
                 communications_length = len(messages_list)
                 for i in range(0, communications_length):
@@ -118,6 +118,15 @@ class BasicSequenceDiagramSetup():
             print(f"\"{self.communications[i].start_participant.name}\"->\"{self.communications[i].end_participant.name}\": {self.communications[i].message}")
         print("@enduml")
 
+    def printAllDiagrams(self):
+        print("- - - - - - - - - - - -")
+        self.printMermaidSequenceDiagram()
+        print("- - - - - - - - - - - -")
+        self.printZenUMLDiagram()
+        print("- - - - - - - - - - - -")
+        self.printPlantUMLDiagram()
+        print("- - - - - - - - - - - -")
+
 
 class BasicCommunication():
     '''
@@ -160,8 +169,4 @@ if __name__ == '__main__':
     participant_list = ["Originator","Bad Actor","Recipient"]
     communication_list = [(0,2,"Hello"),(2,0,"Hi"),(1,1,"Thinking")]
     sequence_diagram = BasicSequenceDiagramSetup("Basic Sequence",participants_list=participant_list,messages_list=communication_list)
-    sequence_diagram.printMermaidSequenceDiagram()
-    print("- - - - - - - - - - - -")
-    sequence_diagram.printZenUMLDiagram()
-    print("- - - - - - - - - - - -")
-    sequence_diagram.printPlantUMLDiagram()
+    sequence_diagram.printAllDiagrams()
