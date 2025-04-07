@@ -65,9 +65,16 @@ class BasicSequenceDiagramSetup():
         if event_tuple[0] == "Message":
             _,start_participant_number, end_participant_number, message = event_tuple
             self.events[self.number_of_events if index == None else index] = BasicCommunication(message=message, start_participant=self.participants[start_participant_number], end_participant=self.participants[end_participant_number])
-        if event_tuple[0] == "Note":
+        elif event_tuple[0] == "Note":
             _,note_content, position, participant_number = event_tuple
             self.events[self.number_of_events if index == None else index] = BasicNote(note_content=note_content,position=position,participant=(self.participants[participant_number] if participant_number!=None else None))
+        elif event_tuple[0] == "Divider":
+            _, divider_name = event_tuple
+            self.events[self.number_of_events if index == None else index] = BasicDivider(divider_name=divider_name)
+        elif event_tuple[0] == "Lifeline":
+            _, participant_number, action = event_tuple
+            self.events[self.number_of_events if index == None else index] = BasicLifeline(participant=self.participants[participant_number], action=action)
+        
         self.number_of_events += 1
 
     def addCommunication(self, message, start_participant_number, end_participant_number):
@@ -123,12 +130,18 @@ class BasicSequenceDiagramSetup():
         print("autonumber")
         print("skinparam maxMessageSize 300")
         print("skinparam NoteBackgroundColor LightSteelBlue")
-        print("skinparam NoteBorderColor White")
+        print("skinparam NoteBorderColor Navy")
         print("skinparam ParticipantBackgroundColor Navy")
         print("skinparam ParticipantFontColor White")
         print("skinparam ParticipantFontSize 13")
         print("skinparam TitleFontColor Navy")
         print("skinparam SequenceLifeLineBorderColor Navy")
+        print("skinparam SequenceLifeLineBackgroundColor LightSteelBlue")
+        print("skinparam SequenceDividerBorderThickness 1")
+        print("skinparam SequenceDividerBorderColor Navy")
+        print("skinparam SequenceDividerBackgroundColor LightSteelBlue")
+        print("skinparam SequenceDividerFontSize 12")
+        print("skinparam SequenceDividerFontStyle Italic")
         for i in range(0, self.number_of_participants):
             print(f"Participant \"{self.participants[i].name}\"")
         for i in range(0,self.number_of_events):
@@ -137,8 +150,12 @@ class BasicSequenceDiagramSetup():
                     print(f"\"{self.events[i].start_participant.name}\"<-\"{self.events[i].end_participant.name}\": {self.events[i].message}")
                 else:
                     print(f"\"{self.events[i].start_participant.name}\"->\"{self.events[i].end_participant.name}\": {self.events[i].message}")
-            if self.events[i].type == "Note":
+            elif self.events[i].type == "Note":
                 print(f"hnote {self.events[i].position} {self.events[i].participant.name if self.events[i].participant != None else ""}: {self.events[i].note_content}")
+            elif self.events[i].type =="Divider":
+                print(f"=={self.events[i].divider_name}==")
+            elif self.events[i].type =="Lifeline":
+                print(f"{self.events[i].action} {self.events[i].participant.name}")
         print("@enduml")
 
     def printAllDiagrams(self):
@@ -165,6 +182,17 @@ class BasicNote(BasicEvent):
         self.position = position
         self.participant = participant
 
+class BasicDivider(BasicEvent):
+    def __init__(self, divider_name):
+        self.type = "Divider"
+        self.divider_name = divider_name
+
+class BasicLifeline(BasicEvent):
+    def __init__(self, participant, action):
+        self.type = "Lifeline"
+        self.participant = participant
+        self.action = action
+        
 class BasicCommunication(BasicEvent):
     '''
     This class holds the information for a basic message in a sequence diagram
