@@ -172,23 +172,77 @@ class BasicSequenceDiagramSetup():
         print("- - - - - - - - - - - -")
 
 class BasicEvent():
+    '''
+    This class is a basic event for a sequence diagram. It is inheritted by all other event types.
+    '''
+
     def __init__(self, type = "Event"):
+        '''
+        This method initializes the basic event
+
+        Parameters:
+            type : str, optional
+                The type of the event
+        '''
+
         self.type = type
 
 class BasicNote(BasicEvent):
+    '''
+    This class holds the information for a basic note for the sequence
+    '''
+
     def __init__(self, note_content, position, participant = None):
+        '''
+        This method initializes the basic note event with a type of "Note"
+
+        Parameters:
+            note_content : str
+                The content of the note
+            position : str
+                The position of the note
+            participant : BasicParticipant
+                The participant the note is connected to
+        '''
+
         self.type = "Note"
         self.note_content = note_content
         self.position = position
         self.participant = participant
 
 class BasicDivider(BasicEvent):
+    '''
+    This class holds the information for a basic divider for the sequence
+    '''
+
     def __init__(self, divider_name):
+        '''
+        This method initializes the basic divider event with a type of "Divider"
+
+        Parameters:
+            divider_name : str
+                The name of the divider
+        '''
+
         self.type = "Divider"
         self.divider_name = divider_name
 
 class BasicLifeline(BasicEvent):
+    '''
+    This class holds the information for a basic lifeline state for the sequence
+    '''
+
     def __init__(self, participant, action):
+        '''
+        This method initializes the basic lifeline event with a type of "Lifeline"
+
+        Parameters:
+            participant : BasicParticipant
+                The participant who's lifeline is being affected
+            action : str
+                The action which is being performed on the lifeline
+        '''
+
         self.type = "Lifeline"
         self.participant = participant
         self.action = action
