@@ -25,7 +25,7 @@ I implemented a version of the Diffie Helman key exchange. The Diffie Hellman ke
 
 ### Caesar Cypher  
 
-The caesar cypher is a very simple example of a cypher which relies on shifting every character in a message the same number of places in the alphabet. For example if you were to encrypt "def" with a multiplcation value of four the result would be "hij". The idea is that, without the knowing the shift value, it is harder to find the original message. However, since the cypher is limited by the number of letters in the alphabet, it is trivial to brute force.
+I implemented a version of the caesar cypher in Python. The caesar cypher is a very simple example of a cypher which relies on shifting every character in a message the same number of places in the alphabet. For example if you were to encrypt "def" with a multiplcation value of four the result would be "hij". The idea is that, without the knowing the shift value, it is harder to find the original message. However, since the cypher is limited by the number of letters in the alphabet, it is trivial to brute force.
 
 <img 
     style="display: block; margin-left: auto; margin-right: auto; width: 100%;"
@@ -35,7 +35,7 @@ The caesar cypher is a very simple example of a cypher which relies on shifting 
 
 ### Multiplicative Cypher  
 
-The multiplicative cypher is also a very simple example of a cypher. It relies on multiplying every character in a message by the same value before calculating the modulus. For example if you were to encrypt "def" with a shift value of four the result would be "mqu". The idea is that, without the knowing the multiplication value, it is harder to find the original message. While it relies on more calculation than the caesar cypher, the multiplicative cypher is still limited by the number of letters in the alphabet, it is also trivial to brute force.
+I implemented a version of the multiplicative cypher in Python.The multiplicative cypher is also a very simple example of a cypher. It relies on multiplying every character in a message by the same value before calculating the modulus. For example if you were to encrypt "def" with a shift value of four the result would be "mqu". The idea is that, without the knowing the multiplication value, it is harder to find the original message. While it relies on more calculation than the caesar cypher, the multiplicative cypher is still limited and is trivial to brute force.
 
 <img 
     style="display: block; margin-left: auto; margin-right: auto; width: 100%;"
@@ -47,6 +47,10 @@ The multiplicative cypher is also a very simple example of a cypher. It relies o
 
 ### Shor's Algorithm Vs RSA   
 
+I implemented a version of Shor's Algorithm in Python using IBM's Qiskit package. Shor's Algorithm is a quantum algorithm for factoring large number that was first laid out by Peter Shor in his paper ["Algorithms for quantum computation: Discrete logarithms and factoring"](https://ieeexplore.ieee.org/document/365700) in 1997. Given a quantum computer with enough qubits, Shor's Algorithm should be capable of factoring large numbers in polynomial time, greatly affecting the computational time required to break cryptographic algorithms such as RSA. Shor's Algorithm to factor a large number, n, takes a random guess then uses a quantum circuit to find the order such that f(x) = ax%n. If the order is even, it can be used to calculate a factor. The second factor of n can be calculated simply using n divided by the first factor.  
+
+By reducing the computational time for factoring large numbers to polynomial time, it greatly speeds up the ability to break RSA encryption. As RSA relies on calculations involving two large prime numbers where their product is part of the public key, factoring the value from the public key can allow the bad actor to generate the value for the private key and decrypt the information. So far, quantum computers are still rare and expensive, especially with larger numbers of qubits so the actual uses of Shor's algorithm are not not very common. Using the simulator I was limited to 7 qubits for the input so the example sequence pictured below uses trivially small prime numbers.  
+
 <img 
     style="display: block; margin-left: auto; margin-right: auto; width: 100%;"
     src="https://github.com/jbarbourmoore/Cryptography-Exploration/blob/1198ce3dad1ca992daadf42effca7986062f38a2/GeneratingDiagrams/Diagrams/ShorsAlgorithmVsRSASequence.png" 
@@ -55,6 +59,8 @@ The multiplicative cypher is also a very simple example of a cypher. It relies o
 
 ### Brute Force Vs Caesar Cypher   
 
+I implemented an algorithm for brute forcing a caesar cypher by a bad actor who is intercepting communication between two individuals who know the shift value. Each time the bad actor intercepts a message they run the encrypted with each possible shift values. These attempted decrypted strings are then compared to a dictionary of common English words. As some wrong decryptions will by chance include actual words the bad actor has set a minimum number of English words in a particular shift value that they believe to be significant enough to select a likely successful decryption using that shift value. The bad actor is then able to use that particular shift value to easily decrypt any future messages.   
+
 <img 
     style="display: block; margin-left: auto; margin-right: auto; width: 100%;"
     src="https://github.com/jbarbourmoore/Cryptography-Exploration/blob/1198ce3dad1ca992daadf42effca7986062f38a2/GeneratingDiagrams/Diagrams/BruteForceVsCaesarCypherSequence.png" 
@@ -62,6 +68,8 @@ The multiplicative cypher is also a very simple example of a cypher. It relies o
 </img>
 
 ### Brute Force Vs Multiplicative Cypher   
+
+I implemented an algorithm for brute forcing a multiplicative cypher by a bad actor who is intercepting communication between two individuals who know the multiplication value. Each time the bad actor intercepts a message they run the encrypted message with each possible multiplication value. These attempted decrypted strings are then compared to a dictionary of common English words. As some wrong decryptions will by chance include actual words, the bad actor has set a minimum number of English words in a particular multiplication value that they believe to be significant enough to select a likely successful decryption using that multiplication value. The bad actor is then able to use that particular multiplication value to easily decrypt any future messages.   
 
 <img 
     style="display: block; margin-left: auto; margin-right: auto; width: 100%; "
