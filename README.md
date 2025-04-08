@@ -5,7 +5,7 @@ A repository created in order to explore cryptography related algorithms, implem
 
 ### RSA Cryptography Scheme  
 
-![This is a sequence diagram for a simple message and reply using the RSA Cryptography scheme](https://github.com/jbarbourmoore/Cryptography-Exploration/blob/6eb3e5fd0cd2a439d820d49b755a95f46d99f08a/GeneratingDiagrams/Diagrams/BasicRSACryptographySchemeSequence.png "RSA Cryptography Scheme")
+![This is a sequence diagram for a simple message and reply using the RSA Cryptography scheme](https://github.com/jbarbourmoore/Cryptography-Exploration/blob/ea443f82a9d765c6e6572ceeb1040810c7f4620b/GeneratingDiagrams/Diagrams/BasicRSACryptographySchemeSequence.png "RSA Cryptography Scheme")
 
 ### Diffie Hellman Cryptography Scheme  
 
