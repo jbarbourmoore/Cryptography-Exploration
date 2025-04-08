@@ -111,29 +111,38 @@ class BasicSequenceDiagramSetup():
         self.events[self.number_of_events] = event
         self.incrementEvents()
 
-    def activateParticipant(self, participant):
+    def activateParticipant(self, participant_input):
         '''
         This method activates a participant's lifeline
 
         Parameters :
-            participant : BasicParticipant
+            participant_input : BasicParticipant | int
                 The participant whose lifeline is being activated
         '''
-
+        if type(participant_input) == int:
+            participant = self.participants[participant_input]
+        else:
+            participant = participant_input
+        
         self.addEvent(BasicLifeline(participant,"Activate"))
 
-    def deactivateParticipant(self, participant):
+    def deactivateParticipant(self, participant_input):
         '''
         This method deactivates a participant's lifeline
 
         Parameters :
-            participant : BasicParticipant
+            participant_input : BasicParticipant | int
                 The participant whose lifeline is being deactivated
         '''
 
+        if type(participant_input) == int:
+            participant = self.participants[participant_input]
+        else:
+            participant = participant_input
+        
         self.addEvent(BasicLifeline(participant,"Deactivate"))
 
-    def sendALabeledMessage(self,start_participant, end_participant, message, note, direction = 1):
+    def sendALabeledMessage(self,start_participant_input, end_participant_input, message, note, direction = 1):
         '''
         This method sends a labeled message with a note
 
@@ -149,12 +158,54 @@ class BasicSequenceDiagramSetup():
             direction : int, optional
                 Whether the message is being sent in both directions or just 1, default is one
         '''
+        if type(start_participant_input) == int:
+            start_participant = self.participants[start_participant_input]
+        else:
+            start_participant = start_participant_input
+        if type(end_participant_input) == int:
+            end_participant = self.participants[end_participant_input]
+        else:
+            end_participant = end_participant_input 
 
         if start_participant.id < end_participant.id:
             note_position = "right of"
         else:
             note_position = "left of"
         self.addEvent(BasicNote(note_content=note, position=note_position,participant=start_participant))
+        self.addEvent(BasicCommunication(message=message,start_participant=start_participant,end_participant=end_participant,direction=direction))
+
+    def addALabeledRetrieval(self, start_participant_input, end_participant_input, message, note, direction = 1):
+        '''
+        This method shows a retrieval of some information initiated by the retrievor
+
+        Parameters :
+            start_participant : BasicParticipant
+                The index of the person sending the message
+            end_participant : BasicParticipant
+                The index of the intended recipient for the message
+            message : str
+                The message content to be sent
+            note : str
+                The label for the message being sent
+            direction : int, optional
+                Whether the message is being sent in both directions or just 1, default is one
+        '''
+
+        if type(start_participant_input) == int:
+            start_participant = self.participants[start_participant_input]
+        else:
+            start_participant = start_participant_input
+        if type(end_participant_input) == int:
+            end_participant = self.participants[end_participant_input]
+        else:
+            end_participant = end_participant_input 
+
+        if start_participant.id > end_participant.id:
+            note_position = "right of"
+        else:
+            note_position = "left of"
+        
+        self.addEvent(BasicNote(note_content=note, position=note_position, participant=end_participant))
         self.addEvent(BasicCommunication(message=message,start_participant=start_participant,end_participant=end_participant,direction=direction))
 
     def sendSelfMessage(self, participant, message, note, simultaneous_note = None, simultaneous_participant = None):
@@ -210,7 +261,7 @@ class BasicSequenceDiagramSetup():
         self.addEvent(BasicCommunication(message=message,start_participant=participant,end_participant=participant,direction=1))
 
 
-    def encryptSendAndDecryptMessage(self, start_participant_number, end_participant_number, message, encrypted_message, decrypted_message=None, message_label = "Message"):
+    def encryptSendAndDecryptMessage(self, start_participant_number, end_participant_number, message, encrypted_message, decrypted_message=None, message_label = "Message", deactivate_end = True, activate_start = True):
         '''
         This method setups up sending and receiving an encrypted message 
 
@@ -227,19 +278,23 @@ class BasicSequenceDiagramSetup():
                 The message content decrypted by the intended recipient, defaults to message
             message_label : str, optional
                 The label for the message, defaults to "Message"
+            activate_start : Boolean, optional
+                whether to activate the starting participant before begining, default is True
+            deactivate_end : Boolean, optional
+                whether to deactivate the ending participant at completion, default is True
         '''
         
         start_participant = self.participants[start_participant_number]
         end_participant = self.participants[end_participant_number]
-        self.activateParticipant(participant=start_participant)
+        if activate_start: self.activateParticipant(participant_input=start_participant)
         self.sendSelfMessage(participant=start_participant,message=message,note=f"Encrypting {message_label}")
-        self.sendALabeledMessage(start_participant=start_participant,end_participant=end_participant,message=encrypted_message, note=f"Sending Encrypted {message_label}")
-        self.deactivateParticipant(participant=start_participant)
-        self.activateParticipant(participant=end_participant)
-        self.sendSelfMessage(participant=start_participant,message=(decrypted_message if decrypted_message != None else message),note="Decrypting Message")
-        self.deactivateParticipant(participant=end_participant)
+        self.sendALabeledMessage(start_participant_input=start_participant,end_participant_input=end_participant,message=encrypted_message, note=f"Sending Encrypted {message_label}")
+        self.deactivateParticipant(participant_input=start_participant)
+        self.activateParticipant(participant_input=end_participant)
+        self.sendSelfMessage(participant=end_participant,message=(decrypted_message if decrypted_message != None else message),note="Decrypting Message")
+        if deactivate_end: self.deactivateParticipant(participant_input=end_participant)
 
-    def encryptSendAndDecryptMessageIntercepted(self, start_participant_number, end_participant_number, message, encrypted_message, intercepting_participent_number, intercepted_message=None, intercepted_note="Attempting to Decrypt Message", decrypted_message=None, message_label = "Message"):
+    def encryptSendAndDecryptMessageIntercepted(self, start_participant_number, end_participant_number, message, encrypted_message, intercepting_participent_number, intercepted_message=None, intercepted_note="Attempting to Decrypt Message", decrypted_message=None, message_label = "Message", deactivate_end = True, activate_start = True):
         '''
         This method setups up sending an encrypted message which is intercepted
 
@@ -262,21 +317,25 @@ class BasicSequenceDiagramSetup():
                 The message content decrypted by the intended recipient, defaults to message
             message_label : str, optional
                 The label for the message, defaults to "Message"
+            activate_start : Boolean, optional
+                whether to activate the starting participant before begining, default is True
+            deactivate_end : Boolean, optional
+                whether to deactivate the ending participant at completion, default is True
         '''
         
         start_participant = self.participants[start_participant_number]
         end_participant = self.participants[end_participant_number]
         intercepting_participant = self.participants[intercepting_participent_number]
-        self.activateParticipant(participant=start_participant)
+        if activate_start: self.activateParticipant(participant_input=start_participant)
         self.sendSelfMessage(participant=start_participant,message=message,note=f"Encrypting {message_label}")
-        self.sendALabeledMessage(start_participant=start_participant,end_participant=end_participant,message=encrypted_message, note=f"Sending Encrypted {message_label}")
-        self.deactivateParticipant(participant=start_participant)
-        self.activateParticipant(participant=end_participant)
-        self.activateParticipant(participant=intercepting_participant)
+        self.sendALabeledMessage(start_participant_input=start_participant,end_participant_input=end_participant,message=encrypted_message, note=f"Sending Encrypted {message_label}")
+        self.deactivateParticipant(participant_input=start_participant)
+        self.activateParticipant(participant_input=end_participant)
+        self.activateParticipant(participant_input=intercepting_participant)
         self.sendSelfMessage(participant=end_participant,message=(decrypted_message if decrypted_message != None else message),note=f"Decrypting {message_label}",simultaneous_note=f"Intercepted {message_label}",simultaneous_participant=intercepting_participant)
-        self.deactivateParticipant(participant=end_participant)
+        self.deactivateParticipant(participant_input=end_participant)
         self.sendSelfMessage(participant=intercepting_participant,message=(intercepted_message if intercepted_message != None else message),note=intercepted_note)
-        self.deactivateParticipant(participant=intercepting_participant)
+        if deactivate_end: self.deactivateParticipant(participant_input=intercepting_participant)
 
     def initializeParticipants(self,number_of_participants=2,list_of_names=None):
         '''
