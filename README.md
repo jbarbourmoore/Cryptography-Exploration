@@ -1,5 +1,5 @@
 # Cryptography Exploration
-A repository created in order to explore cryptography related algorithms, implementations and concepts.
+A repository created in order to explore cryptography related algorithms, implementations and concepts. The sequence diagrams shown below are created using plantuml code I generated using Python based on the results of the implemented algorithms.
 
 ## Cryptography Schemes  
 
