@@ -48,5 +48,3 @@ if __name__ == '__main__':
     multiplicative_sequence = BasicSequenceDiagramSetup("Brute Force Vs Multiplicative Cypher Example Diagram")
     setupBruteForceVsCaesarMultiplicativeSequence(first_message, first_message_encrypted, first_message_decrypted, second_message, second_message_encrypted, second_message_decrypted, third_message, third_message_encrypted, third_message_decrypted, first_result, second_result, third_result, multiplicative_sequence)
     multiplicative_sequence.printAllDiagrams()
-
-    
