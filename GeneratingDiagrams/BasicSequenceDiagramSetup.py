@@ -375,6 +375,20 @@ class BasicSequenceDiagramSetup():
             for name in list_of_names:
                 self.addParticipant(name)
 
+    def addMutualAgreement(self, note_content, message_content):
+        '''
+        This method setups up a mutual agreement between all parties
+
+        Parameters :
+            note_content : str
+                The content for the banner note
+            message_content : str
+                The content for the message agreement
+        '''
+
+        self.addBannerNote(note_content=note_content)
+        self.addCommunication(message=message_content,start_participant_number=0,end_participant_number=self.number_of_participants-1,direction=2)
+   
     def addBannerNote(self, note_content):
         '''
         This method adds a simple note over the entire sequence
@@ -397,7 +411,7 @@ class BasicSequenceDiagramSetup():
 
         self.addEvent(BasicDivider(divider_name))
 
-    def addCommunication(self, message, start_participant_number, end_participant_number):
+    def addCommunication(self, message, start_participant_number, end_participant_number, direction = 1):
         '''
         This method adds a message to the sequence diagram
 
@@ -410,7 +424,7 @@ class BasicSequenceDiagramSetup():
                 The content of the message
         '''
 
-        self.events[self.number_of_events] = BasicCommunication(message=message, start_participant=self.participants[start_participant_number], end_participant=self.participants[end_participant_number])
+        self.events[self.number_of_events] = BasicCommunication(message=message, start_participant=self.participants[start_participant_number], end_participant=self.participants[end_participant_number],direction=direction)
         self.number_of_events += 1
 
     def printMermaidSequenceDiagram(self):
