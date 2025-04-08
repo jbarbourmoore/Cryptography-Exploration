@@ -85,6 +85,231 @@ class BasicSequenceDiagramSetup():
         
         self.number_of_events += 1
 
+    def incrementEvents(self):
+        '''
+        This method increments the number of events in this sequence
+        '''
+
+        self.number_of_events += 1
+
+    def incrementParticipants(self):
+        '''
+        This method increments the number of participants in the sequence
+        '''
+        
+        self.number_of_participants += 1
+
+    def addEvent(self, event):
+        '''
+        This method adds an event to the sequence
+        
+        Parameters :
+            event : BasicEvent
+                The event to be added to the sequence
+        '''
+
+        self.events[self.number_of_events] = event
+        self.incrementEvents()
+
+    def activateParticipant(self, participant):
+        '''
+        This method activates a participant's lifeline
+
+        Parameters :
+            participant : BasicParticipant
+                The participant whose lifeline is being activated
+        '''
+
+        self.addEvent(BasicLifeline(participant,"Activate"))
+
+    def deactivateParticipant(self, participant):
+        '''
+        This method deactivates a participant's lifeline
+
+        Parameters :
+            participant : BasicParticipant
+                The participant whose lifeline is being deactivated
+        '''
+
+        self.addEvent(BasicLifeline(participant,"Deactivate"))
+
+    def sendALabeledMessage(self,start_participant, end_participant, message, note, direction = 1):
+        '''
+        This method sends a labeled message with a note
+
+        Parameters :
+            start_participant : BasicParticipant
+                The index of the person sending the message
+            end_participant : BasicParticipant
+                The index of the intended recipient for the message
+            message : str
+                The message content to be sent
+            note : str
+                The label for the message being sent
+            direction : int, optional
+                Whether the message is being sent in both directions or just 1, default is one
+        '''
+
+        if start_participant.id < end_participant.id:
+            note_position = "right of"
+        else:
+            note_position = "left of"
+        self.addEvent(BasicNote(note_content=note, position=note_position,participant=start_participant))
+        self.addEvent(BasicCommunication(message=message,start_participant=start_participant,end_participant=end_participant,direction=direction))
+
+    def sendSelfMessage(self, participant, message, note, simultaneous_note = None, simultaneous_participant = None):
+        '''
+        This method adds sending a labeled message to the same participent
+
+        Parameters:
+            participant : BasicParticipant
+                The person sending and receiving the message
+            message : str
+                The message content being sent to oneself
+            note : str
+                The label for the message being sent
+            simultaneous_note : str
+                A note for another participant to be displayed simultaneously, defaults to None
+            simultaneous_participant : BasicParticipant
+                The participant for the simultaneous note, defaults to None
+        '''
+        
+        if participant.id == 0:
+            note_position = "left of"
+        else: note_position = "right of"
+        self.addEvent(BasicNote(note_content=note, position=note_position,participant=participant))
+        if simultaneous_note != None and simultaneous_participant != None:
+            self.addEvent(BasicNote(note_content=note, position=note_position,participant=participant, same_time=True))
+        self.addEvent(BasicCommunication(message=message,start_participant=participant,end_participant=participant,direction=1))
+
+    def encryptSendAndDecryptMessage(self, start_participant_number, end_participant_number, message, encrypted_message, decrypted_message=None, message_label = "Message"):
+        '''
+        This method setups up sending and receiving an encrypted message 
+
+        Parameters :
+            start_participant_number : int
+                The index of the person sending the message
+            end_participant_number : int
+                The index of the intended recipient for the message
+            message : str
+                The message content to be sent
+            encrypted_message : any
+                The encrypted form of the message being sent
+            decrypted_message : str, optional
+                The message content decrypted by the intended recipient, defaults to message
+            message_label : str, optional
+                The label for the message, defaults to "Message"
+        '''
+        
+        start_participant = self.participants[start_participant_number]
+        end_participant = self.participants[end_participant_number]
+        self.activateParticipant(participant=start_participant)
+        self.sendSelfMessage(participant=start_participant,message=message,note="Encrypting Message")
+        self.sendALabeledMessage(start_participant=start_participant,end_participant=end_participant,message=encrypted_message, note=f"Sending Encrypted {message_label}")
+        self.deactivateParticipant(participant=start_participant)
+        self.activateParticipant(participant=end_participant)
+        self.sendSelfMessage(participant=start_participant,message=(decrypted_message if decrypted_message != None else message),note="Decrypting Message")
+        self.deactivateParticipant(participant=end_participant)
+
+    def encryptSendAndDecryptMessageIntercepted(self, start_participant_number, end_participant_number, message, encrypted_message, intercepting_participent_number, intercepted_message=None, intercepted_note="Attempting to Decrypt Message", decrypted_message=None, message_label = "Message"):
+        '''
+        This method setups up sending an encrypted message which is intercepted
+
+        Parameters :
+            start_participant_number : int
+                The index of the person sending the message
+            end_participant_number : int
+                The index of the intended recipient for the message
+            message : str
+                The message content to be sent
+            encrypted_message : any
+                The encrypted form of the message being sent
+            intercepting_participant_number : int
+                The index of the person intercepting the message
+            intercepted_message : str, optional
+                The message content decrypted by the person who intercepted it, defaults to message
+            intercepted_note : str, optional
+                The note to display when processing intercepted message, defaults to "Attempting to Decrypt Message"
+            decrypted_message : str, optional
+                The message content decrypted by the intended recipient, defaults to message
+            message_label : str, optional
+                The label for the message, defaults to "Message"
+        '''
+        
+        start_participant = self.participants[start_participant_number]
+        end_participant = self.participants[end_participant_number]
+        intercepting_participant = self.participants[intercepting_participent_number]
+        self.activateParticipant(participant=start_participant)
+        self.sendSelfMessage(participant=start_participant,message=message,note="Encrypting Message")
+        self.sendALabeledMessage(start_participant=start_participant,end_participant=end_participant,message=encrypted_message, note=f"Sending Encrypted {message_label}")
+        self.deactivateParticipant(participant=start_participant)
+        self.activateParticipant(participant=end_participant)
+        self.activateParticipant(participant=intercepting_participant)
+        self.sendSelfMessage(participant=end_participant,message=(decrypted_message if decrypted_message != None else message),note=f"Decrypting {message_label}",simultaneous_note=f"Intercepted {message_label}",simultaneous_participant=intercepting_participant)
+        self.deactivateParticipant(participant=end_participant)
+        self.sendSelfMessage(participant=intercepting_participant,message=(intercepted_message if intercepted_message != None else message),note=intercepted_note)
+        self.deactivateParticipant(participant=intercepting_participant)
+
+    def initializeParticipants(self,number_of_participants=2,list_of_names=None):
+        '''
+        This method initializes participants for the sequence
+
+        if no list of name is provided 
+            and you want one participant
+                They default to "Participant"
+            and you want two participants
+                They default to 0. "Originator" 1. "Receiver"
+            and you want three participants
+                They default to 0. "Originator" 1. "Bad Actor" 3."Receiver"
+            and you want more participants, number n
+                They default to 0. "Participant_0" 1. "Participant_1" ... n. "Participant_n"
+
+        Parameters:
+            number_of_participants : int, optional
+                The number of participants to be added if a list of names is not provided, default is 2
+            list_of_names : [str], optional
+                The list of names for the participants to be added, default is None
+        '''
+
+        if list_of_names == None:
+            if number_of_participants == 2:
+                self.addParticipant("Originator")
+                self.addParticipant("Receiver")
+            elif number_of_participants == 3:
+                self.addParticipant("Originator")
+                self.addParticipant("Bad Actor")
+                self.addParticipant("Receiver")
+            elif number_of_participants == 1:
+                self.addParticipant("Participant")
+            else:
+                for i in number_of_participants:
+                    self.addParticipant(f"Participant_{i}")
+        else:
+            for name in list_of_names:
+                self.addParticipant(name)
+
+    def addBannerNote(self, note_content):
+        '''
+        This method adds a simple note over the entire sequence
+
+        Parameters :
+            note_content : str
+                The content of the note to be displayed on the diagram
+        '''
+
+        self.addEvent(BasicNote(note_content,position="across",participant=None,same_time=False))
+
+    def addDivider(self, divider_name):
+        '''
+        This method adds a simple divider over the sequence
+
+        Parameters :
+            divider_name : str
+                The name of the divider to be displayed on the diagram
+        '''
+
+        self.addEvent(BasicDivider(divider_name))
+
     def addCommunication(self, message, start_participant_number, end_participant_number):
         '''
         This method adds a message to the sequence diagram
@@ -333,7 +558,11 @@ class BasicParticipant():
         self.id = id
 
 if __name__ == '__main__':
-    participant_list = ["Originator","Bad Actor","Recipient"]
-    communication_list = [("Message",0,2,"Hello"),("Message",2,0,"Hi"),("Message",1,1,"Thinking"),("Note","A long\\nnote","across",None)]
-    sequence_diagram = BasicSequenceDiagramSetup("Basic Sequence",participants_list=participant_list,messages_list=communication_list)
+    sequence_diagram = BasicSequenceDiagramSetup("Basic Sequence")
+    sequence_diagram.initializeParticipants(number_of_participants=3)
+    sequence_diagram.addBannerNote("This is a simple example of a layout that can be generated more easily")
+    sequence_diagram.addDivider("Sending a Message")
+    sequence_diagram.encryptSendAndDecryptMessageIntercepted(0,2,"message content","encrypted message content",1)
+    sequence_diagram.addDivider("Sending a Reply")
+    sequence_diagram.encryptSendAndDecryptMessageIntercepted(2,0,"reply content","encrypted reply content",1,intercepted_note="Attempting to Decrypt Reply",message_label="Reply")
     sequence_diagram.printAllDiagrams()
