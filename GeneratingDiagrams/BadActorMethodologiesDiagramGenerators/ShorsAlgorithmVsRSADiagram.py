@@ -30,35 +30,27 @@ def runBadActorAgainstRSAScheme():
     decoded_message_stolen_key = bad_actor.decryptMessageForTarget(encrypted_message)
     bad_actor_originator = badActor_RSA(originator_rsa.getPublicKey())
     decoded_reply_stolen_key = bad_actor_originator.decryptMessageForTarget(encrypted_reply)
-
-    participants = ["Originator","Bad Actor","Receiver"]
-    messages = [("Note","Due to constraints in the quantum simulator I am using, I cannot factor numbers larger \\nthan 7 qubits so the RSA keys in this example are using very small prime numbers","across",None),
-                ("Divider","Generating RSA Keys"),
-                ("Note","Generate both public and private keys for originator","left of",0),("Message",0,0,f"New public keys are {originator_rsa.getPublicKey()}"),
-                ("Note","Generate both public and private keys for receiver","right of",2),("Message",2,2,f"New public keys are {recipient_rsa.getPublicKey()}"),
-                ("Divider","Attacking the RSA Keys"),
-                ("Note","Getting receiver's Public Key","right of",1), ("Lifeline",1,"Activate"),("Message",2,1,f"Receiver's public keys are {recipient_rsa.getPublicKey()}"),
-                ("Note","Use Shor's Algorithm To Find Prime\\nFactors of receiver's Public Key's n component\\nand calculate the private key","right of",1),("Message",1,1,f"The prime factors are {prime_factors} and private key is {bad_actor.duplicate_target_crypto_scheme.getPrivateKey()}"),
-                ("Note","Getting originator's Public Key","left of",1),("Message",0,1,f"Originator's public keys are {originator_rsa.getPublicKey()}"),
-                ("Note","Use Shor's Algorithm To Find Prime\\nFactors of originator's Public Key's n component\\nand calculate the private key","right of",1),("Message",1,1,f"The prime factors are {bad_actor_originator.target_prime_factors} and private key is {bad_actor_originator.duplicate_target_crypto_scheme.getPrivateKey()}"),
-                ("Lifeline",1,"Deactivate"),("Divider","Sending Message"), ("Lifeline",0,"Activate"),
-                ("Note","Getting Recipient's Public Key","right of",0),("Message",2,0,f"Receiver's public keys are {recipient_rsa.getPublicKey()}"),
-                ("Note","Encrypting Message With Receiver's Public Keys","left of",0),("Message",0,0,message),
-                ("Note","Transmitting Message","right of",0),("Message",0,2,encrypted_message),
-                ("Lifeline",0,"Deactivate"), ("Lifeline",2,"Activate"),("Lifeline",1,"Activate"),
-                ("Note","Decrypting Message With Receiver's Private Keys","right of",2),("Note","Intercepted Message","right of",1,True),("Message",2,2,decrypted_message),
-                ("Lifeline",2,"Deactivate"),("Note","Decrypting Message With calculated version \\nof receiver's Private Keys","right of",1),("Message",1,1,decoded_message_stolen_key),
-                ("Lifeline",2,"Activate"),("Lifeline",1,"Deactivate"),("Divider","Replying"),
-                ("Note","Getting Originator's Public Key","left of",2),("Message",0,2,f"Originator's public keys are {originator_rsa.getPublicKey()}"),
-                ("Note","Encrypting Reply With Originator's Public Keys","right of",2),("Message",2,2,reply),
-                ("Note","Transmitting Message","left of",2),("Message",2,0,encrypted_reply),
-                ("Lifeline",2,"Deactivate"), ("Lifeline",0,"Activate"),("Lifeline",1,"Activate"),
-                ("Note","Decrypting Message With Originator's Private Keys","left of",0),("Note","Intercepted Message","right of",1,True),("Message",0,0,decrypted_reply),
-                ("Lifeline",0,"Deactivate"),("Note","Decrypting Message With calculated version \\nof originator's Private Keys","right of",1),("Message",1,1,decoded_reply_stolen_key),("Lifeline",1,"Deactivate"),
-                ]
     
-    rsa_sequence = BasicSequenceDiagramSetup("Shor's Algorithm Vs. RSA Example",participants_list=participants,messages_list=messages)
+    rsa_sequence = BasicSequenceDiagramSetup("Shor's Algorithm Vs. RSA Example")
+    rsa_sequence.initializeParticipants(3)
+    rsa_sequence.addBannerNote("Due to constraints in the quantum simulator I am using, I cannot factor numbers larger \\nthan 7 qubits so the RSA keys in this example are using very small prime numbers")
+    rsa_sequence.addDivider("Generating RSA Keys")
+    rsa_sequence.sendSelfMessage_particpantNumber(0,f"New public keys are {originator_rsa.getPublicKey()}","Generate both public and private keys for originator")
+    rsa_sequence.sendSelfMessage_particpantNumber(2,f"New public keys are {recipient_rsa.getPublicKey()}","Generate both public and private keys for receiver")
+    rsa_sequence.addDivider("Attacking RSA Keys")
+    rsa_sequence.activateParticipant(rsa_sequence.participants[1])
+    rsa_sequence.sendALabeledMessage(rsa_sequence.participants[0],rsa_sequence.participants[1],message=f"Receiver's public keys are {recipient_rsa.getPublicKey()}",note="Getting receiver's Public Key")
+    rsa_sequence.sendSelfMessage_particpantNumber(1,f"The prime factors are {prime_factors} and private key is {bad_actor.duplicate_target_crypto_scheme.getPrivateKey()}","Use Shor's Algorithm To Find Prime\\nFactors of receiver's Public Key's n component\\nand calculate the private key")
+    rsa_sequence.sendALabeledMessage(rsa_sequence.participants[2],rsa_sequence.participants[1],message=f"Originator's public keys are {originator_rsa.getPublicKey()}",note="Getting receiver's Public Key")
+    rsa_sequence.sendSelfMessage_particpantNumber(1,f"The prime factors are {prime_factors} and private key is {bad_actor_originator.duplicate_target_crypto_scheme.getPrivateKey()}","Use Shor's Algorithm To Find Prime\\nFactors of receiver's Public Key's n component\\nand calculate the private key")
+    rsa_sequence.deactivateParticipant(rsa_sequence.participants[1])
+    rsa_sequence.addDivider("Sending A Message")
+    rsa_sequence.encryptSendAndDecryptMessageIntercepted(0,2,message=message,encrypted_message=encrypted_message,intercepting_participent_number=1,intercepted_message=decoded_message_stolen_key,decrypted_message=decrypted_message)
+    rsa_sequence.addDivider("Sending A Reply")
+    rsa_sequence.encryptSendAndDecryptMessageIntercepted(2,0,message=reply,encrypted_message=encrypted_reply,intercepting_participent_number=1,intercepted_message=decoded_reply_stolen_key,decrypted_message=decrypted_reply,message_label="Reply",intercepted_note="Attempting to Decrypt Reply")
+    
     rsa_sequence.printAllDiagrams()
+
 if __name__ == '__main__':
 
     runBadActorAgainstRSAScheme()

@@ -96,7 +96,7 @@ class BasicSequenceDiagramSetup():
         '''
         This method increments the number of participants in the sequence
         '''
-        
+
         self.number_of_participants += 1
 
     def addEvent(self, event):
@@ -182,6 +182,34 @@ class BasicSequenceDiagramSetup():
             self.addEvent(BasicNote(note_content=note, position=note_position,participant=participant, same_time=True))
         self.addEvent(BasicCommunication(message=message,start_participant=participant,end_participant=participant,direction=1))
 
+    def sendSelfMessage_particpantNumber(self, participant_number, message, note, simultaneous_note = None, simultaneous_participant = None):
+        '''
+        This method adds sending a labeled message to the same participent
+
+        Parameters:
+            participant_number : BasicParticipant
+                The person sending and receiving the message
+            message : str
+                The message content being sent to oneself
+            note : str
+                The label for the message being sent
+            simultaneous_note : str
+                A note for another participant to be displayed simultaneously, defaults to None
+            simultaneous_participant : BasicParticipant
+                The participant for the simultaneous note, defaults to None
+        '''
+
+        participant = self.participants[participant_number]
+        
+        if participant_number == 0:
+            note_position = "left of"
+        else: note_position = "right of"
+        self.addEvent(BasicNote(note_content=note, position=note_position,participant=participant))
+        if simultaneous_note != None and simultaneous_participant != None:
+            self.addEvent(BasicNote(note_content=note, position=note_position,participant=participant, same_time=True))
+        self.addEvent(BasicCommunication(message=message,start_participant=participant,end_participant=participant,direction=1))
+
+
     def encryptSendAndDecryptMessage(self, start_participant_number, end_participant_number, message, encrypted_message, decrypted_message=None, message_label = "Message"):
         '''
         This method setups up sending and receiving an encrypted message 
@@ -204,7 +232,7 @@ class BasicSequenceDiagramSetup():
         start_participant = self.participants[start_participant_number]
         end_participant = self.participants[end_participant_number]
         self.activateParticipant(participant=start_participant)
-        self.sendSelfMessage(participant=start_participant,message=message,note="Encrypting Message")
+        self.sendSelfMessage(participant=start_participant,message=message,note=f"Encrypting {message_label}")
         self.sendALabeledMessage(start_participant=start_participant,end_participant=end_participant,message=encrypted_message, note=f"Sending Encrypted {message_label}")
         self.deactivateParticipant(participant=start_participant)
         self.activateParticipant(participant=end_participant)
@@ -240,7 +268,7 @@ class BasicSequenceDiagramSetup():
         end_participant = self.participants[end_participant_number]
         intercepting_participant = self.participants[intercepting_participent_number]
         self.activateParticipant(participant=start_participant)
-        self.sendSelfMessage(participant=start_participant,message=message,note="Encrypting Message")
+        self.sendSelfMessage(participant=start_participant,message=message,note=f"Encrypting {message_label}")
         self.sendALabeledMessage(start_participant=start_participant,end_participant=end_participant,message=encrypted_message, note=f"Sending Encrypted {message_label}")
         self.deactivateParticipant(participant=start_participant)
         self.activateParticipant(participant=end_participant)
@@ -384,6 +412,7 @@ class BasicSequenceDiagramSetup():
         '''
         bad_actor_color = "#DarkRed"
         bad_actor_note_color = "#LightCoral"
+        banner_color = "#Lavender"
         print("@startuml")
         print("!theme reddress-lightblue")
         print("hide footbox")
@@ -391,17 +420,17 @@ class BasicSequenceDiagramSetup():
         print("autonumber")
         print("skinparam maxMessageSize 300")
         print("skinparam NoteBackgroundColor LightSteelBlue")
-        print("skinparam NoteBorderColor Navy")
+        print("skinparam NoteBorderColor Black")
         print("skinparam ParticipantBackgroundColor Navy")
         print("skinparam ParticipantFontColor White")
-        print("skinparam ParticipantFontSize 13")
-        print("skinparam TitleFontColor Navy")
-        print("skinparam SequenceLifeLineBorderColor Navy")
+        print("skinparam ParticipantFontSize 16")
+        print("skinparam TitleFontSize 18")
+        print("skinparam SequenceLifeLineBorderColor Black")
         print("skinparam SequenceLifeLineBackgroundColor LightSteelBlue")
-        print("skinparam SequenceDividerBorderThickness 1")
-        print("skinparam SequenceDividerBorderColor Navy")
-        print("skinparam SequenceDividerBackgroundColor LightSteelBlue")
-        print("skinparam SequenceDividerFontSize 12")
+        print("skinparam SequenceDividerBorderThickness 2")
+        print("skinparam SequenceDividerBorderColor Indigo")
+        print("skinparam SequenceDividerBackgroundColor Lavender")
+        print("skinparam SequenceDividerFontSize 14")
         print("skinparam SequenceDividerFontStyle Italic")
         for i in range(0, self.number_of_participants):
             print(f"Participant \"{self.participants[i].name}\" {bad_actor_color if self.participants[i].name == "Bad Actor" else ""}")
@@ -416,7 +445,7 @@ class BasicSequenceDiagramSetup():
                         print(f"\"{self.events[i].start_participant.name}\"->\"{self.events[i].end_participant.name}\": {self.events[i].message}")
             elif self.events[i].type == "Note":
                 if self.events[i].same_time == False:
-                    print(f"hnote {self.events[i].position} {f"\"{self.events[i].participant.name}\"" if self.events[i].participant != None else ""} {bad_actor_note_color if self.events[i].participant != None and self.events[i].participant.name == "Bad Actor" else ""}: {self.events[i].note_content}")
+                    print(f"hnote {self.events[i].position} {f"\"{self.events[i].participant.name}\"" if self.events[i].participant != None else ""} {banner_color if self.events[i].position == "across" else ""}{bad_actor_note_color if self.events[i].participant != None and self.events[i].participant.name == "Bad Actor" else ""}: {self.events[i].note_content}")
                 else:
                     print(f"/ hnote {self.events[i].position} {f"\"{self.events[i].participant.name}\"" if self.events[i].participant != None else ""} {bad_actor_note_color if self.events[i].participant != None and self.events[i].participant.name == "Bad Actor" else ""}: {self.events[i].note_content}")
             elif self.events[i].type =="Divider":
