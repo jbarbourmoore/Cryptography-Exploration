@@ -1,4 +1,4 @@
-from PrimeNumbers import calculateModuloInverse
+from HelperFunctions.PrimeNumbers import calculateModuloInverse
 
 class EllipticCurveCalculations():
     '''
