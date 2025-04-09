@@ -1,4 +1,4 @@
-from HelperFunctions.PrimeNumbers import calculateModuloInverse
+from HelperFunctions.PrimeNumbers import calculateModuloInverse, calculateModuloSquareRoot
 
 class EllipticCurveCalculations():
     '''
@@ -201,7 +201,51 @@ class EllipticCurveCalculations():
         assert self.validatePointOnCurve(point=point_r)
 
         return point_r
-        
+    
+    def compressPointOnEllipticCurve(self, point):
+        '''
+        This method gets the compressed form of the point on the elliptic curve
+
+        Parameters :
+            point : (int, int)
+                The point on the elliptic curve to be compressed
+
+        Returns :
+            compressed_point : str
+                The compressed point as a hexadecimal as a str
+        '''
+
+        x, y = point
+        return hex(x) + hex(y % 2)[2:]
+    
+    def decompressPointOnEllipticCurve(self, compressed_point):
+        '''
+        This function decompresses the point on the elliptic curve
+
+        Parameters : 
+            compressed_point : str
+                The compressed point on the elliptic curve as a hexadecimal string
+
+        Returns
+            point : (int, int)
+                The decompressed point on the elliptic curve
+        '''
+
+        x=int(compressed_point[:len(compressed_point)-1],16)
+        y_bit = compressed_point[len(compressed_point)-1:]
+        y_1 = calculateModuloSquareRoot(x**3 + self.a * x +self.b, self.finite_field)
+        y_2 = self.finite_field - y_1
+        if y_1%2 == 1:
+            if y_bit == '1':
+                return (x, y_1)
+            else:
+                return(x,y_2)
+        else: 
+            if y_bit == '0':
+                return (x, y_1)
+            else:
+                return(x,y_2)
+                    
     def printEllipticCurveEquation(self):
         '''
         This method outputs the values for this elliptic curve to the command line
@@ -223,4 +267,7 @@ if __name__ == '__main__':
 
     print(elliptic_curve.calculatedPointMultiplicationByConstant_continualAddition(point,7))
     print(elliptic_curve.calculatedPointMultiplicationByConstant_doubleAndAddMethod(point,7))
+    compressed_point = elliptic_curve.compressPointOnEllipticCurve(point=point)
+    print(compressed_point)
+    print(elliptic_curve.decompressPointOnEllipticCurve(compressed_point=compressed_point))
     

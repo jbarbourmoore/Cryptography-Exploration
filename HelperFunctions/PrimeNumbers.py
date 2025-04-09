@@ -117,3 +117,51 @@ def calculatePrimeFactors_classical(number):
             prime_factors.append(number)
 
         return(prime_factors)
+
+def findOrder_classical(number, modulo): 
+    '''
+    This function finds the order such that
+    number ** order % modulo == 1 
+
+    Parameters : 
+        number : int
+            The number that we are finding the order for
+        modulo : int
+            The modulo value for which we are finding the order
+
+    returns
+        potential_order : int
+            The order of number and modulo
+    '''
+ 
+    if euclidsAlgorithm(modulo, number) != 1:
+        return None
+ 
+    
+    potential_order = 3
+    while True: 
+        if (pow(number, potential_order, modulo) == 1): 
+            return potential_order
+        
+        potential_order += 1
+
+def calculateModuloSquareRoot(number, modulo):
+    ''''
+    This function calculates the modulo square root of a number 
+
+    Parameters : 
+        number : int
+            The number that we are finding the square root of
+        modulo : int
+            The modulo value for which we are finding the square root of number
+
+    returns
+        square_root : int | None
+            The square root of number
+    '''
+ 
+    number = number % modulo
+    for i in range (2, modulo):
+        if ((i * i) % modulo == number) :
+            return i
+    return None
