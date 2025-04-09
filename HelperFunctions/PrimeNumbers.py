@@ -79,4 +79,8 @@ def calculateModuloInverse(number, modulo):
     '''
     if number % modulo == 0:
             return None
-    return calculatePowerWithModulo(number, modulo-2, modulo)
+    
+    # not efficient enough when dealing with large numbers
+    # return calculatePowerWithModulo(number, modulo-2, modulo)
+
+    return pow(number,modulo-2,modulo)
