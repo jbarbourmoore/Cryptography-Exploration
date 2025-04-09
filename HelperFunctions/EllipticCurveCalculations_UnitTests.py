@@ -1,5 +1,6 @@
 import unittest
 from EllipticCurveCalculations import EllipticCurveCalculations
+import time
 
 class EllipticCurveCalculations_UnitTests(unittest.TestCase):
     '''
@@ -59,6 +60,47 @@ class EllipticCurveCalculations_UnitTests(unittest.TestCase):
         print(f"{point} + {point} = {result}")
         self.assertTrue(self.simple_elliptic_curve.validatePointOnCurve(point=result))
         self.assertEqual(result, expected_result)
+
+    def test_multiplying_by_two(self):
+        '''
+        This method tests multiplying a point by 2
+        '''
+
+        point = (15, 13)
+        constant = 2
+        expected_result = (2, 10)
+        self.assertTrue(self.simple_elliptic_curve.validatePointOnCurve(point=point))
+        start_continual_adding = time.time()
+        result_continual_adding = self.simple_elliptic_curve.calculatedPointMultiplicationByConstant_continualAddition(point=point,constant=constant)
+        duration_continual_adding = time.time() - start_continual_adding
+        start_double_and_add = time.time()
+        result_double_and_add = self.simple_elliptic_curve.calculatedPointMultiplicationByConstant_doubleAndAddMethod(point=point,constant=constant)
+        duration_double_and_add = time.time() - start_double_and_add
+        self.simple_elliptic_curve.printEllipticCurveEquation()
+        print(f"{point} * {constant} = Continual Adding : {result_continual_adding} Double and Add : {result_double_and_add}")
+        print(f"Durations --> Continual Adding : {duration_continual_adding:.3f} Double and Add : {duration_double_and_add:.3f}")
+        self.assertTrue(self.simple_elliptic_curve.validatePointOnCurve(point=result_continual_adding))
+        self.assertEqual(result_continual_adding, expected_result)
+        self.assertTrue(self.simple_elliptic_curve.validatePointOnCurve(point=result_double_and_add))
+        self.assertEqual(result_double_and_add, expected_result)
+
+    def test_multiplying_by_nineteen(self):
+        '''
+        This method tests multiplying a point by 19 (finite_field + 2)
+        '''
+
+        point = (15, 13)
+        constant = 19
+        expected_result = (15, 13)
+        self.assertTrue(self.simple_elliptic_curve.validatePointOnCurve(point=point))
+        result_continual_adding = self.simple_elliptic_curve.calculatedPointMultiplicationByConstant_continualAddition(point=point,constant=constant)
+        result_double_and_add = self.simple_elliptic_curve.calculatedPointMultiplicationByConstant_doubleAndAddMethod(point=point,constant=constant)
+        self.simple_elliptic_curve.printEllipticCurveEquation()
+        print(f"{point} * {constant} = Continual Adding : {result_continual_adding} Double and Add : {result_double_and_add}")
+        self.assertTrue(self.simple_elliptic_curve.validatePointOnCurve(point=result_continual_adding))
+        self.assertEqual(result_continual_adding, expected_result)
+        self.assertTrue(self.simple_elliptic_curve.validatePointOnCurve(point=result_double_and_add))
+        self.assertEqual(result_double_and_add, expected_result)
 
     def test_adding_two_different_points(self):
         '''
@@ -140,6 +182,98 @@ class EllipticCurveCalculations_UnitTests(unittest.TestCase):
         print(f"{point} + {point} = {result}")
         self.assertTrue(self.secp192r1.validatePointOnCurve(point=result))
         self.assertEqual(result, expected_result)
+
+    def test_multiplying_by_two_secp192r1(self):
+        '''
+        This method tests multiplying a point by 2
+        '''
+
+        point = (602046282375688656758213480587526111916698976636884684818, 174050332293622031404857552280219410364023488927386650641)
+        constant = 2
+        expected_result = (5369744403678710563432458361254544170966096384586764429448, 5429234379789071039750654906915254128254326554272718558123)
+        self.assertTrue(self.secp192r1.validatePointOnCurve(point=point))
+        start_continual_adding = time.time()
+        result_continual_adding = self.secp192r1.calculatedPointMultiplicationByConstant_continualAddition(point=point,constant=constant)
+        duration_continual_adding = time.time() - start_continual_adding
+        start_double_and_add = time.time()
+        result_double_and_add = self.secp192r1.calculatedPointMultiplicationByConstant_doubleAndAddMethod(point=point,constant=constant)
+        duration_double_and_add = time.time() - start_double_and_add
+        self.secp192r1.printEllipticCurveEquation()
+        print(f"{point} * {constant} = Continual Adding : {result_continual_adding} Double and Add : {result_double_and_add}")
+        print(f"Durations --> Continual Adding : {duration_continual_adding:.3f} Double and Add : {duration_double_and_add:.3f}")        
+        self.assertTrue(self.secp192r1.validatePointOnCurve(point=result_continual_adding))
+        self.assertEqual(result_continual_adding, expected_result)
+        self.assertTrue(self.secp192r1.validatePointOnCurve(point=result_double_and_add))
+        self.assertEqual(result_double_and_add, expected_result)
+
+    def test_multiplying_by_104_secp192r1(self):
+        '''
+        This method tests multiplying a point by 104
+        '''
+
+        point = (602046282375688656758213480587526111916698976636884684818, 174050332293622031404857552280219410364023488927386650641)
+        constant = 104
+        expected_result = (5124267969112884640430558489079512598372932209181558738984, 5241168070499360885696850377502882660536951875217754938315)
+        self.assertTrue(self.secp192r1.validatePointOnCurve(point=point))
+        start_continual_adding = time.time()
+        result_continual_adding = self.secp192r1.calculatedPointMultiplicationByConstant_continualAddition(point=point,constant=constant)
+        duration_continual_adding = time.time() - start_continual_adding
+        start_double_and_add = time.time()
+        result_double_and_add = self.secp192r1.calculatedPointMultiplicationByConstant_doubleAndAddMethod(point=point,constant=constant)
+        duration_double_and_add = time.time() - start_double_and_add
+        self.secp192r1.printEllipticCurveEquation()
+        print(f"{point} * {constant} = Continual Adding : {result_continual_adding} Double and Add : {result_double_and_add}")
+        print(f"Durations --> Continual Adding : {duration_continual_adding:.3f} Double and Add : {duration_double_and_add:.3f}")        
+        self.assertTrue(self.secp192r1.validatePointOnCurve(point=result_continual_adding))
+        self.assertEqual(result_continual_adding, expected_result)
+        self.assertTrue(self.secp192r1.validatePointOnCurve(point=result_double_and_add))
+        self.assertEqual(result_double_and_add, expected_result)
+
+    def test_multiplying_by_19364_secp192r1(self):
+        '''
+        This method tests multiplying a point by 19364
+        '''
+
+        point = (602046282375688656758213480587526111916698976636884684818, 174050332293622031404857552280219410364023488927386650641)
+        constant = 19364
+        expected_result = (426633705220448967421986414450829068867705697807080443935, 3216648681216470491428170926157712464969850933119010868622)
+        self.assertTrue(self.secp192r1.validatePointOnCurve(point=point))
+        start_continual_adding = time.time()
+        result_continual_adding = self.secp192r1.calculatedPointMultiplicationByConstant_continualAddition(point=point,constant=constant)
+        duration_continual_adding = time.time() - start_continual_adding
+        start_double_and_add = time.time()
+        result_double_and_add = self.secp192r1.calculatedPointMultiplicationByConstant_doubleAndAddMethod(point=point,constant=constant)
+        duration_double_and_add = time.time() - start_double_and_add
+        self.secp192r1.printEllipticCurveEquation()
+        print(f"{point} * {constant} = Continual Adding : {result_continual_adding} Double and Add : {result_double_and_add}")
+        print(f"Durations --> Continual Adding : {duration_continual_adding:.3f} Double and Add : {duration_double_and_add:.3f}")        
+        self.assertTrue(self.secp192r1.validatePointOnCurve(point=result_continual_adding))
+        self.assertEqual(result_continual_adding, expected_result)
+        self.assertTrue(self.secp192r1.validatePointOnCurve(point=result_double_and_add))
+        self.assertEqual(result_double_and_add, expected_result)
+
+    def test_multiplying_by_237568_secp192r1(self):
+        '''
+        This method tests multiplying a point by 237568
+        '''
+
+        point = (602046282375688656758213480587526111916698976636884684818, 174050332293622031404857552280219410364023488927386650641)
+        constant = 237568
+        expected_result = (871023611157170972703611374923345710780774914879018003341, 1903816589192018542033229449349641804651012623594677678608)
+        self.assertTrue(self.secp192r1.validatePointOnCurve(point=point))
+        start_continual_adding = time.time()
+        result_continual_adding = self.secp192r1.calculatedPointMultiplicationByConstant_continualAddition(point=point,constant=constant)
+        duration_continual_adding = time.time() - start_continual_adding
+        start_double_and_add = time.time()
+        result_double_and_add = self.secp192r1.calculatedPointMultiplicationByConstant_doubleAndAddMethod(point=point,constant=constant)
+        duration_double_and_add = time.time() - start_double_and_add
+        self.secp192r1.printEllipticCurveEquation()
+        print(f"{point} * {constant} = Continual Adding : {result_continual_adding} Double and Add : {result_double_and_add}")
+        print(f"Durations --> Continual Adding : {duration_continual_adding:.3f} Double and Add : {duration_double_and_add:.3f}")        
+        self.assertTrue(self.secp192r1.validatePointOnCurve(point=result_continual_adding))
+        self.assertEqual(result_continual_adding, expected_result)
+        self.assertTrue(self.secp192r1.validatePointOnCurve(point=result_double_and_add))
+        self.assertEqual(result_double_and_add, expected_result)
 
     def test_adding_two_different_points_secp192r1(self):
         '''
