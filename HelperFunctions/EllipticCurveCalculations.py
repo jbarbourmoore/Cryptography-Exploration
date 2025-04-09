@@ -124,13 +124,22 @@ class EllipticCurveCalculations():
             return point_r
         else: 
             return None
-                
-elliptic_curve = EllipticCurveCalculations(0,7,17)
-point = (15,13)
-print(elliptic_curve.validatePointOnCurve(point=point))
-print(point)
+        
+    def printEllipticCurveEquation(self):
+        '''
+        This method outputs the values for this elliptic curve to the command line
+        '''
 
-sum = point
-for i in range(0,20):
-    sum = elliptic_curve.calculatePointAddition(point,sum)
-    print(sum)
+        print(f"The values for this elliptic curve are: a={self.a} b={self.b} finite field={self.finite_field}")
+        print(f"y**2 = x**3 + ax + b ==> y**2 = x**3 + {self.a}x + {self.b}")
+
+if __name__ == '__main__':
+    elliptic_curve = EllipticCurveCalculations(0,7,17)
+    point = (15,13)
+    print(elliptic_curve.validatePointOnCurve(point=point))
+    print(point)
+
+    sum = point
+    for i in range(0,20):
+        sum = elliptic_curve.calculatePointAddition(point,sum)
+        print(sum)
