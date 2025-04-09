@@ -62,3 +62,21 @@ def calculatePowerWithModulo(a_number, a_power, a_modulo):
     '''
 
     return (a_number**a_power) % a_modulo
+
+def calculateModuloInverse(number, modulo):
+    '''
+    This function calculates the modulo inverse of a number
+
+    Parameters : 
+        number : int
+            The number for which we are finding the modulo inverse
+        modulo : int
+            The value of the modulus
+
+    Returns : 
+        modulo_inverse : int
+            The modulo inverse of the number
+    '''
+    if number % modulo == 0:
+            return None
+    return calculatePowerWithModulo(number, modulo-2, modulo)
