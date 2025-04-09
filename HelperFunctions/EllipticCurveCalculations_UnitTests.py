@@ -54,6 +54,7 @@ class EncodeStringAsNumberList_UnitTests(unittest.TestCase):
         result = self.simple_elliptic_curve.calculatePointAddition(point_p=point,point_q=point)
         self.simple_elliptic_curve.printEllipticCurveEquation()
         print(f"{point} + {point} = {result}")
+        self.assertTrue(self.simple_elliptic_curve.validatePointOnCurve(point=result))
         self.assertEqual(result, expected_result)
 
     def test_adding_two_different_points(self):
@@ -68,7 +69,38 @@ class EncodeStringAsNumberList_UnitTests(unittest.TestCase):
         result = self.simple_elliptic_curve.calculatePointAddition(point_p=point_p,point_q=point_q)
         self.simple_elliptic_curve.printEllipticCurveEquation()
         print(f"{point_p} + {point_q} = {result}")
+        self.assertTrue(self.simple_elliptic_curve.validatePointOnCurve(point=result))
         self.assertEqual(result, expected_result)
+
+    def test_calculating_point_inverse(self):
+        '''
+        This method tests finding the inverse of a point
+        '''
+
+        point = (15, 13)
+        expected_result = (15, 4)
+        self.assertTrue(self.simple_elliptic_curve.validatePointOnCurve(point=point))
+        result = self.simple_elliptic_curve.calculatePointInverse(point=point)
+        self.simple_elliptic_curve.printEllipticCurveEquation()
+        print(f"The inverse of {point} is {result}")
+        self.assertTrue(self.simple_elliptic_curve.validatePointOnCurve(point=result))
+        self.assertEqual(result, expected_result)
+
+    def test_adding_point_inverse(self):
+        '''
+        This method tests adding a point to its inverse point to get the origin point
+        '''
+
+        point = (15, 13)
+        inverse_point = (15, 4)
+        origin_point = (0, 0)
+        self.assertTrue(self.simple_elliptic_curve.validatePointOnCurve(point=point))
+        self.assertTrue(self.simple_elliptic_curve.validatePointOnCurve(point=inverse_point))
+        result = self.simple_elliptic_curve.calculatePointAddition(point_p=point,point_q=inverse_point)
+        self.simple_elliptic_curve.printEllipticCurveEquation()
+        print(f"Adding {point} to its inverse {inverse_point} is {result}")
+        self.assertTrue(self.simple_elliptic_curve.validatePointOnCurve(point=result))
+        self.assertEqual(result, origin_point)
 
 if __name__ == '__main__':
     unittest.main()
