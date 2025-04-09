@@ -89,7 +89,7 @@ class PrimeNumber_UnitTests(unittest.TestCase):
         '''
         This method tests calculating power with modulo
         '''
-        
+
         number = 2
         power = 2
         modulo = 8
@@ -146,6 +146,40 @@ class PrimeNumber_UnitTests(unittest.TestCase):
         print(f"The modulo {modulo} inverse of {number} is {result}")
 
         self.assertEqual(result,expected_result)
+
+    def test_calculatePrimeFactors_classical_120(self):
+
+        number = 120
+        expected_factors = [2, 2, 2, 3, 5]
+
+        prime_factors = calculatePrimeFactors_classical(number=number)
+
+        print(f"The prime factors of {number} are {prime_factors}")
+
+        self.assertListEqual(prime_factors, expected_factors)
+
+    def test_calculatePrimeFactors_classical_97(self):
+
+        number = 97
+        expected_factors = [97]
+
+        prime_factors = calculatePrimeFactors_classical(number=number)
+
+        print(f"The prime factors of {number} are {prime_factors}")
+
+        self.assertListEqual(prime_factors, expected_factors)
+
+    
+    def test_calculatePrimeFactors_classical_5365(self):
+
+        number = 5365
+        expected_factors = [5, 29, 37]
+
+        prime_factors = calculatePrimeFactors_classical(number=number)
+
+        print(f"The prime factors of {number} are {prime_factors}")
+
+        self.assertListEqual(prime_factors, expected_factors)
 
 if __name__ == '__main__':
     unittest.main()

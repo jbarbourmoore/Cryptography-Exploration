@@ -4,6 +4,7 @@ from qiskit import QuantumCircuit, QuantumRegister, ClassicalRegister, transpile
 from qiskit.circuit.library import UnitaryGate
 from qiskit.circuit.library import QFT
 from qiskit_aer import AerSimulator
+import math
 import numpy as np
 from math import gcd, floor, log
 from fractions import Fraction
@@ -39,13 +40,16 @@ class badActor_RSA():
             self.own_rsa_keys = own_rsa_keys
         print(f"The attacker has their own rsa keys with a public key {self.own_rsa_keys.getPublicKey()}")
         target_n_factors = findTwoPrimeFactors_QuantumShorsAlgorithm_Qiskit(self.target_rsa_n)
+        # from HelperFunctions import PrimeNumbers
+        # target_n_factors = PrimeNumbers.calculatePrimeFactors_classical(self.target_rsa_n)
+        self.target_prime_factors = target_n_factors
         target_n_factors.sort()
         print(f"Shor's Algorithm was used to find two factors of N from the target's public key: {target_n_factors}")
 
         self.duplicate_target_crypto_scheme = RSACryptographyScheme(target_n_factors[0], target_n_factors[1], block_size=1)
         print(f"The bad actor now has access to the target's private key {self.duplicate_target_crypto_scheme.getPrivateKey()}")
         print("- - - - - - - - - - - -")
-
+    
     def decryptMessageForTarget(self, rsa_encrypted_message):
         '''
         This method decrypt's a message meant for the bad actor's target
