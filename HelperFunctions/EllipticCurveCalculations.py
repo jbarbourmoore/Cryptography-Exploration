@@ -125,6 +125,83 @@ class EllipticCurveCalculations():
         else: 
             return None
         
+    def calculatedPointMultiplicationByConstant_continualAddition(self, point, constant):
+        '''
+        This method calculates the multiplication of a point on the elliptic curve by a constant
+
+        It uses the continual addition of the same point method so it is not particularly efficient
+
+        Parameters : 
+            point : (int,int)
+                The point that is being multiplied by a constant
+            constant : int
+                The constant value that the point is being multiplied by
+
+        Returns : 
+            point_r : (int, int)
+                The resulting point of the multiplication
+        '''
+
+        # rapidly solve base cases
+        if constant == 0 or point==(0,0):
+            return (0,0)
+        elif constant == 1:
+            return point
+        
+        # add the point for the constant number of times
+        point_r = point
+        for _ in range(1, constant):
+            point_r = self.calculatePointAddition(point,point_r)
+
+        # the result of the multiplication must also be on the elliptic curve
+        assert self.validatePointOnCurve(point=point_r)
+
+        return point_r
+    
+    def calculatedPointMultiplicationByConstant_doubleAndAddMethod(self, point, constant):
+        '''
+        This method calculates the multiplication of a point on the elliptic curve by a constant
+
+        It uses the "Double and Add Method" so it should be more efficient than the constant addition (roughly O=log_2(constant) time)
+
+        Parameters : 
+            point : (int,int)
+                The point that is being multiplied by a constant
+            constant : int
+                The constant value that the point is being multiplied by
+
+        Returns : 
+            point_r : (int, int)
+                The resulting point of the multiplication
+        '''
+     
+        # get rapidly solve base cases
+        if constant == 0 or point==(0,0):
+            return (0,0)
+        elif constant == 1:
+            return point
+
+        point_r = point
+        
+        # a string of the constant as binary 0s and 1s
+        binary_of_constant = bin(constant) 
+        binary_of_constant = binary_of_constant[2:len(binary_of_constant)] 
+        
+        # going from most significant bit to least significant bit
+        # always doubling the current result point
+        # and then adding the initial point if the bit is 1, not 0
+        for i in range(1, len(binary_of_constant)):
+            bit = binary_of_constant[i: i+1]
+            point_r = self.calculatePointAddition(point_r, point_r)
+            
+            if bit == '1':
+                point_r = self.calculatePointAddition(point_r, point)
+        
+        # the rest of the multiplication must also be on the elliptic curve
+        assert self.validatePointOnCurve(point=point_r)
+
+        return point_r
+        
     def printEllipticCurveEquation(self):
         '''
         This method outputs the values for this elliptic curve to the command line
@@ -143,3 +220,7 @@ if __name__ == '__main__':
     for i in range(0,20):
         sum = elliptic_curve.calculatePointAddition(point,sum)
         print(sum)
+
+    print(elliptic_curve.calculatedPointMultiplicationByConstant_continualAddition(point,7))
+    print(elliptic_curve.calculatedPointMultiplicationByConstant_doubleAndAddMethod(point,7))
+    
