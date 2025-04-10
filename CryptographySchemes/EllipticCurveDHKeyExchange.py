@@ -123,7 +123,7 @@ class EllipticCurveDHKeyExchange():
 
 
 if __name__ == '__main__':
-    elliptic_curve_dh_key_exchange = EllipticCurveDHKeyExchange([EllipticCurveDetails.getCurveP192,EllipticCurveDetails.getSecp256r1],is_debug=True)
+    elliptic_curve_dh_key_exchange = EllipticCurveDHKeyExchange([EllipticCurveDetails.getCurveP192,EllipticCurveDetails.getSecp256r1,EllipticCurveDetails.getCurveP521],is_debug=True)
 
     first_elliptic_curve_dh_key_pair = EllipticCurveDHKeyPair(elliptic_curve_dh_key_exchange, is_debug=True)
     second_elliptic_curve_dh_key_pair = EllipticCurveDHKeyPair(elliptic_curve_dh_key_exchange, is_debug=True)

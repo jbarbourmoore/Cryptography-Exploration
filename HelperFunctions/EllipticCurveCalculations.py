@@ -1,4 +1,5 @@
-from HelperFunctions.PrimeNumbers import calculateModuloInverse, calculateModuloSquareRoot_ShanksTonelli
+from HelperFunctions.PrimeNumbers import calculateModuloInverse, calculateModuloSquareRoot_ShanksTonelli, tonelli_shanks,prime_mod_sqrt
+from decimal import Decimal
 
 class EllipticCurveCalculations():
     '''
@@ -9,7 +10,7 @@ class EllipticCurveCalculations():
 
     origin_point = (0,0)
 
-    def __init__(self, a, b, finite_field):
+    def __init__(self, a, b, finite_field, is_debug = False):
         '''
         This function defines the elliptic curve that is being used for the calculation in the form y**2 = x**3 + a * x + b
         as well as the size of the finite field
@@ -27,6 +28,7 @@ class EllipticCurveCalculations():
         self.a = a
         self.b = b
         self.finite_field = finite_field
+        self.is_debug = is_debug
     
     def validatePointOnCurve(self, point):
         '''
@@ -233,10 +235,17 @@ class EllipticCurveCalculations():
 
         x=int(compressed_point[:len(compressed_point)-1],16)
         y_bit = compressed_point[len(compressed_point)-1:]
-
-        y_squared = (pow(x, 3, self.finite_field) + self.a*x + self.b) % self.finite_field
-        y = pow(y_squared, (self.finite_field + 1) // 4, self.finite_field)
-
+        y_squared = (pow(x, 3) + self.a*x + self.b) % self.finite_field
+        if self.is_debug:
+            print(f"x:{x} a={self.a} b={self.b} x**3={pow(x,3)} y**2 = {pow(x, 3) + self.a*x + self.b}")
+        power = (self.finite_field+1)/4
+        if type(power ) == int :
+            y = pow(y_squared, power, self.finite_field )
+        else:
+            try:
+                y = int(y_squared**power % self.finite_field)
+            except:
+                y = pow(y_squared, (self.finite_field+1)//4, self.finite_field )
         if y % 2 != int(y_bit):
             y = self.finite_field - y
         
