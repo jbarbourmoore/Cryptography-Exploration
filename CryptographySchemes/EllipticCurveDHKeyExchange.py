@@ -10,7 +10,7 @@ class EllipticCurveDHKeyPair():
 
     def __init__(self, elliptic_curve_dh_key_exchange_data=None, is_debug = False):
         '''
-        This method initializes a single user in the diffie hellman key exchange
+        This method initializes a single user in the elliptic curve diffie hellman key exchange
 
         Parameters :
             elliptic_curve_dh_key_exchange_data : EllipticCurveDHKeyExchange
@@ -36,8 +36,8 @@ class EllipticCurveDHKeyPair():
         while not_added_public_key:
             self.generatePrivateKey()
             self.calculatePublicKey()
-            if self.public_key not in self.elliptic_curve_dh_key_exchange_data.public_key_list:
-                self.elliptic_curve_dh_key_exchange_data.addPublicKey(self.public_key)
+            if self.getCompressedPublicKey() not in self.elliptic_curve_dh_key_exchange_data.public_key_list:
+                self.elliptic_curve_dh_key_exchange_data.addPublicKey(self.getCompressedPublicKey())
                 not_added_public_key = False
                 if self.is_debug:
                     print(f"A diffie hellman key pair for {self.elliptic_curve_dh_key_exchange_data.curve_details.name} with a public key of {self.public_key} has been created")
@@ -58,8 +58,7 @@ class EllipticCurveDHKeyPair():
                 The compressed public key as a hexadecimal
         '''
 
-        x, y = self.public_key
-        return hex(x) + hex(y % 2)[2:]
+        return self.elliptic_curve_dh_key_exchange_data.curve.compressPointOnEllipticCurve(self.public_key)
 
     def generatePrivateKey(self):
         '''
@@ -74,10 +73,12 @@ class EllipticCurveDHKeyPair():
         '''
 
         for key in self.elliptic_curve_dh_key_exchange_data.public_key_list:
-            if key != self.public_key:
+            if key != self.getCompressedPublicKey():
                 other_public_key = key
         
-        self.shared_secret = self.elliptic_curve_dh_key_exchange_data.curve.calculatedPointMultiplicationByConstant_doubleAndAddMethod(other_public_key,self.private_key)
+        decompressed_key = self.elliptic_curve_dh_key_exchange_data.curve.decompressPointOnEllipticCurve(other_public_key)
+
+        self.shared_secret = self.elliptic_curve_dh_key_exchange_data.curve.calculatedPointMultiplicationByConstant_doubleAndAddMethod(decompressed_key,self.private_key)
         
         if self.is_debug:
             print(f"A elliptic curve diffie hellman key pair for {self.elliptic_curve_dh_key_exchange_data.curve_details.name} with a public key of {self.public_key} has calculated the shared secret of {self.shared_secret}")

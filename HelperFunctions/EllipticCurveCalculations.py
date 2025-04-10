@@ -1,4 +1,4 @@
-from HelperFunctions.PrimeNumbers import calculateModuloInverse, calculateModuloSquareRoot
+from HelperFunctions.PrimeNumbers import calculateModuloInverse, calculateModuloSquareRoot_ShanksTonelli
 
 class EllipticCurveCalculations():
     '''
@@ -233,18 +233,14 @@ class EllipticCurveCalculations():
 
         x=int(compressed_point[:len(compressed_point)-1],16)
         y_bit = compressed_point[len(compressed_point)-1:]
-        y_1 = calculateModuloSquareRoot(x**3 + self.a * x +self.b, self.finite_field)
-        y_2 = self.finite_field - y_1
-        if y_1%2 == 1:
-            if y_bit == '1':
-                return (x, y_1)
-            else:
-                return(x,y_2)
-        else: 
-            if y_bit == '0':
-                return (x, y_1)
-            else:
-                return(x,y_2)
+
+        y_squared = (pow(x, 3, self.finite_field) + self.a*x + self.b) % self.finite_field
+        y = pow(y_squared, (self.finite_field + 1) // 4, self.finite_field)
+
+        if y % 2 != int(y_bit):
+            y = self.finite_field - y
+        
+        return (x,y)
                     
     def printEllipticCurveEquation(self):
         '''

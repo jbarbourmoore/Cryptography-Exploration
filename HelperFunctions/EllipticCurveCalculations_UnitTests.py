@@ -147,6 +147,30 @@ class EllipticCurveCalculations_UnitTests(unittest.TestCase):
         self.assertTrue(self.simple_elliptic_curve.validatePointOnCurve(point=result))
         self.assertEqual(result, origin_point)
 
+    def test_compressingAPoint(self):
+        '''
+        This method tests compressing a point
+        '''
+
+        point = (15, 13)
+        expected_compressed_point = "0xf1"
+        self.assertTrue(self.simple_elliptic_curve.validatePointOnCurve(point=point))
+        result = self.simple_elliptic_curve.compressPointOnEllipticCurve(point)
+        print(f"The compressed form of {point} is {result}")
+        self.assertEqual(result,expected_compressed_point)
+
+    def test_decompressingAPoint(self):
+        '''
+        This method tests decompressing a point
+        '''
+
+        compressed_point = "0xf1"
+        expected_point = (15, 13)
+        result = self.simple_elliptic_curve.decompressPointOnEllipticCurve(compressed_point)
+        print(f"The decompressed point for {compressed_point} is {result}")
+        self.assertTrue(self.simple_elliptic_curve.validatePointOnCurve(result))
+        self.assertEqual(result, expected_point)
+
     def test_origin_on_secp192r1(self):
         '''
         This method tests that the origin is on the curve for secp192r1
@@ -320,6 +344,30 @@ class EllipticCurveCalculations_UnitTests(unittest.TestCase):
         print(f"Adding {point} to its inverse {inverse_point} is {result}")
         self.assertTrue(self.secp192r1.validatePointOnCurve(point=result))
         self.assertEqual(result, origin_point)
+
+    def test_compressingAPoint_secp192r1(self):
+        '''
+        This method tests compressing a point on secp192r1
+        '''
+
+        point = (602046282375688656758213480587526111916698976636884684818, 174050332293622031404857552280219410364023488927386650641)
+        expected_compressed_point = "0x188da80eb03090f67cbf20eb43a18800f4ff0afd82ff10121"
+        self.assertTrue(self.secp192r1.validatePointOnCurve(point=point))
+        result = self.secp192r1.compressPointOnEllipticCurve(point)
+        print(f"The compressed form of {point} is {result}")
+        self.assertEqual(result,expected_compressed_point)
+
+    def test_decompressingAPoint_secp192r1(self):
+        '''
+        This method tests decompressing a point on secp192r1
+        '''
+
+        compressed_point = "0x188da80eb03090f67cbf20eb43a18800f4ff0afd82ff10121"
+        expected_point = (602046282375688656758213480587526111916698976636884684818, 174050332293622031404857552280219410364023488927386650641)
+        result = self.secp192r1.decompressPointOnEllipticCurve(compressed_point)
+        print(f"The decompressed point for {compressed_point} is {result}")
+        self.assertTrue(self.secp192r1.validatePointOnCurve(result))
+        self.assertEqual(result, expected_point)
 
 if __name__ == '__main__':
     unittest.main()

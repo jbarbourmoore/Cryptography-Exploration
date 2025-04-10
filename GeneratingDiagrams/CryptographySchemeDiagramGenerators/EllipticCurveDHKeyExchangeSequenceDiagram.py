@@ -43,11 +43,11 @@ def constructECDHKeyExchangeSequence(elliptic_curve_dh_key_exchange:EllipticCurv
 
     # now the participants can use the other's public key along with their pre existing knowledge to calculate the shared value
     ecdhkeyexchange_sequence.addDivider("Calculating Shared Secret")
-    ecdhkeyexchange_sequence.addALabeledRetrieval(1,0,f"Receiver's public key is {receiver_ecdhkeypair.public_key}","Retrieving Receiver's Public Key")
+    ecdhkeyexchange_sequence.addALabeledRetrieval(1,0,f"Receiver's compressed public key is {receiver_ecdhkeypair.getCompressedPublicKey()}","Retrieving Receiver's Compressed Public Key")
     ecdhkeyexchange_sequence.activateParticipant(0)
     ecdhkeyexchange_sequence.sendSelfMessage_particpantNumber(0,f"Shared secret is {originator_ecdhkeypair.shared_secret}","Calculating Shared Secret Using Originator's Private\\nKey And Receiver's Public Key")
     ecdhkeyexchange_sequence.deactivateParticipant(0)
-    ecdhkeyexchange_sequence.addALabeledRetrieval(0,1,f"Originator's public key is {originator_ecdhkeypair.public_key}","Retrieving Originator's Public Key")
+    ecdhkeyexchange_sequence.addALabeledRetrieval(0,1,f"Originator's compressed public key is {originator_ecdhkeypair.getCompressedPublicKey()}","Retrieving Originator's Compressed Public Key")
     ecdhkeyexchange_sequence.activateParticipant(1)
     ecdhkeyexchange_sequence.sendSelfMessage_particpantNumber(1,f"Shared secret is {receiver_ecdhkeypair.shared_secret}","Calculating Shared Secret Using Receiver's Private\\nKey And Originator's Public Key")
     ecdhkeyexchange_sequence.deactivateParticipant(1)
