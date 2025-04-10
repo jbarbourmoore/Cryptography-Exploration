@@ -379,25 +379,26 @@ class DataEncryptionStandard():
             decrypted_list.append(self.decryptSingleBlock(encrypted_binary))
         decrypted_message = self.binaryListToString(decrypted_list)
         return decrypted_message
+if __name__ == '__main__':
 
-key = "key"
-des = DataEncryptionStandard(key)
-message ="I want to encrypt this message hopefully!"
-binary_message_list = des.stringToBinaryList(message)
-print(des.binaryListToString(binary_message_list))
+    key = "key"
+    des = DataEncryptionStandard(key)
+    message ="I want to encrypt this message hopefully!"
+    binary_message_list = des.stringToBinaryList(message)
+    print(des.binaryListToString(binary_message_list))
 
-encrypted = des.encryptSingleBlock(binary_message_list[0])
-decrypted = des.decryptSingleBlock(encrypted)
-print(f"First block encrypted: {des.binaryToString(encrypted)}    --->   decrypted: {des.binaryToString(decrypted)}")
+    encrypted = des.encryptSingleBlock(binary_message_list[0])
+    decrypted = des.decryptSingleBlock(encrypted)
+    print(f"First block encrypted: {des.binaryToString(encrypted)}    --->   decrypted: {des.binaryToString(decrypted)}")
 
-entire_encrypted_message = des.encryptMessage(message=message)
-entire_encrypted_message_string = des.binaryListToString(entire_encrypted_message)
-print(entire_encrypted_message_string)
-decrypted_message = des.decryptMessage(entire_encrypted_message)
-print(decrypted_message)
-print(f"{message} : {decrypted_message}")
-assert message == decrypted_message
-other_des = DataEncryptionStandard("wrong")
-decrypted_message_wrong_key = other_des.decryptMessage(entire_encrypted_message)
-print(decrypted_message_wrong_key)
-assert message != decrypted_message_wrong_key
+    entire_encrypted_message = des.encryptMessage(message=message)
+    entire_encrypted_message_string = des.binaryListToString(entire_encrypted_message)
+    print(entire_encrypted_message_string)
+    decrypted_message = des.decryptMessage(entire_encrypted_message)
+    print(decrypted_message)
+    print(f"{message} : {decrypted_message}")
+    assert message == decrypted_message
+    other_des = DataEncryptionStandard("wrong")
+    decrypted_message_wrong_key = other_des.decryptMessage(entire_encrypted_message)
+    print(decrypted_message_wrong_key)
+    assert message != decrypted_message_wrong_key
