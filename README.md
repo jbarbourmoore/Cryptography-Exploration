@@ -23,6 +23,16 @@ I implemented a version of the Diffie Helman key exchange. The Diffie Hellman ke
     alt="This is a sequence diagram for a diffie hellman key exchange">
 </img>
 
+### Elliptic Curve Diffie Hellman Key Exchange    
+
+I implemented a form of the Elliptic Curve Diffie Hellman Key Exchange based on Weirstrass Form elliptic curves. Weirstrass Form elliptic curves take the form y**2 = x**3 + ax + b and multiple have been laid out as appropropriate for use in cryptography. For example I have included the parameters for Curve P-194 from page 90 of [NIST FIPS 186-4]("https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.186-4.pdf") and getSecp256r1 from page 9 of ["SEC 2: Recommended Elliptic Curve Domain Parameters"]("https://www.secg.org/sec2-v2.pdf"). Most of the implementations for the actual calculations are not in the EllipticCurveDHKeyExchange class, but rather under Helper Functions in the EllipticCurveCalculations class as there are other cryptography schemes that rely on elliptic curve cryptography which I hope to implement going forward. In this form of the elliptic curve diffie hellman key exchange, the public keys are exchanged in a compressed hexadecimal form before being decompressed in order to calculate the shared secret.   
+
+<img 
+    style="display: block; margin-left: auto; margin-right: auto; width: 100%; max-height:100%"
+    src="https://github.com/jbarbourmoore/Cryptography-Exploration/blob/56c29b0f81b7e892a86127e93d93269bb62d746d/GeneratingDiagrams/Diagrams/EllipticCurveDHKeyExchangeSequence.png" 
+    alt="This is a sequence diagram for a diffie hellman key exchange">
+</img>   
+
 ### Caesar Cypher  
 
 I implemented a version of the caesar cypher in Python. The caesar cypher is a very simple example of a cypher which relies on shifting every character in a message the same number of places in the alphabet. For example if you were to encrypt "def" with a multiplcation value of four the result would be "hij". The idea is that, without the knowing the shift value, it is harder to find the original message. However, since the cypher is limited by the number of letters in the alphabet, it is trivial to brute force.
