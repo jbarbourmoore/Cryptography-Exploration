@@ -191,6 +191,19 @@ class AES():
                 self.printValueAsHex(matrix[r][c])
             print()
 
+    def printWordAsHex(self,word):
+        '''
+        This method print out a wor as a formatted hex
+
+        Parameters : 
+            matrix
+                The word to be printed to the console
+        '''
+
+        for c in range(0, 4):
+            self.printValueAsHex(word[c])
+        print()
+
     def keyExpansion():
         '''
         This is the key expansion method which should be implemented by the subclasses
@@ -263,11 +276,31 @@ class AES256(AES):
 
 aes_256 = AES256("key")
 print(aes_256.key)
-print(aes_256.substitution_matrix)
-print(aes_256.xTimes(0x57,0x03))
+print("- - - - - - - - - - - -")
+print("Mix Columns Example Matrix:")
 example_matrix = [[0xf2,0x01,0xc6,0xdb], [0x0a,0x01,0xc6,0x13],[0x22,0x01,0xc6,0x53], [0x5c,0x01,0xc6,0x45]]
+aes_256.print4x4MatrixAsHex(example_matrix)
 aes_256.mixColumns(example_matrix)
+print("Mixed Columns")
 aes_256.print4x4MatrixAsHex(example_matrix)
+print("- - - - - - - - - - - -")
+print("Substitute Example Matrix:")
 example_matrix = [[0x53,0x01,0xc6,0xdb], [0x0a,0x01,0xc6,0x13],[0x22,0x01,0xc6,0x53], [0x5c,0x01,0xc6,0x45]]
-aes_256.substituteBytes(example_matrix)
 aes_256.print4x4MatrixAsHex(example_matrix)
+aes_256.substituteBytes(example_matrix)
+print("Substituted:")
+aes_256.print4x4MatrixAsHex(example_matrix)
+print("- - - - - - - - - - - -")
+print("Substitute Example Word: ")
+example_word = [0x53, 0xf2, 0x12, 0x32]
+aes_256.printWordAsHex(example_word)
+aes_256.substituteWord(example_word)
+print("Substituted:")
+aes_256.printWordAsHex(example_word)
+print("- - - - - - - - - - - -")
+print("Rotate Example Word: ")
+example_word = [0x53, 0xf2, 0x12, 0x32]
+aes_256.printWordAsHex(example_word)
+aes_256.rotateWord(example_word)
+print("Rotated:")
+aes_256.printWordAsHex(example_word)
