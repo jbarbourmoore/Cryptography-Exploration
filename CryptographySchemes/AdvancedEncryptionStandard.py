@@ -142,7 +142,7 @@ class AES():
         shifted_rows[0][0], shifted_rows[0][1], shifted_rows[0][2], shifted_rows[0][3] = s[0][0], s[0][1], s[0][2], s[0][3]
         shifted_rows[1][0], shifted_rows[1][1], shifted_rows[1][2], shifted_rows[1][3] = s[1][1], s[1][2], s[1][3], s[1][0]
         shifted_rows[2][0], shifted_rows[2][1], shifted_rows[2][2], shifted_rows[2][3] = s[2][2], s[2][3], s[2][0], s[2][1]
-        shifted_rows[3][0], shifted_rows[3][1], shifted_rows[3][1], shifted_rows[3][3] = s[3][3], s[3][0], s[3][1], s[3][2]
+        shifted_rows[3][0], shifted_rows[3][1], shifted_rows[3][2], shifted_rows[3][3] = s[3][3], s[3][0], s[3][1], s[3][2]
         return shifted_rows
     
     def inverseShiftRows(self, s):
@@ -162,7 +162,7 @@ class AES():
         shifted_rows[0][0], shifted_rows[0][1], shifted_rows[0][2], shifted_rows[0][3] = s[0][0], s[0][1], s[0][2], s[0][3]
         shifted_rows[1][0], shifted_rows[1][1], shifted_rows[1][2], shifted_rows[1][3] = s[1][3], s[1][0], s[1][1], s[1][2]
         shifted_rows[2][0], shifted_rows[2][1], shifted_rows[2][2], shifted_rows[2][3] = s[2][2], s[2][3], s[2][0], s[2][1]
-        shifted_rows[3][0], shifted_rows[3][1], shifted_rows[3][1], shifted_rows[3][3] = s[3][1], s[3][2], s[3][3], s[3][0]
+        shifted_rows[3][0], shifted_rows[3][1], shifted_rows[3][2], shifted_rows[3][3] = s[3][1], s[3][2], s[3][3], s[3][0]
         return shifted_rows
 
     def mixColumns(self, s):
@@ -198,10 +198,10 @@ class AES():
         mixed_columns = [[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]]
         for r in range(0,4):
             for c in range(0,4):
-                first_mult = self.xTimes(s[0][c],self.mix_columns_matrix[r][0])
-                second_mult = self.xTimes(s[1][c],self.mix_columns_matrix[r][1])
-                third_mult = self.xTimes(s[2][c],self.mix_columns_matrix[r][2])
-                fourth_mult = self.xTimes(s[3][c],self.mix_columns_matrix[r][3])
+                first_mult = self.xTimes(s[0][c],self.inverse_mix_columns_matrix[r][0])
+                second_mult = self.xTimes(s[1][c],self.inverse_mix_columns_matrix[r][1])
+                third_mult = self.xTimes(s[2][c],self.inverse_mix_columns_matrix[r][2])
+                fourth_mult = self.xTimes(s[3][c],self.inverse_mix_columns_matrix[r][3])
                 mixed_columns[r][c] = first_mult ^ second_mult ^ third_mult ^ fourth_mult
         return mixed_columns
 
@@ -275,13 +275,36 @@ class AES():
             matrix.append(new_word)
         return matrix
     
-    def addRoundKey(self, s, key):
+    def addRoundKey(self, s, key, is_debug=False):
+        key = self.flipMatrix(key)
+        s = self.flipMatrix(s)
+        if is_debug:
+            print("Round Key :")
+            self.printMatrixAsHex(key)
+            print("- - - - - - - - - - - -")
         round_key_state = [[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]]
-        for r in range(0, 4):
-            for c in range(0, 4):
-                round_key_state[r][c] = s[r][c] ^ key[r][c]
-        return round_key_state
-
+        for c in range(0, 4):
+            word_to_xor = [s[0][c],s[1][c],s[2][c],s[3][c]]
+            if is_debug:
+                print("Column as word :")
+                self.printWordAsHex(word_to_xor)
+                print("Key as word :")
+                self.printWordAsHex(key[c])
+            xor_result_word = self.xorWords(word_to_xor,key[c])
+            if is_debug:
+                print("Xor result :")
+                self.printWordAsHex(xor_result_word)
+                print("- - - - - - - - - - - -")
+            for r in range(0,4):
+                round_key_state[r][c] = xor_result_word[r]
+        return self.flipMatrix(round_key_state)
+    
+    def flipMatrix(self,matrix):
+        flipped = [[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]]
+        for c in range(0,4):
+            for r in range(0,4):
+                flipped[c][r] = matrix[r][c]
+        return flipped
     
     def xorWords(self, word_1,word_2):
         '''
@@ -342,6 +365,20 @@ class AES():
             for c in range(0, len(matrix[r])):
                 self.printValueAsHex(matrix[r][c])
             print()
+    def printMatrixAsHexString(self,matrix, number_rows = False):
+        '''
+        This method print out a 4x4 matrix as a formatted hex
+
+        Parameters : 
+            matrix
+                The 4x4 matrix to be printed to the console
+        '''
+
+        for r in range(0,len(matrix)):
+            for c in range(0, len(matrix[r])):
+                print('{:02x}'.format(matrix[c][r]).upper(), end='')
+            print("",end=" ")
+        print()
 
     def printWordAsHex(self,word):
         '''
@@ -394,7 +431,7 @@ class AES():
             expanded_key.append(new_word)
         self.expanded_key = expanded_key
 
-    def cypher(self, input):
+    def cypher(self, input, is_debug = False):
         '''
         This method applies the aes cypher to a 128 block as laid out in NIST FIPS 197 section 5.1 "Cipher()"
 
@@ -408,15 +445,113 @@ class AES():
         '''
 
         state = self.hexStringToMatrix(input)
+        state = self.flipMatrix(state)
+
+        if is_debug:
+            print("Input:")
+            self.printMatrixAsHexString(state)
+            print("- - - - - - - - - - - -")
         state = self.addRoundKey(state, self.expanded_key[0:4])
+        if is_debug:
+            print("State With Round Key:")
+            self.printMatrixAsHexString(state)
+            print("- - - - - - - - - - - -")
         for i in range(1,self.number_of_rounds):
+            if is_debug:
+                print(f"Start Of Round:{i}")
+                self.printMatrixAsHexString(state)
+                print("- - - - - - - - - - - -")
             state = self.substituteBytes(state)
+            if is_debug:
+                print("Substituted Bytes:")
+                self.printMatrixAsHexString(state)
+                print("- - - - - - - - - - - -")
             state = self.shiftRows(state)
+            if is_debug:
+                print("Shifted Rows:")
+                self.printMatrixAsHexString(state)
+                print("- - - - - - - - - - - -")
             state = self.mixColumns(state)
+            if is_debug:
+                print("Mixed Columns:")
+                self.printMatrixAsHexString(state)
+                print("- - - - - - - - - - - -")
             state = self.addRoundKey(state, self.expanded_key[4*i:4*(i+1)])
+            # if is_debug:
+            #     print("Added Round Key:")
+            #     self.printMatrixAsHex(state)
+            #     print("- - - - - - - - - - - -")
+        if is_debug:
+                print("Start Of Round:")
+                self.printMatrixAsHexString(state)
+                print("- - - - - - - - - - - -")
         state = self.substituteBytes(state)
         state = self.shiftRows(state)
-        state = self.mixColumns(state)
+        state = self.addRoundKey(state, self.expanded_key[4*self.number_of_rounds:4*(self.number_of_rounds+1)])
+        return(state)
+    
+    def inverseCypher(self, input, is_debug=False):
+        '''
+        This method applies the aes inverseCypher to a 128 block as laid out in NIST FIPS 197 section 5.3 "InvCipher()"
+
+        Parameters :
+            input : [[int]]
+                The encyphered hex as a 4x4 matrix
+
+        Returns :
+            state : [[int]]
+                The decyphered hex as a 4x4 matrix
+        '''
+
+        state = self.hexStringToMatrix(input)
+        state = self.flipMatrix(state)
+        if is_debug:
+            print("Input:")
+            self.printMatrixAsHexString(state)
+            print("- - - - - - - - - - - -")
+        
+        state = self.addRoundKey(state, self.expanded_key[4*self.number_of_rounds:4*(self.number_of_rounds+1)])
+        if is_debug:
+            print("State With Round Key:")
+            self.printMatrixAsHexString(state)
+            print("- - - - - - - - - - - -")
+        state = self.inverseSubstituteBytes(state)
+        if is_debug:
+                print("Substituted Bytes:")
+                self.printMatrixAsHexString(state)
+                print("- - - - - - - - - - - -")
+        state = self.inverseShiftRows(state)
+        if is_debug:
+                print("Shifted Rows:")
+                self.printMatrixAsHexString(state)
+                print("- - - - - - - - - - - -")
+        
+        for i in range(self.number_of_rounds-1,0,-1):
+            if is_debug:
+                print(f"Start Of Round: {i}")
+                self.printMatrixAsHexString(state)
+                print("- - - - - - - - - - - -")
+            state = self.addRoundKey(state, self.expanded_key[4*i:4*(i+1)])
+            if is_debug:
+                print("Added Round Key:")
+                self.printMatrixAsHexString(state)
+                print("- - - - - - - - - - - -")
+            state = self.inverseMixColumns(state)
+            if is_debug:
+                print("Mixed Columns:")
+                self.printMatrixAsHexString(state)
+                print("- - - - - - - - - - - -")
+            state = self.inverseSubstituteBytes(state)
+            if is_debug:
+                print("Substituted Bytes:")
+                self.printMatrixAsHexString(state)
+                print("- - - - - - - - - - - -")
+            state = self.inverseShiftRows(state)
+            if is_debug:
+                print("Shifted Rows:")
+                self.printMatrixAsHexString(state)
+                print("- - - - - - - - - - - -")
+        state = self.addRoundKey(state,self.expanded_key[0:4])
         return(state)
 
 class AES128(AES):
@@ -495,23 +630,23 @@ print("- - - - - - - - - - - -")
 print("Substitute Example Matrix:")
 example_matrix = [[0x53,0x01,0xc6,0xdb], [0x0a,0x01,0xc6,0x13],[0x22,0x01,0xc6,0x53], [0x5c,0x01,0xc6,0x45]]
 aes_256.printMatrixAsHex(example_matrix)
-aes_256.substituteBytes(example_matrix)
+substitution_matrix = aes_256.substituteBytes(example_matrix)
 print("Substituted:")
-aes_256.printMatrixAsHex(example_matrix)
+aes_256.printMatrixAsHex(substitution_matrix)
 print("- - - - - - - - - - - -")
 print("Substitute Example Word: ")
 example_word = [0x53, 0xf2, 0x12, 0x32]
 aes_256.printWordAsHex(example_word)
-aes_256.substituteWord(example_word)
+substituted = aes_256.substituteWord(example_word)
 print("Substituted:")
-aes_256.printWordAsHex(example_word)
+aes_256.printWordAsHex(substituted)
 print("- - - - - - - - - - - -")
 print("Rotate Example Word: ")
 example_word = [0x53, 0xf2, 0x12, 0x32]
 aes_256.printWordAsHex(example_word)
-aes_256.rotateWord(example_word)
+rotated = aes_256.rotateWord(example_word)
 print("Rotated:")
-aes_256.printWordAsHex(example_word)
+aes_256.printWordAsHex(rotated)
 print("- - - - - - - - - - - -")
 print("Key Expansion for AES 128")
 aes_128 = AES128("2b7e151628aed2a6abf7158809cf4f3c")
@@ -521,16 +656,12 @@ print("Key Expansion for AES 192")
 example_aes_192_key = "8e 73 b0 f7 da 0e 64 52 c8 10 f3 2b 80 90 79 e5 62 f8 ea d2 52 2c 6b 7b"
 example_aes_192_key = example_aes_192_key.replace(" ","")
 aes_192 = AES192(example_aes_192_key)
-print(example_aes_192_key)
 aes_192.printMatrixAsHex(aes_192.expanded_key,True)
 print("- - - - - - - - - - - -")
 print("Key Expansion for AES 256")
 aes_256.printMatrixAsHex(aes_256.expanded_key,True)
 hextoencrypt = "2b7e151628aed2a6abf7158809cf4f3c"
-print("- - - - - - - - - - - -")
-print(f"Encrypting With AES 256 : {hextoencrypt}")
-encrypted = aes_128.cypher(hextoencrypt)
-aes_128.printMatrixAsHex(encrypted)
+
 print("- - - - - - - - - - - -")
 print(f"Working on xTimes :")
 print(f"{2}  : {hex(aes_128.xTimes(0x57,0x02))} should be 0xae")
@@ -541,3 +672,71 @@ print(f"{20} : {hex(aes_128.xTimes(0x57,0x20))}  should be  0xe")
 print(f"{40} : {hex(aes_128.xTimes(0x57,0x40))} should be 0x1c")
 print(f"{80} : {hex(aes_128.xTimes(0x57,0x80))} should be 0x38")
 print(f"{13} : {hex(aes_128.xTimes(0x57,0x13))} should be 0xfe")
+print("- - - - - - - - - - - -")
+print("Expanded Key for AES 128")
+aes_128.printMatrixAsHex(aes_128.expanded_key,True)
+print("- - - - - - - - - - - -")
+hextoencrypt ="3243f6a8885a308d313198a2e0370734"
+key = "2b7e151628aed2a6abf7158809cf4f3c"
+aes_128 = AES128(key=key)
+print(f"Encrypting With AES 128 : {hextoencrypt}")
+encrypted = aes_128.cypher(hextoencrypt)
+print("- - - - - - - - - - - -")
+aes_128.printMatrixAsHex(encrypted)
+print("- - - - - - - - - - - -")
+hextoencrypt = "6BC1BEE22E409F96E93D7E117393172"
+print(f"Encrypting With AES 128 : {hextoencrypt}")
+encrypted = aes_128.cypher(hextoencrypt)
+aes_128.printMatrixAsHex(encrypted)
+print("- - - - - - - - - - - -")
+cypher_text = "3AD77BB40D7A3660A89ECAF32466EF97"
+key = ("2B7E151628AED2A6ABF7158809CF4F3C")
+aes_128 = AES128(key)
+print(f"Decrypting With AES 128 : {cypher_text}")
+decrypted = aes_128.inverseCypher(cypher_text)
+aes_128.printMatrixAsHexString(decrypted)
+cypher_text = "F5D3D58503B9699DE785895A96FDBAAF"
+print(f"Decrypting With AES 128 : {cypher_text}")
+decrypted = aes_128.inverseCypher(cypher_text)
+aes_128.printMatrixAsHexString(decrypted)
+cypher_text = "43B1CD7F598ECE23881B00E3ED030688"
+print(f"Decrypting With AES 128 : {cypher_text}")
+decrypted = aes_128.inverseCypher(cypher_text)
+aes_128.printMatrixAsHexString(decrypted)
+cypher_text = "7B0C785E27E8AD3F8223207104725DD4"
+print(f"Decrypting With AES 128 : {cypher_text}")
+decrypted = aes_128.inverseCypher(cypher_text)
+aes_128.printMatrixAsHexString(decrypted)
+print("- - - - - - - - - - - -")
+hextoencrypt = "6BC1BEE22E409F96E93D7E117393172"
+print(f"Encrypting With AES 128 : {hextoencrypt}")
+encrypted = aes_128.cypher(hextoencrypt)
+aes_128.printMatrixAsHexString(encrypted)
+print("- - - - - - - - - - - -")
+hextoencrypt = "3243f6a8885a308d313198a2e0370734"
+print(f"Encrypting With AES 128 : {hextoencrypt}")
+encrypted = aes_128.cypher(hextoencrypt)
+aes_128.printMatrixAsHexString(encrypted)
+print("- - - - - - - - - - - -")
+cypher_text = "3925841D02DC09FBDC118597196A0B32"
+print(f"Decrypting With AES 128 : {cypher_text}")
+decrypted = aes_128.inverseCypher(cypher_text)
+aes_128.printMatrixAsHexString(decrypted)
+print("- - - - - - - - - - - -")
+hextoencrypt = "6BC1BEE22E409F96E93D7E117393172A"
+print(f"Encrypting With AES 128 : {hextoencrypt}")
+encrypted = aes_128.cypher(hextoencrypt)
+aes_128.printMatrixAsHexString(encrypted)
+hextoencrypt = "AE2D8A571E03AC9C9EB76FAC45AF8E51"
+print(f"Encrypting With AES 128 : {hextoencrypt}")
+encrypted = aes_128.cypher(hextoencrypt)
+aes_128.printMatrixAsHexString(encrypted)
+hextoencrypt = "30C81C46A35CE411E5FBC1191A0A52EF"
+print(f"Encrypting With AES 128 : {hextoencrypt}")
+encrypted = aes_128.cypher(hextoencrypt)
+aes_128.printMatrixAsHexString(encrypted)
+hextoencrypt = "F69F2445DF4F9B17AD2B417BE66C3710"
+print(f"Encrypting With AES 128 : {hextoencrypt}")
+encrypted = aes_128.cypher(hextoencrypt)
+aes_128.printMatrixAsHexString(encrypted)
+print("- - - - - - - - - - - -")
