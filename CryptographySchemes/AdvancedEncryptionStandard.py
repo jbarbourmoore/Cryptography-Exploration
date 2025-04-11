@@ -72,6 +72,8 @@ class AES():
         '''
         self.block_size = 128
         self.key = key
+        self.number_key_words = 0
+        self.number_of_rounds = 0
 
     def substituteBytes(self, s):
         '''
@@ -153,8 +155,9 @@ class AES():
             word : [int,int,int,int]
                 a four number word to be rotated
         '''
-
-        word[0],word[1],word[2],word[3] = word[1],word[2],word[3],word[0]
+        new_word = [0,0,0,0]
+        new_word[0],new_word[1],new_word[2],new_word[3] = word[1],word[2],word[3],word[0]
+        return new_word
 
     def substituteWord(self, word):
         '''
@@ -165,10 +168,61 @@ class AES():
             word : [int,int,int,int]
                 a four number word to be substituted
         '''
+        new_word = [0,0,0,0]
         for c in range(0, 4):
                 word_c_r = word[c] // 16
                 word_c_c = word[c] % 16
-                word[c] = self.substitution_matrix[word_c_r][word_c_c]
+                new_word[c] = self.substitution_matrix[word_c_r][word_c_c]
+        return new_word
+
+    def hexStringToMatrix(self, hex_string):
+        '''
+        This method transforms a hex sting into a matrix of words
+        '''
+        matrix=[]
+        for i in range(0, len(hex_string), 8):
+            new_word = []
+            for j in range(0,8,2):
+                new_word.append(int(hex_string[i+j:i+2+j],16))
+            matrix.append(new_word)
+        return matrix
+    
+    def xorWords(self, word_1,word_2):
+        '''
+        This method performs a xor on two words presented as a list
+        '''
+
+        value_1 = self.wordListToWordHex(word_1)
+        value_2 = self.wordListToWordHex(word_2)
+        xor_value = value_1 ^ value_2
+        result_word = self.valueToWordList(xor_value)
+        return result_word
+
+    def valueToWordList(self, value):
+        '''
+        This method transforms a value into a four byte list
+        '''
+        word_list = []
+        hex_string = str(hex(value))[2:]
+        if len(hex_string) < 8:
+            hex_string = '0'*(8-len(hex_string))+hex_string
+        elif len(hex_string) >8:
+            hex_string = hex_string[-8:]
+        for i in range(0,4):
+            word_list.append(int(hex_string[i*2:i*2+2],16))
+        return word_list
+
+    def wordListToWordHex(self, word):
+        '''
+        This method transforms a word list into a word hex
+        '''
+        word_string = ''
+        for value in word:
+            char_string=str(hex(value))[2:]
+            if len(char_string)<2:
+                char_string='0'+char_string
+            word_string+=char_string
+        return int(word_string,16)
 
     def printValueAsHex(self, hex_value):
         '''
@@ -177,7 +231,7 @@ class AES():
 
         print('{:02x}'.format(hex_value), end=', ')
     
-    def print4x4MatrixAsHex(self,matrix):
+    def printMatrixAsHex(self,matrix, number_rows = False):
         '''
         This method print out a 4x4 matrix as a formatted hex
 
@@ -186,8 +240,10 @@ class AES():
                 The 4x4 matrix to be printed to the console
         '''
 
-        for r in range(0,4):
-            for c in range(0, 4):
+        for r in range(0,len(matrix)):
+            if number_rows:
+                print(f"{r}:",end=" ")
+            for c in range(0, len(matrix[r])):
                 self.printValueAsHex(matrix[r][c])
             print()
 
@@ -204,12 +260,43 @@ class AES():
             self.printValueAsHex(word[c])
         print()
 
-    def keyExpansion():
+    def keyExpansion(self, is_debug = False):
         '''
-        This is the key expansion method which should be implemented by the subclasses
+        This method implements the key expansion as defined by Algorithm 2 "Pseudocode for KEYEXPANSION()" in NIST FIPS 197
         '''
-
-        raise NotImplementedError
+        expanded_key = self.hexStringToMatrix(self.key)
+        if is_debug:
+            self.printMatrixAsHex(expanded_key)
+        for i in range(self.number_key_words,(4*self.number_of_rounds+ 4)):
+            temp = expanded_key[i-1].copy()
+            if is_debug:
+                print("Temp: ",end="")
+                self.printWordAsHex(temp)
+            if i % self.number_key_words == 0:
+                rotated = self.rotateWord(temp)
+                if is_debug:
+                    print("Rotated: ",end="")
+                    self.printWordAsHex(rotated)
+                substituted = self.substituteWord(rotated)
+                if is_debug:
+                    print("Substituted: ",end="")
+                    self.printWordAsHex(substituted)
+                round_constant = self.round_constants[i//self.number_key_words - 1].copy()
+                if is_debug:
+                    print("Round Constant: ",end="")
+                    self.printWordAsHex(round_constant)
+                temp = self.xorWords(substituted, round_constant)
+                if is_debug:
+                    print("After Xor: ",end="")
+                    self.printWordAsHex(temp)
+            elif self.number_key_words > 6 and i % self.number_key_words == 4:
+                temp = self.substituteWord(temp)
+            word_number_of_keys_ago = expanded_key[i-self.number_key_words].copy()
+            new_word= self.xorWords(temp, word_number_of_keys_ago)
+            if is_debug:
+                self.printWordAsHex(temp)
+            expanded_key.append(new_word)
+        self.expanded_key = expanded_key
 
 class AES128(AES):
     '''
@@ -228,9 +315,9 @@ class AES128(AES):
         super().__init__(key)
         self.key_length = 128
         self.number_of_rounds = 10
+        self.number_key_words = 4
+        self.keyExpansion(False)
 
-    def keyExpansion():
-        pass
 
 class AES192(AES):
     '''
@@ -248,11 +335,10 @@ class AES192(AES):
 
         super().__init__(key)
         self.key_length = 192
+        self.number_key_words = 6
         self.number_of_rounds = 12
+        self.keyExpansion()
     
-    def keyExpansion():
-        pass
-
 class AES256(AES):
     '''
     This class is a subclass of AES with a key length of 256 bits
@@ -270,26 +356,27 @@ class AES256(AES):
         super().__init__(key)
         self.key_length = 256
         self.number_of_rounds = 14
+        self.number_key_words = 8
+        self.keyExpansion()
 
-    def keyExpansion():
-        pass
-
-aes_256 = AES256("key")
+example_aes_256_key = "60 3d eb 10 15 ca 71 be 2b 73 ae f0 85 7d 77 81 1f 35 2c 07 3b 61 08 d7 2d 98 10 a3 09 14 df f4 "
+example_aes_256_key = example_aes_256_key.replace(" ","")
+aes_256 = AES256(example_aes_256_key)
 print(aes_256.key)
 print("- - - - - - - - - - - -")
 print("Mix Columns Example Matrix:")
 example_matrix = [[0xf2,0x01,0xc6,0xdb], [0x0a,0x01,0xc6,0x13],[0x22,0x01,0xc6,0x53], [0x5c,0x01,0xc6,0x45]]
-aes_256.print4x4MatrixAsHex(example_matrix)
+aes_256.printMatrixAsHex(example_matrix)
 aes_256.mixColumns(example_matrix)
 print("Mixed Columns")
-aes_256.print4x4MatrixAsHex(example_matrix)
+aes_256.printMatrixAsHex(example_matrix)
 print("- - - - - - - - - - - -")
 print("Substitute Example Matrix:")
 example_matrix = [[0x53,0x01,0xc6,0xdb], [0x0a,0x01,0xc6,0x13],[0x22,0x01,0xc6,0x53], [0x5c,0x01,0xc6,0x45]]
-aes_256.print4x4MatrixAsHex(example_matrix)
+aes_256.printMatrixAsHex(example_matrix)
 aes_256.substituteBytes(example_matrix)
 print("Substituted:")
-aes_256.print4x4MatrixAsHex(example_matrix)
+aes_256.printMatrixAsHex(example_matrix)
 print("- - - - - - - - - - - -")
 print("Substitute Example Word: ")
 example_word = [0x53, 0xf2, 0x12, 0x32]
@@ -304,3 +391,17 @@ aes_256.printWordAsHex(example_word)
 aes_256.rotateWord(example_word)
 print("Rotated:")
 aes_256.printWordAsHex(example_word)
+print("- - - - - - - - - - - -")
+print("Key Expansion for AES 128")
+aes_128 = AES128("2b7e151628aed2a6abf7158809cf4f3c")
+aes_128.printMatrixAsHex(aes_128.expanded_key,True)
+print("- - - - - - - - - - - -")
+print("Key Expansion for AES 192")
+example_aes_192_key = "8e 73 b0 f7 da 0e 64 52 c8 10 f3 2b 80 90 79 e5 62 f8 ea d2 52 2c 6b 7b"
+example_aes_192_key = example_aes_192_key.replace(" ","")
+aes_192 = AES192(example_aes_192_key)
+print(example_aes_192_key)
+aes_192.printMatrixAsHex(aes_192.expanded_key,True)
+print("- - - - - - - - - - - -")
+print("Key Expansion for AES 256")
+aes_256.printMatrixAsHex(aes_256.expanded_key,True)
