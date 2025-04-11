@@ -143,6 +143,32 @@ class AES():
             return temp if first_byte < 128 else temp ^ 0x1b
         if multiplication_factor == 3:
             return self.xTimes(first_byte, 2) ^ first_byte
+        
+    def rotateWord(self, word):
+        '''
+        This method rotates a word
+        As described by section 5.10 of NIST FIPS 197
+
+        Parameters :
+            word : [int,int,int,int]
+                a four number word to be rotated
+        '''
+
+        word[0],word[1],word[2],word[3] = word[1],word[2],word[3],word[0]
+
+    def substituteWord(self, word):
+        '''
+        This method substitutes a word
+        As described by section 5.11 of NIST FIPS 197
+
+        Parameters :
+            word : [int,int,int,int]
+                a four number word to be substituted
+        '''
+        for c in range(0, 4):
+                word_c_r = word[c] // 16
+                word_c_c = word[c] % 16
+                word[c] = self.substitution_matrix[word_c_r][word_c_c]
 
     def printValueAsHex(self, hex_value):
         '''
