@@ -7,6 +7,7 @@ class AES():
     https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.197-upd1.pdf
     '''
 
+    # From NIST FIPS 197 : Table 4. "SBOX(): substitution values for the byte xy (in hexadecimal format)"
     substitution_matrix = [
         [0x63, 0x7C, 0x77, 0x7B, 0xF2, 0x6B, 0x6F, 0xC5, 0x30, 0x01, 0x67, 0x2B, 0xFE, 0xD7, 0xAB, 0x76],
         [0xCA, 0x82, 0xC9, 0x7D, 0xFA, 0x59, 0x47, 0xF0, 0xAD, 0xD4, 0xA2, 0xAF, 0x9C, 0xA4, 0x72, 0xC0],
@@ -24,6 +25,7 @@ class AES():
         [0x70, 0x3E, 0xB5, 0x66, 0x48, 0x03, 0xF6, 0x0E, 0x61, 0x35, 0x57, 0xB9, 0x86, 0xC1, 0x1D, 0x9E],
         [0xE1, 0xF8, 0x98, 0x11, 0x69, 0xD9, 0x8E, 0x94, 0x9B, 0x1E, 0x87, 0xE9, 0xCE, 0x55, 0x28, 0xDF],
         [0x8C, 0xA1, 0x89, 0x0D, 0xBF, 0xE6, 0x42, 0x68, 0x41, 0x99, 0x2D, 0x0F, 0xB0, 0x54, 0xBB, 0x16]]
+    # From NIST FIPS 197 : Table 6. "INVSBOX(): substitution values for the byte xy (in hexadecimal format)""
     inverse_substitution_matrix = [
         [0x52, 0x09, 0x6A, 0xD5, 0x30, 0x36, 0xA5, 0x38, 0xBF, 0x40, 0xA3, 0x9E, 0x81, 0xF3, 0xD7, 0xFB],
         [0x7C, 0xE3, 0x39, 0x82, 0x9B, 0x2F, 0xFF, 0x87, 0x34, 0x8E, 0x43, 0x44, 0xC4, 0xDE, 0xE9, 0xCB],
@@ -41,6 +43,7 @@ class AES():
         [0x60, 0x51, 0x7F, 0xA9, 0x19, 0xB5, 0x4A, 0x0D, 0x2D, 0xE5, 0x7A, 0x9F, 0x93, 0xC9, 0x9C, 0xEF],
         [0xA0, 0xE0, 0x3B, 0x4D, 0xAE, 0x2A, 0xF5, 0xB0, 0xC8, 0xEB, 0xBB, 0x3C, 0x83, 0x53, 0x99, 0x61],
         [0x17, 0x2B, 0x04, 0x7E, 0xBA, 0x77, 0xD6, 0x26, 0xE1, 0x69, 0x14, 0x63, 0x55, 0x21, 0x0C, 0x7D]]
+    # From NIST FIPS 197 Table 5. "Round constants"
     round_constants = [
         [0x01,0x00,0x00,0x00],
         [0x02,0x00,0x00,0x00],
@@ -52,6 +55,12 @@ class AES():
         [0x80,0x00,0x00,0x00],
         [0x1b,0x00,0x00,0x00],
         [0x36,0x00,0x00,0x00]]
+    # From NIST FIPS 197 Section 5.1.3 "MixColumns()"
+    mix_columns_matrix = [
+        [0x02, 0x03, 0x01, 0x01],
+        [0x01, 0x02, 0x03, 0x01],
+        [0x01, 0x01, 0x02, 0x03],
+        [0x03, 0x01, 0x01, 0x02]]
     
     def __init__(self, key):
         '''
@@ -67,15 +76,94 @@ class AES():
     def substituteBytes(self, s):
         '''
         This method substitutes bytes according to the substitution matrix
+        According to Figure 2 from NIST FIPS 197  "Illustration of SUBBYTES()"
 
         Parameters : 
             s : [[hex]]
                 The 4x4 matrix which is being substituted
         '''
 
-        for i in range(0, 4):
-            for j in range(0, 4):
-                s[i][j] = self.substitution_matrix[s[i][j]]
+        for r in range(0, 4):
+            for c in range(0, 4):
+                s_rc_r = s[r][c]//16
+                s_rc_c = s[r][c]%16
+                s[r][c] = self.substitution_matrix[s_rc_r][s_rc_c]
+
+    def shiftRows(self, s):
+        '''
+        This method shifts rows within a 4x4 matrix s[r][c]
+        According to Figure 3 "Illustration pf ShiftRows()" of Nist Fips 197
+
+        Parameters :
+            s : [[HEX]]
+                The 4x4 matrix which is having its rows shifted
+        '''
+
+        s[0][0], s[0][1], s[0][2], s[0][3] = s[0][0], s[0][1], s[0][2], s[0][3]
+        s[1][0], s[1][1], s[1][2], s[1][3] = s[1][1], s[1][2], s[1][3], s[1][0]
+        s[2][0], s[2][1], s[2][2], s[2][3] = s[2][2], s[2][3], s[2][0], s[2][1]
+        s[3][0], s[3][1], s[3][1], s[3][3] = s[3][3], s[3][0], s[3][1], s[3][2]
+
+    def mixColumns(self, s):
+        '''
+        This method mixes columns for a 4 x 4 matrix
+        According to Figure 4 "Illustration of MIXCOLUMNS()" of Nist Fips 197
+
+        Parameters :
+            s : [[int]]
+                The 4x4 matrix which is having its rows shifted
+        '''
+        for r in range(0,4):
+            for c in range(0,4):
+                first_mult = self.xTimes(s[0][c],self.mix_columns_matrix[r][0])
+                second_mult = self.xTimes(s[1][c],self.mix_columns_matrix[r][1])
+                third_mult = self.xTimes(s[2][c],self.mix_columns_matrix[r][2])
+                fourth_mult = self.xTimes(s[3][c],self.mix_columns_matrix[r][3])
+                s[r][c] = first_mult ^ second_mult ^ third_mult ^ fourth_mult
+
+    def xTimes(self, first_byte, multiplication_factor):
+        '''
+        This method multiplies two hexadecimal numbers as a polynomial, ensuring the end result is still a byte
+        From Nist Fips 197 Section 4.2 "Multiplication in GF(2**8)"
+
+        Parameters :
+            first_byte : int
+                The first byte to be multiplpied
+            multiplication_factor : int 
+                The factor the byte is being multiplied by, up to 3
+        Returns
+            byte: int
+                The result of the multiplication as a single byte
+        '''
+
+        if multiplication_factor == 1:
+            return first_byte
+        temp = (first_byte << 1) & 0xff
+        if multiplication_factor == 2:
+            return temp if first_byte < 128 else temp ^ 0x1b
+        if multiplication_factor == 3:
+            return self.xTimes(first_byte, 2) ^ first_byte
+
+    def printValueAsHex(self, hex_value):
+        '''
+        This method prints out a single hex value followed by a comma and space
+        '''
+
+        print('{:02x}'.format(hex_value), end=', ')
+    
+    def print4x4MatrixAsHex(self,matrix):
+        '''
+        This method print out a 4x4 matrix as a formatted hex
+
+        Parameters : 
+            matrix
+                The 4x4 matrix to be printed to the console
+        '''
+
+        for r in range(0,4):
+            for c in range(0, 4):
+                self.printValueAsHex(matrix[r][c])
+            print()
 
     def keyExpansion():
         '''
@@ -100,6 +188,7 @@ class AES128(AES):
 
         super().__init__(key)
         self.key_length = 128
+        self.number_of_rounds = 10
 
     def keyExpansion():
         pass
@@ -120,6 +209,7 @@ class AES192(AES):
 
         super().__init__(key)
         self.key_length = 192
+        self.number_of_rounds = 12
     
     def keyExpansion():
         pass
@@ -140,6 +230,7 @@ class AES256(AES):
 
         super().__init__(key)
         self.key_length = 256
+        self.number_of_rounds = 14
 
     def keyExpansion():
         pass
@@ -147,3 +238,10 @@ class AES256(AES):
 aes_256 = AES256("key")
 print(aes_256.key)
 print(aes_256.substitution_matrix)
+print(aes_256.xTimes(0x57,0x03))
+example_matrix = [[0xf2,0x01,0xc6,0xdb], [0x0a,0x01,0xc6,0x13],[0x22,0x01,0xc6,0x53], [0x5c,0x01,0xc6,0x45]]
+aes_256.mixColumns(example_matrix)
+aes_256.print4x4MatrixAsHex(example_matrix)
+example_matrix = [[0x53,0x01,0xc6,0xdb], [0x0a,0x01,0xc6,0x13],[0x22,0x01,0xc6,0x53], [0x5c,0x01,0xc6,0x45]]
+aes_256.substituteBytes(example_matrix)
+aes_256.print4x4MatrixAsHex(example_matrix)
