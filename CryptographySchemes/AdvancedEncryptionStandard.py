@@ -85,11 +85,13 @@ class AES():
                 The 4x4 matrix which is being substituted
         '''
 
+        substituted_matrix = [[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]]
         for r in range(0, 4):
             for c in range(0, 4):
                 s_rc_r = s[r][c]//16
                 s_rc_c = s[r][c]%16
-                s[r][c] = self.substitution_matrix[s_rc_r][s_rc_c]
+                substituted_matrix[r][c] = self.substitution_matrix[s_rc_r][s_rc_c]
+        return substituted_matrix
 
     def shiftRows(self, s):
         '''
@@ -100,11 +102,12 @@ class AES():
             s : [[HEX]]
                 The 4x4 matrix which is having its rows shifted
         '''
-
-        s[0][0], s[0][1], s[0][2], s[0][3] = s[0][0], s[0][1], s[0][2], s[0][3]
-        s[1][0], s[1][1], s[1][2], s[1][3] = s[1][1], s[1][2], s[1][3], s[1][0]
-        s[2][0], s[2][1], s[2][2], s[2][3] = s[2][2], s[2][3], s[2][0], s[2][1]
-        s[3][0], s[3][1], s[3][1], s[3][3] = s[3][3], s[3][0], s[3][1], s[3][2]
+        shifted_rows = [[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]]
+        shifted_rows[0][0], shifted_rows[0][1], shifted_rows[0][2], shifted_rows[0][3] = s[0][0], s[0][1], s[0][2], s[0][3]
+        shifted_rows[1][0], shifted_rows[1][1], shifted_rows[1][2], shifted_rows[1][3] = s[1][1], s[1][2], s[1][3], s[1][0]
+        shifted_rows[2][0], shifted_rows[2][1], shifted_rows[2][2], shifted_rows[2][3] = s[2][2], s[2][3], s[2][0], s[2][1]
+        shifted_rows[3][0], shifted_rows[3][1], shifted_rows[3][1], shifted_rows[3][3] = s[3][3], s[3][0], s[3][1], s[3][2]
+        return shifted_rows
 
     def mixColumns(self, s):
         '''
@@ -115,13 +118,16 @@ class AES():
             s : [[int]]
                 The 4x4 matrix which is having its rows shifted
         '''
+
+        mixed_columns = [[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]]
         for r in range(0,4):
             for c in range(0,4):
                 first_mult = self.xTimes(s[0][c],self.mix_columns_matrix[r][0])
                 second_mult = self.xTimes(s[1][c],self.mix_columns_matrix[r][1])
                 third_mult = self.xTimes(s[2][c],self.mix_columns_matrix[r][2])
                 fourth_mult = self.xTimes(s[3][c],self.mix_columns_matrix[r][3])
-                s[r][c] = first_mult ^ second_mult ^ third_mult ^ fourth_mult
+                mixed_columns[r][c] = first_mult ^ second_mult ^ third_mult ^ fourth_mult
+        return mixed_columns
 
     def xTimes(self, first_byte, multiplication_factor):
         '''
@@ -186,6 +192,14 @@ class AES():
                 new_word.append(int(hex_string[i+j:i+2+j],16))
             matrix.append(new_word)
         return matrix
+    
+    def addRoundKey(self, s, key):
+        round_key_state = [[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]]
+        for r in range(0, 4):
+            for c in range(0, 4):
+                round_key_state[r][c] = s[r][c] ^ key[r][c]
+        return round_key_state
+
     
     def xorWords(self, word_1,word_2):
         '''
@@ -298,6 +312,31 @@ class AES():
             expanded_key.append(new_word)
         self.expanded_key = expanded_key
 
+    def cypher(self, input):
+        '''
+        This method applies the aes cypher to a 128 block as laid out in NIST FIPS 197 section 5.1 "Cipher()"
+
+        Parameters :
+            input : str
+                a string of 128bit hex to encypher
+
+        Returns :
+            state : [[int]]
+                The encyphered hex as a 4x4 matrix
+        '''
+
+        state = self.hexStringToMatrix(input)
+        state = self.addRoundKey(state, self.expanded_key[0:4])
+        for i in range(1,self.number_of_rounds):
+            state = self.substituteBytes(state)
+            state = self.shiftRows(state)
+            state = self.mixColumns(state)
+            state = self.addRoundKey(state, self.expanded_key[4*i:4*(i+1)])
+        state = self.substituteBytes(state)
+        state = self.shiftRows(state)
+        state = self.mixColumns(state)
+        return(state)
+
 class AES128(AES):
     '''
     This class is a subclass of AES with a key length of 128 bits
@@ -405,3 +444,8 @@ aes_192.printMatrixAsHex(aes_192.expanded_key,True)
 print("- - - - - - - - - - - -")
 print("Key Expansion for AES 256")
 aes_256.printMatrixAsHex(aes_256.expanded_key,True)
+hextoencrypt = "2b7e151628aed2a6abf7158809cf4f3c"
+print("- - - - - - - - - - - -")
+print(f"Encrypting With AES 256 : {hextoencrypt}")
+encrypted = aes_128.cypher(hextoencrypt)
+aes_128.printMatrixAsHex(encrypted)
