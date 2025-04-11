@@ -61,6 +61,12 @@ class AES():
         [0x01, 0x02, 0x03, 0x01],
         [0x01, 0x01, 0x02, 0x03],
         [0x03, 0x01, 0x01, 0x02]]
+    # From NIST FIPS 197 Section 5.3.3 "InvMixColumns()"
+    inverse_mix_columns_matrix = [
+        [0x0e, 0x0b, 0x0d, 0x09],
+        [0x09, 0x0e, 0x0b, 0x0d],
+        [0x0d, 0x09, 0x0e, 0x0b],
+        [0x0b, 0x0d, 0x09, 0x0e]]
     
     def __init__(self, key):
         '''
@@ -81,8 +87,12 @@ class AES():
         According to Figure 2 from NIST FIPS 197  "Illustration of SUBBYTES()"
 
         Parameters : 
-            s : [[hex]]
+            s : [[int]]
                 The 4x4 matrix which is being substituted
+                
+        Returns : 
+            substituted_matrix : [[int]]
+                The substituted matrix
         '''
 
         substituted_matrix = [[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]]
@@ -92,6 +102,28 @@ class AES():
                 s_rc_c = s[r][c]%16
                 substituted_matrix[r][c] = self.substitution_matrix[s_rc_r][s_rc_c]
         return substituted_matrix
+    
+    def inverseSubstituteBytes(self, s):
+        '''
+        This method applies the inverse substitutes bytes according to the inverse_substitution matrix
+        According to NIST FIPS Section 5.3.2 "INVSUBBYTES()"
+
+        Parameters : 
+            s : [[int]]
+                The 4x4 matrix which is being substituted
+
+        Returns : 
+            substituted_matrix : [[int]]
+                The substituted matrix
+        '''
+
+        substituted_matrix = [[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]]
+        for r in range(0, 4):
+            for c in range(0, 4):
+                s_rc_r = s[r][c]//16
+                s_rc_c = s[r][c]%16
+                substituted_matrix[r][c] = self.inverse_substitution_matrix[s_rc_r][s_rc_c]
+        return substituted_matrix
 
     def shiftRows(self, s):
         '''
@@ -99,8 +131,12 @@ class AES():
         According to Figure 3 "Illustration pf ShiftRows()" of Nist Fips 197
 
         Parameters :
-            s : [[HEX]]
+            s : [[int]]
                 The 4x4 matrix which is having its rows shifted
+        
+        Returns :
+            shifted_rows : [[int]]
+                The 4x4 matrix with it's rows shift
         '''
         shifted_rows = [[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]]
         shifted_rows[0][0], shifted_rows[0][1], shifted_rows[0][2], shifted_rows[0][3] = s[0][0], s[0][1], s[0][2], s[0][3]
@@ -108,8 +144,48 @@ class AES():
         shifted_rows[2][0], shifted_rows[2][1], shifted_rows[2][2], shifted_rows[2][3] = s[2][2], s[2][3], s[2][0], s[2][1]
         shifted_rows[3][0], shifted_rows[3][1], shifted_rows[3][1], shifted_rows[3][3] = s[3][3], s[3][0], s[3][1], s[3][2]
         return shifted_rows
+    
+    def inverseShiftRows(self, s):
+        '''
+        This method shifts rows within a 4x4 matrix s[r][c]
+        According to Figure 9. "Illustration of INVSHIFTROWS()" of Nist Fips 197
+
+        Parameters :
+            s : [[int]]
+                The 4x4 matrix which is having its rows shifted
+        
+        Returns :
+            shifted_rows : [[int]]
+                The 4x4 matrix with it's rows shift
+        '''
+        shifted_rows = [[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]]
+        shifted_rows[0][0], shifted_rows[0][1], shifted_rows[0][2], shifted_rows[0][3] = s[0][0], s[0][1], s[0][2], s[0][3]
+        shifted_rows[1][0], shifted_rows[1][1], shifted_rows[1][2], shifted_rows[1][3] = s[1][3], s[1][0], s[1][1], s[1][2]
+        shifted_rows[2][0], shifted_rows[2][1], shifted_rows[2][2], shifted_rows[2][3] = s[2][2], s[2][3], s[2][0], s[2][1]
+        shifted_rows[3][0], shifted_rows[3][1], shifted_rows[3][1], shifted_rows[3][3] = s[3][1], s[3][2], s[3][3], s[3][0]
+        return shifted_rows
 
     def mixColumns(self, s):
+        '''
+        This method mixes columns for a 4 x 4 matrix
+        According to Figure 4 "Illustration of MIXCOLUMNS()" of Nist Fips 197
+
+        Parameters :
+            s : [[int]]
+                The 4x4 matrix which is having its rows shifted
+        '''
+
+        mixed_columns = [[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]]
+        for r in range(0,4):
+            for c in range(0,4):
+                first_mult = self.xTimes(s[0][c],self.mix_columns_matrix[r][0])
+                second_mult = self.xTimes(s[1][c],self.mix_columns_matrix[r][1])
+                third_mult = self.xTimes(s[2][c],self.mix_columns_matrix[r][2])
+                fourth_mult = self.xTimes(s[3][c],self.mix_columns_matrix[r][3])
+                mixed_columns[r][c] = first_mult ^ second_mult ^ third_mult ^ fourth_mult
+        return mixed_columns
+
+    def inverseMixColumns(self, s):
         '''
         This method mixes columns for a 4 x 4 matrix
         According to Figure 4 "Illustration of MIXCOLUMNS()" of Nist Fips 197
@@ -136,9 +212,9 @@ class AES():
 
         Parameters :
             first_byte : int
-                The first byte to be multiplpied
+                The first byte to be multiplied
             multiplication_factor : int 
-                The factor the byte is being multiplied by, up to 3
+                The factor the byte is being multiplied by
         Returns
             byte: int
                 The result of the multiplication as a single byte
@@ -146,11 +222,17 @@ class AES():
 
         if multiplication_factor == 1:
             return first_byte
-        temp = (first_byte << 1) & 0xff
-        if multiplication_factor == 2:
+        elif multiplication_factor == 2:
+            temp = (first_byte << 1) & 0xff
             return temp if first_byte < 128 else temp ^ 0x1b
-        if multiplication_factor == 3:
-            return self.xTimes(first_byte, 2) ^ first_byte
+        else:
+            if multiplication_factor%2 == 0:
+                xtime = self.xTimes(first_byte, multiplication_factor//2)
+                temp = (xtime << 1) & 0xff
+                return temp if xtime < 128 else temp ^ 0x1b
+            else:
+                xtime = self.xTimes(first_byte, multiplication_factor-1)
+                return xtime ^ first_byte
         
     def rotateWord(self, word):
         '''
@@ -406,9 +488,9 @@ print("- - - - - - - - - - - -")
 print("Mix Columns Example Matrix:")
 example_matrix = [[0xf2,0x01,0xc6,0xdb], [0x0a,0x01,0xc6,0x13],[0x22,0x01,0xc6,0x53], [0x5c,0x01,0xc6,0x45]]
 aes_256.printMatrixAsHex(example_matrix)
-aes_256.mixColumns(example_matrix)
+mixed_columns = aes_256.mixColumns(example_matrix)
 print("Mixed Columns")
-aes_256.printMatrixAsHex(example_matrix)
+aes_256.printMatrixAsHex(mixed_columns)
 print("- - - - - - - - - - - -")
 print("Substitute Example Matrix:")
 example_matrix = [[0x53,0x01,0xc6,0xdb], [0x0a,0x01,0xc6,0x13],[0x22,0x01,0xc6,0x53], [0x5c,0x01,0xc6,0x45]]
@@ -449,3 +531,13 @@ print("- - - - - - - - - - - -")
 print(f"Encrypting With AES 256 : {hextoencrypt}")
 encrypted = aes_128.cypher(hextoencrypt)
 aes_128.printMatrixAsHex(encrypted)
+print("- - - - - - - - - - - -")
+print(f"Working on xTimes :")
+print(f"{2}  : {hex(aes_128.xTimes(0x57,0x02))} should be 0xae")
+print(f"{4}  : {hex(aes_128.xTimes(0x57,0x04))} should be 0x47")
+print(f"{8}  : {hex(aes_128.xTimes(0x57,0x08))} should be 0x8e")
+print(f"{10} : {hex(aes_128.xTimes(0x57,0x10))}  should be  0x7")
+print(f"{20} : {hex(aes_128.xTimes(0x57,0x20))}  should be  0xe")
+print(f"{40} : {hex(aes_128.xTimes(0x57,0x40))} should be 0x1c")
+print(f"{80} : {hex(aes_128.xTimes(0x57,0x80))} should be 0x38")
+print(f"{13} : {hex(aes_128.xTimes(0x57,0x13))} should be 0xfe")
