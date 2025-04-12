@@ -86,7 +86,7 @@ def theta(A, w):
 
 def rho(A, w):
     '''
-    This method should implement theta as according to Algorithm 1 of https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.202.pdf
+    This method should implement rho as according to Algorithm 2 of https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.202.pdf
 
     "Algorithm 2: ρ(A)
     Input:
@@ -101,8 +101,6 @@ def rho(A, w):
     b. let (x, y) = (y, (2x+3y) mod 5).
     4. Return A′"
     '''
-    w = 1600 // 25
-
     # 1. For all z such that 0≤z<w, let A′ [0, 0,z] = A[0, 0,z].
     A_prime = []
     for x in range(0, len(A)):
@@ -130,3 +128,63 @@ def rho(A, w):
             x = x_new
 
     return A_prime
+
+def pi(A):
+    '''
+    This method should implement pi as according to Algorithm 3 of https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.202.pdf
+
+    Algorithm 3: π(A)
+    Input:
+    state array A.
+    Output:
+    state array A′.
+    Steps:
+    1. For all triples (x, y, z) such that 0≤x<5, 0≤y<5, and 0≤z<w, let
+    A′[x, y, z]=A[(x + 3y) mod 5, x, z].
+    2. Return A
+    '''
+
+    # 1. For all triples (x, y, z) such that 0≤x<5, 0≤y<5, and 0≤z<w, let
+    # A′[x, y, z]=A[(x + 3y) mod 5, x, z].
+    A_prime = []
+    for x in range(0, len(A)):
+        A_x_prime = []
+        for y in range(0, len(A[x])):
+            A_x_y_prime = []
+            for z in range(0, len(A[x][y])):
+               x_old_loc =( x + 3 * y) % 5
+               y_old_loc = x
+               A_prime[x][y][z] = A[x_old_loc][y_old_loc][z]
+            A_x_prime.append(A_x_y_prime)
+        A_prime.append(A_x_prime)
+
+    return A_prime
+
+def chi(A):
+
+    '''
+    This method should implement chi as according to Algorithm 4 of https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.202.pdf
+
+    "Algorithm 4: χ(A)
+    Input:
+    state array A.
+    Output:
+    state array A′.
+    Steps:
+    1. For all triples (x, y, z) such that 0≤x<5, 0≤y<5, and 0≤z<w, let
+    A′[x, y,z] = A[x, y,z] ⊕ ((A[(x+1) mod 5, y, z] ⊕ 1) ⋅ A[(x+2) mod 5, y, z]).
+    2. Return A′."
+    '''
+
+    A_prime = []
+    for x in range(0, len(A)):
+        A_x_prime = []
+        for y in range(0, len(A[x])):
+            A_x_y_prime = []
+            for z in range(0, len(A[x][y])):
+               A_x_1 = A[(x + 1) % 5][y][z] ^ 1
+               A_x_2 = A[(x + 1) % 5][y][z]
+               A_x_1x2 = A_x_1 * A_x_2
+               A_prime[x][y][z] = A[x][y][z] ^ A_x_1x2
+            A_x_prime.append(A_x_y_prime)
+        A_prime.append(A_x_prime)
