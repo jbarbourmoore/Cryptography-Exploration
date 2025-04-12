@@ -185,6 +185,63 @@ class AES_UnitTest(unittest.TestCase):
             decrypted = self.aes_256.inverseCypher(hex_to_decrypt[i])
             print(decrypted)
             self.assertEqual(decrypted,expected_results[i])
+
+    def test_xtimes(self):
+        '''
+        This method tests the xtimes function
+        examples are pulled from Nist FIPS 197 "4.2 Multiplication in GF(2**8)"
+        '''
+
+        print(f"Working on xTimes :")
+        print(f"{2}  : {hex(self.aes_128.xTimes(0x57,0x02))} should be 0xae")
+        self.assertEqual(self.aes_128.xTimes(0x57,0x02), 0xae)
+        print(f"{4}  : {hex(self.aes_128.xTimes(0x57,0x04))} should be 0x47")
+        self.assertEqual(self.aes_128.xTimes(0x57,0x04), 0x47)
+        print(f"{8}  : {hex(self.aes_128.xTimes(0x57,0x08))} should be 0x8e")
+        self.assertEqual(self.aes_128.xTimes(0x57,0x08), 0x8e)
+        print(f"{10} : {hex(self.aes_128.xTimes(0x57,0x10))}  should be  0x7")
+        self.assertEqual(self.aes_128.xTimes(0x57,0x10), 0x7)
+        print(f"{20} : {hex(self.aes_128.xTimes(0x57,0x20))}  should be  0xe")
+        self.assertEqual(self.aes_128.xTimes(0x57,0x20), 0xe)
+        print(f"{40} : {hex(self.aes_128.xTimes(0x57,0x40))} should be 0x1c")
+        self.assertEqual(self.aes_128.xTimes(0x57,0x40), 0x1c)
+        print(f"{80} : {hex(self.aes_128.xTimes(0x57,0x80))} should be 0x38")
+        self.assertEqual(self.aes_128.xTimes(0x57,0x80), 0x38)
+        print(f"{13} : {hex(self.aes_128.xTimes(0x57,0x13))} should be 0xfe")
+        self.assertEqual(self.aes_128.xTimes(0x57,0x13), 0xfe)
+
+    def test_mixed_columns(self):
+        '''
+        This method tests the mixed_columns function
+        comparing mixed_columns and inverse_mixed_columns
+        '''
+
+        example_matrix = [[0xf2,0x01,0xc6,0xdb], [0x0a,0x01,0xc6,0x13],[0x22,0x01,0xc6,0x53], [0x5c,0x01,0xc6,0x45]]
+        expected_result = "9FDC589D01010101C6C6C6C68E4DA1BC"
+        print(self.aes_256.getMatrixAsHexString(example_matrix))
+        mixed_columns = self.aes_256.mixColumns(example_matrix)
+        print("Mixed Columns")
+        mixed_columns = self.aes_256.getMatrixAsHexString(mixed_columns)
+        print(mixed_columns)
+        self.assertEqual(mixed_columns,expected_result)
+
+    def test_inverse_mixed_columns(self):
+        '''
+        This method tests the invers mixed_columns function
+        comparing mixed_columns and inverse_mixed_columns
+        '''
+
+        example_matrix = '9FDC589D01010101C6C6C6C68E4DA1BC'
+        expected_result = 'F20A225C01010101C6C6C6C6DB135345'
+        example_matrix = self.aes_256.hexStringToMatrix(example_matrix)
+        example_matrix =self.aes_256.flipMatrix(example_matrix)
+        print(self.aes_256.getMatrixAsHexString(example_matrix))
+        mixed_columns = self.aes_256.inverseMixColumns(example_matrix)
+        print("Inverse Mixed Columns")
+        mixed_columns = self.aes_256.getMatrixAsHexString(mixed_columns)
+        print(mixed_columns)
+        self.assertEqual(mixed_columns,expected_result)
+
     
 if __name__ == '__main__':
     unittest.main()
