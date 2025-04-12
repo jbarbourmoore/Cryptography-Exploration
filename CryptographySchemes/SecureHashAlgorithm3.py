@@ -219,7 +219,7 @@ def rc(t):
     # 4. Return R[0]
     return R[0]
 
-def iota(A, ir, w, l):
+def iota(A, ir):
     '''
     This method should implement iota as according to Algorithm 6 of https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.202.pdf
 
@@ -237,9 +237,11 @@ def iota(A, ir, w, l):
     4. For all z such that 0≤z<w, let A′[0, 0,z]=A′[0, 0,z] ⊕ RC[z].
     5. Return A′."
     '''
+    w = len(A[0][0])
+    l = log2(w)
 
     # 1. For all triples (x, y,z) such that 0≤x<5, 0≤y<5, and 0≤z<w, let A′[x, y,z] = A[x, y,z].
-    A_prime = [[[A[x][y][z] for z in range(0,len(A[0][0]))] for y in range(0,len(A[0]))] for x in range(0,len(A))]
+    A_prime = [[[A[x][y][z] for z in range(0,w)] for y in range(0,5)] for x in range(0,5)]
     
     # 2. Let RC=0w
     RC = [0]*w
@@ -254,7 +256,7 @@ def iota(A, ir, w, l):
 
     return A_prime
 
-def round(A, ir, w, l, is_debug):
+def round(A, ir, is_debug):
     '''
     This method should implement round as according to Algorithm 7 of https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.202.pdf
 
@@ -265,14 +267,14 @@ def round(A, ir, w, l, is_debug):
     A_rho = rho(A_theta) # ρ
     A_pi = pi(A_rho) # π
     A_chi = chi(A_pi) # χ
-    A_iota = iota(A_chi, ir,w,l) # ι
+    A_iota = iota(A_chi, ir) # ι
     if is_debug:
-        print(f"Initial State: {stateArrayToBitString(A,w)}")
-        print(f"After Theta: {stateArrayToBitString(A_theta,w)}")
-        print(f"After Rho: {stateArrayToBitString(A_rho,w)}")
-        print(f"After Pi: {stateArrayToBitString(A_pi,w)}")
-        print(f"After Chi: {stateArrayToBitString(A_chi,w)}")
-        print(f"After Iota: {stateArrayToBitString(A_iota,w)}")
+        print(f"Initial State: {stateArrayToBitString(A)}")
+        print(f"After Theta: {stateArrayToBitString(A_theta)}")
+        print(f"After Rho: {stateArrayToBitString(A_rho)}")
+        print(f"After Pi: {stateArrayToBitString(A_pi)}")
+        print(f"After Chi: {stateArrayToBitString(A_chi)}")
+        print(f"After Iota: {stateArrayToBitString(A_iota)}")
 
     return A_iota
 
@@ -293,20 +295,19 @@ def keccak_p(S, nr):
     4. Return S′ "
     '''
 
-    b = len(S)
-    w = b // 25
-    l = log2(w)
     # 1. Convert S into a state array, A, as described in Sec. 3.1.2. 
     A = bitStringToStateArray(S)
 
     # 2. For ir from 12+2l –nr to 12+2l –1, let A=Rnd(A, ir)
     for x in range(12+21 - nr,12+21):
-        A = round(A, x, w, l, is_debug=False)
+        A = round(A, x, is_debug=False)
     
     S_prime = stateArrayToBitString(A)
 
     return S_prime
 
+def keccak_f(S):
+  return keccak_p( S, 24)
 
 def bitStringToStateArray(S):
     '''
@@ -347,7 +348,6 @@ def stateArrayToBitString(A):
     Then S = Plane (0) || Plane (1) || Plane (2) || Plane (3) || Plane (4)"
     '''
 
-    #print(len(A[0][0]))
     S = ""
     for y in range(0, 5):
         for x in range(0, 5):
@@ -372,12 +372,15 @@ def pad101(x, m):
 
     y = (-m - 2) % x
     pad = "1" + "0" * y + "1"
-    print("pad"+pad)
     return pad
 
 class SHA3():
 
-    def __init__(self, f, digest_length, is_debug = True):
+    def __init__(self, f, digest_length, is_debug = False):
+        '''
+        This method initializes the SHA 3 object
+        '''
+
         self.function_name = f
         self.digest_length = digest_length
         self.capacity = digest_length * 2
@@ -410,11 +413,7 @@ class SHA3():
         10. Let S=f(S), and continue with Step 8."
         '''
         r = self.b - self.capacity
-        w = self.b // 25
-        l = int(log2(w))
-        nr = 12+2*l
         P_string = N + pad101(r, len(N))
-        print(self.binaryToHex(P_string))
         n = len(P_string) // r
         P = []
         for x in range(0,n):
@@ -426,28 +425,46 @@ class SHA3():
             S = self.bitwiseXor(S, P[x]+"0"*self.capacity)
             if self.is_debug:
                 print("Xord: "+self.binaryToHex(S))
-            S = keccak_p(S,nr=nr)
+            S = keccak_f(S)
        
         Z = ''
         Z = Z + S[:r]
         while self.digest_length > len(Z):
-            S = keccak_p(S,nr=nr)
+            S = keccak_f(S)
             Z = Z + S[:r]
         return Z[:self.digest_length]
     
 
     def binaryToHex(self, binary):
-        #print(binary)
-        return '{0:0{1}x}'.format(int(binary,2),len(binary)//4)
+        length_binary = len(binary)
+        if length_binary % 4 != 0:
+            binary = '0'*(length_binary% 4-4)+binary
+            length_binary = len(binary)
+        length_hex = length_binary // 4
+        return '{0:0{1}x}'.format(int(binary,2),length_hex)
 
     def hashStringToHex(self, message_string):
         bytes_data = message_string.encode('utf-8')
         binary_string = bin(int(bytes_data.hex(),16))[2:]
-        print(binary_string)
-        return hex(int(self.sponge(binary_string+"01"),2))[2:]
+        binary_result = self.sponge(binary_string)
+        length_binary = len(binary_result)
+        if length_binary % 4 != 0:
+            binary_result = '0'*(length_binary% 4-4)+binary_result
+            length_binary = len(binary_result)
+        length_hex = length_binary // 4
+        hex_string = '{0:0{1}x}'.format(int(binary_result,2),length_hex).upper()
+        return hex_string
     
     def hashBinaryStringToHex(self, binary_message):
-        return hex(int(self.sponge(binary_message+"01"),2))[2:]
+        binary_message += "01"
+        binary_result = self.sponge(binary_message)
+        length_binary = len(binary_result)
+        if length_binary % 4 != 0:
+            binary_result = '0'*(length_binary % 4 - 4)+binary_result
+            length_binary = len(binary_result)
+        length_hex = length_binary // 4
+        hex_string = '{0:0{1}x}'.format(int(binary_result,2),length_hex).upper()
+        return hex_string
 
     def bitwiseXor(self,string_1,string_2):
         int_result = int(string_1,2) ^ int(string_2,2)
@@ -490,12 +507,6 @@ if __name__ =="__main__":
     print(response_string)
     print(len(response_string))
     sha512 = SHA3_512()
-    # hash_hello = sha512.hashStringToHex("whst am I doing")
-    # print(hash_hello)
-
-    # import hashlib
-    # print(hashlib.sha3_512("whst am I doing".encode("utf-8")).hexdigest())
-
     input_string = "11001"
     expected_hash = "A1 3E 01 49 41 14 C0 98 00 62 2A 70 28 8C 43 21 21 CE 70 03 9D 75 3C AD D2 E0 06 E4 D9 61 CB 27 54 4C 14 81 E5 81 4B DC EB 53 BE 67 33 D5 E0 99 79 5E 5E 81 91 8A DD B0 58 E2 2A 9F 24 88 3F 37"
     sha512 = SHA3_512()
