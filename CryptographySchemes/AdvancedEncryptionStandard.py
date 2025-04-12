@@ -380,6 +380,21 @@ class AES():
             print("",end=" ")
         print()
 
+    def getMatrixAsHexString(self,matrix):
+        '''
+        This method print out a 4x4 matrix as a formatted hex
+
+        Parameters : 
+            matrix
+                The 4x4 matrix to be printed to the console
+        '''
+        string_hex = ""
+        for r in range(0,len(matrix)):
+            for c in range(0, len(matrix[r])):
+                string_hex+='{:02x}'.format(matrix[c][r]).upper()
+        
+        return string_hex
+
     def printWordAsHex(self,word):
         '''
         This method print out a wor as a formatted hex
@@ -392,7 +407,19 @@ class AES():
         for c in range(0, 4):
             self.printValueAsHex(word[c])
         print()
+    def getWordAsHex(self,word):
+        '''
+        This method print out a wor as a formatted hex
 
+        Parameters : 
+            matrix
+                The word to be printed to the console
+        '''
+        word_string = ""
+        for c in range(0, 4):
+            word_string+='{:02x}'.format(word[c]).upper()
+        return word_string
+    
     def keyExpansion(self, is_debug = False):
         '''
         This method implements the key expansion as defined by Algorithm 2 "Pseudocode for KEYEXPANSION()" in NIST FIPS 197
@@ -488,7 +515,7 @@ class AES():
         state = self.substituteBytes(state)
         state = self.shiftRows(state)
         state = self.addRoundKey(state, self.expanded_key[4*self.number_of_rounds:4*(self.number_of_rounds+1)])
-        return(state)
+        return(self.getMatrixAsHexString(state))
     
     def inverseCypher(self, input, is_debug=False):
         '''
@@ -552,7 +579,7 @@ class AES():
                 self.printMatrixAsHexString(state)
                 print("- - - - - - - - - - - -")
         state = self.addRoundKey(state,self.expanded_key[0:4])
-        return(state)
+        return(self.getMatrixAsHexString(state))
 
 class AES128(AES):
     '''
@@ -615,128 +642,138 @@ class AES256(AES):
         self.number_key_words = 8
         self.keyExpansion()
 
-example_aes_256_key = "60 3d eb 10 15 ca 71 be 2b 73 ae f0 85 7d 77 81 1f 35 2c 07 3b 61 08 d7 2d 98 10 a3 09 14 df f4 "
-example_aes_256_key = example_aes_256_key.replace(" ","")
-aes_256 = AES256(example_aes_256_key)
-print(aes_256.key)
-print("- - - - - - - - - - - -")
-print("Mix Columns Example Matrix:")
-example_matrix = [[0xf2,0x01,0xc6,0xdb], [0x0a,0x01,0xc6,0x13],[0x22,0x01,0xc6,0x53], [0x5c,0x01,0xc6,0x45]]
-aes_256.printMatrixAsHex(example_matrix)
-mixed_columns = aes_256.mixColumns(example_matrix)
-print("Mixed Columns")
-aes_256.printMatrixAsHex(mixed_columns)
-print("- - - - - - - - - - - -")
-print("Substitute Example Matrix:")
-example_matrix = [[0x53,0x01,0xc6,0xdb], [0x0a,0x01,0xc6,0x13],[0x22,0x01,0xc6,0x53], [0x5c,0x01,0xc6,0x45]]
-aes_256.printMatrixAsHex(example_matrix)
-substitution_matrix = aes_256.substituteBytes(example_matrix)
-print("Substituted:")
-aes_256.printMatrixAsHex(substitution_matrix)
-print("- - - - - - - - - - - -")
-print("Substitute Example Word: ")
-example_word = [0x53, 0xf2, 0x12, 0x32]
-aes_256.printWordAsHex(example_word)
-substituted = aes_256.substituteWord(example_word)
-print("Substituted:")
-aes_256.printWordAsHex(substituted)
-print("- - - - - - - - - - - -")
-print("Rotate Example Word: ")
-example_word = [0x53, 0xf2, 0x12, 0x32]
-aes_256.printWordAsHex(example_word)
-rotated = aes_256.rotateWord(example_word)
-print("Rotated:")
-aes_256.printWordAsHex(rotated)
-print("- - - - - - - - - - - -")
-print("Key Expansion for AES 128")
-aes_128 = AES128("2b7e151628aed2a6abf7158809cf4f3c")
-aes_128.printMatrixAsHex(aes_128.expanded_key,True)
-print("- - - - - - - - - - - -")
-print("Key Expansion for AES 192")
-example_aes_192_key = "8e 73 b0 f7 da 0e 64 52 c8 10 f3 2b 80 90 79 e5 62 f8 ea d2 52 2c 6b 7b"
-example_aes_192_key = example_aes_192_key.replace(" ","")
-aes_192 = AES192(example_aes_192_key)
-aes_192.printMatrixAsHex(aes_192.expanded_key,True)
-print("- - - - - - - - - - - -")
-print("Key Expansion for AES 256")
-aes_256.printMatrixAsHex(aes_256.expanded_key,True)
-hextoencrypt = "2b7e151628aed2a6abf7158809cf4f3c"
+if __name__ == '__main__':
 
-print("- - - - - - - - - - - -")
-print(f"Working on xTimes :")
-print(f"{2}  : {hex(aes_128.xTimes(0x57,0x02))} should be 0xae")
-print(f"{4}  : {hex(aes_128.xTimes(0x57,0x04))} should be 0x47")
-print(f"{8}  : {hex(aes_128.xTimes(0x57,0x08))} should be 0x8e")
-print(f"{10} : {hex(aes_128.xTimes(0x57,0x10))}  should be  0x7")
-print(f"{20} : {hex(aes_128.xTimes(0x57,0x20))}  should be  0xe")
-print(f"{40} : {hex(aes_128.xTimes(0x57,0x40))} should be 0x1c")
-print(f"{80} : {hex(aes_128.xTimes(0x57,0x80))} should be 0x38")
-print(f"{13} : {hex(aes_128.xTimes(0x57,0x13))} should be 0xfe")
-print("- - - - - - - - - - - -")
-print("Expanded Key for AES 128")
-aes_128.printMatrixAsHex(aes_128.expanded_key,True)
-print("- - - - - - - - - - - -")
-hextoencrypt ="3243f6a8885a308d313198a2e0370734"
-key = "2b7e151628aed2a6abf7158809cf4f3c"
-aes_128 = AES128(key=key)
-print(f"Encrypting With AES 128 : {hextoencrypt}")
-encrypted = aes_128.cypher(hextoencrypt)
-print("- - - - - - - - - - - -")
-aes_128.printMatrixAsHex(encrypted)
-print("- - - - - - - - - - - -")
-hextoencrypt = "6BC1BEE22E409F96E93D7E117393172"
-print(f"Encrypting With AES 128 : {hextoencrypt}")
-encrypted = aes_128.cypher(hextoencrypt)
-aes_128.printMatrixAsHex(encrypted)
-print("- - - - - - - - - - - -")
-cypher_text = "3AD77BB40D7A3660A89ECAF32466EF97"
-key = ("2B7E151628AED2A6ABF7158809CF4F3C")
-aes_128 = AES128(key)
-print(f"Decrypting With AES 128 : {cypher_text}")
-decrypted = aes_128.inverseCypher(cypher_text)
-aes_128.printMatrixAsHexString(decrypted)
-cypher_text = "F5D3D58503B9699DE785895A96FDBAAF"
-print(f"Decrypting With AES 128 : {cypher_text}")
-decrypted = aes_128.inverseCypher(cypher_text)
-aes_128.printMatrixAsHexString(decrypted)
-cypher_text = "43B1CD7F598ECE23881B00E3ED030688"
-print(f"Decrypting With AES 128 : {cypher_text}")
-decrypted = aes_128.inverseCypher(cypher_text)
-aes_128.printMatrixAsHexString(decrypted)
-cypher_text = "7B0C785E27E8AD3F8223207104725DD4"
-print(f"Decrypting With AES 128 : {cypher_text}")
-decrypted = aes_128.inverseCypher(cypher_text)
-aes_128.printMatrixAsHexString(decrypted)
-print("- - - - - - - - - - - -")
-hextoencrypt = "6BC1BEE22E409F96E93D7E117393172"
-print(f"Encrypting With AES 128 : {hextoencrypt}")
-encrypted = aes_128.cypher(hextoencrypt)
-aes_128.printMatrixAsHexString(encrypted)
-print("- - - - - - - - - - - -")
-hextoencrypt = "3243f6a8885a308d313198a2e0370734"
-print(f"Encrypting With AES 128 : {hextoencrypt}")
-encrypted = aes_128.cypher(hextoencrypt)
-aes_128.printMatrixAsHexString(encrypted)
-print("- - - - - - - - - - - -")
-cypher_text = "3925841D02DC09FBDC118597196A0B32"
-print(f"Decrypting With AES 128 : {cypher_text}")
-decrypted = aes_128.inverseCypher(cypher_text)
-aes_128.printMatrixAsHexString(decrypted)
-print("- - - - - - - - - - - -")
-hextoencrypt = "6BC1BEE22E409F96E93D7E117393172A"
-print(f"Encrypting With AES 128 : {hextoencrypt}")
-encrypted = aes_128.cypher(hextoencrypt)
-aes_128.printMatrixAsHexString(encrypted)
-hextoencrypt = "AE2D8A571E03AC9C9EB76FAC45AF8E51"
-print(f"Encrypting With AES 128 : {hextoencrypt}")
-encrypted = aes_128.cypher(hextoencrypt)
-aes_128.printMatrixAsHexString(encrypted)
-hextoencrypt = "30C81C46A35CE411E5FBC1191A0A52EF"
-print(f"Encrypting With AES 128 : {hextoencrypt}")
-encrypted = aes_128.cypher(hextoencrypt)
-aes_128.printMatrixAsHexString(encrypted)
-hextoencrypt = "F69F2445DF4F9B17AD2B417BE66C3710"
-print(f"Encrypting With AES 128 : {hextoencrypt}")
-encrypted = aes_128.cypher(hextoencrypt)
-aes_128.printMatrixAsHexString(encrypted)
-print("- - - - - - - - - - - -")
+    example_aes_256_key = "60 3d eb 10 15 ca 71 be 2b 73 ae f0 85 7d 77 81 1f 35 2c 07 3b 61 08 d7 2d 98 10 a3 09 14 df f4 "
+    example_aes_256_key = example_aes_256_key.replace(" ","")
+    aes_256 = AES256(example_aes_256_key)
+    print(aes_256.key)
+    print("- - - - - - - - - - - -")
+    print("Mix Columns Example Matrix:")
+    example_matrix = [[0xf2,0x01,0xc6,0xdb], [0x0a,0x01,0xc6,0x13],[0x22,0x01,0xc6,0x53], [0x5c,0x01,0xc6,0x45]]
+    aes_256.printMatrixAsHex(example_matrix)
+    mixed_columns = aes_256.mixColumns(example_matrix)
+    print("Mixed Columns")
+    aes_256.printMatrixAsHex(mixed_columns)
+    print("- - - - - - - - - - - -")
+    print("Substitute Example Matrix:")
+    example_matrix = [[0x53,0x01,0xc6,0xdb], [0x0a,0x01,0xc6,0x13],[0x22,0x01,0xc6,0x53], [0x5c,0x01,0xc6,0x45]]
+    aes_256.printMatrixAsHex(example_matrix)
+    substitution_matrix = aes_256.substituteBytes(example_matrix)
+    print("Substituted:")
+    aes_256.printMatrixAsHex(substitution_matrix)
+    print("- - - - - - - - - - - -")
+    print("Substitute Example Word: ")
+    example_word = [0x53, 0xf2, 0x12, 0x32]
+    aes_256.printWordAsHex(example_word)
+    substituted = aes_256.substituteWord(example_word)
+    print("Substituted:")
+    aes_256.printWordAsHex(substituted)
+    print("- - - - - - - - - - - -")
+    print("Rotate Example Word: ")
+    example_word = [0x53, 0xf2, 0x12, 0x32]
+    aes_256.printWordAsHex(example_word)
+    rotated = aes_256.rotateWord(example_word)
+    print("Rotated:")
+    aes_256.printWordAsHex(rotated)
+    print("- - - - - - - - - - - -")
+    print("Key Expansion for AES 128")
+    aes_128 = AES128("2b7e151628aed2a6abf7158809cf4f3c")
+    aes_128.printMatrixAsHex(aes_128.expanded_key,True)
+    print("- - - - - - - - - - - -")
+    print("Key Expansion for AES 192")
+    example_aes_192_key = "8e 73 b0 f7 da 0e 64 52 c8 10 f3 2b 80 90 79 e5 62 f8 ea d2 52 2c 6b 7b"
+    example_aes_192_key = example_aes_192_key.replace(" ","")
+    aes_192 = AES192(example_aes_192_key)
+    aes_192.printMatrixAsHex(aes_192.expanded_key,True)
+    print("- - - - - - - - - - - -")
+    print("Key Expansion for AES 256")
+    aes_256.printMatrixAsHex(aes_256.expanded_key,True)
+    hextoencrypt = "2b7e151628aed2a6abf7158809cf4f3c"
+
+    print("- - - - - - - - - - - -")
+    print(f"Working on xTimes :")
+    print(f"{2}  : {hex(aes_128.xTimes(0x57,0x02))} should be 0xae")
+    print(f"{4}  : {hex(aes_128.xTimes(0x57,0x04))} should be 0x47")
+    print(f"{8}  : {hex(aes_128.xTimes(0x57,0x08))} should be 0x8e")
+    print(f"{10} : {hex(aes_128.xTimes(0x57,0x10))}  should be  0x7")
+    print(f"{20} : {hex(aes_128.xTimes(0x57,0x20))}  should be  0xe")
+    print(f"{40} : {hex(aes_128.xTimes(0x57,0x40))} should be 0x1c")
+    print(f"{80} : {hex(aes_128.xTimes(0x57,0x80))} should be 0x38")
+    print(f"{13} : {hex(aes_128.xTimes(0x57,0x13))} should be 0xfe")
+    print("- - - - - - - - - - - -")
+    print("Expanded Key for AES 128")
+    aes_128.printMatrixAsHex(aes_128.expanded_key,True)
+    print("- - - - - - - - - - - -")
+    hextoencrypt ="3243f6a8885a308d313198a2e0370734"
+    key = "2b7e151628aed2a6abf7158809cf4f3c"
+    aes_128 = AES128(key=key)
+    print(f"Encrypting With AES 128 : {hextoencrypt}")
+    encrypted = aes_128.cypher(hextoencrypt)
+    print("- - - - - - - - - - - -")
+    aes_128.printMatrixAsHex(encrypted)
+    print("- - - - - - - - - - - -")
+    hextoencrypt = "6BC1BEE22E409F96E93D7E117393172"
+    print(f"Encrypting With AES 128 : {hextoencrypt}")
+    encrypted = aes_128.cypher(hextoencrypt)
+    aes_128.printMatrixAsHex(encrypted)
+    print("- - - - - - - - - - - -")
+    cypher_text = "3AD77BB40D7A3660A89ECAF32466EF97"
+    key = ("2B7E151628AED2A6ABF7158809CF4F3C")
+    aes_128 = AES128(key)
+    print(f"Decrypting With AES 128 : {cypher_text}")
+    decrypted = aes_128.inverseCypher(cypher_text)
+    aes_128.printMatrixAsHexString(decrypted)
+    cypher_text = "F5D3D58503B9699DE785895A96FDBAAF"
+    print(f"Decrypting With AES 128 : {cypher_text}")
+    decrypted = aes_128.inverseCypher(cypher_text)
+    aes_128.printMatrixAsHexString(decrypted)
+    cypher_text = "43B1CD7F598ECE23881B00E3ED030688"
+    print(f"Decrypting With AES 128 : {cypher_text}")
+    decrypted = aes_128.inverseCypher(cypher_text)
+    aes_128.printMatrixAsHexString(decrypted)
+    cypher_text = "7B0C785E27E8AD3F8223207104725DD4"
+    print(f"Decrypting With AES 128 : {cypher_text}")
+    decrypted = aes_128.inverseCypher(cypher_text)
+    aes_128.printMatrixAsHexString(decrypted)
+    print("- - - - - - - - - - - -")
+    hextoencrypt = "6BC1BEE22E409F96E93D7E117393172"
+    print(f"Encrypting With AES 128 : {hextoencrypt}")
+    encrypted = aes_128.cypher(hextoencrypt)
+    aes_128.printMatrixAsHexString(encrypted)
+    print("- - - - - - - - - - - -")
+    hextoencrypt = "3243f6a8885a308d313198a2e0370734"
+    print(f"Encrypting With AES 128 : {hextoencrypt}")
+    encrypted = aes_128.cypher(hextoencrypt)
+    aes_128.printMatrixAsHexString(encrypted)
+    print("- - - - - - - - - - - -")
+    cypher_text = "3925841D02DC09FBDC118597196A0B32"
+    print(f"Decrypting With AES 128 : {cypher_text}")
+    decrypted = aes_128.inverseCypher(cypher_text)
+    aes_128.printMatrixAsHexString(decrypted)
+    print("- - - - - - - - - - - -")
+    hextoencrypt = "6BC1BEE22E409F96E93D7E117393172A"
+    print(f"Encrypting With AES 128 : {hextoencrypt}")
+    encrypted = aes_128.cypher(hextoencrypt)
+    aes_128.printMatrixAsHexString(encrypted)
+    hextoencrypt = "AE2D8A571E03AC9C9EB76FAC45AF8E51"
+    print(f"Encrypting With AES 128 : {hextoencrypt}")
+    encrypted = aes_128.cypher(hextoencrypt)
+    aes_128.printMatrixAsHexString(encrypted)
+    hextoencrypt = "30C81C46A35CE411E5FBC1191A0A52EF"
+    print(f"Encrypting With AES 128 : {hextoencrypt}")
+    encrypted = aes_128.cypher(hextoencrypt)
+    aes_128.printMatrixAsHexString(encrypted)
+    hextoencrypt = "F69F2445DF4F9B17AD2B417BE66C3710"
+    print(f"Encrypting With AES 128 : {hextoencrypt}")
+    encrypted = aes_128.cypher(hextoencrypt)
+    aes_128.printMatrixAsHexString(encrypted)
+    print("- - - - - - - - - - - -")
+    print(f"Encrypting With AES 256 : {hextoencrypt}")
+    encrypted = aes_256.cypher(hextoencrypt)
+    aes_256.printMatrixAsHexString(encrypted)
+    cypher_text = "23304B7A39F9F3FF067D8D8F9E24ECC7"
+    print(f"Decrypting With AES 256 : {cypher_text}")
+    decrypted = aes_256.inverseCypher(cypher_text)
+    aes_256.printMatrixAsHexString(decrypted)
+    print("- - - - - - - - - - - -")
