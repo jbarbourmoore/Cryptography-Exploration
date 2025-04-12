@@ -188,3 +188,92 @@ def chi(A):
                A_prime[x][y][z] = A[x][y][z] ^ A_x_1x2
             A_x_prime.append(A_x_y_prime)
         A_prime.append(A_x_prime)
+
+def rc(t):
+    '''
+    This method should implement rc as according to Algorithm 5 of https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.202.pdf
+
+    "Algorithm 5: rc(t)
+    Input:
+    integer t.
+    Output:
+    bit rc(t).
+    Steps:
+    1. If t mod 255 = 0, return 1.
+    2. Let R = 10000000.
+    3. For i from 1 to t mod 255, let: 
+    a. R = 0 || R;
+    b. R[0] = R[0] ⊕ R[8];
+    c. R[4] = R[4] ⊕ R[8];
+    d. R[5] = R[5] ⊕ R[8];
+    e. R[6] = R[6] ⊕ R[8];
+    f. R =Trunc8[R].
+    4. Return R[0]."
+    '''
+
+    # 1. If t mod 255 = 0, return 1.
+    if t % 255 == 0:
+        return 1
+    
+    # 2. Let R = 10000000.
+    R = [1,0,0,0,0,0,0,0]
+
+    # 3. For i from 1 to t mod 255, let: 
+    for i in range(1, t % 255 + 1):
+        # a. R = 0 || R
+        R = [0] + R
+        # b. R[0] = R[0] ⊕ R[8]
+        R[0] = R[0] ^ R[8]
+        # c. R[4] = R[4] ⊕ R[8]
+        R[4] = R[4] ^ R[8]
+        # d. R[5] = R[5] ⊕ R[8]
+        R[5] = R[5] ^ R[8]
+        # e. R[6] = R[6] ⊕ R[8]
+        R[6] = R[6] ^ R[8]
+        # f. R =Trunc8[R]
+        R = R[0:8]
+    
+    # 4. Return R[0]
+    return R[0]
+
+def iota(A, i, w, l):
+    '''
+    This method should implement iota as according to Algorithm 6 of https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.202.pdf
+
+    "Algorithm 6: ι(A, ir)
+    Input:
+    state array A;
+    round index ir.
+    Output:
+    state array A′.
+    Steps:
+    1. For all triples (x, y,z) such that 0≤x<5, 0≤y<5, and 0≤z<w, let A′[x, y,z] = A[x, y,z].
+    2. Let RC=0w
+    .
+    3. For j from 0 to l, let RC[2j –1]=rc(j+7ir).
+    4. For all z such that 0≤z<w, let A′[0, 0,z]=A′[0, 0,z] ⊕ RC[z].
+    5. Return A′."
+    '''
+    # 1. For all triples (x, y,z) such that 0≤x<5, 0≤y<5, and 0≤z<w, let A′[x, y,z] = A[x, y,z].
+    A_prime = []
+    for x in range(0, len(A)):
+        A_x_prime = []
+        for y in range(0,len(A[x])):
+            A_x_y_prime = []
+            for z in range(0,len(A[x][y])):
+                A_x_y_prime.append(z)
+            A_x_prime.append(A_x_y_prime)
+        A_prime.append(A_x_prime)
+
+    # 2. Let RC=0w
+    RC = [0]*w
+
+    # 3. For j from 0 to l, let RC[2j –1]=rc(j+7ir).
+    for j in range(0, l):
+        RC[2 * j - 1]=rc(j + 7 * i)
+
+    #4. For all z such that 0≤z<w, let A′[0, 0,z]=A′[0, 0,z] ⊕ RC[z].
+    for z in range(0,w):
+        A_prime[0][0][z] = A_prime[0][0][z] ^ RC[z]
+
+    return A_prime
