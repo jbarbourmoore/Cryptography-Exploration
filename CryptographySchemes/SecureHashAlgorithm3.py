@@ -50,38 +50,28 @@ def theta(A):
     3. For all triples (x, y, z) such that 0≤x<5, 0≤y<5, and 0≤z<w, let
     A′[x, y,z] = A[x, y,z] ⊕ D[x,z]."
     '''
-
+    w= len(A[0][0])
     # 1. For all pairs (x,z) such that 0≤x<5 and 0≤z<w, let 
     # C[x,z]=A[x, 0,z] ⊕ A[x, 1,z] ⊕ A[x, 2,z] ⊕ A[x, 3,z] ⊕ A[x, 4,z].
-    C = []
+    C = [[0 for z in range(0, w)]  for x in range(0,5)]
     for x in range(0, len(A)):
-        C_x = []
-        for z in range(0, len(A[x][0])):
-            C_x.append(A[x][0][z] ^ A[x][1][z] ^ A[x][2][z] ^ A[x][3][z] ^ A[x][4][z])
-        C.append(C_x)
+        for z in range(0, w):
+            C[x][z] = A[x][0][z] ^ A[x][1][z] ^ A[x][2][z] ^ A[x][3][z] ^ A[x][4][z]
 
     # 2. For all pairs (x, z) such that 0≤x<5 and 0≤z<w let 
-    # D[x,z]=C[(x1) mod 5, z] ⊕ C[(x+1) mod 5, (z –1) mod w].
-    D = []
-    for x in range(0, len(A)):
-        D_x = []
-        for z in range(0, len(A[x][0])):
-            D_x_z = C[(x - 1) % 5][z] ^ C[(x + 1) % 5][(z - 1) % len(A[0][0])]
-            D_x.append(D_x_z)
-        D.append(D_x)
+    # D[x,z]=C[(x-1) mod 5, z] ⊕ C[(x+1) mod 5, (z –1) mod w].
+    D = [[0 for z in range(0, w)]  for x in range(0,5)]
+    for x in range(0, 5):
+        for z in range(0, w):
+            D[x][z] = C[(x - 1) % 5][z] ^ C[(x + 1) % 5][(z - 1) % w]
     
     # 3. For all triples (x, y, z) such that 0≤x<5, 0≤y<5, and 0≤z<w, let
     # A′[x, y,z] = A[x, y,z] ⊕ D[x,z]."
-    A_prime = []
-    for x in range (0, len(A)):
-        A_prime_x = []
-        for y in range(0, len(A[x])):
-            A_prime_x_y = []
-            for z in range(0, len(A[x][y])):
-                A_prime_x_y_z = A[x][y][z] ^ D[x][z]
-                A_prime_x_y.append(A_prime_x_y_z)
-            A_prime_x.append(A_prime_x_y)
-        A_prime.append(A_prime_x)
+    A_prime = [[[0 for z in range(0,w)] for y in range(0,5)] for x in range(0,5)]
+    for x in range (0, 5):
+        for y in range(0, 5):
+            for z in range(0, w):
+                A_prime[x][y][z] = A[x][y][z] ^ D[x][z]
     return A_prime
 
 def rho(A):
@@ -101,10 +91,11 @@ def rho(A):
     b. let (x, y) = (y, (2x+3y) mod 5).
     4. Return A′"
     '''
-    A_prime = [[[0 for z in range(0,len(A[0][0]))] for y in range(0,len(A[0]))] for x in range(0,len(A))]
+    w = len(A[0][0])
+    A_prime = [[[0 for z in range(0, w)] for y in range(0, 5)] for x in range(0, 5)]
 
     # 1. For all z such that 0≤z<w, let A′ [0, 0,z] = A[0, 0, z].
-    for z in range(0, len(A[0][0])):
+    for z in range(0, w):
           A_prime[0][0][z] = A[0][0][z]     
 
     # 3. For t from 0 to 23:
@@ -112,9 +103,11 @@ def rho(A):
     # b. let (x, y) = (y, (2x+3y) mod 5).
     x = 0
     y = 1
-    for t in range(0, 23):
-        for z in range(0, len(A[0][0])):
-            z_prime_location = (z - (t + 1) * (t + 2) // 2) % len(A[x][y])
+    for t in range(0, 24):
+        for z in range(0, w):
+            z_prime_locationPre_modulo = (z - (((t + 1) * (t + 2)) // 2))
+            z_prime_location = z_prime_locationPre_modulo  % w
+            # print(f"z:{z} t:{t} z-prime-loc = {z_prime_locationPre_modulo} z-prime-location = {z_prime_location}")
             A_prime[x][y][z] = A[x][y][ z_prime_location ]
             x_new = y
             y = (2 * x + 3 * y) % 5
@@ -240,28 +233,20 @@ def iota(A, ir, w, l):
     1. For all triples (x, y,z) such that 0≤x<5, 0≤y<5, and 0≤z<w, let A′[x, y,z] = A[x, y,z].
     2. Let RC=0w
     .
-    3. For j from 0 to l, let RC[2j –1]=rc(j+7ir).
+    3. For j from 0 to l, let RC[2**j –1]=rc(j+7ir).
     4. For all z such that 0≤z<w, let A′[0, 0,z]=A′[0, 0,z] ⊕ RC[z].
     5. Return A′."
     '''
 
     # 1. For all triples (x, y,z) such that 0≤x<5, 0≤y<5, and 0≤z<w, let A′[x, y,z] = A[x, y,z].
-    A_prime = []
-    for x in range(0, len(A)):
-        A_x_prime = []
-        for y in range(0,len(A[x])):
-            A_x_y_prime = []
-            for z in range(0,len(A[x][y])):
-                A_x_y_prime.append(A[x][y][z])
-            A_x_prime.append(A_x_y_prime)
-        A_prime.append(A_x_prime)
-
+    A_prime = [[[A[x][y][z] for z in range(0,len(A[0][0]))] for y in range(0,len(A[0]))] for x in range(0,len(A))]
+    
     # 2. Let RC=0w
     RC = [0]*w
 
-    # 3. For j from 0 to l, let RC[2j –1]=rc(j+7ir).
-    for y in range(0, int(l)):
-        RC[2 * y - 1]=rc(y + 7 * ir)
+    # 3. For j from 0 to l, let RC[2**j –1]=rc(j+7ir).
+    for j in range(0, int(l)):
+        RC[2**j - 1]=rc(j + 7 * ir)
 
     #4. For all z such that 0≤z<w, let A′[0, 0,z]=A′[0, 0,z] ⊕ RC[z].
     for z in range(0,w):
@@ -277,7 +262,7 @@ def round(A, ir, w, l, is_debug):
     '''
     
     A_theta = theta(A) # θ
-    A_rho = rho(A_theta,w) # ρ
+    A_rho = rho(A_theta) # ρ
     A_pi = pi(A_rho) # π
     A_chi = chi(A_pi) # χ
     A_iota = iota(A_chi, ir,w,l) # ι
@@ -336,18 +321,12 @@ def bitStringToStateArray(S):
     '''
     b = len(S)
     w = b // 25
-    print(w)
-    A = []
+    A = [[[0 for z in range(0,w)] for y in range(0,5)] for x in range(0,5)]
     for x in range(0,5):
-        A_x = []
         for y in range(0,5):
-            A_x_y = []
             for z in range (0,w):
                 index = w * (5 * y + x) + z
-                A_x_y.append(int(S[index],2))
-            A_x.append(A_x_y)
-        A.append(A_x)
-    
+                A[x][y][z] = (int(S[index],2))
     return A
 
 def stateArrayToBitString(A):
@@ -455,10 +434,11 @@ class SHA3():
             S = keccak_p(S,nr=nr)
             Z = Z + S[:r]
         return Z[:self.digest_length]
+    
+
     def binaryToHex(self, binary):
         #print(binary)
         return '{0:0{1}x}'.format(int(binary,2),len(binary)//4)
-        return hex(int(binary,2))[2:]
 
     def hashStringToHex(self, message_string):
         bytes_data = message_string.encode('utf-8')
@@ -536,6 +516,5 @@ if __name__ =="__main__":
 
     theta_state_expected = "D3 00 00 00 00 00 00 00 D3 00 00 00 00 00 00 00 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 A6 01 00 00 00 00 00 80 00 00 00 00 00 00 00 00 D3 00 00 00 00 00 00 00 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 80 A6 01 00 00 00 00 00 80 00 00 00 00 00 00 00 00 D3 00 00 00 00 00 00 00 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 A6 01 00 00 00 00 00 80 00 00 00 00 00 00 00 00 D3 00 00 00 00 00 00 00 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 A6 01 00 00 00 00 00 80 00 00 00 00 00 00 00 00 D3 00 00 00 00 00 00 00 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 A6 01 00 00 00 00 00 80"
     theta_state_expected = theta_state_expected.replace(" ","")
-    print(theta_state_expected)
     print(sha512.binaryToHex(stateArrayToBitString(theta)).upper())
     print(theta_state_expected.upper())
