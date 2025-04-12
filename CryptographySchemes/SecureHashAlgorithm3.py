@@ -236,7 +236,6 @@ def rc(t):
         R[6] = R[6] ^ R[8]
         # f. R =Trunc8[R]
         R = R[0:8]
-    
     # 4. Return R[0]
     return R[0]
 
@@ -265,7 +264,7 @@ def iota(A, ir, w, l):
         for y in range(0,len(A[x])):
             A_x_y_prime = []
             for z in range(0,len(A[x][y])):
-                A_x_y_prime.append(z)
+                A_x_y_prime.append(A[x][y][z])
             A_x_prime.append(A_x_y_prime)
         A_prime.append(A_x_prime)
 
@@ -329,7 +328,7 @@ def keccak_p(S, nr):
 
     # 2. For ir from 12+2l –nr to 12+2l –1, let A=Rnd(A, ir)
     for i in range(12+21 - nr,12+21):
-        A = round(A, i, w, l, is_debug=True)
+        A = round(A, i, w, l, is_debug=False)
     
     S_prime = stateArrayToBitString(A,w)
 
@@ -389,12 +388,12 @@ def stateArrayToBitString(A, w):
                 S+=str(A[x][y][z])
     return S
 
-test_string_1 = '1010101010 1010101010 1010101010 1010101010 1010101010'
+test_string_1 = '1010101010 1010101010 1010101010 1010101010 1010101010 1010101010 1010101010 1010101010 1010101010 1010101010 1010101010 1010101010 1010101010 1010101010 1010101010 1010101010 1010101010 1010101010 1010101010 1010101010'
 test_string_1 = test_string_1.replace(" ","")
 response_string = keccak_p(test_string_1,18)
 print(response_string)
 print(len(response_string))
-test_string_1 = '1010101010 1111111111 1010101010 1010101010 1010101010'
+test_string_1 = '1010101010 1111111111 1010101010 1010101010 1010101010 1010101010 1010101010 1010101010 1010101010 1010101010 1010101010 1010101010 1010101010 1010101010 1010101010 1010101010 1010101010 1010101010 1010101010 1010101010'
 test_string_1 = test_string_1.replace(" ","")
 response_string = keccak_p(test_string_1,1)
 print(response_string)
