@@ -5,7 +5,7 @@ A repository created in order to explore cryptography related algorithms, implem
 
 ### Advanced Encryption Standard (AES)   
 
-I implemented a version of the Advanced Encryption Standard as laid out in [NIST FIPS 197](https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.197-upd1.pdf). AES has several variants based on the length of the key and I implemented AES-128, AES-198 and AES 256. The Advanced Encryption Standard is a symetric encryption algorithm, so it is necessary to have the same key to encrypt the message as you use to decrypt the message. For the example sequence shown below, I relied on the use of Elliptic Curve Diffie Hellman key exchange in order to use the shared secret to generate the same key as both the originator and the receiver.    
+I implemented a version of the Advanced Encryption Standard as laid out in [NIST FIPS 197](https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.197-upd1.pdf). AES has several variants based on the length of the key and I implemented AES-128, AES-192 and AES 256. The Advanced Encryption Standard is a symetric encryption algorithm, so it is necessary to have the same key to encrypt the message as you use to decrypt the message. For the example sequence shown below, I relied on the use of Elliptic Curve Diffie Hellman key exchange in order to use the shared secret to generate the same key as both the originator and the receiver.    
 
 <img 
     style="display: block; margin-left: auto; margin-right: auto; width: 100%;"
