@@ -491,7 +491,7 @@ class BasicSequenceDiagramSetup():
         print("hide footbox")
         print(f"title \"{self.title}\"")
         print("autonumber")
-        print("skinparam maxMessageSize 300")
+        print("skinparam maxMessageSize 600")
         print("skinparam NoteBackgroundColor LightSteelBlue")
         print("skinparam NoteBorderColor Black")
         print("skinparam ParticipantBackgroundColor Navy")
@@ -642,6 +642,14 @@ class BasicCommunication(BasicEvent):
         self.start_participant = start_participant
         self.end_participant = end_participant
         self.direction = direction
+
+        max_message_width = 90
+        if len(self.message)>max_message_width:
+            for i in range(max_message_width,len(self.message),max_message_width+2):
+                first_half = self.message[:i]
+                second_half = self.message[i:]
+                self.message = first_half+"\\n"+second_half
+
 
 class BasicParticipant():
     '''
