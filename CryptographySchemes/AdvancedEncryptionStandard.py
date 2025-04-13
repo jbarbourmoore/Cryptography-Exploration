@@ -580,6 +580,119 @@ class AES():
                 print("- - - - - - - - - - - -")
         state = self.addRoundKey(state,self.expanded_key[0:4])
         return(self.getMatrixAsHexString(state))
+    
+    def encryptStringMessage_ECB(self, string_message:str):
+        '''
+        This method takes in a string, uses utf-8 encoding to translate it to hex, and encrypts it in blocks using AES
+
+        Parameters :
+            string_message : str
+                The message to be encrypted using AES
+        
+        Returns : 
+            result_list : [str]
+                The result of the encryption as a list of hexadecimal strings
+        '''
+
+        hex_list = self.stringToHexList(string_message)
+        result_list = []
+        for hex_message in hex_list:
+            result_list.append(self.cypher(hex_message))
+
+        return result_list
+    
+    def decryptHexList_ECB(self, encrypted_list:list[str]):
+        '''
+        This method takes in a list of encrypted hex strings, decypts them and returns the message as a string
+
+        Parameters :
+            encrypted_list : [str]
+                The result of the encryption as a list of hexadecimal strings
+        
+        Returns : 
+            unencrypted_string : str
+                The message that was encrypted using AES
+            
+        '''
+        result_list = []
+        for encoded_hex in encrypted_list:
+            result_list.append(self.inverseCypher(encoded_hex))
+        unencrypted_string = self.hexListToString(result_list)
+        return unencrypted_string
+    
+    def stringToHexList(self, string_message:str):
+        '''
+        This method converts a string message into a list of hex strings with a 128 bit length
+
+        Parameters :
+            string_message : str
+                The message to be encrypted as a string
+
+        Returns : 
+            hex_list : [str]
+                The message as a list of 64 bit binary strings
+        '''
+
+        length = len(string_message)
+        list_of_blocks = []
+        for x in range(0,length,16):
+            list_of_blocks.append(string_message[x:x+16])
+        for j in range(0,len(list_of_blocks)):
+            list_of_blocks[j]=self.stringToHex(list_of_blocks[j])
+        return list_of_blocks
+
+    def stringToHex(self, string):
+        '''
+        This method converts a string message a 64 bit binary string
+
+        Parameters :
+            string : str
+                The message to be encrypted as a string
+
+        Returns : 
+            binary : str
+                The message as a 64 bit binary string
+        '''
+        string_utf8 = string.encode('utf-8')
+        hex_string = string_utf8.hex()
+        if(len(hex_string) < 32):
+            hex_string += '0'*(32-len(hex_string))
+        return hex_string
+    
+    def hexToString(self,hex_string):
+        '''
+        This method converts a hex string back to a readable string
+
+        Parameters :
+            hex_string : str
+                The hexadecimal string
+
+        Returns :
+            message_string : str
+                The hexadecimal string converted into a readable string
+        '''
+
+        message_string = ''.join([chr(int(hex_string[i:i+2], 16)) for i in range(0, len(hex_string), 2)])
+        message_string = message_string.replace('\x00','')
+        return message_string
+    
+    def hexListToString(self, hex_list):
+        '''
+        This method converts a hex string list back to a readable string
+
+        Parameters :
+            hex_list : str
+                The list of hexadecimal strings
+
+        Returns :
+            string : str
+                The binary string list converted into a readable string
+        '''
+
+        string=""
+        for i in range(0,len(hex_list)):
+            string+=self.hexToString(hex_list[i])
+        return str(string)
 
 class AES128(AES):
     '''
@@ -692,88 +805,13 @@ if __name__ == '__main__':
     hextoencrypt = "2b7e151628aed2a6abf7158809cf4f3c"
 
     print("- - - - - - - - - - - -")
-    print(f"Working on xTimes :")
-    print(f"{2}  : {hex(aes_128.xTimes(0x57,0x02))} should be 0xae")
-    print(f"{4}  : {hex(aes_128.xTimes(0x57,0x04))} should be 0x47")
-    print(f"{8}  : {hex(aes_128.xTimes(0x57,0x08))} should be 0x8e")
-    print(f"{10} : {hex(aes_128.xTimes(0x57,0x10))}  should be  0x7")
-    print(f"{20} : {hex(aes_128.xTimes(0x57,0x20))}  should be  0xe")
-    print(f"{40} : {hex(aes_128.xTimes(0x57,0x40))} should be 0x1c")
-    print(f"{80} : {hex(aes_128.xTimes(0x57,0x80))} should be 0x38")
-    print(f"{13} : {hex(aes_128.xTimes(0x57,0x13))} should be 0xfe")
-    print("- - - - - - - - - - - -")
-    print("Expanded Key for AES 128")
-    aes_128.printMatrixAsHex(aes_128.expanded_key,True)
-    print("- - - - - - - - - - - -")
-    hextoencrypt ="3243f6a8885a308d313198a2e0370734"
-    key = "2b7e151628aed2a6abf7158809cf4f3c"
-    aes_128 = AES128(key=key)
-    print(f"Encrypting With AES 128 : {hextoencrypt}")
-    encrypted = aes_128.cypher(hextoencrypt)
-    print("- - - - - - - - - - - -")
-    aes_128.printMatrixAsHex(encrypted)
-    print("- - - - - - - - - - - -")
-    hextoencrypt = "6BC1BEE22E409F96E93D7E117393172"
-    print(f"Encrypting With AES 128 : {hextoencrypt}")
-    encrypted = aes_128.cypher(hextoencrypt)
-    aes_128.printMatrixAsHex(encrypted)
-    print("- - - - - - - - - - - -")
-    cypher_text = "3AD77BB40D7A3660A89ECAF32466EF97"
-    key = ("2B7E151628AED2A6ABF7158809CF4F3C")
-    aes_128 = AES128(key)
-    print(f"Decrypting With AES 128 : {cypher_text}")
-    decrypted = aes_128.inverseCypher(cypher_text)
-    aes_128.printMatrixAsHexString(decrypted)
-    cypher_text = "F5D3D58503B9699DE785895A96FDBAAF"
-    print(f"Decrypting With AES 128 : {cypher_text}")
-    decrypted = aes_128.inverseCypher(cypher_text)
-    aes_128.printMatrixAsHexString(decrypted)
-    cypher_text = "43B1CD7F598ECE23881B00E3ED030688"
-    print(f"Decrypting With AES 128 : {cypher_text}")
-    decrypted = aes_128.inverseCypher(cypher_text)
-    aes_128.printMatrixAsHexString(decrypted)
-    cypher_text = "7B0C785E27E8AD3F8223207104725DD4"
-    print(f"Decrypting With AES 128 : {cypher_text}")
-    decrypted = aes_128.inverseCypher(cypher_text)
-    aes_128.printMatrixAsHexString(decrypted)
-    print("- - - - - - - - - - - -")
-    hextoencrypt = "6BC1BEE22E409F96E93D7E117393172"
-    print(f"Encrypting With AES 128 : {hextoencrypt}")
-    encrypted = aes_128.cypher(hextoencrypt)
-    aes_128.printMatrixAsHexString(encrypted)
-    print("- - - - - - - - - - - -")
-    hextoencrypt = "3243f6a8885a308d313198a2e0370734"
-    print(f"Encrypting With AES 128 : {hextoencrypt}")
-    encrypted = aes_128.cypher(hextoencrypt)
-    aes_128.printMatrixAsHexString(encrypted)
-    print("- - - - - - - - - - - -")
-    cypher_text = "3925841D02DC09FBDC118597196A0B32"
-    print(f"Decrypting With AES 128 : {cypher_text}")
-    decrypted = aes_128.inverseCypher(cypher_text)
-    aes_128.printMatrixAsHexString(decrypted)
-    print("- - - - - - - - - - - -")
-    hextoencrypt = "6BC1BEE22E409F96E93D7E117393172A"
-    print(f"Encrypting With AES 128 : {hextoencrypt}")
-    encrypted = aes_128.cypher(hextoencrypt)
-    aes_128.printMatrixAsHexString(encrypted)
-    hextoencrypt = "AE2D8A571E03AC9C9EB76FAC45AF8E51"
-    print(f"Encrypting With AES 128 : {hextoencrypt}")
-    encrypted = aes_128.cypher(hextoencrypt)
-    aes_128.printMatrixAsHexString(encrypted)
-    hextoencrypt = "30C81C46A35CE411E5FBC1191A0A52EF"
-    print(f"Encrypting With AES 128 : {hextoencrypt}")
-    encrypted = aes_128.cypher(hextoencrypt)
-    aes_128.printMatrixAsHexString(encrypted)
-    hextoencrypt = "F69F2445DF4F9B17AD2B417BE66C3710"
-    print(f"Encrypting With AES 128 : {hextoencrypt}")
-    encrypted = aes_128.cypher(hextoencrypt)
-    aes_128.printMatrixAsHexString(encrypted)
-    print("- - - - - - - - - - - -")
-    print(f"Encrypting With AES 256 : {hextoencrypt}")
-    encrypted = aes_256.cypher(hextoencrypt)
-    aes_256.printMatrixAsHexString(encrypted)
-    cypher_text = "23304B7A39F9F3FF067D8D8F9E24ECC7"
-    print(f"Decrypting With AES 256 : {cypher_text}")
-    decrypted = aes_256.inverseCypher(cypher_text)
-    aes_256.printMatrixAsHexString(decrypted)
-    print("- - - - - - - - - - - -")
+    hex_list = aes_256.stringToHexList("Hello This is my list of words as hex I hope!")
+    print(hex_list)
+    string_message = aes_256.hexListToString(hex_list=hex_list)
+    print(string_message)
+    encrypted_message = aes_256.encryptStringMessage_ECB(string_message)
+    print(encrypted_message)
+    encrypted_string = aes_256.hexListToString(hex_list=encrypted_message)
+    print(encrypted_string)
+    decrypted_string = aes_256.decryptHexList_ECB(encrypted_message)
+    print(decrypted_string)
