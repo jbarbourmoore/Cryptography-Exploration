@@ -1,8 +1,8 @@
 import secrets
+from random import randint
 from HelperFunctions import EllipticCurveDetails
 from HelperFunctions.EllipticCurveCalculations import EllipticCurveCalculations
-from random import randint
-import hashlib
+from CryptographySchemes.SecureHashAlgorithm3 import SHA3_512
 
 class EllipticCurveDigitalSignatureAlgorithm():
     '''
@@ -59,10 +59,19 @@ class EllipticCurveDigitalSignatureAlgorithm():
 
     def calculateHashOfItem(self, item_to_hash):
         '''
-        This method calculate the sha512 hash digest of the message and returns it as an int
+        This method calculate the sha3-512 hash digest of the message and returns it as an int
+
+        Parameter :
+            item_to_hash : str
+                The item that is being hashed
+
+        Returns :
+            hash_value : int
+                The hash value of the item as an int
         '''
 
-        return int(hashlib.sha512(str(item_to_hash).encode("utf-8")).hexdigest(), 16)
+        sha3_512 = SHA3_512()
+        return int(sha3_512.hashBinaryStringToHex(sha3_512.h2b(str(item_to_hash).encode("utf-8").hex())), 16)
     
     def createSignature(self, message):
         '''
@@ -137,7 +146,6 @@ if __name__ == '__main__':
     
     print("The example runs the elliptic curve digital signature algorithm for a given message and verifies the signature")
     print("The Elliptic Curve math is based on Weirstrass form elliptic curves and implemented in HelperFunctions.EllipticCurveCalculations")
-    print("It relies upon the sha-512 hashing function from hashlib and uses the secrets library to generate a private key")
     
     print("- - - - - - - - - - - -")
 
