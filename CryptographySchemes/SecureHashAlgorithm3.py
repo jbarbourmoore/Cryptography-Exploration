@@ -23,7 +23,7 @@ Plane (j) = Lane (0, j) || Lane (1, j) || Lane (2, j) || Lane (3, j) || Lane (4,
 Then S = Plane (0) || Plane (1) || Plane (2) || Plane (3) || Plane (4). 
 '''
 
-from math import log2
+from math import log2, ceil
 import numpy as np
 
 expected_values = {
@@ -92,27 +92,13 @@ def rho(A):
     4. Return A′"
     '''
     w = len(A[0][0])
+    rho_matrix=[[0,36,3,41,18],[1,44,10,45,2],[62,6,43,15,61],[28,55,25,21,56],[27,20,39,8,14]]
     A_prime = [[[0 for z in range(0, w)] for y in range(0, 5)] for x in range(0, 5)]
-
-    # 1. For all z such that 0≤z<w, let A′ [0, 0,z] = A[0, 0, z].
-    for z in range(0, w):
-          A_prime[0][0][z] = A[0][0][z]     
-
-    # 3. For t from 0 to 23:
-    # a. for all z such that 0≤z<w, let A′[x, y,z] = A[x, y, (z–(t+1)(t+2)/2) mod w];
-    # b. let (x, y) = (y, (2x+3y) mod 5).
-    x = 0
-    y = 1
-    for t in range(0, 24):
-        for z in range(0, w):
-            z_prime_locationPre_modulo = (z - (((t + 1) * (t + 2)) // 2))
-            z_prime_location = z_prime_locationPre_modulo  % w
-            # print(f"z:{z} t:{t} z-prime-loc = {z_prime_locationPre_modulo} z-prime-location = {z_prime_location}")
-            A_prime[x][y][z] = A[x][y][ z_prime_location ]
-            x_new = y
-            y = (2 * x + 3 * y) % 5
-            x = x_new
-
+    for i in range(0,5):
+        for j in range(0,5):
+            for k in range(w):
+                select = rho_matrix[i][j] # Use lookup table to "calculate" (t + 1)(t + 2)/2
+                A_prime[i][j][k] = A[i][j][(k - select)%w]
     return A_prime
 
 def pi(A):
@@ -238,43 +224,42 @@ def iota(A, ir):
     5. Return A′."
     '''
     w = len(A[0][0])
-    l = log2(w)
 
+    iota_round_constants = [
+        0x0000000000000001, 0x0000000000008082, 0x800000000000808A, 0x8000000080008000, 0x000000000000808B, 0x0000000080000001,
+        0x8000000080008081, 0x8000000000008009, 0x000000000000008A, 0x0000000000000088, 0x0000000080008009, 0x000000008000000A,
+        0x000000008000808B, 0x800000000000008B, 0x8000000000008089, 0x8000000000008003, 0x8000000000008002, 0x8000000000000080,
+        0x000000000000800A, 0x800000008000000A, 0x8000000080008081, 0x8000000000008080, 0x0000000080000001, 0x8000000080008008]
+    
     # 1. For all triples (x, y,z) such that 0≤x<5, 0≤y<5, and 0≤z<w, let A′[x, y,z] = A[x, y,z].
     A_prime = [[[A[x][y][z] for z in range(0,w)] for y in range(0,5)] for x in range(0,5)]
-    
-    # 2. Let RC=0w
-    RC = [0]*w
 
-    # 3. For j from 0 to l, let RC[2**j –1]=rc(j+7ir).
-    for j in range(0, int(l)):
-        RC[2**j - 1]=rc(j + 7 * ir)
+    iota_round_constant = iota_round_constants[ir]
 
-    #4. For all z such that 0≤z<w, let A′[0, 0,z]=A′[0, 0,z] ⊕ RC[z].
-    for z in range(0,w):
-        A_prime[0][0][z] = A_prime[0][0][z] ^ RC[z]
+    # 4. For all z such that 0≤z<w, let A′[0, 0,z]=A′[0, 0,z] ⊕ RC[z].
+    for z in range(w):
+        A_prime[0][0][z] ^= (iota_round_constant >> z) & 1
 
     return A_prime
-
+    
 def round(A, ir, is_debug):
     '''
     This method should implement round as according to Algorithm 7 of https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.202.pdf
 
     Rnd(A, ir) = ι(χ(π(ρ(θ(A)))), ir)
     '''
-    
     A_theta = theta(A) # θ
     A_rho = rho(A_theta) # ρ
     A_pi = pi(A_rho) # π
     A_chi = chi(A_pi) # χ
     A_iota = iota(A_chi, ir) # ι
     if is_debug:
-        print(f"Initial State: {stateArrayToBitString(A)}")
-        print(f"After Theta: {stateArrayToBitString(A_theta)}")
-        print(f"After Rho: {stateArrayToBitString(A_rho)}")
-        print(f"After Pi: {stateArrayToBitString(A_pi)}")
-        print(f"After Chi: {stateArrayToBitString(A_chi)}")
-        print(f"After Iota: {stateArrayToBitString(A_iota)}")
+        print(f"Initial State: {b2h(stateArrayToBitString(A))}")
+        print(f"After Theta: {b2h(stateArrayToBitString(A_theta))}")
+        print(f"After Rho: {b2h(stateArrayToBitString(A_rho))}")
+        print(f"After Pi: {b2h(stateArrayToBitString(A_pi))}")
+        print(f"After Chi: {b2h(stateArrayToBitString(A_chi))}")
+        print(f"IR: {ir} After Iota: {b2h(stateArrayToBitString(A_iota))}")
 
     return A_iota
 
@@ -298,15 +283,20 @@ def keccak_p(S, nr):
     # 1. Convert S into a state array, A, as described in Sec. 3.1.2. 
     A = bitStringToStateArray(S)
 
-    # 2. For ir from 12+2l –nr to 12+2l –1, let A=Rnd(A, ir)
-    for x in range(12+21 - nr,12+21):
+    # 2. For ir from 0 to nr, let A=Rnd(A, ir)
+    for x in range(0,nr):
         A = round(A, x, is_debug=False)
-    
+        
     S_prime = stateArrayToBitString(A)
 
     return S_prime
 
 def keccak_f(S):
+  '''
+  The method should implement keccak f as according to https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.202.pdf
+  It calls keccak_p a set number of times (24)
+  '''
+
   return keccak_p( S, 24)
 
 def bitStringToStateArray(S):
@@ -374,6 +364,115 @@ def pad101(x, m):
     pad = "1" + "0" * y + "1"
     return pad
 
+def h2b(H:str,n=None):
+    '''
+    Algorithm 10: h2b(H, n).
+    Input:
+    hexadecimal string H consisting of 2m digits for some positive integer m;
+    positive integer n such that n ≤ 8m.
+    Output:
+    bit string S, such that len(S)=n.
+    Steps:
+    1. For each integer i such that 0 ≤ i < 2m-1, let Hi be the ith hexadecimal digit in H: 
+    H=H0 H1 H2 H3 … H2m-2 H2m-1.
+    2. For each integer i such that 0 ≤ i < m:
+    a. Let hi =16⋅ H2i +H2i+1. 
+    b. Let bi0 bi1 bi2 bi3 bi4 bi5 bi6 bi7 be the unique sequence of bits such that 
+    hi =bi7⋅ 27+ bi6⋅ 26+ bi5⋅ 25+ bi4⋅ 24+ bi3⋅ 23+ bi2⋅ 22+ bi1⋅ 21 + bi0⋅ 20
+    .
+    3. For each pair of integers (i, j) such that 0 ≤ i < m and 0 ≤ j < 8, let T[8i + j]=bij.
+    4. Return S=Truncn(T).
+    '''
+
+    m = len(H)//2
+    H_i = []
+    if n == None:
+        n=8*m
+    for i in range(0,2*m):
+        H_i.append(int(H[i],16))
+    
+    binary_result = ""
+    for i in range(0,m):
+        h_i = 16*H_i[2*i]+H_i[2*i+1]
+        #print(h_i)
+        binary = '{0:0{1}b}'.format(h_i,8)
+        #print(binary)
+        for i in range(0,8):
+            binary_result+=(binary[7-i])
+    return binary_result[:n]
+
+def h2b(H:str,n=None):
+    '''
+    Algorithm 10: h2b(H, n).
+    Input:
+    hexadecimal string H consisting of 2m digits for some positive integer m;
+    positive integer n such that n ≤ 8m.
+    Output:
+    bit string S, such that len(S)=n.
+    Steps:
+    1. For each integer i such that 0 ≤ i < 2m-1, let Hi be the ith hexadecimal digit in H: 
+    H=H0 H1 H2 H3 … H2m-2 H2m-1.
+    2. For each integer i such that 0 ≤ i < m:
+    a. Let hi =16⋅ H2i +H2i+1. 
+    b. Let bi0 bi1 bi2 bi3 bi4 bi5 bi6 bi7 be the unique sequence of bits such that 
+    hi =bi7⋅ 27+ bi6⋅ 26+ bi5⋅ 25+ bi4⋅ 24+ bi3⋅ 23+ bi2⋅ 22+ bi1⋅ 21 + bi0⋅ 20
+    .
+    3. For each pair of integers (i, j) such that 0 ≤ i < m and 0 ≤ j < 8, let T[8i + j]=bij.
+    4. Return S=Truncn(T).
+
+
+'''
+    H = H.replace(" ","")
+    m = len(H)//2
+    H_i = []
+    if n == None:
+        n=8*m
+    for i in range(0,2*m):
+        H_i.append(int(H[i],16))
+    
+    binary_result = ""
+    for i in range(0,m):
+        h_i = 16*H_i[2*i]+H_i[2*i+1]
+        #print(h_i)
+        binary = '{0:0{1}b}'.format(h_i,8)
+        #print(binary)
+        for i in range(0,8):
+            binary_result+=(binary[7-i])
+        #print(binary_result)
+    return binary_result[:n]
+
+
+def b2h(S):
+    '''
+    Algorithm 11: b2h(S).
+    Input:
+    bit string S consisting of n bits for a positive integer n.
+    Output:
+    hexadecimal string H consisting of 2n/8 digits. 
+    Steps:
+    1. Let n=len(S).
+    2. Let T=S || 0-n mod 8 and m=n/8.
+    3. For each pair of integers (i, j) such that 0 ≤ i < m and 0 ≤ j < 8, let bij=T[8i + j].
+    4. For each integer i such that 0 ≤ i < m:
+    a. Let hi = bi7⋅ 27+ bi6⋅ 26+ bi5⋅ 25+ bi4⋅ 24+ bi3⋅ 23+ bi2⋅ 22+ bi1⋅ 21+ bi0⋅ 20.
+    b. Let H2i and H2i +1 be the hexadecimal digits such that hi=16⋅ H2i + H2i+1. 
+    5. Return H = H0 H1 H2 H3 … H2m-2 H2m-1.
+    '''
+    n = len(S)
+    m= ceil(n/8)
+    T = S+"0"*(-n%8)
+    b=[]
+    hex_string = ''
+    for i in range(0,m):
+        b_i = []
+        for j in range(0,8):
+            b_i.append(T[8*i+j])
+        b.append(b_i)
+        h = b[i][7]+b[i][6]+b[i][5]+b[i][4]+b[i][3]+b[i][2]+b[i][1]+b[i][0]
+        H='{0:0{1}x}'.format(int(h,2),2).upper()
+        hex_string+=H
+    return hex_string
+
 class SHA3():
 
     def __init__(self, f, digest_length, is_debug = False):
@@ -421,10 +520,10 @@ class SHA3():
         S = '0'*self.b
         for x in range(0,n):
             if self.is_debug:
-                print("Data to be absorbed: "+self.binaryToHex(P[x]))
+                print("Data to be absorbed: "+b2h(P[x]))
             S = self.bitwiseXor(S, P[x]+"0"*self.capacity)
             if self.is_debug:
-                print("Xord: "+self.binaryToHex(S))
+                print("Xord: "+b2h(S))
             S = keccak_f(S)
        
         Z = ''
@@ -433,37 +532,11 @@ class SHA3():
             S = keccak_f(S)
             Z = Z + S[:r]
         return Z[:self.digest_length]
-    
 
-    def binaryToHex(self, binary):
-        length_binary = len(binary)
-        if length_binary % 4 != 0:
-            binary = '0'*(length_binary% 4-4)+binary
-            length_binary = len(binary)
-        length_hex = length_binary // 4
-        return '{0:0{1}x}'.format(int(binary,2),length_hex)
-
-    def hashStringToHex(self, message_string):
-        bytes_data = message_string.encode('utf-8')
-        binary_string = bin(int(bytes_data.hex(),16))[2:]
-        binary_result = self.sponge(binary_string)
-        length_binary = len(binary_result)
-        if length_binary % 4 != 0:
-            binary_result = '0'*(length_binary% 4-4)+binary_result
-            length_binary = len(binary_result)
-        length_hex = length_binary // 4
-        hex_string = '{0:0{1}x}'.format(int(binary_result,2),length_hex).upper()
-        return hex_string
-    
     def hashBinaryStringToHex(self, binary_message):
         binary_message += "01"
         binary_result = self.sponge(binary_message)
-        length_binary = len(binary_result)
-        if length_binary % 4 != 0:
-            binary_result = '0'*(length_binary % 4 - 4)+binary_result
-            length_binary = len(binary_result)
-        length_hex = length_binary // 4
-        hex_string = '{0:0{1}x}'.format(int(binary_result,2),length_hex).upper()
+        hex_string = b2h(binary_result)
         return hex_string
 
     def bitwiseXor(self,string_1,string_2):
@@ -510,22 +583,6 @@ if __name__ =="__main__":
     input_string = "11001"
     expected_hash = "A1 3E 01 49 41 14 C0 98 00 62 2A 70 28 8C 43 21 21 CE 70 03 9D 75 3C AD D2 E0 06 E4 D9 61 CB 27 54 4C 14 81 E5 81 4B DC EB 53 BE 67 33 D5 E0 99 79 5E 5E 81 91 8A DD B0 58 E2 2A 9F 24 88 3F 37"
     sha512 = SHA3_512()
-    print(sha512.binaryToHex(input_string))
-    print(sha512.binaryToHex(input_string+"01"))
+    print(b2h(input_string))
     hash = sha512.hashBinaryStringToHex(input_string)
     print(hash)
-
-    xord_state_expected = "D3 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 80 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00"
-    xord_state_expected = xord_state_expected.replace(" ","")
-    xord_state_binary = '{0:0{1}b}'.format(int(xord_state_expected,16),len(xord_state_expected*4))
-    print(len(xord_state_binary))
-    xord_state = bitStringToStateArray(xord_state_binary)
-    theta = theta(xord_state)
-    print(len(theta[0][0]))
-    print("state arry to string",len(stateArrayToBitString(theta)))
-    print("state arry to hex",len(sha512.binaryToHex(stateArrayToBitString(theta))))
-
-    theta_state_expected = "D3 00 00 00 00 00 00 00 D3 00 00 00 00 00 00 00 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 A6 01 00 00 00 00 00 80 00 00 00 00 00 00 00 00 D3 00 00 00 00 00 00 00 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 80 A6 01 00 00 00 00 00 80 00 00 00 00 00 00 00 00 D3 00 00 00 00 00 00 00 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 A6 01 00 00 00 00 00 80 00 00 00 00 00 00 00 00 D3 00 00 00 00 00 00 00 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 A6 01 00 00 00 00 00 80 00 00 00 00 00 00 00 00 D3 00 00 00 00 00 00 00 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 A6 01 00 00 00 00 00 80"
-    theta_state_expected = theta_state_expected.replace(" ","")
-    print(sha512.binaryToHex(stateArrayToBitString(theta)).upper())
-    print(theta_state_expected.upper())
