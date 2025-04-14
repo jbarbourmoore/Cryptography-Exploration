@@ -77,6 +77,12 @@ class EllipticCurveCalculations():
 
         return point_r
     
+    def convertFieldElementToInt(self, field_element):
+        if self.finite_field % 2 == 1:
+            return field_element
+        else:
+            raise NotImplementedError
+    
     def calculatePointAddition(self,point_p, point_q):
         '''
         This method calculated the addition of point_p and point_q on the elliptic curve assuming the curve is y**2 = x**3 + a * x + b
