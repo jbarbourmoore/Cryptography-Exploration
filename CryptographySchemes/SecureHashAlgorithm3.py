@@ -105,6 +105,21 @@ class SHA3():
             S = self.keccak_f(S)
             Z = Z + S[:r]
         return Z[:self.digest_length]
+    
+    def hashStringToHex(self, string_message):
+        '''
+        This method takes in a string and returns the SHA 3 hash for it as a hexadecimal string
+
+        Parameters :
+            string_message : str
+                The message to be hashed as a string
+
+            hex_string : str
+                The sha3 hash value for the message as a hexadecimal string
+        '''
+
+        binary_string = self.h2b(string_message.encode().hex())
+        return self.hashBinaryStringToHex(binary_string)
 
     def hashBinaryStringToHex(self, binary_message):
         '''
@@ -709,7 +724,7 @@ class SHA3_512(SHA3):
 
 if __name__ =="__main__":
     # Test values taken from the SHA3 example files at https://csrc.nist.gov/projects/cryptographic-standards-and-guidelines/example-values
-    
+
     sha3_224 = SHA3_224()
     sha3_256 = SHA3_256()
     sha3_384 = SHA3_384()
