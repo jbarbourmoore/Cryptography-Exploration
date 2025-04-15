@@ -99,7 +99,7 @@ class ECDSA_UnitTests(unittest.TestCase):
 
 if __name__ == '__main__':
     print("Curve: P-521")
-    print("Hash:  SHA3-524")
+    print("Hash:  SHA3-512")
     print("https://csrc.nist.gov/CSRC/media/Projects/Cryptographic-Standards-and-Guidelines/documents/examples/P521_SHA3-512.pdf")
     print(f"The message is {"Example of ECDSA with P-521"}")
     unittest.main()
