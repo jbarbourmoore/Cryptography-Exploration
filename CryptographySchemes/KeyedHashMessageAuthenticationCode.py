@@ -4,6 +4,11 @@ import hashlib
 class HMAC():
     '''
     Keyed Hash Message Authentication Code
+
+    Based on :
+    https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-224.ipd.pdf (draft to replace nist fips 198)
+    https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.198-1.pdf
+    Example values: https://csrc.nist.gov/CSRC/media/Projects/Cryptographic-Standards-and-Guidelines/documents/examples/HMAC_SHA3-512.pdf
     '''
     def __init__(self):
         '''
@@ -171,8 +176,6 @@ if __name__ == '__main__':
     expected_k0_xor_opad = "5c5d5e5f 58595a5b 54555657 505152534c4d4e4f 48494a4b 44454647 404142437c7d7e7f 78797a7b 74757677 707172736c6d6e6f 68696a6b 64656667 606162635c5c5c5c 5c5c5c5c"
     expected_second_hash = "7865df66 2f8577ba 01c208ff 369629c7f134ad57 4a0d1af3 bf31b444 3cc286a94afb9d6f d1c4141b d61599e5 95bec0a67f495e3e 6aa11f4d 89b16dab bf8e743b".replace(" ","").upper()
     expected_k0_xor_ipad = "36373435 32333031 3e3f3c3d 3a3b383926272425 22232021 2e2f2c2d 2a2b282916171415 12131011 1e1f1c1d 1a1b181906070405 02030001 0e0f0c0d 0a0b080936363636 36363636".replace(" ","")
-
-
     hmac_mine = HMAC()
     mac = hmac_mine.HMAC(message,key)
     print(mac)
