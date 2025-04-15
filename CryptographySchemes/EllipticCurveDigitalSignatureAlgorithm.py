@@ -1,7 +1,7 @@
 import secrets
 from HelperFunctions import EllipticCurveDetails
 from HelperFunctions.EllipticCurveCalculations import EllipticCurveCalculations
-from CryptographySchemes.SecureHashAlgorithm3 import SHA3_512
+from CryptographySchemes.SecureHashAlgorithm3 import SHA3_512, SHA3
 from HelperFunctions.PrimeNumbers import calculateModuloInverse
 
 class EllipticCurveDigitalSignatureAlgorithm():
@@ -9,13 +9,15 @@ class EllipticCurveDigitalSignatureAlgorithm():
     This class stores the public information for the elliptic curve digital signature algorithm
     '''
 
-    def __init__(self, get_curve_functions:list[EllipticCurveDetails.EllipticCurveWeierstrassFormDetails], is_debug=False):
+    def __init__(self, get_curve_functions:list[EllipticCurveDetails.EllipticCurveWeierstrassFormDetails], sha3:SHA3 = None, is_debug:bool=False):
         '''
         This method initializes the elliptic curve digital signature with a randomly selected curve and generator point
 
         Parameters :
             get_curve_functions : [function]
                 The list of potential curve functions to choose from
+            sha3 : SHA3, optional
+                The sha3 object to use, defaults to sha3-521
             is_debug = Bool, optional
                 Whether the EllipticCurveDigitalSignatureAlgorithm is being debugged and should output more detailed information (default is False)
         '''
@@ -28,7 +30,11 @@ class EllipticCurveDigitalSignatureAlgorithm():
             random_index = secrets.randbelow(number_of_functions)
             get_curve_function = get_curve_functions[random_index]
         
-        self.sha3 = SHA3_512()
+        if sha3 == None:
+            self.sha3 = SHA3_512()
+        else:
+            self.sha3 = sha3
+
         self.curve_details = get_curve_function()
         self.curve = EllipticCurveCalculations(self.curve_details.a,self.curve_details.b,finite_field=self.curve_details.prime_modulus)
         self.n =self.curve_details.order
@@ -52,6 +58,9 @@ class EllipticCurveDigitalSignatureAlgorithm():
         '''
 
         self.public_key = self.multiplesOfG(self.private_key)
+        if self.is_debug:
+            self.public_x = self.intToHexString(self.public_key[0])
+            self.public_y = self.intToHexString(self.public_key[1])
 
     def generatePrivateKey(self):
         '''
@@ -59,6 +68,8 @@ class EllipticCurveDigitalSignatureAlgorithm():
         '''
 
         self.private_key = secrets.randbelow(self.curve_details.prime_modulus)
+        if self.is_debug:
+            self.private = self.intToHexString(self.private_key)
 
     def calculateHashOfItem(self, item_to_hash:str) -> str:
         '''
@@ -115,6 +126,9 @@ class EllipticCurveDigitalSignatureAlgorithm():
         value = int(hex_string,16)
         bit_string = '{0:0{1}b}'.format(value,hex_len*4)
         return bit_string
+    
+    def getCompressedPublicKey(self) -> str:
+        return self.curve.compressPointOnEllipticCurve(self.public_key)
     
     def generateSecretK(self) -> int:
         '''
@@ -192,9 +206,9 @@ class EllipticCurveDigitalSignatureAlgorithm():
             self.r = self.intToHexString(r)
             self.d = self.intToHexString(d)
             self.s = self.intToHexString(s)
-            print("Signature Has Been Succesfully Generated")
-            print(f"r: {self.r}")
-            print(f"s: {self.s}")
+            # print("Signature Has Been Succesfully Generated")
+            # print(f"r: {self.r}")
+            # print(f"s: {self.s}")
         return (self.intToHexString(r), self.intToHexString(s))
     
     def intToHexString(self, integer_value:int)-> str:
@@ -335,7 +349,7 @@ class EllipticCurveDigitalSignatureAlgorithm():
 
         return self.bitStringToInt(self.hexStringToBitString(hex_string))
 
-    def verifySignature(self, message_string, signature, public_key = None, is_debug = False):
+    def verifySignature(self, message_string, signature, public_key = None, compressed=False, is_debug = False):
         '''
         This method verifies the signature using the public key, message and signature
 
@@ -360,7 +374,11 @@ class EllipticCurveDigitalSignatureAlgorithm():
         if public_key == None:
             Q = self.public_key
         else:
-            Q = public_key
+            if compressed:
+                Q = self.curve.decompressPointOnEllipticCurve(public_key,prime_modulus=2**224-2**96+1)
+            else:
+                Q = public_key
+        # print(f"public key is {Q}")
         r, s = signature
         try:
             if type(r) != int:
@@ -373,6 +391,9 @@ class EllipticCurveDigitalSignatureAlgorithm():
                 Q = (Q[0], self.hexStringToInt(Q[1]))
         except:
             return False
+        
+        
+        # print(f"Q is ({self.intToHexString(Q[0])}, {self.intToHexString(Q[1])})")
         bit_hash = self.calculateHashOfItem(message_string)
         hash_length = len(bit_hash)
         if hash_length > self.length_n:
@@ -405,10 +426,10 @@ class EllipticCurveDigitalSignatureAlgorithm():
             self.r = self.intToHexString(r)
             self.s = self.intToHexString(s)
             self.verified = (r == r_1 % self.n)
-            if self.verified:
-                print("The Signature Has Successfully Been Verified")
-            else:
-                print("The Signature Failed Validation")
+            # if self.verified:
+            #     print("The Signature Has Successfully Been Verified")
+            # else:
+            #     print("The Signature Failed Validation")
         if r == r_1 % self.n: return True
         else: return False
        

@@ -1,51 +1,52 @@
 import unittest
 from CryptographySchemes.EllipticCurveDigitalSignatureAlgorithm import *
-from HelperFunctions.EllipticCurveDetails import getCurveP521
+from HelperFunctions.EllipticCurveDetails import getCurveP224
+from CryptographySchemes.SecureHashAlgorithm3 import SHA3_224
+
 class ECDSA_UnitTests(unittest.TestCase):
     '''
-    This class contains basic unit tests for ecdsa
+    This class contains basic unit tests for ecdsa curve p224 with sha3-224 hashing algorithm
     '''
 
     def setUp(self):
         print("- - - - - - - - - - - -")
-        self.ecdsa = EllipticCurveDigitalSignatureAlgorithm([getCurveP521])
+        self.sha = SHA3_224()
+        self.ecdsa = EllipticCurveDigitalSignatureAlgorithm([getCurveP224],self.sha)
 
-        self.message = "Example of ECDSA with P-521"
-        self.sha = SHA3_512()
-        
+        self.message = "Example of ECDSA with P-224"
+
         # expected values for signature generation
-        self.H = "EF88FB5AC01F35F5CB8A1B008E801146C13983CF8C2CCF1D88AFA8E9FEDE121C11FE829D41B402B32ADFDE20679C3F4D9101A3C4073A2E49039F5D38061CDBCC"
-        self.E = "EF88FB5AC01F35F5CB8A1B008E801146C13983CF8C2CCF1D88AFA8E9FEDE121C11FE829D41B402B32ADFDE20679C3F4D9101A3C4073A2E49039F5D38061CDBCC"
-        self.K = "C91E2349EF6CA22D2DE39DD51819B6AAD922D3AECDEAB452BA172F7D63E370CECD70575F597C09A174BA76BED05A48E562BE0625336D16B8703147A6A231D6BF"
-        self.Kinv = "1EAB94335A7ED337BCE83C95DE95447925EDB0EE27F8E8378713E767D6DA570FCCFB4F13DCF57F898E77DDB540A9453E0C3D5C97AE8D2EC843590BCB1D349044C09"
-        self.R_x = "140C8EDCA57108CE3F7E7A240DDD3AD74D81E2DE62451FC1D558FDC79269ADACD1C2526EEEEF32F8C0432A9D56E2B4A8A732891C37C9B96641A9254CCFE5DC3E2BA"
-        self.R_y = "CD42A03AD1EB93C532FC8A54683998FF86FEC61F85F8E15B4ACD5B696498F211506D340091019900C918BD8088E0352E9742EA9E2B55983ECAA343E424B8113428"
-        self.R = "140C8EDCA57108CE3F7E7A240DDD3AD74D81E2DE62451FC1D558FDC79269ADACD1C2526EEEEF32F8C0432A9D56E2B4A8A732891C37C9B96641A9254CCFE5DC3E2BA"
-        self.D = "100085F47B8E1B8B11B7EB33028C0B2888E304BFC98501955B45BBA1478DC184EEEDF09B86A5F7C21994406072787205E69A63709FE35AA93BA333514B24F961722"
-        self.S = "B25188492D58E808EDEBD7BF440ED20DB771CA7C618595D5398E1B1C0098E300D8C803EC69EC5F46C84FC61967A302D366C627FCFA56F87F241EF921B6E627ADBF"
-        
+        self.H = "5FB11B966420EEEB0F540C356DD8C0FBDFBF417145E5E1F9E9B9AA43"
+        self.E = "5FB11B966420EEEB0F540C356DD8C0FBDFBF417145E5E1F9E9B9AA43"
+        self.K = "A548803B79DF17C40CDE3FF0E36D025143BCBBA146EC32908EB84937"
+        self.Kinv = "B4D9D81FEFF7B325E09E770C40BACE8B008D6074371967326F39130C"
+        self.R_x = "C3A3F5B82712532004C6F6D1DB672F55D931C3409EA1216D0BE77380"
+        self.R_y = "9BF4978CA8C8A8DF855A74C6905A5A3947ACFF772FCE436D48341D46"
+        self.R = "C3A3F5B82712532004C6F6D1DB672F55D931C3409EA1216D0BE77380"
+        self.D = "3F0C488E987C80BE0FEE521F8D90BE6034EC69AE11CA72AA777481E8"
+        self.S = "485732290B465E864A3345FF12673303FEAA4DB68AC29D784BF6DAE2"
+
         # expected values for signature verification
-        self.Q_x = "98E91EEF9A68452822309C52FAB453F5F117C1DA8ED796B255E9AB8F6410CCA16E59DF403A6BDC6CA467A37056B1E54B3005D8AC030DECFEB68DF18B171885D5C4"
-        self.Q_y = "164350C321AECFC1CCA1BA4364C9B15656150B4B78D6A48D7D28E7F31985EF17BE8554376B72900712C4B83AD668327231526E313F5F092999A4632FD50D946BC2E"
-        self.Sinv = "30EEEA9D35CB2754BA85E0226A15A5D911AC3033D6FB0F62FC32F7974337116095763C29C1CD293B64B72A83058EA7B8AA71B69C5C34FD35181A78512AEC9E063"
-        self.U = "1FDE0A17B85CC2E14F03C192DBE87491BE3D539C2F151A3143401A9922C66F5021B1A51645FF9355687517D73993A7146AB8D934B4213708106CD65402D93634623"
-        self.V = "12EFA2C213C577D5D002AF25AAEF6A147AD014AFE1342DB9E86E6F26638BD146F2842FEDA40D3F43DA16AF02CEDD8C85504ADB1426E33004205DAA5AAA32F7215B0"
-        self.Rprime_X = "140C8EDCA57108CE3F7E7A240DDD3AD74D81E2DE62451FC1D558FDC79269ADACD1C2526EEEEF32F8C0432A9D56E2B4A8A732891C37C9B96641A9254CCFE5DC3E2BA"
-        self.Rprime_Y = "CD42A03AD1EB93C532FC8A54683998FF86FEC61F85F8E15B4ACD5B696498F211506D340091019900C918BD8088E0352E9742EA9E2B55983ECAA343E424B8113428"
-        self.Rprime = "140C8EDCA57108CE3F7E7A240DDD3AD74D81E2DE62451FC1D558FDC79269ADACD1C2526EEEEF32F8C0432A9D56E2B4A8A732891C37C9B96641A9254CCFE5DC3E2BA"
-        
+        self.Q_x = "E84FB0B8E7000CB657D7973CF6B42ED78B301674276DF744AF130B3E"
+        self.Q_y = "4376675C6FC5612C21A0FF2D2A89D2987DF7A2BC52183B5982298555"
+        self.Sinv = "19BBD45D10D5B00F3E0CE3A24B66696E5162CC49C1949A73297AE9AA"
+        self.U = "A78399AD5562A130C6160A550E4A98983235CBDF6594807F59E86779"
+        self.V = "81384A93C6620A0FB373F00EAC5F60E69E051788B7E0C769BEC38627"
+        self.Rprime_X = "C3A3F5B82712532004C6F6D1DB672F55D931C3409EA1216D0BE77380"
+        self.Rprime_Y = "9BF4978CA8C8A8DF855A74C6905A5A3947ACFF772FCE436D48341D46"
+        self.Rprime = "C3A3F5B82712532004C6F6D1DB672F55D931C3409EA1216D0BE77380"
+
         # integer values for input to create signature without random selection
         self.k_int = self.ecdsa.bitStringToInt(self.ecdsa.hexStringToBitString(self.K))
         self.d_int = self.ecdsa.bitStringToInt(self.ecdsa.hexStringToBitString(self.D))
     
-    def generate_signature_p521_sha3512(self):
+    def generate_signature_p224_sha3224(self):
         '''
         This method creates a signature using the provided private key and provided k value
         '''
-
         self.ecdsa.createSignature(self.message,self.d_int,self.k_int,True)
     
-    def verify_signature_p521_sha2512(self):
+    def verify_signature_p224_sha3224(self):
         '''
         This method verifies a signature using the provided signature and public key
         '''
@@ -57,7 +58,7 @@ class ECDSA_UnitTests(unittest.TestCase):
         https://csrc.nist.gov/CSRC/media/Projects/Cryptographic-Standards-and-Guidelines/documents/examples/P521_SHA3-512.pdf
         '''
 
-        self.verify_signature_p521_sha2512()
+        self.verify_signature_p224_sha3224()
         print("Checking the Value for Q_x When Verifying Signature")
         print(f"Actual Q_x    : {self.ecdsa.Q_x}")
         print(f"Expected Q_x  : {self.Q_x}")
@@ -69,7 +70,7 @@ class ECDSA_UnitTests(unittest.TestCase):
         https://csrc.nist.gov/CSRC/media/Projects/Cryptographic-Standards-and-Guidelines/documents/examples/P521_SHA3-512.pdf
         '''
 
-        self.verify_signature_p521_sha2512()
+        self.verify_signature_p224_sha3224()
         print("Checking the Value for Q_y When Verifying Signature")
         print(f"Actual Q_y    : {self.ecdsa.Q_y}")
         print(f"Expected Q_y  : {self.Q_y}")
@@ -81,7 +82,7 @@ class ECDSA_UnitTests(unittest.TestCase):
         https://csrc.nist.gov/CSRC/media/Projects/Cryptographic-Standards-and-Guidelines/documents/examples/P521_SHA3-512.pdf
         '''
 
-        self.verify_signature_p521_sha2512()
+        self.verify_signature_p224_sha3224()
         print("Checking the Value for Sinv When Verifying Signature")
         print(f"Actual Sinv   : {self.ecdsa.sinv}")
         print(f"Expected Sinv : {self.Sinv}")
@@ -93,7 +94,7 @@ class ECDSA_UnitTests(unittest.TestCase):
         https://csrc.nist.gov/CSRC/media/Projects/Cryptographic-Standards-and-Guidelines/documents/examples/P521_SHA3-512.pdf
         '''
 
-        self.verify_signature_p521_sha2512()
+        self.verify_signature_p224_sha3224()
         print("Checking the Value for U When Verifying Signature")
         print(f"Actual u      : {self.ecdsa.u}")
         print(f"Expected u    : {self.U}")
@@ -105,7 +106,7 @@ class ECDSA_UnitTests(unittest.TestCase):
         https://csrc.nist.gov/CSRC/media/Projects/Cryptographic-Standards-and-Guidelines/documents/examples/P521_SHA3-512.pdf
         '''
 
-        self.verify_signature_p521_sha2512()
+        self.verify_signature_p224_sha3224()
         print("Checking the Value for V When Verifying Signature")
         print(f"Actual v      : {self.ecdsa.v}")
         print(f"Expected v    : {self.V}")
@@ -117,7 +118,7 @@ class ECDSA_UnitTests(unittest.TestCase):
         https://csrc.nist.gov/CSRC/media/Projects/Cryptographic-Standards-and-Guidelines/documents/examples/P521_SHA3-512.pdf
         '''
 
-        self.verify_signature_p521_sha2512()
+        self.verify_signature_p224_sha3224()
         print("Checking the Value for Sinv When Verifying Signature")
         print(f"Actual Sinv   : {self.ecdsa.sinv}")
         print(f"Expected Sinv : {self.Sinv}")
@@ -129,7 +130,7 @@ class ECDSA_UnitTests(unittest.TestCase):
         https://csrc.nist.gov/CSRC/media/Projects/Cryptographic-Standards-and-Guidelines/documents/examples/P521_SHA3-512.pdf
         '''
 
-        self.verify_signature_p521_sha2512()
+        self.verify_signature_p224_sha3224()
         print("Checking the Value for RPrime_x When Verifying Signature")
         print(f"Actual R1_x   : {self.ecdsa.R1_x}")
         print(f"Expected R1_x : {self.Rprime_X}")
@@ -141,7 +142,7 @@ class ECDSA_UnitTests(unittest.TestCase):
         https://csrc.nist.gov/CSRC/media/Projects/Cryptographic-Standards-and-Guidelines/documents/examples/P521_SHA3-512.pdf
         '''
 
-        self.verify_signature_p521_sha2512()
+        self.verify_signature_p224_sha3224()
         print("Checking the Value for RPrime_y When Verifying Signature")
         print(f"Actual R1_y   : {self.ecdsa.R1_y}")
         print(f"Expected R1_y : {self.Rprime_Y}")
@@ -153,7 +154,7 @@ class ECDSA_UnitTests(unittest.TestCase):
         https://csrc.nist.gov/CSRC/media/Projects/Cryptographic-Standards-and-Guidelines/documents/examples/P521_SHA3-512.pdf
         '''
 
-        self.verify_signature_p521_sha2512()
+        self.verify_signature_p224_sha3224()
         print("Checking the Value for RPrime When Verifying Signature")
         print(f"Actual R1     : {self.ecdsa.r_1}")
         print(f"Expected R1   : {self.Rprime}")
@@ -165,7 +166,7 @@ class ECDSA_UnitTests(unittest.TestCase):
         https://csrc.nist.gov/CSRC/media/Projects/Cryptographic-Standards-and-Guidelines/documents/examples/P521_SHA3-512.pdf
         '''
 
-        self.verify_signature_p521_sha2512()
+        self.verify_signature_p224_sha3224()
         print("Checking the Result When Verifying Signature")
         print(f"Actual res    : {self.ecdsa.verified}")
         print(f"Expected res  : {True}")
@@ -173,10 +174,10 @@ class ECDSA_UnitTests(unittest.TestCase):
 
     def test_hash_as_H(self):
         '''
-        This method tests the sha3-512 hashing generates the expected hex value
+        This method tests the sha3-224 hashing generates the expected hex value
         '''
 
-        print("Testing SHA2-512 Hashing")
+        print("Testing SHA2-224 Hashing")
         actual_hash = self.sha.hashStringToHex(self.message)
         print(f"Actual Hash   : {actual_hash}")
         print(f"Expected Hash : {self.H}")
@@ -209,21 +210,33 @@ class ECDSA_UnitTests(unittest.TestCase):
     def test_E(self):
         '''
         This method tests that the E value matches the known value from NIST
-        https://csrc.nist.gov/CSRC/media/Projects/Cryptographic-Standards-and-Guidelines/documents/examples/P521_SHA3-512.pdf
+        https://csrc.nist.gov/CSRC/media/Projects/Cryptographic-Standards-and-Guidelines/documents/examples/P224_SHA3-224.pdf        
         '''
 
-        self.generate_signature_p521_sha3512()
+        self.generate_signature_p224_sha3224()
         print("Checking the Value for E When Generating Signature")
         print(f"Actual E      : {self.ecdsa.E}")
         print(f"Expected E    : {self.E}")
         self.assertEqual(self.ecdsa.E,self.E)
 
+    def test_E(self):
+        '''
+        This method tests that the E value matches the known value from NIST
+        https://csrc.nist.gov/CSRC/media/Projects/Cryptographic-Standards-and-Guidelines/documents/examples/P224_SHA3-224.pdf        
+        '''
+
+        self.generate_signature_p224_sha3224()
+        print("Checking the Value for H When Generating Signature")
+        print(f"Actual H      : {self.ecdsa.H}")
+        print(f"Expected H    : {self.H}")
+        self.assertEqual(self.ecdsa.H,self.H)
+
     def test_K(self):
         '''
         This method tests that the K value matches the known value from NIST
-        https://csrc.nist.gov/CSRC/media/Projects/Cryptographic-Standards-and-Guidelines/documents/examples/P521_SHA3-512.pdf
+        https://csrc.nist.gov/CSRC/media/Projects/Cryptographic-Standards-and-Guidelines/documents/examples/P224_SHA3-224.pdf        
         '''
-        self.generate_signature_p521_sha3512()
+        self.generate_signature_p224_sha3224()
         print("Checking the Value for K When Generating Signature")
         print(f"Actual K      : {self.ecdsa.K}")
         print(f"Expected K    : {self.K}")
@@ -232,9 +245,9 @@ class ECDSA_UnitTests(unittest.TestCase):
     def test_K_inv(self):
         '''
         This method tests that the K_inv value matches the known value from NIST
-        https://csrc.nist.gov/CSRC/media/Projects/Cryptographic-Standards-and-Guidelines/documents/examples/P521_SHA3-512.pdf
+        https://csrc.nist.gov/CSRC/media/Projects/Cryptographic-Standards-and-Guidelines/documents/examples/P224_SHA3-224.pdf        
         '''
-        self.generate_signature_p521_sha3512()
+        self.generate_signature_p224_sha3224()
         print("Checking the Value for K Inverse When Generating Signature")
         print(f"Actual Kinv   : {self.ecdsa.k_inv}")
         print(f"Expected Kinv : {self.Kinv}")
@@ -243,9 +256,9 @@ class ECDSA_UnitTests(unittest.TestCase):
     def test_R_x(self):
         '''
         This method tests that the R_x value matches the known value from NIST
-        https://csrc.nist.gov/CSRC/media/Projects/Cryptographic-Standards-and-Guidelines/documents/examples/P521_SHA3-512.pdf
+        https://csrc.nist.gov/CSRC/media/Projects/Cryptographic-Standards-and-Guidelines/documents/examples/P224_SHA3-224.pdf        
         '''
-        self.generate_signature_p521_sha3512()
+        self.generate_signature_p224_sha3224()
         print("Checking the Value for R_x When Generating Signature")
         print(f"Actual R_x    : {self.ecdsa.R_x}")
         print(f"Expected R_x  : {self.R_x}")
@@ -254,9 +267,9 @@ class ECDSA_UnitTests(unittest.TestCase):
     def test_R_y(self):
         '''
         This method tests that the R_y value matches the known value from NIST
-        https://csrc.nist.gov/CSRC/media/Projects/Cryptographic-Standards-and-Guidelines/documents/examples/P521_SHA3-512.pdf
+        https://csrc.nist.gov/CSRC/media/Projects/Cryptographic-Standards-and-Guidelines/documents/examples/P224_SHA3-224.pdf        
         '''
-        self.generate_signature_p521_sha3512()
+        self.generate_signature_p224_sha3224()
         print("Checking the Value for R_y When Generating Signature")
         print(f"Actual R_y    : {self.ecdsa.R_y}")
         print(f"Expected R_y  : {self.R_y}")
@@ -265,9 +278,9 @@ class ECDSA_UnitTests(unittest.TestCase):
     def test_r(self):
         '''
         This method tests that the r value matches the known value from NIST
-        https://csrc.nist.gov/CSRC/media/Projects/Cryptographic-Standards-and-Guidelines/documents/examples/P521_SHA3-512.pdf
+        https://csrc.nist.gov/CSRC/media/Projects/Cryptographic-Standards-and-Guidelines/documents/examples/P224_SHA3-224.pdf        
         '''
-        self.generate_signature_p521_sha3512()
+        self.generate_signature_p224_sha3224()
         print("Checking the Value for r When Generating Signature")
         print(f"Actual r      : {self.ecdsa.r}")
         print(f"Expected r    : {self.R}")
@@ -276,9 +289,9 @@ class ECDSA_UnitTests(unittest.TestCase):
     def test_D(self):
         '''
         This method tests that the D value matches the known value from NIST
-        https://csrc.nist.gov/CSRC/media/Projects/Cryptographic-Standards-and-Guidelines/documents/examples/P521_SHA3-512.pdf
+        https://csrc.nist.gov/CSRC/media/Projects/Cryptographic-Standards-and-Guidelines/documents/examples/P224_SHA3-224.pdf        
         '''
-        self.generate_signature_p521_sha3512()
+        self.generate_signature_p224_sha3224()
         print("Checking the Value for D When Generating Signature")
         print(f"Actual D      : {self.ecdsa.d}")
         print(f"Expected D    : {self.D}")
@@ -287,17 +300,16 @@ class ECDSA_UnitTests(unittest.TestCase):
     def test_s(self):
         '''
         This method tests that the s value matches the known value from NIST
-        https://csrc.nist.gov/CSRC/media/Projects/Cryptographic-Standards-and-Guidelines/documents/examples/P521_SHA3-512.pdf
-        '''
-        self.generate_signature_p521_sha3512()
+        https://csrc.nist.gov/CSRC/media/Projects/Cryptographic-Standards-and-Guidelines/documents/examples/P224_SHA3-224.pdf        '''
+        self.generate_signature_p224_sha3224()
         print("Checking the Value for s When Generating Signature")
         print(f"Actual s      : {self.ecdsa.s}")
         print(f"Expected s    : {self.S}")
         self.assertEqual(self.ecdsa.s,self.S)
 
 if __name__ == '__main__':
-    print("Curve: P-521")
-    print("Hash:  SHA3-512")
-    print("https://csrc.nist.gov/CSRC/media/Projects/Cryptographic-Standards-and-Guidelines/documents/examples/P521_SHA3-512.pdf")
+    print("Curve: P-224")
+    print("Hash:  SHA3-224")
+    print("https://csrc.nist.gov/CSRC/media/Projects/Cryptographic-Standards-and-Guidelines/documents/examples/P224_SHA3-224.pdf")
 
     unittest.main()
