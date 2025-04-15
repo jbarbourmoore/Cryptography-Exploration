@@ -1,5 +1,5 @@
 import unittest
-from EllipticCurveCalculations import EllipticCurveCalculations
+from EllipticCurveCalculations import WeirrstrassCurveCalculations
 import time
 
 class EllipticCurveCalculations_UnitTests(unittest.TestCase):
@@ -9,8 +9,8 @@ class EllipticCurveCalculations_UnitTests(unittest.TestCase):
 
     def setUp(self):
         print("- - - - - - - - - - - -")
-        self.simple_elliptic_curve = EllipticCurveCalculations(a=0, b=7, finite_field=17)
-        self.secp192r1 = EllipticCurveCalculations(a=6277101735386680763835789423207666416083908700390324961276,
+        self.simple_elliptic_curve = WeirrstrassCurveCalculations(a=0, b=7, finite_field=17)
+        self.secp192r1 = WeirrstrassCurveCalculations(a=6277101735386680763835789423207666416083908700390324961276,
                                                    b=2455155546008943817740293915197451784769108058161191238065,
                                                     finite_field=6277101735386680763835789423207666416083908700390324961279 )
 

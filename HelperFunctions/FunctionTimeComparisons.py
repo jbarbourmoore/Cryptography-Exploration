@@ -1,5 +1,5 @@
 import time
-from EllipticCurveCalculations import EllipticCurveCalculations
+from EllipticCurveCalculations import WeirrstrassCurveCalculations
 
 import pandas as pd
 import seaborn as sns
@@ -53,7 +53,7 @@ def generateTimeData(functions_list, argument, labels_list, title):
     return dataframe, results_matrix
 
 def generateGraphForEllipticCurveMultiplication():
-    secp192r1 = EllipticCurveCalculations(a=6277101735386680763835789423207666416083908700390324961276,
+    secp192r1 = WeirrstrassCurveCalculations(a=6277101735386680763835789423207666416083908700390324961276,
                                            b=2455155546008943817740293915197451784769108058161191238065,
                                            finite_field=6277101735386680763835789423207666416083908700390324961279 )
     point = (602046282375688656758213480587526111916698976636884684818, 174050332293622031404857552280219410364023488927386650641)

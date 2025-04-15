@@ -1,7 +1,35 @@
 from HelperFunctions.PrimeNumbers import calculateModuloInverse
-from decimal import Decimal
 
 class EllipticCurveCalculations():
+    '''
+    This is a generic templete for an elliptic curve calculations helper class
+    '''
+    def __init__(self, curve_type:str = None, is_debug:bool = False):
+        self.curve_type = curve_type
+        self.is_debug = is_debug
+
+    def printEllipticCurveEquation(self):
+        '''
+        This method outputs the values for this elliptic curve to the command line
+        '''
+
+        print(f"This is a {self.curve_type} curve")
+
+    def validatePointOnCurve(self, point:tuple[int,int]) -> bool:
+        '''
+        This method checks to see whether a point is indeed on the elliptic curve
+        It raises a not implemented error as it can not be done without the specifics for the curve type
+
+        Parameters :
+            point : (int, int)
+
+        Returns :
+            is_valid : Boolean
+                Whether the point is on the elliptic curve in the finite field
+        '''
+        raise NotImplementedError
+    
+class WeirrstrassCurveCalculations(EllipticCurveCalculations):
     '''
     This class should hopefully help with the elliptic curve calculations given that the curve is in the Weierstrass form
     such that y**2 = x**3 + a * x + b
@@ -10,7 +38,7 @@ class EllipticCurveCalculations():
 
     origin_point = (0,0)
 
-    def __init__(self, a, b, finite_field, is_debug = False):
+    def __init__(self, a: int, b:int, finite_field:int, is_debug:bool = False):
         '''
         This function defines the elliptic curve that is being used for the calculation in the form y**2 = x**3 + a * x + b
         as well as the size of the finite field
@@ -24,13 +52,12 @@ class EllipticCurveCalculations():
                 The size of the finite field for the elliptic curve calculation
                 (Generally used as the modulus value)
         '''
-
+        super().__init__(curve_type="Weirstrass", is_debug = is_debug)
         self.a = a
         self.b = b
         self.finite_field = finite_field
-        self.is_debug = is_debug
     
-    def validatePointOnCurve(self, point):
+    def validatePointOnCurve(self, point:tuple[int,int]) -> bool:
         '''
         This method checks to see whether a point is indeed on the elliptic curve y**2 = x**3 + a * x + b
 
@@ -78,6 +105,10 @@ class EllipticCurveCalculations():
         return point_r
     
     def convertFieldElementToInt(self, field_element):
+        '''
+        This method converts a field item to an integer
+        '''
+
         if self.finite_field % 2 == 1:
             return field_element
         else:
@@ -265,8 +296,76 @@ class EllipticCurveCalculations():
         print(f"The values for this elliptic curve are: a={self.a} b={self.b} finite field={self.finite_field}")
         print(f"y**2 = x**3 + ax + b ==> y**2 = x**3 + {self.a}x + {self.b}")
 
+class EdwardsCurveCalculation(EllipticCurveCalculations):
+    '''
+    This class is intended to help with the calculations for an edwards curve
+    '''
+    origin_point = (0,1)
+    def __init__(self, a:int, d:int, p:int, Gx:int, Gy:int, h:int, n:int, tr:int, curve_name:str,  is_debug=False):
+        '''
+        This method initializes an edwards curve with the equation a * x**2 + y**2 = 1 + d x**2 y**2
+        '''
+        super().__init__(curve_type = "twisted Edwards curve", is_debug=is_debug)
+        self.a = a
+        self.d = d
+        self.p = p
+        self.Gx = Gx
+        self.Gy = Gy
+        self.h = h
+        self.n = n
+        self.tr = tr
+        self.curve_name = curve_name
+
+    def getGeneratorPoint(self) -> tuple[int,int]:
+        '''
+        This method returns the generator point for the curve
+
+        Returns :
+            generator_point : (int, int)
+                The tuple containing the generator point
+        '''
+        return (self.Gx, self.Gy)
+
+    def validatePointOnCurve(self, point:tuple[int,int]) -> bool:
+        '''
+        This method checks to see whether a point is indeed on the edward's curve
+        a * x**2 + y**2 = 1 + d x**2 y**2
+
+        Parameters :
+            point : (int, int)
+
+        Returns :
+            is_valid : Boolean
+                Whether the point is on the elliptic curve in the finite field
+        '''
+
+        if point == self.origin_point:
+            return True
+        else:
+            x,y = point
+
+            x_in_finite_field = x < self.p and x >= 0
+            y_in_finite_field = y < self.p and y >= 0
+            left_side = self.a * x**2 + y**2
+            right_side = 1 + self.d * x**2 * y**2
+            point_on_curve = left_side == right_side
+
+            if x_in_finite_field and y_in_finite_field and point_on_curve:
+                return True
+            else:
+                return False
+            
+    def printEllipticCurveEquation(self):
+        '''
+        This method outputs the values for this edwards curve to the command line
+        '''
+
+        print(f"The values for this elliptic curve are: a={self.a} b={self.d} p={self.p} h={self.h} n={self.n}")
+        print(f"a * x**2 + y**2 = 1 + d x**2 y**2 ==> {self.a} * x**2 + y**2 = 1 + {self.d} x**2 y**2")
+        print(f"The Generator Point is ({self.Gx}, {self.Gy})")
+
 if __name__ == '__main__':
-    elliptic_curve = EllipticCurveCalculations(0,7,17)
+    elliptic_curve = WeirrstrassCurveCalculations(0,7,17)
     point = (15,13)
     print(elliptic_curve.validatePointOnCurve(point=point))
     print(point)

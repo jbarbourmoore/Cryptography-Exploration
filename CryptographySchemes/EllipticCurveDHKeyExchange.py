@@ -1,6 +1,6 @@
 import secrets
 from HelperFunctions import EllipticCurveDetails
-from HelperFunctions.EllipticCurveCalculations import EllipticCurveCalculations
+from HelperFunctions.EllipticCurveCalculations import WeirrstrassCurveCalculations
 from random import randint
 
 class EllipticCurveDHKeyPair():
@@ -108,7 +108,7 @@ class EllipticCurveDHKeyExchange():
             get_curve_function = get_curve_functions[random_index]
 
         self.curve_details = get_curve_function()
-        self.curve = EllipticCurveCalculations(self.curve_details.a,self.curve_details.b,finite_field=self.curve_details.prime_modulus)
+        self.curve = WeirrstrassCurveCalculations(self.curve_details.a,self.curve_details.b,finite_field=self.curve_details.prime_modulus)
         
         if is_debug:
             print("A elliptic curve diffie hellman exchange has been initiated")

@@ -1,6 +1,6 @@
 import secrets
 from HelperFunctions import EllipticCurveDetails
-from HelperFunctions.EllipticCurveCalculations import EllipticCurveCalculations
+from HelperFunctions.EllipticCurveCalculations import WeirrstrassCurveCalculations
 from CryptographySchemes.SecureHashAlgorithm3 import SHA3_512, SHA3
 from HelperFunctions.PrimeNumbers import calculateModuloInverse
 
@@ -36,7 +36,7 @@ class EllipticCurveDigitalSignatureAlgorithm():
             self.sha3 = sha3
 
         self.curve_details = get_curve_function()
-        self.curve = EllipticCurveCalculations(self.curve_details.a,self.curve_details.b,finite_field=self.curve_details.prime_modulus)
+        self.curve = WeirrstrassCurveCalculations(self.curve_details.a,self.curve_details.b,finite_field=self.curve_details.prime_modulus)
         self.n =self.curve_details.order
         self.length_n = len(self.intToBitString(self.n))
         self.is_debug = is_debug

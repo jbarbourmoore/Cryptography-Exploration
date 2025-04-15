@@ -1,3 +1,5 @@
+from EllipticCurveCalculations import EdwardsCurveCalculation
+
 class EllipticCurveWeierstrassFormDetails():
     def __init__(self, name, a, b, prime_modulus, generator_x, generator_y, order=None, sha_seed=None, sha_output=None):
         self.name = name
@@ -79,7 +81,32 @@ def getCurveP521():
 
     return EllipticCurveWeierstrassFormDetails("Curve P-521",a,b,p,generator_x,generator_y,order,sha_seed,sha_output)
 
+def getEdwards25519(is_debug:bool=False) -> EdwardsCurveCalculation:
+    '''
+    This method returns an EdwardsCurveCalculation object for the curve Edwards 25519
+
+    Parameters :
+        is_debug : bool, optional
+            Whether the curve will be used for debugging purposes and should output more information, default is false
+
+    Returns : 
+        EdwardsCurveCalculation 
+            The calculations class for Edwards25519
+    '''
+    name = "Edwards25519"
+    a = -1
+    d = 0x52036cee2b6ffe738cc740797779e89800700a4d4141d8ab75eb4dca135978a3
+    p = 2**255 - 19
+    Gx = 0x216936d3cd6e53fec0a4e231fdd6dc5c692cc7609525a7b2c9562d608f25d51a
+    Gy = 0x6666666666666666666666666666666666666666666666666666666666666658
+    h = 8
+    n = 2**252 + 0x14def9dea2f79cd65812631a5cf5d3ed
+    tr = -0xa6f7cef517bce6b2c09318d2e7ae9f7a
+
+    return EdwardsCurveCalculation(a=a,d=d,p=p,Gx=Gx,Gy=Gy,h=h,n=n,tr=tr,curve_name=name,is_debug=is_debug)
+
 getCurveP521()
 getCurveP224()
 getCurveP192()
 getSecp256r1()
+getEdwards25519()
