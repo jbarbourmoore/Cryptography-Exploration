@@ -137,6 +137,26 @@ class SHA3():
         binary_result = self.sponge(binary_message)
         hex_string = self.b2h(binary_result)
         return hex_string
+    
+    def hashHexToHex(self,hex_message):
+        binary_message = self.h2b(hex_message)
+        return self.hashBinaryStringToHex(binary_message)
+    
+    def hashBinaryStringToBinary(self, binary_message):
+        '''
+        This method takes in a binary string and returns the SHA 3 hash for it as a binary string
+
+        Parameters :
+            binary_message : str
+                The message to be hashed as a binary string
+
+            binary_result : str
+                The sha3 hash value for the message as a binary string
+        '''
+
+        binary_message += "01"
+        binary_result = self.sponge(binary_message)
+        return binary_result
 
     def bitwiseXor(self,string_1,string_2):
         '''
