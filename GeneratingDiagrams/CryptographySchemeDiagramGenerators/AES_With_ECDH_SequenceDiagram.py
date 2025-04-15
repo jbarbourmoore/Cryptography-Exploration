@@ -2,6 +2,8 @@ from CryptographySchemes.AdvancedEncryptionStandard import AES256
 from HelperFunctions import EllipticCurveDetails
 from CryptographySchemes.EllipticCurveDHKeyExchange import EllipticCurveDHKeyExchange, EllipticCurveDHKeyPair
 from GeneratingDiagrams.BasicSequenceDiagramSetup import BasicSequenceDiagramSetup
+from CryptographySchemes.SecureHashAlgorithm3 import SHA3_512
+from math import ceil
 
 def runEllipticCurveDHKeyExchangeExampleScenario():
     '''
@@ -56,10 +58,26 @@ def constructECDHKeyExchangeSequence(elliptic_curve_dh_key_exchange:EllipticCurv
 def getAES256KeyFromSharedSecret(curve, shared_secret):
     '''
     This function gets a 64 byte hexadecimal key from the shared secret
-    '''
 
-    key = curve.compressPointOnEllipticCurve(shared_secret)[12:76]
-    return key
+    Uses the one step key derivation process outlined in section 4 of NIST SP 800 56
+    In this case H(x) has been chosen as the SHA3-512 hashing function
+    https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-56Cr2.pdf
+    '''
+    L = 256
+    sha3 = SHA3_512()
+    H = sha3.hashStringToHex
+    Z = sha3.h2b(curve.compressPointOnEllipticCurve(shared_secret)[2:])
+    fixed_info = "This is fixed information to be used in the generation of a key"
+
+    if L > 0:
+        reps = ceil(L/sha3.digest_length)
+
+    result = ""
+    for i in range(0,reps):
+        k = sha3.h2b(H(str(i)+Z+fixed_info))
+        result = result+k
+    derived_key_material = result[:L]
+    return sha3.b2h(derived_key_material)
 
 def sendMessageWithAES(originator_ecdhkeypair, receiver_ecdhkeypair):
     '''
@@ -93,7 +111,7 @@ def addSendingAESMessageToDiagram(elliptic_curve_dhkeyexchange_sequence, origina
     '''
     This function adds sending a message to the sequence diagram
     '''
-    
+
     elliptic_curve_dhkeyexchange_sequence.addDivider("Sending A Message With AES-256")
     elliptic_curve_dhkeyexchange_sequence.activateParticipant(0)
     elliptic_curve_dhkeyexchange_sequence.sendSelfMessage_particpantNumber(0,f"Originator's AES key is {originator_aes_key}","Calculating AES-256 Key With Shared Secret")
