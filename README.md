@@ -35,7 +35,7 @@ I was able to get NIST  examples for a couple of the curves and hashing algorith
 
 <img 
     style="display: block; margin-left: auto; margin-right: auto; width: 100%;"
-    src="https://github.com/jbarbourmoore/Cryptography-Exploration/blob/8424d8c1e943f47aad1e9525794120a217840b80/CryptographySchemes/OutputImages/ECDSA_Examples.png" 
+    src="https://github.com/jbarbourmoore/Cryptography-Exploration/blob/3777c4a98aa1df785faa190a3a28292e70a5a232/CryptographySchemes/OutputImages/ECDSA_Examples.png" 
     alt="Sample output of ECDSA unit tests ran against NIST sample data.">
 </img>  
 
