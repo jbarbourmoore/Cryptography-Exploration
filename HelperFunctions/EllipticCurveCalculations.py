@@ -391,6 +391,7 @@ class EdwardsCurveCalculation(EllipticCurveCalculations):
         
         # can only add valid points
         if not (self.validatePointOnCurve(point_p) and self.validatePointOnCurve(point_q)):
+            print("cannot add invalid points")
             return None
         
         else:

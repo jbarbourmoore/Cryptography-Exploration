@@ -10,7 +10,7 @@ class EdwardsCurveDigitalSignatureAlgorithm():
     This class stores the public information for the edwards curve digital signature algorithm
     '''
 
-    def __init__(self, useEdwards25519 = True, is_debug:bool=False, print_excess_error:bool=False):
+    def __init__(self, private_key = None, useEdwards25519 = True, is_debug:bool=False, print_excess_error:bool=False):
         '''
         This method initializes the elliptic curve digital signature with a randomly selected curve and generator point
 
@@ -46,17 +46,21 @@ class EdwardsCurveDigitalSignatureAlgorithm():
         if is_debug:
             print("A elliptic curve digital signature algorithm has been initiated")
             self.curve.printEllipticCurveEquation()
-
-        succcessfully_generated = False
-        while not succcessfully_generated:
-            self.keyPairGeneration()
-            decoded_point = self.decodePoint(self.Q)
-            if decoded_point == self.public_key_point:
-                succcessfully_generated = True
-            else:
-                if print_excess_error:
-                    print("Retrying Key Generation")
-
+        if private_key == None:
+            succcessfully_generated = False
+            while not succcessfully_generated:
+                self.keyPairGeneration()
+                decoded_point = self.decodePoint(self.Q)
+                if decoded_point == self.public_key_point:
+                    succcessfully_generated = True
+                else:
+                    if print_excess_error:
+                        print("Retrying Key Generation")
+        else:
+            self.private_key = private_key
+            self.d = self.hexStringToBitString(private_key)
+            self.private = self.hexStringToInt(private_key)
+            self.calculatePublicKey()
         if is_debug:
             print(F"Private Key: {self.private_key}")
             print(F"Public Key: {self.public_key}")
@@ -289,7 +293,7 @@ class EdwardsCurveDigitalSignatureAlgorithm():
         if self.is_debug:
             self.private_key = self.intToHexString(self.private)
 
-    def calculateHashOfItem(self, item_to_hash:str) -> list[int]:
+    def calculateHashOfBitString(self, item_to_hash:str) -> list[int]:
         '''
         This method calculate the sha3-512 hash digest of the message and returns it as a bit string
 
@@ -452,7 +456,7 @@ class EdwardsCurveDigitalSignatureAlgorithm():
         point =  self.curve.calculatedPointMultiplicationByConstant_doubleAndAddMethod(self.curve.getGeneratorPoint(),multiplier)
         return point
     
-    def createSignature(self, message_bit_string:str , d:int = None, k:int = None, is_debug:bool = False) -> tuple[str,str]:
+    def createSignature(self, message_bit_string:str , d:int = None, is_debug:bool = False) -> tuple[str,str]:
         '''
         This method creates the signature (r,s) for a message
 
@@ -482,12 +486,12 @@ class EdwardsCurveDigitalSignatureAlgorithm():
             H_d = self.H_d
         else:
             d_bit = self.intToBitString(d)
-            H_d = self.calculateHashOfItem(d_bit)
+            H_d = self.calculateHashOfBitString(d_bit)
 
         self.hdigest2 = H_d[self.b:]
         hdigest2:str = self.bitArrayToBitString(self.hdigest2)
         message_to_hash = hdigest2 + message_bit_string
-        r = self.bitStringToInt(self.bitArrayToBitString(self.calculateHashOfItem(message_to_hash)))
+        r = self.bitStringToInt(self.bitArrayToBitString(self.calculateHashOfBitString(message_to_hash)))
         self.hdigest1 = H_d[:self.b]
         s = self.octetListToInt(self.hdigest1)
         point_rG = self.multiplesOfG(r)
@@ -496,7 +500,7 @@ class EdwardsCurveDigitalSignatureAlgorithm():
         Q = self.Q
         Q_bit_string = self.intToBitString(self.octetListToInt(Q))
         RQM_bit_string = R_bit_string + Q_bit_string + message_bit_string
-        H_RQM = self.calculateHashOfItem(RQM_bit_string)
+        H_RQM = self.calculateHashOfBitString(RQM_bit_string)
         H_RQM = self.bitArrayToOctetArray(H_RQM)
         digest = self.octetListToInt(H_RQM)
         S = (r + digest * s) % self.n
@@ -670,7 +674,7 @@ class EdwardsCurveDigitalSignatureAlgorithm():
 
     def verifySignature(self, message_bit_string:str, signature:str, Q:str, is_debug = False):
         '''
-        This method verifies the signature using the public key, message and signature
+        This method verifies the signature using the message bit string, signature and purported Q
 
         Parameters :
             message_bit_string : str
@@ -690,15 +694,38 @@ class EdwardsCurveDigitalSignatureAlgorithm():
         https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.186-5.pdf
         '''
 
+        R_hex = signature[:len(signature)//2]
+        S_hex = signature[len(signature)//2:]
+
+        t = self.hexStringToInt(S_hex)
+
+        R_point = self.decodePoint(R_hex)
+        Q_point = self.decodePoint(Q)
+
+        if R_point == None or Q_point == None:
+            return False
         
-       
+        rqm = self.hexStringToBitString(R_hex)+self.hexStringToBitString(Q)+message_bit_string
+        digest = self.calculateHashOfBitString(rqm)
+        u = self.octetListToInt(digest) % self.n
+        t_G = self.multiplesOfG(t)
+        u_Q = self.curve.calculatedPointMultiplicationByConstant_doubleAndAddMethod(Q_point,u)
+        R_u_Q = self.curve.calculatePointAddition(u_Q,R_point)
+        print(t_G)
+        print(R_u_Q)
+        
+        if t_G == R_u_Q:
+            return True
+        else :
+            return False
+
 if __name__ == '__main__':    
     print("The example runs the elliptic curve digital signature algorithm for a given message and verifies the signature")
     print("The Elliptic Curve math is based on Weirstrass form elliptic curves and implemented in HelperFunctions.EllipticCurveCalculations")
     
     print("- - - - - - - - - - - -")
 
-    eddsa = EdwardsCurveDigitalSignatureAlgorithm([EllipticCurveDetails.getCurveP192,EllipticCurveDetails.getCurveP224,EllipticCurveDetails.getCurveP521,EllipticCurveDetails.getSecp256r1],is_debug=True,print_excess_error=True)
+    eddsa = EdwardsCurveDigitalSignatureAlgorithm(is_debug=True,print_excess_error=True)
     octet = 64
     print(f"starting octet value = {octet}")
     octet_bit_set = eddsa.setMostSignificantBitInOctet(octet,"1")
@@ -719,7 +746,8 @@ if __name__ == '__main__':
     message = "010101010111"
     signature = eddsa.createSignature(message)
     print(f"signature is {signature}")
-    # print("- - - - - - - - - - - -")
-    # is_signature_valid = eddsa.verifySignature(message,signature)
+    print("- - - - - - - - - - - -")
+    is_signature_valid = eddsa.verifySignature(message,signature,eddsa.public_key)
+    print(is_signature_valid)
     
     # assert is_signature_valid
