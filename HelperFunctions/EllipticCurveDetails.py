@@ -1,4 +1,4 @@
-from EllipticCurveCalculations import EdwardsCurveCalculation
+from HelperFunctions.EllipticCurveCalculations import EdwardsCurveCalculation
 
 class EllipticCurveWeierstrassFormDetails():
     def __init__(self, name, a, b, prime_modulus, generator_x, generator_y, order=None, sha_seed=None, sha_output=None):
@@ -85,6 +85,8 @@ def getEdwards25519(is_debug:bool=False) -> EdwardsCurveCalculation:
     '''
     This method returns an EdwardsCurveCalculation object for the curve Edwards 25519
 
+    https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-186.pdf p17
+
     Parameters :
         is_debug : bool, optional
             Whether the curve will be used for debugging purposes and should output more information, default is false
@@ -105,8 +107,35 @@ def getEdwards25519(is_debug:bool=False) -> EdwardsCurveCalculation:
 
     return EdwardsCurveCalculation(a=a,d=d,p=p,Gx=Gx,Gy=Gy,h=h,n=n,tr=tr,curve_name=name,is_debug=is_debug)
 
+def getEdwards448(is_debug:bool=False) -> EdwardsCurveCalculation:
+    '''
+    This method returns an EdwardsCurveCalculation object for the curve Edwards 448
+
+    https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-186.pdf p18
+
+    Parameters :
+        is_debug : bool, optional
+            Whether the curve will be used for debugging purposes and should output more information, default is false
+
+    Returns : 
+        EdwardsCurveCalculation 
+            The calculations class for Edwards448
+    '''
+    name = "Edwards448"
+    a = 1
+    d = 0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffeffffffffffffffffffffffffffffffffffffffffffffffffffff6756
+    p = 2**448 - 2**224 - 1
+    Gx =0x4f1970c66bed0ded221d15a622bf36da9e146570470f1767ea6de324a3d3a46412ae1af72ab66511433b80e18b00938e2626a82bc70cc05e
+    Gy =0x693f46716eb6bc248876203756c9c7624bea73736ca3984087789c1e05a0c2d73ad3ff1ce67c39c4fdbd132c4ed7c8ad9808795bf230fa14
+    h = 4
+    n = 2**446 - 0x8335dc163bb124b65129c96fde933d8d723a70aadc873d6d54a7bb0d
+    tr = 0x10cd77058eec492d944a725bf7a4cf635c8e9c2ab721cf5b5529eec34
+
+    return EdwardsCurveCalculation(a=a,d=d,p=p,Gx=Gx,Gy=Gy,h=h,n=n,tr=tr,curve_name=name,is_debug=is_debug)
+
 getCurveP521()
 getCurveP224()
 getCurveP192()
 getSecp256r1()
 getEdwards25519()
+getEdwards448()

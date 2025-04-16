@@ -1,4 +1,5 @@
 from HelperFunctions.PrimeNumbers import calculateModuloInverse
+from HelperFunctions.NumberFormatting import *
 
 class EllipticCurveCalculations():
     '''
@@ -15,6 +16,105 @@ class EllipticCurveCalculations():
 
         print(f"This is a {self.curve_type} curve")
 
+    
+    def calculatedPointMultiplicationByConstant_continualAddition(self, point, constant):
+        '''
+        This method calculates the multiplication of a point on the elliptic curve by a constant
+
+        It uses the continual addition of the same point method so it is not particularly efficient
+
+        Parameters : 
+            point : (int,int)
+                The point that is being multiplied by a constant
+            constant : int
+                The constant value that the point is being multiplied by
+
+        Returns : 
+            point_r : (int, int)
+                The resulting point of the multiplication
+        '''
+
+        # rapidly solve base cases
+        if constant == 0 or point==(0,0):
+            return (0,0)
+        elif constant == 1:
+            return point
+        
+        # add the point for the constant number of times
+        point_r = point
+        for _ in range(1, constant):
+            point_r = self.calculatePointAddition(point,point_r)
+
+        # the result of the multiplication must also be on the elliptic curve
+        assert self.validatePointOnCurve(point=point_r)
+
+        return point_r
+    
+    def calculatedPointMultiplicationByConstant_doubleAndAddMethod(self, point:tuple[int,int], constant:int) -> tuple[int,int]:
+        '''
+        This method calculates the multiplication of a point on the elliptic curve by a constant
+
+        It uses the "Double and Add Method" so it should be more efficient than the constant addition (roughly O=log_2(constant) time)
+
+        Parameters : 
+            point : (int,int)
+                The point that is being multiplied by a constant
+            constant : int
+                The constant value that the point is being multiplied by
+
+        Returns : 
+            point_r : (int, int)
+                The resulting point of the multiplication
+        '''
+     
+        # get rapidly solve base cases
+        if constant == 0 or point==(0,0):
+            return (0,0)
+        elif constant == 1:
+            return point
+
+        point_r = point
+        
+        # a string of the constant as binary 0s and 1s
+        binary_of_constant = bin(constant) 
+        binary_of_constant = binary_of_constant[2:len(binary_of_constant)] 
+        
+        # going from most significant bit to least significant bit
+        # always doubling the current result point
+        # and then adding the initial point if the bit is 1, not 0
+        for i in range(1, len(binary_of_constant)):
+            bit = binary_of_constant[i: i+1]
+            point_r = self.calculatePointAddition(point_r, point_r)
+            
+            if bit == '1':
+                point_r = self.calculatePointAddition(point_r, point)
+        
+        # the rest of the multiplication must also be on the elliptic curve
+        assert self.validatePointOnCurve(point=point_r)
+
+        return point_r
+    
+    def calculatePointInverse(self, point:tuple[int,int]) -> tuple[int,int]:
+        '''
+        This method calculate the inverse of a point on the elliptic curve assuming the curve is y**2 = x**3 + a * x + b
+        
+        Parameters :
+            point : (int, int)
+                A point on the elliptic curve over the finite field
+
+        Returns : 
+            point_r (int, int)
+                The point on the elliptic curve which is the inverse of the original point
+        '''
+
+        if point == self.origin_point:
+            return point
+        
+        x, y = point
+        point_r =  (x, (-y) % self.finite_field)
+
+        return point_r
+
     def validatePointOnCurve(self, point:tuple[int,int]) -> bool:
         '''
         This method checks to see whether a point is indeed on the elliptic curve
@@ -26,6 +126,22 @@ class EllipticCurveCalculations():
         Returns :
             is_valid : Boolean
                 Whether the point is on the elliptic curve in the finite field
+        '''
+        raise NotImplementedError
+    
+    def calculatePointAddition(self,point_p:tuple[int,int], point_q:tuple[int,int]) -> tuple[int,int]:
+        '''
+        This method calculated the addition of point_p and point_q on the elliptic curve assuming the curve is y**2 = x**3 + a * x + b
+        
+        Parameters :
+            point_p : (int, int)
+                one of the points on the elliptic curve that are being added together
+            point_q : (int, int)
+                the other point on the elliptic curve that is being added
+
+        Returns :
+            point_r : (int, int) or None
+                The result of the point addition
         '''
         raise NotImplementedError
     
@@ -83,26 +199,7 @@ class WeirrstrassCurveCalculations(EllipticCurveCalculations):
             else:
                 return False
             
-    def calculatePointInverse(self, point):
-        '''
-        This method calculate the inverse of a point on the elliptic curve assuming the curve is y**2 = x**3 + a * x + b
-        
-        Parameters :
-            point : (int, int)
-                A point on the elliptic curve over the finite field
-
-        Returns : 
-            point_r (int, int)
-                The point on the elliptic curve which is the inverse of the original point
-        '''
-
-        if point == self.origin_point:
-            return point
-        
-        x, y = point
-        point_r =  (x, (-y) % self.finite_field)
-
-        return point_r
+   
     
     def convertFieldElementToInt(self, field_element):
         '''
@@ -164,82 +261,7 @@ class WeirrstrassCurveCalculations(EllipticCurveCalculations):
         else: 
             return None
         
-    def calculatedPointMultiplicationByConstant_continualAddition(self, point, constant):
-        '''
-        This method calculates the multiplication of a point on the elliptic curve by a constant
-
-        It uses the continual addition of the same point method so it is not particularly efficient
-
-        Parameters : 
-            point : (int,int)
-                The point that is being multiplied by a constant
-            constant : int
-                The constant value that the point is being multiplied by
-
-        Returns : 
-            point_r : (int, int)
-                The resulting point of the multiplication
-        '''
-
-        # rapidly solve base cases
-        if constant == 0 or point==(0,0):
-            return (0,0)
-        elif constant == 1:
-            return point
-        
-        # add the point for the constant number of times
-        point_r = point
-        for _ in range(1, constant):
-            point_r = self.calculatePointAddition(point,point_r)
-
-        # the result of the multiplication must also be on the elliptic curve
-        assert self.validatePointOnCurve(point=point_r)
-
-        return point_r
-    
-    def calculatedPointMultiplicationByConstant_doubleAndAddMethod(self, point, constant):
-        '''
-        This method calculates the multiplication of a point on the elliptic curve by a constant
-
-        It uses the "Double and Add Method" so it should be more efficient than the constant addition (roughly O=log_2(constant) time)
-
-        Parameters : 
-            point : (int,int)
-                The point that is being multiplied by a constant
-            constant : int
-                The constant value that the point is being multiplied by
-
-        Returns : 
-            point_r : (int, int)
-                The resulting point of the multiplication
-        '''
-     
-        # get rapidly solve base cases
-        if constant == 0 or point==(0,0):
-            return (0,0)
-        elif constant == 1:
-            return point
-
-        point_r = point
-        
-        # a string of the constant as binary 0s and 1s
-        binary_of_constant = bin(constant) 
-        binary_of_constant = binary_of_constant[2:len(binary_of_constant)] 
-        
-        # going from most significant bit to least significant bit
-        # always doubling the current result point
-        # and then adding the initial point if the bit is 1, not 0
-        for i in range(1, len(binary_of_constant)):
-            bit = binary_of_constant[i: i+1]
-            point_r = self.calculatePointAddition(point_r, point_r)
-            
-            if bit == '1':
-                point_r = self.calculatePointAddition(point_r, point)
-        
-        # the rest of the multiplication must also be on the elliptic curve
-        assert self.validatePointOnCurve(point=point_r)
-
-        return point_r
+  
     
     def compressPointOnEllipticCurve(self, point):
         '''
@@ -300,8 +322,8 @@ class EdwardsCurveCalculation(EllipticCurveCalculations):
     '''
     This class is intended to help with the calculations for an edwards curve
     '''
-    origin_point = (0,1)
-    def __init__(self, a:int, d:int, p:int, Gx:int, Gy:int, h:int, n:int, tr:int, curve_name:str,  is_debug=False):
+    origin_point = (1,0)
+    def __init__(self, a:int, d:int, p:int=None, Gx:int=None, Gy:int=None, h:int=None, n:int=None, tr:int=None, curve_name:str=None,  is_debug=False):
         '''
         This method initializes an edwards curve with the equation a * x**2 + y**2 = 1 + d x**2 y**2
         '''
@@ -344,23 +366,66 @@ class EdwardsCurveCalculation(EllipticCurveCalculations):
         else:
             x,y = point
 
-            x_in_finite_field = x < self.p and x >= 0
-            y_in_finite_field = y < self.p and y >= 0
-            left_side = self.a * x**2 + y**2
-            right_side = 1 + self.d * x**2 * y**2
-            point_on_curve = left_side == right_side
+            left_side = ((self.a * x**2) + y**2) % self.p
+            right_side = (1 + (self.d * x**2 * y**2)) % self.p
+            point_on_curve = int(left_side) == int(right_side)
 
-            if x_in_finite_field and y_in_finite_field and point_on_curve:
+            #print(f"left_side is {left_side}")
+            #print(f"right_side is {right_side}")
+
+            if point_on_curve:
                 return True
             else:
                 return False
+            
+    def calculatePointAddition(self,point_p, point_q):
+        '''
+        This method calculated the addition of point_p and point_q on the elliptic curve assuming the curve is y**2 = x**3 + a * x + b
+        
+        Parameters :
+            point_p : (int, int)
+                one of the points on the elliptic curve that are being added together
+            point_q : (int, int)
+                the other point on the elliptic curve that is being added
+
+        Returns :
+            point_r : (int, int) or None
+                The result of the point addition
+        '''
+
+        # can only add valid points
+        if not (self.validatePointOnCurve(point_p) and self.validatePointOnCurve(point_q)):
+            return None
+        
+        else:
+            x_p,y_p = point_p
+            x_q,y_q = point_q
+
+            x_r = x_p * y_q + x_q * y_p
+            x_r //= (1 + self.d * x_p * x_q * y_p * y_q)
+            x_r = int(x_r)
+            x_r %= self.p
+
+            y_r = y_p * y_q + x_q * x_p
+            y_r //= (1 - self.d * x_p * x_q * y_p * y_q)
+            y_r = int(y_r)
+            y_r %= self.p
+
+            point_r = (x_r, y_r)
+
+        # The result of the addition of two points on an elliptic curve over a finite field
+        # should always also be a point on the elliptic curve over a finite field
+        if self.validatePointOnCurve(point_r):
+            return point_r
+        else: 
+            return None
             
     def printEllipticCurveEquation(self):
         '''
         This method outputs the values for this edwards curve to the command line
         '''
 
-        print(f"The values for this elliptic curve are: a={self.a} b={self.d} p={self.p} h={self.h} n={self.n}")
+        print(f"The values for this edwards curve are: a={self.a} b={self.d} p={self.p} h={self.h} n={self.n}")
         print(f"a * x**2 + y**2 = 1 + d x**2 y**2 ==> {self.a} * x**2 + y**2 = 1 + {self.d} x**2 y**2")
         print(f"The Generator Point is ({self.Gx}, {self.Gy})")
 
@@ -380,4 +445,23 @@ if __name__ == '__main__':
     compressed_point = elliptic_curve.compressPointOnEllipticCurve(point=point)
     print(compressed_point)
     print(elliptic_curve.decompressPointOnEllipticCurve(compressed_point=compressed_point))
+    from EllipticCurveDetails import getEdwards25519
+    edwards = getEdwards25519()
+    edwards.printEllipticCurveEquation()
     
+    a = 3
+    d = 2
+    test_curve = EdwardsCurveCalculation(a=a,d=d,p=90)
+    point_1 = (1, 2**(1/2))
+    point_2 = (1, -2**(1/2))
+    point_3 = (0, -1)
+    point_4 = (2*2**(1/2)/5,1/3)
+
+    result_point = test_curve.calculatePointAddition(point_2,point_2)
+    print(result_point)
+    result_point = test_curve.calculatePointAddition(point_1,point_2)
+    print(result_point)
+
+    result_point = edwards.calculatePointAddition(edwards.getGeneratorPoint(), edwards.getGeneratorPoint())
+    result_point = edwards.calculatePointAddition(edwards.getGeneratorPoint(), result_point)
+    print(result_point)
