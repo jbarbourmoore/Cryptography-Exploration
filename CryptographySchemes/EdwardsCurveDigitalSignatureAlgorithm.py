@@ -123,30 +123,66 @@ class EdwardsCurveDigitalSignatureAlgorithm():
         # get the least significant bit of x
         x_0 = self.singleOctetToBitString(x_list[0])[0]
         y_list = self.intToOctetList(point[1] % self.curve.p)
-
+        if self.print_excess_output:
+            print(f"The original value of the most significant bit of y was {y_list[len(y_list)-1]} and x_0 was {x_0}")
         # set the most significant bit of y to the bit from x
         encoded_point = [y_list[i] for i in range(0, len(y_list))]
         encoded_point[len(y_list)-1] = self.setMostSignificantBitInOctet(y_list[len(y_list)-1], x_0)
 
         return encoded_point
 
-    def setMostSignificantBitInOctet(self, octet: int, most_sig_bit: str):
+    def setMostSignificantBitInOctet(self, octet: int, most_sig_bit: str) -> int:
+        '''
+        This method sets the most significant bit in an octet
+
+        Parameters :
+            octet : int
+                The octet's value as an integer
+            most_sig_bit : str
+                The new bit to set for the octet as a string
+
+        Returns :
+            octet_value : int
+                The octet's value with the new most significant bit
+        '''
+
         bit_string = self.singleOctetToBitString(octet)
         bit_string = bit_string[0:len(bit_string)-1]+most_sig_bit
-        octet_value = self.bitStringToInt(bit_string)
+        octet_value = self.singleBitStringToOctetInt(bit_string)
         return octet_value
     
+    def singleBitStringToOctetInt(self, bit_string: str):
+        int_value = 0
+        for i in range(0, len(bit_string)):
+            int_value += 2**i * int(bit_string[i], 2)
+        return int_value
+    
     def getMostSignificantBitInOctetAndResetIt(self, octet: int) -> tuple[int,int]:
+        '''
+        This method gets the most significant bit in an octet and resets it to 0
+
+        Parameters :
+            octet : int
+                The octet's value as an integer
+           
+
+        Returns :
+            most_sig_bit : str
+                The most significant bit of the octet as a string
+            octet_value : int
+                The octet's value with the new zeroed most significant bit
+        '''
+
         bit_string = self.singleOctetToBitString(octet)
         most_sig_bit = bit_string[-1]
         bit_string = bit_string[0:len(bit_string)-1]+"0"
-        octet_value = self.bitStringToInt(bit_string)
+        octet_value = self.singleBitStringToOctetInt(bit_string)
         return most_sig_bit, octet_value
 
     def singleOctetToBitString(self, int_value):
         bit_string = ""
         for i in range(0,8):
-            bit_string = str(int_value % 2) + bit_string
+            bit_string = bit_string+str(int_value % 2)
             int_value //= 2
         return bit_string
 
@@ -257,7 +293,10 @@ class EdwardsCurveDigitalSignatureAlgorithm():
         if type(coded_point) == str:
             self.bitStringToOctetList(coded_point)
         
-        x_0, y_list[0] = self.getMostSignificantBitInOctetAndResetIt(coded_point[0])
+        x_0, y_list[len(y_list)-1] = self.getMostSignificantBitInOctetAndResetIt(coded_point[len(coded_point)-1])
+        if self.print_excess_output:
+            print(f"The resulting value of the most significant bit of y was {y_list[len(y_list)-1]} and x_0 is now {x_0}")
+
         y = self.octetListToInt(y_list)
         if y > self.curve.p:
             if self.print_excess_output:
@@ -620,7 +659,14 @@ if __name__ == '__main__':
     
     print("- - - - - - - - - - - -")
 
-    eddsa = EdwardsCurveDigitalSignatureAlgorithm([EllipticCurveDetails.getCurveP192,EllipticCurveDetails.getCurveP224,EllipticCurveDetails.getCurveP521,EllipticCurveDetails.getSecp256r1],is_debug=True)
+    eddsa = EdwardsCurveDigitalSignatureAlgorithm([EllipticCurveDetails.getCurveP192,EllipticCurveDetails.getCurveP224,EllipticCurveDetails.getCurveP521,EllipticCurveDetails.getSecp256r1],is_debug=True,print_excess_error=True)
+    octet = 64
+    print(f"starting octet value = {octet}")
+    octet_bit_set = eddsa.setMostSignificantBitInOctet(octet,"1")
+    print(f"octet with its most significant bit set = {octet_bit_set}")
+    bit, octet_restored = eddsa.getMostSignificantBitInOctetAndResetIt(octet_bit_set)
+    print(f"bit was {bit} and restored octet value is {octet_restored}")
+    
     # num = eddsa.intToOctetList(26483764)
     # print(num)
     # int_value = eddsa.octetListToInt(num)
