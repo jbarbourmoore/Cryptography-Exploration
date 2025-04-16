@@ -89,7 +89,7 @@ class EdwardsCurveDigitalSignatureAlgorithm():
         self.s = self.octetListToInt(self.hdigest1)
         public_key_point = self.multiplesOfG(self.s)
         print(f"public_key_point is {public_key_point}")
-        #self.Q = self.encodePoint(public_key_point)
+        self.Q = self.encodePoint(public_key_point)
         self.public_key = self.Q
         
         print(self.hdigest1)
@@ -235,8 +235,9 @@ class EdwardsCurveDigitalSignatureAlgorithm():
             result : (int, int)
                 The multiplied point
         '''
-        return self.curve.calculatedPointMultiplicationByConstant_doubleAndAddMethod(self.curve.getGeneratorPoint(),multiplier)
-    
+        point =  self.curve.calculatedPointMultiplicationByConstant_doubleAndAddMethod(self.curve.getGeneratorPoint(),multiplier)
+        print(point)
+        return point
     def createSignature(self, message_string:str , d:int = None, k:int = None, is_debug:bool = False) -> tuple[str,str]:
         '''
         This method creates the signature (r,s) for a message

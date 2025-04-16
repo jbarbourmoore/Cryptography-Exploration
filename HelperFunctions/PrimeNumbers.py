@@ -82,7 +82,7 @@ def calculateModuloInverse(number, modulo):
             return None
     
     # not efficient enough when dealing with large numbers
-    # return calculatePowerWithModulo(number, modulo-2, modulo)
+    #return calculatePowerWithModulo(number, modulo-2, modulo)
 
     return pow(number,modulo-2,modulo)
 

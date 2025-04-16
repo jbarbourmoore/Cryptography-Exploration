@@ -85,13 +85,13 @@ class EllipticCurveCalculations():
         for i in range(1, len(binary_of_constant)):
             bit = binary_of_constant[i: i+1]
             point_r = self.calculatePointAddition(point_r, point_r)
-            
+            print(f"point r: {point_r}")
+
             if bit == '1':
                 point_r = self.calculatePointAddition(point_r, point)
         
         # the rest of the multiplication must also be on the elliptic curve
         assert self.validatePointOnCurve(point=point_r)
-
         return point_r
     
     def calculatePointInverse(self, point:tuple[int,int]) -> tuple[int,int]:
@@ -211,7 +211,7 @@ class WeirrstrassCurveCalculations(EllipticCurveCalculations):
         else:
             raise NotImplementedError
     
-    def calculatePointAddition(self,point_p, point_q):
+    def calculatePointAddition(self,point_p:tuple[int,int], point_q:tuple[int,int])->tuple[int,int]:
         '''
         This method calculated the addition of point_p and point_q on the elliptic curve assuming the curve is y**2 = x**3 + a * x + b
         
@@ -263,7 +263,7 @@ class WeirrstrassCurveCalculations(EllipticCurveCalculations):
         
   
     
-    def compressPointOnEllipticCurve(self, point):
+    def compressPointOnEllipticCurve(self, point:tuple[int,int])->str:
         '''
         This method gets the compressed form of the point on the elliptic curve
 
@@ -279,7 +279,7 @@ class WeirrstrassCurveCalculations(EllipticCurveCalculations):
         x, y = point
         return hex(x) + hex(y % 2)[2:]
     
-    def decompressPointOnEllipticCurve(self, compressed_point):
+    def decompressPointOnEllipticCurve(self, compressed_point:str) -> tuple[int,int]:
         '''
         This function decompresses the point on the elliptic curve
 
@@ -392,7 +392,8 @@ class EdwardsCurveCalculation(EllipticCurveCalculations):
             point_r : (int, int) or None
                 The result of the point addition
         '''
-
+        print(point_p)
+        print(point_q)
         # can only add valid points
         if not (self.validatePointOnCurve(point_p) and self.validatePointOnCurve(point_q)):
             return None
@@ -401,14 +402,15 @@ class EdwardsCurveCalculation(EllipticCurveCalculations):
             x_p,y_p = point_p
             x_q,y_q = point_q
 
-            x_r = x_p * y_q + x_q * y_p
-            x_r //= (1 + self.d * x_p * x_q * y_p * y_q)
-            x_r = int(x_r)
+            x_r = (x_p * y_q + x_q * y_p)
+            x_r_d = (1 + self.d * x_p * x_q * y_p * y_q) % self.p
+            x_r_d = calculateModuloInverse(x_r_d, self.p) %self.p
+            x_r *= x_r_d
             x_r %= self.p
 
-            y_r = y_p * y_q + x_q * x_p
-            y_r //= (1 - self.d * x_p * x_q * y_p * y_q)
-            y_r = int(y_r)
+            y_r =( y_p * y_q + x_q * x_p ) % self.p
+            y_r_d = calculateModuloInverse(1 - self.d * x_p * x_q * y_p * y_q, self.p)
+            y_r *= y_r_d
             y_r %= self.p
 
             point_r = (x_r, y_r)
@@ -418,7 +420,11 @@ class EdwardsCurveCalculation(EllipticCurveCalculations):
         if self.validatePointOnCurve(point_r):
             return point_r
         else: 
-            return None
+            print(point_r)
+            print("does not validate")
+        
+    def compressPointOnEllipticCurve(self, point:tuple[int,int])-> int:
+        raise NotImplementedError
             
     def printEllipticCurveEquation(self):
         '''
@@ -448,20 +454,9 @@ if __name__ == '__main__':
     from EllipticCurveDetails import getEdwards25519
     edwards = getEdwards25519()
     edwards.printEllipticCurveEquation()
-    
-    a = 3
-    d = 2
-    test_curve = EdwardsCurveCalculation(a=a,d=d,p=90)
-    point_1 = (1, 2**(1/2))
-    point_2 = (1, -2**(1/2))
-    point_3 = (0, -1)
-    point_4 = (2*2**(1/2)/5,1/3)
 
-    result_point = test_curve.calculatePointAddition(point_2,point_2)
-    print(result_point)
-    result_point = test_curve.calculatePointAddition(point_1,point_2)
-    print(result_point)
-
+    print(edwards.getGeneratorPoint())
     result_point = edwards.calculatePointAddition(edwards.getGeneratorPoint(), edwards.getGeneratorPoint())
+    print(result_point)
     result_point = edwards.calculatePointAddition(edwards.getGeneratorPoint(), result_point)
     print(result_point)
