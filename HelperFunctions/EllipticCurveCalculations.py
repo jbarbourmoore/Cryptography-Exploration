@@ -85,7 +85,6 @@ class EllipticCurveCalculations():
         for i in range(1, len(binary_of_constant)):
             bit = binary_of_constant[i: i+1]
             point_r = self.calculatePointAddition(point_r, point_r)
-            print(f"point r: {point_r}")
 
             if bit == '1':
                 point_r = self.calculatePointAddition(point_r, point)
@@ -370,9 +369,6 @@ class EdwardsCurveCalculation(EllipticCurveCalculations):
             right_side = (1 + (self.d * x**2 * y**2)) % self.p
             point_on_curve = int(left_side) == int(right_side)
 
-            #print(f"left_side is {left_side}")
-            #print(f"right_side is {right_side}")
-
             if point_on_curve:
                 return True
             else:
@@ -392,8 +388,7 @@ class EdwardsCurveCalculation(EllipticCurveCalculations):
             point_r : (int, int) or None
                 The result of the point addition
         '''
-        print(point_p)
-        print(point_q)
+        
         # can only add valid points
         if not (self.validatePointOnCurve(point_p) and self.validatePointOnCurve(point_q)):
             return None
@@ -422,6 +417,7 @@ class EdwardsCurveCalculation(EllipticCurveCalculations):
         else: 
             print(point_r)
             print("does not validate")
+            raise AssertionError
         
     def compressPointOnEllipticCurve(self, point:tuple[int,int])-> int:
         raise NotImplementedError

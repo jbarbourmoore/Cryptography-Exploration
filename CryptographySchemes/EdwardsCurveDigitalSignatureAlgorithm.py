@@ -70,7 +70,6 @@ class EdwardsCurveDigitalSignatureAlgorithm():
         '''
 
         self.H_d = self.H(self.d.encode()).hexdigest()
-        print("HD"+self.H_d)
         self.H_d = self.hexStringToBitArray(self.H_d)
         if self.is_25519:
             self.hdigest1 = [self.H_d[i] for i in range(0,self.b)]
@@ -88,16 +87,11 @@ class EdwardsCurveDigitalSignatureAlgorithm():
         self.hdigest1 = self.bitArrayToOctetArray(self.hdigest1)
         self.s = self.octetListToInt(self.hdigest1)
         public_key_point = self.multiplesOfG(self.s)
-        print(f"public_key_point is {public_key_point}")
         self.Q = self.encodePoint(public_key_point)
         self.public_key = self.Q
-        
-        print(self.hdigest1)
-        print(self.s)
 
     def encodePoint(self, public_key_point):
         public_x = self.intToOctetList(public_key_point[0] % self.curve.p)
-        print(public_x)
         public_x_least_sig = self.singleOctetToBitString(public_x[0])[0]
         public_y = self.intToOctetList(public_key_point[1] % self.curve.p)
         public_y[len(public_y)-1] = self.setMostSignificantBitInOctet(public_y[len(public_y)-1], public_x_least_sig)
@@ -131,11 +125,9 @@ class EdwardsCurveDigitalSignatureAlgorithm():
         bit_array = [0 for _ in range(0, length)]
         for i in range(0, len(hex_string)):
             int_value = int(hex_string[i],16)
-            print("int:"+str(int_value))
             for j in range(0,4):
                 bit_array[i*4+j] = int_value % 2
                 int_value //= 2
-        print(bit_array)
         return bit_array
     
     def bitArrayToHexString(self, bit_array):
@@ -173,7 +165,7 @@ class EdwardsCurveDigitalSignatureAlgorithm():
 
         self.hash = self.H(item_to_hash.encode()).hexdigest
         if self.is_debug:
-            print(self.hash)
+            print(f"The hash is {self.hash}")
         return self.hexStringToBitArray(self.hash)
     
     def bitStringToHexString(self, bit_string:str) -> str :
@@ -236,7 +228,6 @@ class EdwardsCurveDigitalSignatureAlgorithm():
                 The multiplied point
         '''
         point =  self.curve.calculatedPointMultiplicationByConstant_doubleAndAddMethod(self.curve.getGeneratorPoint(),multiplier)
-        print(point)
         return point
     def createSignature(self, message_string:str , d:int = None, k:int = None, is_debug:bool = False) -> tuple[str,str]:
         '''
@@ -362,15 +353,11 @@ class EdwardsCurveDigitalSignatureAlgorithm():
         '''
 
         current_int = int_value
-        print(current_int)
         octet_list = []
         while current_int > 0:
             next_octet = current_int % 256
-            print(next_octet)
-            #octet_list.insert(0, next_octet)
             current_int //= 256
             octet_list.append(next_octet)
-        print(octet_list)
         return octet_list
     
     def octetListToInt(self, octet_list:list[int]) -> int:
@@ -393,7 +380,6 @@ class EdwardsCurveDigitalSignatureAlgorithm():
         length = len(octet_list)
         for i in range(0, length):
             integer_value += octet_list[i]*(256**(i))
-            print(integer_value)
         return integer_value
     
     def bitStringToOctetList(self, bit_string:str, modulo:int)->list[int]:
@@ -471,7 +457,6 @@ class EdwardsCurveDigitalSignatureAlgorithm():
                 Q = self.curve.decompressPointOnEllipticCurve(public_key,prime_modulus=2**224-2**96+1)
             else:
                 Q = public_key
-        # print(f"public key is {Q}")
         r, s = signature
         try:
             if type(r) != int:
@@ -533,11 +518,11 @@ if __name__ == '__main__':
     print("- - - - - - - - - - - -")
 
     eddsa = EdwardsCurveDigitalSignatureAlgorithm([EllipticCurveDetails.getCurveP192,EllipticCurveDetails.getCurveP224,EllipticCurveDetails.getCurveP521,EllipticCurveDetails.getSecp256r1],is_debug=True)
-    num = eddsa.intToOctetList(26483764)
-    print(num)
-    int_value = eddsa.octetListToInt(num)
-    print(int_value)
-    print("- - - - - - - - - - - -")
+    # num = eddsa.intToOctetList(26483764)
+    # print(num)
+    # int_value = eddsa.octetListToInt(num)
+    # print(int_value)
+    # print("- - - - - - - - - - - -")
     
     # message = "This is the message which is being signed"
     # signature = eddsa.createSignature(message)
