@@ -11,7 +11,7 @@ class EdwardsCurveDigitalSignatureAlgorithm():
     This class stores the public information for the edwards curve digital signature algorithm
     '''
 
-    def __init__(self, useEdwards25519 = True, is_debug:bool=False):
+    def __init__(self, useEdwards25519 = True, is_debug:bool=False, print_excess_error:bool=False):
         '''
         This method initializes the elliptic curve digital signature with a randomly selected curve and generator point
 
@@ -26,6 +26,7 @@ class EdwardsCurveDigitalSignatureAlgorithm():
         if useEdwards25519:
             self.curve = EllipticCurveDetails.getEdwards25519()
             self.b = 256
+            self.number_of_octets = self.b//8
             self.requested_security_strength = 128
             self.H = hashlib.sha512 
             self.is_25519 = True
@@ -33,6 +34,7 @@ class EdwardsCurveDigitalSignatureAlgorithm():
         else:
             self.curve = EllipticCurveDetails.getEdwards448
             self.b = 456
+            self.number_of_octets = self.b//8
             self.requested_security_strength = 224
             self.H = hashlib.shake_256
             self.is_25519 = False
@@ -41,27 +43,40 @@ class EdwardsCurveDigitalSignatureAlgorithm():
         self.n = self.curve.n
         self.length_n = len(self.intToBitString(self.n))
         self.is_debug = is_debug
+        self.print_excess_output = print_excess_error
         if is_debug:
             print("A elliptic curve digital signature algorithm has been initiated")
-            print(f"The elliptic curve is {self.curve.curve_name} and the generator point is {self.curve.getGeneratorPoint()}")
+            self.curve.printEllipticCurveEquation()
 
-        self.keyPairGeneration()
+        succcessfully_generated = False
+        while not succcessfully_generated:
+            self.keyPairGeneration()
+            decoded_point = self.decodePoint(self.Q)
+            if decoded_point == self.public_key_point:
+                succcessfully_generated = True
+            else:
+                if print_excess_error:
+                    print("Retrying Key Generation")
 
         if is_debug:
             print(F"Private Key: {self.private_key}")
             print(F"Public Key: {self.public_key}")
 
     def keyPairGeneration(self):
+        '''
+        This method generates a random private key and then calculates the matching public key
+        '''
+
         self.private_key = None
         self.Q = None
         self.generatePrivateKey()
         self.calculatePublicKey()
-        # while self.private_key == None or self.Q == None:
-        #     try:
-        #         self.generatePrivateKey()
-        #         self.calculatePublicKey()
-        #     except:
-        #         pass
+        while self.private_key == None or self.Q == None:
+            try:
+                self.generatePrivateKey()
+                self.calculatePublicKey()
+            except:
+                pass
             
     
     def calculatePublicKey(self):
@@ -86,22 +101,47 @@ class EdwardsCurveDigitalSignatureAlgorithm():
 
         self.hdigest1 = self.bitArrayToOctetArray(self.hdigest1)
         self.s = self.octetListToInt(self.hdigest1)
-        public_key_point = self.multiplesOfG(self.s)
-        self.Q = self.encodePoint(public_key_point)
-        self.public_key = self.Q
+        self.public_key_point = self.multiplesOfG(self.s)
+        self.Q = self.encodePoint(self.public_key_point)
+        self.public_key = self.intToHexString(self.octetListToInt(self.Q))
 
-    def encodePoint(self, public_key_point):
-        public_x = self.intToOctetList(public_key_point[0] % self.curve.p)
-        public_x_least_sig = self.singleOctetToBitString(public_x[0])[0]
-        public_y = self.intToOctetList(public_key_point[1] % self.curve.p)
-        public_y[len(public_y)-1] = self.setMostSignificantBitInOctet(public_y[len(public_y)-1], public_x_least_sig)
-        return public_y
+    def encodePoint(self, point:tuple[int,int]) -> list[int]:
+        '''
+        This method encodes a point (x, y) as a list of octets as ints
+
+        Parameters :
+            point : (int,int)
+                The point to encode
+
+        Returns :
+            encoded_point : [int]
+                The encoded point as a list of octets as ints
+        '''
+
+        x_list = self.intToOctetList(point[0] % self.curve.p)
+
+        # get the least significant bit of x
+        x_0 = self.singleOctetToBitString(x_list[0])[0]
+        y_list = self.intToOctetList(point[1] % self.curve.p)
+
+        # set the most significant bit of y to the bit from x
+        encoded_point = [y_list[i] for i in range(0, len(y_list))]
+        encoded_point[len(y_list)-1] = self.setMostSignificantBitInOctet(y_list[len(y_list)-1], x_0)
+
+        return encoded_point
 
     def setMostSignificantBitInOctet(self, octet: int, most_sig_bit: str):
         bit_string = self.singleOctetToBitString(octet)
         bit_string = bit_string[0:len(bit_string)-1]+most_sig_bit
         octet_value = self.bitStringToInt(bit_string)
         return octet_value
+    
+    def getMostSignificantBitInOctetAndResetIt(self, octet: int) -> tuple[int,int]:
+        bit_string = self.singleOctetToBitString(octet)
+        most_sig_bit = bit_string[-1]
+        bit_string = bit_string[0:len(bit_string)-1]+"0"
+        octet_value = self.bitStringToInt(bit_string)
+        return most_sig_bit, octet_value
 
     def singleOctetToBitString(self, int_value):
         bit_string = ""
@@ -145,10 +185,10 @@ class EdwardsCurveDigitalSignatureAlgorithm():
         This method randomly generate a private key below the prime modulus of the selected curve
         '''
 
-        self.private_key = secrets.randbelow(self.curve.p)
-        self.d = intToBitString(self.private_key)
+        self.private = secrets.randbelow(self.curve.p)
+        self.d = intToBitString(self.private,length=self.b)
         if self.is_debug:
-            self.private = self.intToHexString(self.private_key)
+            self.private_key = self.intToHexString(self.private)
 
     def calculateHashOfItem(self, item_to_hash:str) -> str:
         '''
@@ -206,6 +246,66 @@ class EdwardsCurveDigitalSignatureAlgorithm():
         bit_string = '{0:0{1}b}'.format(value,hex_len*4)
         return bit_string
     
+    def decodePoint(self, coded_point: str | list[int]) -> int:
+        '''
+        From section 7.3 "Decoding" of Nist Fips 186.5
+        https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.186-5.pdf
+        '''
+
+        y_list = [coded_point[i] for i in range(0, len(coded_point))]
+        d,a,p = self.curve.d,self.curve.a,self.curve.p
+        if type(coded_point) == str:
+            self.bitStringToOctetList(coded_point)
+        
+        x_0, y_list[0] = self.getMostSignificantBitInOctetAndResetIt(coded_point[0])
+        y = self.octetListToInt(y_list)
+        if y > self.curve.p:
+            if self.print_excess_output:
+                print("Error decoding y")
+            return None
+        u = (y**2 % p - 1) % p
+        v = ((d * y**2 % p) - a) % p
+
+        if p % 4 == 3:
+            #this should be for ed448
+            exp = ((p - 3) % p // 4) % p
+            cand_root = (u**5 % p) * (v**3 % p) % p
+            cand_root = pow(cand_root,exp,p)
+            cand_root = cand_root * ((u**3 % p) * v % p)
+            cand_root = cand_root % p
+            if (cand_root**2 % p) * v % p == u:
+                root =  cand_root
+            else:
+                if self.print_excess_output:
+                    print("No square root")
+                return None
+        elif p % 8 == 5:
+            # this should be for ed22519
+            exp = ((p - 5) % p // 8) % p
+            cand_root = (u % p) * (v**7 % p) % p
+            cand_root = pow(cand_root, exp, p)
+            cand_root = cand_root * ((v**3 % p) * u % p)
+            cand_root = cand_root % p
+            if (cand_root**2 % p) * v % p == u % p:
+                root =  cand_root
+            elif (cand_root**2 % p) * v % p == -u % p:
+                exp = (p - 1) // 4 % p
+                root = cand_root * (pow(2,exp,p)) % p
+            else:
+                if self.print_excess_output:
+                    print("No square root")
+                return None
+        
+        if x_0 == 0 and root == 0:
+            if self.print_excess_output:
+                print("Decoding Failed, x_0 and root are both zero")
+            return None
+        else :
+            if root % 2 == x_0:
+                return (root, y)
+            else:
+                return ((p - root) % p, y)
+        
     def getCompressedPublicKey(self) -> str:
         return self.curve.compressPointOnEllipticCurve(self.public_key)
     
@@ -358,6 +458,9 @@ class EdwardsCurveDigitalSignatureAlgorithm():
             next_octet = current_int % 256
             current_int //= 256
             octet_list.append(next_octet)
+        if len(octet_list)< self.number_of_octets:
+            for i in range(0,self.number_of_octets-len(octet_list)):
+                octet_list.insert(0,0)
         return octet_list
     
     def octetListToInt(self, octet_list:list[int]) -> int:

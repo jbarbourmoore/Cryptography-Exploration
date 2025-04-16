@@ -73,7 +73,7 @@ def bitStringToInt(bit_string:str) -> int:
             integer_value += int(bit_string[i:i+1],2)*(2**(length-1-i))
         return integer_value
     
-def intToBitString(int_value:int) -> str:
+def intToBitString(int_value:int, length:int=None) -> str:
         '''
         This method converts an integer value to a bit string
 
@@ -94,5 +94,7 @@ def intToBitString(int_value:int) -> str:
             next_bit = current_int % 2
             bit_string = str(next_bit)+bit_string
             current_int //= 2
+        if length != None and len(bit_string)<length:
+            bit_string = bit_string + str(0)
         return bit_string
     
