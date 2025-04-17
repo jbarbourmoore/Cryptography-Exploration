@@ -274,6 +274,8 @@ class EdwardsCurveDigitalSignatureAlgorithm():
             hex_string :
                 The value as a hexadecimal string
         '''
+        if len(bit_array) % 4 !=0:
+            bit_array = bit_array + [0]*(4 - len(bit_array) % 4 )
         length = len(bit_array) // 4
         hex_string = ""
         for i in range(0, length):
@@ -308,7 +310,7 @@ class EdwardsCurveDigitalSignatureAlgorithm():
         bytes_to_hash = bytes(self.bitStringToOctetList(item_to_hash))
         self.hash = self.H(bytes_to_hash).hexdigest()
         if self.is_debug:
-            print(f"The hash is {self.hash}")
+            print(f"The hash is {self.hash} and message length was{len(item_to_hash)}")
         return self.hexStringToBitArray(self.hash)
     
     def bitStringToHexString(self, bit_string:str) -> str :
@@ -324,6 +326,8 @@ class EdwardsCurveDigitalSignatureAlgorithm():
                 The hex string equivalent to the bit sting
         '''
         bit_string = bit_string.replace(" ","")
+        if len(bit_string) % 4 != 0:
+            bit_string = bit_string+"0"*(4-len(bit_string)%4)
         hex_length = len(bit_string) // 4
         hex_string = ""
         for i in range(0, hex_length):
@@ -350,9 +354,11 @@ class EdwardsCurveDigitalSignatureAlgorithm():
         bit_string = ""
         for i in range(0, len(hex_string)):
             int_value = int(hex_string[i],16)
+            bit_string_chunk = ""
             for _ in range(0, 4):
-                bit_string += str(int_value % 2)
+                bit_string_chunk =str(int_value % 2)+bit_string_chunk
                 int_value = int_value // 2
+            bit_string+=bit_string_chunk
         return bit_string
     
     def decodePoint(self, coded_point: str | list[int]) -> tuple[int]:
@@ -496,9 +502,9 @@ class EdwardsCurveDigitalSignatureAlgorithm():
         s = self.octetListToInt(self.hdigest1)
         point_rG = self.multiplesOfG(r)
         R = self.encodePoint(point_rG)
-        R_bit_string = self.intToBitString(self.octetListToInt(R))
+        R_bit_string = self.octetListToBitString(R)
         Q = self.Q
-        Q_bit_string = self.intToBitString(self.octetListToInt(Q))
+        Q_bit_string = self.octetListToBitString(Q)
         RQM_bit_string = R_bit_string + Q_bit_string + message_bit_string
         H_RQM = self.calculateHashOfBitString(RQM_bit_string)
         H_RQM = self.bitArrayToOctetArray(H_RQM)
@@ -513,12 +519,18 @@ class EdwardsCurveDigitalSignatureAlgorithm():
         return signature
     
     def bitArrayToBitString(self, bit_array:list[int]) -> str:
+        '''
+        This method translates a bit array into a bit string
+        '''
         bit_string = ""
         for bit in bit_array:
             bit_string += str(bit)
         return bit_string
 
-    def bitStringToBitString(self, bit_string:str) -> list[int]:
+    def bitStringToBitArray(self, bit_string:str) -> list[int]:
+        '''
+        This method translates a bit string into a bit array
+        '''
         bit_array = []
         for bit in bit_string:
             bit_array.append(int(bit,2))
@@ -572,6 +584,8 @@ class EdwardsCurveDigitalSignatureAlgorithm():
 
         if length != None and length > len(bit_string):
             bit_string = bit_string + "0"*(length - len(bit_string))
+        if length == None and len(bit_string) % 8 != 0:
+            bit_string = bit_string + "0"*(8 - len(bit_string)%8)
         return bit_string
     
     def intToOctetList(self, int_value:int)->list[int]:
@@ -621,6 +635,17 @@ class EdwardsCurveDigitalSignatureAlgorithm():
         for i in range(0, length):
             integer_value += octet_list[i]*(256**(i))
         return integer_value
+    
+    def octetListToBitString(self,octet_list:list[int]) -> str:
+        '''
+        This method translates an octet list into a bit string
+        '''
+
+        bit_string = ""
+        for octet in octet_list:
+            octet_bit = self.singleOctetToBitString(octet)
+            bit_string+=octet_bit
+        return bit_string
     
     def bitStringToOctetList(self, bit_string:str, modulo:int=None)->list[int]:
         '''
@@ -707,7 +732,7 @@ class EdwardsCurveDigitalSignatureAlgorithm():
         
         rqm = self.hexStringToBitString(R_hex)+self.hexStringToBitString(Q)+message_bit_string
         digest = self.calculateHashOfBitString(rqm)
-        u = self.octetListToInt(digest) % self.n
+        u = self.octetListToInt(digest)
         t_G = self.multiplesOfG(t)
         u_Q = self.curve.calculatedPointMultiplicationByConstant_doubleAndAddMethod(Q_point,u)
         R_u_Q = self.curve.calculatePointAddition(u_Q,R_point)
@@ -747,7 +772,7 @@ if __name__ == '__main__':
     signature = eddsa.createSignature(message)
     print(f"signature is {signature}")
     print("- - - - - - - - - - - -")
-    is_signature_valid = eddsa.verifySignature(message,signature,eddsa.public_key)
+    is_signature_valid = eddsa.verifySignature(message_bit_string=message,signature=signature,Q=eddsa.public_key)
     print(is_signature_valid)
     
     # assert is_signature_valid
