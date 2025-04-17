@@ -30,7 +30,7 @@ class IntegerHandler():
         This method returns the integer value as a bit array
         '''
 
-        if self.is_little_endian:
+        if not self.is_little_endian:
             value = self.value
             bit_array = []
             while value > 0:
@@ -38,7 +38,7 @@ class IntegerHandler():
                 value = value // 2
             if self.bit_length != None:
                 if len(bit_array) < self.bit_length:
-                    bit_array = bit_array + [0]*(self.bit_length-len(bit_array))
+                    bit_array = [0]*(self.bit_length-len(bit_array)) + bit_array
                 elif len(bit_array) > self.bit_length:
                     bit_array = bit_array[:len(bit_array)-self.bit_length]
         else:
@@ -49,7 +49,7 @@ class IntegerHandler():
                 value = value // 2
             if self.bit_length != None:
                 if len(bit_array) < self.bit_length:
-                    bit_array = [0]*(self.bit_length-len(bit_array))+bit_array
+                    bit_array = bit_array+[0]*(self.bit_length-len(bit_array))
                 elif len(bit_array) > self.bit_length:
                     bit_array = bit_array[len(bit_array)-self.bit_length:]
 
@@ -153,16 +153,20 @@ class IntegerHandler():
 
 
         
-        
-handled_value = IntegerHandler.fromHexString("1",False) 
-print(handled_value)
-handled_value = IntegerHandler.fromHexString("1",True)
-print(handled_value)
-handled_value = IntegerHandler.fromBitArray([1,0,1,1,1,0,0,0],True)
-print(handled_value)
-handled_value = IntegerHandler.fromBitArray([1,0,1,1,1,0,0,0],False)
-print(handled_value)
-handled_value = IntegerHandler.fromBitArray([1,0,1,1,1,0,0,0],True, 8)
-print(handled_value.getBitArray())
-handled_value = IntegerHandler.fromBitArray([1,0,1,1,1,0,0,0],False,8)
-print(handled_value.getBitArray())
+if __name__ == '__main__': 
+    handled_value = IntegerHandler.fromHexString("ABC",False) 
+    print(handled_value)
+    handled_value = IntegerHandler.fromHexString("ABC",True)
+    print(handled_value)
+    handled_value = IntegerHandler.fromBitArray([1,0,1,1,1,0,0,0],True)
+    print(handled_value)
+    handled_value = IntegerHandler.fromBitArray([1,0,1,1,1,0,0,0],False)
+    print(handled_value)
+    handled_value = IntegerHandler.fromBitArray([1,0,1,1,1,0,0,0],True, 12)
+    print(handled_value.getBitArray())
+    handled_value = IntegerHandler.fromBitArray(handled_value.getBitArray(),True)
+    print(handled_value)
+    handled_value = IntegerHandler.fromBitArray([1,0,1,1,1,0,0,0],False,12)
+    print(handled_value.getBitArray())
+    handled_value = IntegerHandler.fromBitArray(handled_value.getBitArray(),False)
+    print(handled_value)
