@@ -96,6 +96,18 @@ class IntegerHandler():
                 position = i * add_spacing + i - 1
                 hex_string = hex_string[:position]+" "+hex_string[position:]
         return hex_string
+    
+    def getBytes(self)-> bytes:
+        '''
+        This method returns a bytes object of the value
+
+        Returns : 
+            bytes_list : bytes
+                The bytes corresponding to this value
+        '''
+
+        bytes_list = bytes.fromhex(self.getHexString())
+        return bytes_list
 
     def __str__(self) -> str:
         '''
@@ -192,6 +204,32 @@ class IntegerHandler():
                 The value of the byte as an integer
         '''
         return int(hex_byte,16)
+    
+def concatenate(list_of_handlers:list[IntegerHandler], little_endian: bool = False) -> IntegerHandler:
+    '''
+    This method creates a value holding the result of the concatenation of the bits from IntegerHandlers
+
+    Parameters :
+        list_of_handler : [IntegerHandler]
+            The handlers that are being concatenated
+        little_endian : bool, optional
+            Whether the resulting IntegerHandler should be little endian, default is False
+
+    Return : 
+        concatenated_integer_handler : IntegerHandler
+            The integer handler containing the result of the concatenation
+    '''
+
+    total_bit = []
+    bit_length = 0
+    for handler in list_of_handlers:
+        total_bit += handler.getBitArray()
+        if handler.bit_length != None:
+            bit_length += handler.bit_length
+        else:
+            bit_length += len(handler.getBitArray())
+
+    return IntegerHandler.fromBitArray(total_bit,little_endian=little_endian, bit_length=bit_length)
         
 
 

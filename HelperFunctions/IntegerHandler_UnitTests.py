@@ -1,4 +1,4 @@
-from HelperFunctions.IntegerHandler import IntegerHandler
+from HelperFunctions.IntegerHandler import *
 import unittest
 
 class IntegerHandler_UnitTests(unittest.TestCase):
@@ -130,7 +130,9 @@ class IntegerHandler_UnitTests(unittest.TestCase):
         print(f"Array: {array_no_length} With bit length: {handled_value.bit_length}")
 
     def test_get_hex_string_big(self):
-
+        '''
+        This method tests getting a hex string from an integer value in big endian
+        '''
         input = "106132DEE"
         expected_value = 4396887534
         little_endian = False
@@ -151,7 +153,9 @@ class IntegerHandler_UnitTests(unittest.TestCase):
         print(f"Hex String: '{hexstring}' With bit length: {handled_value.bit_length}")
 
     def test_get_hex_string_little(self):
-
+        '''
+        This method tests getting a hex string from an integer value in little endian
+        '''
         input = "EE2D13061"
         expected_value = 4396887534
         little_endian = True
@@ -171,6 +175,60 @@ class IntegerHandler_UnitTests(unittest.TestCase):
         self.assertEqual(hexstring, expected_string, f"actual:{hexstring} != expected:{expected_string} and spacing: None")
         print(f"Hex String: '{hexstring}' With bit length: {handled_value.bit_length}")
 
+    def test_concatenate_bits_no_length_big(self):
+        '''
+        This method tests concetenating bits with no length in big endian
+        '''
 
+        first_array = [0,1,1,0,1]
+        second_array = [1,1,1,0,0]
+        expected_concat = [1,1,0,1,1,1,1,0,0]
+        list_handlers = [IntegerHandler.fromBitArray(first_array),IntegerHandler.fromBitArray(second_array)]
+
+        concatenated = concatenate(list_handlers)
+        print(f"{concatenated} : {first_array} || {second_array}")
+        self.assertEqual(concatenated.getBitArray(),expected_concat)
+
+    def test_concatenate_bits_no_length_little(self):
+        '''
+        This method tests concetenating bits with no length in little endian
+        '''
+        
+        first_array = [0,1,1,0,1]
+        second_array = [1,1,1,0,0]
+        expected_concat = [0,1,1,0,1,1,1,1]
+        list_handlers = [IntegerHandler.fromBitArray(first_array,True),IntegerHandler.fromBitArray(second_array,True)]
+
+        concatenated = concatenate(list_handlers,True)
+        print(f"{concatenated} : {first_array} || {second_array}")
+        self.assertEqual(concatenated.getBitArray(),expected_concat)
+
+    def test_concatenate_bits_length_big(self):
+        '''
+        This method tests concetenating bits with length in big endian
+        '''
+
+        first_array = [0,1,1,0,1]
+        second_array = [1,1,1,0,0]
+        expected_concat = [0, 0, 0, 0, 1, 1, 0, 1, 0, 0, 0, 1, 1, 1, 0, 0]
+        list_handlers = [IntegerHandler.fromBitArray(first_array,bit_length=8),IntegerHandler.fromBitArray(second_array,bit_length=8)]
+
+        concatenated = concatenate(list_handlers)
+        print(f"{concatenated} : {first_array} || {second_array}")
+        self.assertEqual(concatenated.getBitArray(),expected_concat)
+
+    def test_concatenate_bits_length_little(self):
+        '''
+        This method tests concetenating bits with length in little endian
+        '''
+
+        first_array = [0,1,1,0,1]
+        second_array = [1,1,1,0,0]
+        expected_concat = [0, 1, 1, 0, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0]
+        list_handlers = [IntegerHandler.fromBitArray(first_array,True,8),IntegerHandler.fromBitArray(second_array,True,8)]
+
+        concatenated = concatenate(list_handlers,True)
+        print(f"{concatenated} : {first_array} || {second_array}")
+        self.assertEqual(concatenated.getBitArray(),expected_concat)
 if __name__ == '__main__':
     unittest.main()
