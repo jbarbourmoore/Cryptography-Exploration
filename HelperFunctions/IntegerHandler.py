@@ -146,6 +146,36 @@ class IntegerHandler():
         '''
         return self.value % 2
     
+    def setMostSignificantBit(self, new_bit:int) -> int:
+        '''
+        This method sets the most significant bit and returns the previous value
+
+        Parameters :
+            new_bit : int
+                The value that is being set for the most significant bit
+        
+        Returns :
+            old_bit : int
+                The value of the most significant bit before it was set
+        '''
+
+        if self.bit_length == None:
+            bit_length = len(self.getBitArray())
+        else:
+            bit_length = self.bit_length
+
+        largest_bit_value = pow(2,bit_length-1)
+        if self.value >= largest_bit_value:
+            old_bit = 1
+            if new_bit == 0:
+                self.value = self.value - largest_bit_value
+        else:
+            old_bit = 0
+            if new_bit == 1:
+                self.value = self.value + largest_bit_value
+
+        return old_bit
+    
     @staticmethod
     def fromOctetList(octet_list:list[int], little_endian:bool=False, bit_length:int=None):
         '''
@@ -382,3 +412,22 @@ if __name__ == '__main__':
     print(handled_value.getBitArray())
     handled_value = IntegerHandler.fromBitArray(handled_value.getBitArray(),False)
     print(handled_value)
+
+    handled_value = IntegerHandler(9,True,4)
+    print(handled_value)
+    print(handled_value.getLeastSignificantBit())
+    print(handled_value.setMostSignificantBit(0))
+    print(handled_value)
+
+    handled_value = IntegerHandler.fromBitArray([1,1,1,0,0,0,1,0],True,8)
+    print(handled_value)
+    print(handled_value.getLeastSignificantBit())
+    print(handled_value.setMostSignificantBit(1))
+    print(handled_value)
+
+    handled_value = IntegerHandler.fromBitArray([1,1,1,0,0,0,1,0],True,256)
+    print(handled_value)
+    print(handled_value.getLeastSignificantBit())
+    y = handled_value.setMostSignificantBit(1)
+    print(handled_value)
+    print(y)

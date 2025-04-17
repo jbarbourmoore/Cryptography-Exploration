@@ -41,7 +41,7 @@ class EdwardsCurveDigitalSignatureAlgorithm():
             self.is_448 = True
 
         self.n = self.curve.n
-        self.length_n = len(self.intToBitString(self.n))
+        #self.length_n = len(self.intToBitString(self.n))
         self.is_debug = is_debug
         self.print_excess_output = print_excess_error
         if is_debug:
@@ -49,6 +49,7 @@ class EdwardsCurveDigitalSignatureAlgorithm():
             self.curve.printEllipticCurveEquation()
         if private_key == None:
             succcessfully_generated = False
+            #for i in range(0,3):
             while not succcessfully_generated:
                 self.keyPairGeneration()
                 decoded_point = self.decodePoint(self.Q)
@@ -59,12 +60,10 @@ class EdwardsCurveDigitalSignatureAlgorithm():
                         print("Retrying Key Generation")
         else:
             self.private_key = private_key
-            self.d = self.hexStringToBitString(private_key)
-            self.private = self.hexStringToInt(private_key)
             self.calculatePublicKey()
         if is_debug:
             print(F"Private Key: {self.private_key}")
-            print(F"Public Key: {self.public_key}")
+            print(F"Public Key: {self.public_key.getHexString()}")
 
     def keyPairGeneration(self):
         '''
@@ -106,7 +105,7 @@ class EdwardsCurveDigitalSignatureAlgorithm():
         self.s = self.hdigest1.value
         self.public_key_point = self.multiplesOfG(self.s)
         self.Q = self.encodePoint(self.public_key_point)
-        self.public_key = IntegerHandler.fromOctetList(self.Q,True,self.b)
+        self.public_key = self.Q
 
     def encodePoint(self, point:tuple[int,int]) -> list[int]:
         '''
@@ -121,38 +120,19 @@ class EdwardsCurveDigitalSignatureAlgorithm():
                 The encoded point as a list of octets as ints
         '''
 
-        x_list = self.intToOctetList(point[0] % self.curve.p)
-
+        x_handler = IntegerHandler(point[0] % self.curve.p,little_endian=True,bit_length=self.b)
+        print(x_handler.getBitArray()[0])
         # get the least significant bit of x
-        x_0 = self.singleOctetToBitString(x_list[0])[0]
-        y_list = self.intToOctetList(point[1] % self.curve.p)
-        if self.print_excess_output:
-            print(f"The original value of the most significant bit of y was {y_list[len(y_list)-1]} and x_0 was {x_0}")
+        x_0 = x_handler.getLeastSignificantBit()
+
+        y_handler = IntegerHandler(point[1] % self.curve.p,little_endian=True,bit_length=self.b)
+        print(f"Y before bit set = {y_handler.value} x_0 = {x_0}")
         # set the most significant bit of y to the bit from x
-        encoded_point = [y_list[i] for i in range(0, len(y_list))]
-        encoded_point[len(y_list)-1] = self.setMostSignificantBitInOctet(y_list[len(y_list)-1], x_0)
+        
+        y_max = y_handler.setMostSignificantBit(x_0)
+        print(f"Y after bit set = {y_handler.value}  y_max = {y_max}")
 
-        return encoded_point
-
-    def setMostSignificantBitInOctet(self, octet: int, most_sig_bit: str) -> int:
-        '''
-        This method sets the most significant bit in an octet
-
-        Parameters :
-            octet : int
-                The octet's value as an integer
-            most_sig_bit : str
-                The new bit to set for the octet as a string
-
-        Returns :
-            octet_value : int
-                The octet's value with the new most significant bit
-        '''
-
-        bit_string = self.singleOctetToBitString(octet)
-        bit_string = bit_string[0:len(bit_string)-1]+most_sig_bit
-        octet_value = self.singleBitStringToOctetInt(bit_string)
-        return octet_value
+        return y_handler
     
     def singleBitStringToOctetInt(self, bit_string: str) -> int:
         '''
@@ -172,26 +152,26 @@ class EdwardsCurveDigitalSignatureAlgorithm():
             int_value += 2**i * int(bit_string[i], 2)
         return int_value
     
-    def getMostSignificantBitInOctetAndResetIt(self, octet: int) -> tuple[int,int]:
-        '''
-        This method gets the most significant bit in an octet and resets it to 0
+    # def getMostSignificantBitInOctetAndResetIt(self, octet: int) -> tuple[int,int]:
+    #     '''
+    #     This method gets the most significant bit in an octet and resets it to 0
 
-        Parameters :
-            octet : int
-                The octet's value as an integer
+    #     Parameters :
+    #         octet : int
+    #             The octet's value as an integer
            
-        Returns :
-            most_sig_bit : str
-                The most significant bit of the octet as a string
-            octet_value : int
-                The octet's value with the new zeroed most significant bit
-        '''
+    #     Returns :
+    #         most_sig_bit : str
+    #             The most significant bit of the octet as a string
+    #         octet_value : int
+    #             The octet's value with the new zeroed most significant bit
+    #     '''
 
-        bit_string = self.singleOctetToBitString(octet)
-        most_sig_bit = bit_string[-1]
-        bit_string = bit_string[0:len(bit_string)-1]+"0"
-        octet_value = self.singleBitStringToOctetInt(bit_string)
-        return most_sig_bit, octet_value
+    #     bit_string = self.singleOctetToBitString(octet)
+    #     most_sig_bit = bit_string[-1]
+    #     bit_string = bit_string[0:len(bit_string)-1]+"0"
+    #     octet_value = self.singleBitStringToOctetInt(bit_string)
+    #     return most_sig_bit, octet_value
 
     def singleOctetToBitString(self, int_value:int) -> str:
         '''
@@ -213,77 +193,77 @@ class EdwardsCurveDigitalSignatureAlgorithm():
             int_value //= 2
         return bit_string
 
-    def bitArrayToOctetArray(self, bit_array:list[int]) -> list[int]:
-        '''
-        This method translates a bit array into an octet array of integer values
+    # def bitArrayToOctetArray(self, bit_array:list[int]) -> list[int]:
+    #     '''
+    #     This method translates a bit array into an octet array of integer values
 
-        a[0] is the least significant bit / octet
-        length of octet array is 1//8 the length of the bit array
+    #     a[0] is the least significant bit / octet
+    #     length of octet array is 1//8 the length of the bit array
 
-        Parameters :
-            bit_array : [int]
-                a bit array of 0s and 1s
+    #     Parameters :
+    #         bit_array : [int]
+    #             a bit array of 0s and 1s
 
-        Returns :
-            octet_array :
-                an array of octets with values between 0 and 255
-        '''
+    #     Returns :
+    #         octet_array :
+    #             an array of octets with values between 0 and 255
+    #     '''
 
-        length = len(bit_array) // 8
-        octet_array = [0 for _ in range(0,length)]
-        for i in range(0,length):
-            integer_value = 0
-            for j in range(0,8):
-                integer_value += bit_array[i*8+j]*2**j
-            octet_array[i]=integer_value
-        return octet_array
+    #     length = len(bit_array) // 8
+    #     octet_array = [0 for _ in range(0,length)]
+    #     for i in range(0,length):
+    #         integer_value = 0
+    #         for j in range(0,8):
+    #             integer_value += bit_array[i*8+j]*2**j
+    #         octet_array[i]=integer_value
+    #     return octet_array
 
-    def hexStringToBitArray(self, hex_string: str) -> list[int]:
-        '''
-        This method translates a hex string into a bit array
+    # def hexStringToBitArray(self, hex_string: str) -> list[int]:
+    #     '''
+    #     This method translates a hex string into a bit array
 
-        bit array is 4 times the length of hexstring and h[0] and b[0] are the least significant
+    #     bit array is 4 times the length of hexstring and h[0] and b[0] are the least significant
 
-        Parameters :
-            hex_string : str
-                The value as as a hex string
+    #     Parameters :
+    #         hex_string : str
+    #             The value as as a hex string
 
-        Returns :
-            bit_array : [int]
-                The value as an array of bits
-        '''
+    #     Returns :
+    #         bit_array : [int]
+    #             The value as an array of bits
+    #     '''
 
-        length = len(hex_string) * 4
-        bit_array = [0 for _ in range(0, length)]
-        for i in range(0, len(hex_string)):
-            int_value = int(hex_string[i],16)
-            for j in range(0,4):
-                bit_array[i*4+j] = int_value % 2
-                int_value //= 2
-        return bit_array
+    #     length = len(hex_string) * 4
+    #     bit_array = [0 for _ in range(0, length)]
+    #     for i in range(0, len(hex_string)):
+    #         int_value = int(hex_string[i],16)
+    #         for j in range(0,4):
+    #             bit_array[i*4+j] = int_value % 2
+    #             int_value //= 2
+    #     return bit_array
     
-    def bitArrayToHexString(self, bit_array:list[int]) -> str:
-        '''
-        This method translates a bit array into a hex string
+    # def bitArrayToHexString(self, bit_array:list[int]) -> str:
+    #     '''
+    #     This method translates a bit array into a hex string
 
-        Parameters :
-            bit_array : [int]
-                The value as an array of ints
+    #     Parameters :
+    #         bit_array : [int]
+    #             The value as an array of ints
 
-        Returns :
-            hex_string :
-                The value as a hexadecimal string
-        '''
-        if len(bit_array) % 4 !=0:
-            bit_array = bit_array + [0]*(4 - len(bit_array) % 4 )
-        length = len(bit_array) // 4
-        hex_string = ""
-        for i in range(0, length):
-            int_value = 0
-            for j in range(0,4):
-                int_value+=bit_array[i*4+j] * 2**j
-            hex_string += hex(int_value)
-        return hex_string
+    #     Returns :
+    #         hex_string :
+    #             The value as a hexadecimal string
+    #     '''
+    #     if len(bit_array) % 4 !=0:
+    #         bit_array = bit_array + [0]*(4 - len(bit_array) % 4 )
+    #     length = len(bit_array) // 4
+    #     hex_string = ""
+    #     for i in range(0, length):
+    #         int_value = 0
+    #         for j in range(0,4):
+    #             int_value+=bit_array[i*4+j] * 2**j
+    #         hex_string += hex(int_value)
+    #     return hex_string
 
     def generatePrivateKey(self):
         '''
@@ -312,61 +292,61 @@ class EdwardsCurveDigitalSignatureAlgorithm():
             print(f"The hash is {self.hash.getHexString()} and message length was {item_to_hash.bit_length}")
         return self.hash
     
-    def bitStringToHexString(self, bit_string:str) -> str :
-        '''
-        This method translates a bit string into a hex string 
+    # def bitStringToHexString(self, bit_string:str) -> str :
+    #     '''
+    #     This method translates a bit string into a hex string 
 
-        Parameters :
-            bit_string : str
-                The bit string to be translated
+    #     Parameters :
+    #         bit_string : str
+    #             The bit string to be translated
 
-        Returns :
-            hex_string : str
-                The hex string equivalent to the bit sting
-        '''
-        bit_string = bit_string.replace(" ","")
-        if len(bit_string) % 4 != 0:
-            bit_string = bit_string+"0"*(4-len(bit_string)%4)
-        hex_length = len(bit_string) // 4
-        hex_string = ""
-        for i in range(0, hex_length):
-            int_value = 0
-            for j in range(0, 4):
-                int_value += int(bit_string[i*4+j]) * 2**j
-            hex_string += hex(int_value)[2:].upper()
-        return hex_string
+    #     Returns :
+    #         hex_string : str
+    #             The hex string equivalent to the bit sting
+    #     '''
+    #     bit_string = bit_string.replace(" ","")
+    #     if len(bit_string) % 4 != 0:
+    #         bit_string = bit_string+"0"*(4-len(bit_string)%4)
+    #     hex_length = len(bit_string) // 4
+    #     hex_string = ""
+    #     for i in range(0, hex_length):
+    #         int_value = 0
+    #         for j in range(0, 4):
+    #             int_value += int(bit_string[i*4+j]) * 2**j
+    #         hex_string += hex(int_value)[2:].upper()
+    #     return hex_string
 
-    def hexStringToBitString(self, hex_string:str) -> str:
-        '''
-        This method translates a hex string into a bit string 
+    # def hexStringToBitString(self, hex_string:str) -> str:
+    #     '''
+    #     This method translates a hex string into a bit string 
 
-        Parameters :
-            hex_string : str
-                The hex_string to be translated
+    #     Parameters :
+    #         hex_string : str
+    #             The hex_string to be translated
 
-        Returns :
-            bit_string : str
-                The bit string equivalent to the hex sting
-        '''
-        hex_string = hex_string.replace(" ","")
+    #     Returns :
+    #         bit_string : str
+    #             The bit string equivalent to the hex sting
+    #     '''
+    #     hex_string = hex_string.replace(" ","")
 
-        bit_string = ""
-        for i in range(0, len(hex_string)):
-            int_value = int(hex_string[i],16)
-            bit_string_chunk = ""
-            for _ in range(0, 4):
-                bit_string_chunk =str(int_value % 2)+bit_string_chunk
-                int_value = int_value // 2
-            bit_string+=bit_string_chunk
-        return bit_string
+    #     bit_string = ""
+    #     for i in range(0, len(hex_string)):
+    #         int_value = int(hex_string[i],16)
+    #         bit_string_chunk = ""
+    #         for _ in range(0, 4):
+    #             bit_string_chunk =str(int_value % 2)+bit_string_chunk
+    #             int_value = int_value // 2
+    #         bit_string+=bit_string_chunk
+    #     return bit_string
     
-    def decodePoint(self, coded_point: str | list[int]) -> tuple[int]:
+    def decodePoint(self, coded_point: IntegerHandler | str | list[int]) -> tuple[int]:
         '''
         this method decodes a point 
 
         Parameters :
-            coded_point : str or [int]
-                The coded point as a hexadecimal string or as an octet list
+            coded_point : IntegerHandler or str or [int]
+                The coded point as an integer handler, a hexadecimal string or as an octet list
 
         Returns :
             point : (int, int)
@@ -380,14 +360,16 @@ class EdwardsCurveDigitalSignatureAlgorithm():
 
         # translate the coded point into an octet list if it is an hex string
         if type(coded_point) == str:
-            coded_point = self.bitArrayToOctetArray(self.hexStringToBitArray(coded_point))
+            coded_point = IntegerHandler.fromHexString(coded_point, True, self.b)
+        if type(coded_point) == list:
+            coded_point = IntegerHandler.fromOctetList(coded_point, True, self.b)
         
-        y_list = [coded_point[i] for i in range(0, len(coded_point))]
-        x_0, y_list[len(y_list)-1] = self.getMostSignificantBitInOctetAndResetIt(coded_point[len(coded_point)-1])
-        if self.print_excess_output:
-            print(f"The resulting value of the most significant bit of y was {y_list[len(y_list)-1]} and x_0 is now {x_0}")
 
-        y = self.octetListToInt(y_list)
+        x_0 = coded_point.setMostSignificantBit(0)
+        if self.print_excess_output:
+            print(f"The y is now {coded_point.value} and x_0 is now {x_0}")
+
+        y = coded_point.value
         if y > self.curve.p:
             if self.print_excess_output:
                 print("Error decoding y")
@@ -432,19 +414,21 @@ class EdwardsCurveDigitalSignatureAlgorithm():
             return None
         else :
             if root % 2 == x_0:
+                print(f"root is {root}")
                 return (root, y)
             else:
+                print(f"root is {p - root}")
                 return ((p - root) % p, y)
    
-    def generateSecretK(self) -> int:
-        '''
-        This method generates a 1 time secret value for creating a signature that is less than n
+    # def generateSecretK(self) -> int:
+    #     '''
+    #     This method generates a 1 time secret value for creating a signature that is less than n
 
-        Returns :
-            secret_number : int
-                a secret integer value less than n
-        '''
-        return secrets.randbelow(self.n)
+    #     Returns :
+    #         secret_number : int
+    #             a secret integer value less than n
+    #     '''
+    #     return secrets.randbelow(self.n)
     
     def multiplesOfG(self, multiplier:int) -> tuple[int,int]:
         '''
@@ -501,8 +485,8 @@ class EdwardsCurveDigitalSignatureAlgorithm():
         self.hdigest1 = IntegerHandler.fromBitArray([H_d.getBitArray()[i] for i in range(0,self.b)], little_endian=True, bit_length=self.b)
         s = self.hdigest1.value
         point_rG = self.multiplesOfG(r)
-        R = IntegerHandler.fromOctetList(self.encodePoint(point_rG),True,self.b)
-        Q =  IntegerHandler.fromOctetList(self.Q,True,self.b)
+        R = self.encodePoint(point_rG)
+        Q =  self.Q
 
         RQM_handler = concatenate([R,Q,message_handler], True)
         H_RQM = self.calculateHashOfIntegerHandler(RQM_handler)
@@ -515,184 +499,184 @@ class EdwardsCurveDigitalSignatureAlgorithm():
         print(f"S is {S.getHexString(add_spacing=8)} length is {S.bit_length}")
         return signature
     
-    def bitArrayToBitString(self, bit_array:list[int]) -> str:
-        '''
-        This method translates a bit array into a bit string
-        '''
-        bit_string = ""
-        for bit in bit_array:
-            bit_string += str(bit)
-        return bit_string
+    # def bitArrayToBitString(self, bit_array:list[int]) -> str:
+    #     '''
+    #     This method translates a bit array into a bit string
+    #     '''
+    #     bit_string = ""
+    #     for bit in bit_array:
+    #         bit_string += str(bit)
+    #     return bit_string
 
-    def bitStringToBitArray(self, bit_string:str) -> list[int]:
-        '''
-        This method translates a bit string into a bit array
-        '''
-        bit_array = []
-        for bit in bit_string:
-            bit_array.append(int(bit,2))
-        return bit_array
+    # def bitStringToBitArray(self, bit_string:str) -> list[int]:
+    #     '''
+    #     This method translates a bit string into a bit array
+    #     '''
+    #     bit_array = []
+    #     for bit in bit_string:
+    #         bit_array.append(int(bit,2))
+    #     return bit_array
     
-    def intToHexString(self, integer_value:int)-> str:
-        return self.bitStringToHexString(self.intToBitString(integer_value))
+    # def intToHexString(self, integer_value:int)-> str:
+    #     return self.bitStringToHexString(self.intToBitString(integer_value))
     
-    def bitStringToInt(self, bit_string:str) -> int:
-        '''
-        This method converts a bit string to an integer value
+    # def bitStringToInt(self, bit_string:str) -> int:
+    #     '''
+    #     This method converts a bit string to an integer value
 
-        Parameters : 
-            bit_string : str
-                The string of the bits to be converted
+    #     Parameters : 
+    #         bit_string : str
+    #             The string of the bits to be converted
 
-        Returns :
-            integer_value : int
-                The integer representing the converted bit string
+    #     Returns :
+    #         integer_value : int
+    #             The integer representing the converted bit string
 
-        follows the algorithm from Nist FIPS 186.5 B.2.1 "Conversion of a Bit String to an Integer"
-        https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.186-5.pdf
-        '''
-        integer_value = 0
-        length = len(bit_string)
-        for i in range(0, length):
-            integer_value += int(bit_string[i],2)*(2**(i))
-        return integer_value
+    #     follows the algorithm from Nist FIPS 186.5 B.2.1 "Conversion of a Bit String to an Integer"
+    #     https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.186-5.pdf
+    #     '''
+    #     integer_value = 0
+    #     length = len(bit_string)
+    #     for i in range(0, length):
+    #         integer_value += int(bit_string[i],2)*(2**(i))
+    #     return integer_value
     
-    def intToBitString(self, int_value:int,length:int = None) -> str:
-        '''
-        This method converts an integer value to a bit string
+    # def intToBitString(self, int_value:int,length:int = None) -> str:
+    #     '''
+    #     This method converts an integer value to a bit string
 
-        Parameters : 
-            integer_value : int
-                The integer representing the converted bit string
+    #     Parameters : 
+    #         integer_value : int
+    #             The integer representing the converted bit string
             
-        Returns :
-            bit_string : str
-                The string of the bits equal to the original value
+    #     Returns :
+    #         bit_string : str
+    #             The string of the bits equal to the original value
 
-        follows the algorithm from Nist FIPS 186.5 B.2.1 "Conversion of a Bit String to an Integer"
-        https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.186-5.pdf
-        '''
-        current_int = int_value
-        bit_string = ""
-        while current_int > 0:
-            next_bit = current_int % 2
-            bit_string = bit_string+str(next_bit)
-            current_int //= 2
+    #     follows the algorithm from Nist FIPS 186.5 B.2.1 "Conversion of a Bit String to an Integer"
+    #     https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.186-5.pdf
+    #     '''
+    #     current_int = int_value
+    #     bit_string = ""
+    #     while current_int > 0:
+    #         next_bit = current_int % 2
+    #         bit_string = bit_string+str(next_bit)
+    #         current_int //= 2
 
-        if length != None and length > len(bit_string):
-            bit_string = bit_string + "0"*(length - len(bit_string))
-        if length == None and len(bit_string) % 8 != 0:
-            bit_string = bit_string + "0"*(8 - len(bit_string)%8)
-        return bit_string
+    #     if length != None and length > len(bit_string):
+    #         bit_string = bit_string + "0"*(length - len(bit_string))
+    #     if length == None and len(bit_string) % 8 != 0:
+    #         bit_string = bit_string + "0"*(8 - len(bit_string)%8)
+    #     return bit_string
     
-    def intToOctetList(self, int_value:int)->list[int]:
-        '''
-        This method converts an integer value to an octet list
-        Parameters : 
-            integer_value : int
-                The integer representing the converted bit string
+    # def intToOctetList(self, int_value:int)->list[int]:
+    #     '''
+    #     This method converts an integer value to an octet list
+    #     Parameters : 
+    #         integer_value : int
+    #             The integer representing the converted bit string
             
-        Returns :
-            octet_list : str
-                The octet list equal to the original value
+    #     Returns :
+    #         octet_list : str
+    #             The octet list equal to the original value
 
-        follows the algorithm from Nist FIPS 186-5 B.2.3 "Conversion of an Integer to an Octet String"
-        https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.186-5.pdf
-        '''
+    #     follows the algorithm from Nist FIPS 186-5 B.2.3 "Conversion of an Integer to an Octet String"
+    #     https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.186-5.pdf
+    #     '''
 
-        current_int = int_value
-        octet_list = []
-        while current_int > 0:
-            next_octet = current_int % 256
-            current_int //= 256
-            octet_list.append(next_octet)
-        if len(octet_list)< self.number_of_octets:
-            for i in range(0,self.number_of_octets-len(octet_list)):
-                octet_list.insert(0,0)
-        return octet_list
+    #     current_int = int_value
+    #     octet_list = []
+    #     while current_int > 0:
+    #         next_octet = current_int % 256
+    #         current_int //= 256
+    #         octet_list.append(next_octet)
+    #     if len(octet_list)< self.number_of_octets:
+    #         for i in range(0,self.number_of_octets-len(octet_list)):
+    #             octet_list.insert(0,0)
+    #     return octet_list
     
-    def octetListToInt(self, octet_list:list[int]) -> int:
-        '''
-        This method converts an octet list to an integer value
+    # def octetListToInt(self, octet_list:list[int]) -> int:
+    #     '''
+    #     This method converts an octet list to an integer value
 
-        Parameters : 
-            octet_list : list[int]
-                The list of octets to be converted
+    #     Parameters : 
+    #         octet_list : list[int]
+    #             The list of octets to be converted
 
-        Returns :
-            integer_value : int
-                The integer representing the converted octet list
+    #     Returns :
+    #         integer_value : int
+    #             The integer representing the converted octet list
 
-        reversal of the algorithm from Nist 186-5 B.2.3 "Conversion of an Integer to an Octet String"
-        https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.186-5.pdf
-        '''
+    #     reversal of the algorithm from Nist 186-5 B.2.3 "Conversion of an Integer to an Octet String"
+    #     https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.186-5.pdf
+    #     '''
 
-        integer_value = 0
-        length = len(octet_list)
-        for i in range(0, length):
-            integer_value += octet_list[i]*(256**(i))
-        return integer_value
+    #     integer_value = 0
+    #     length = len(octet_list)
+    #     for i in range(0, length):
+    #         integer_value += octet_list[i]*(256**(i))
+    #     return integer_value
     
-    def octetListToBitString(self,octet_list:list[int]) -> str:
-        '''
-        This method translates an octet list into a bit string
-        '''
+    # def octetListToBitString(self,octet_list:list[int]) -> str:
+    #     '''
+    #     This method translates an octet list into a bit string
+    #     '''
 
-        bit_string = ""
-        for octet in octet_list:
-            octet_bit = self.singleOctetToBitString(octet)
-            bit_string+=octet_bit
-        return bit_string
+    #     bit_string = ""
+    #     for octet in octet_list:
+    #         octet_bit = self.singleOctetToBitString(octet)
+    #         bit_string+=octet_bit
+    #     return bit_string
     
-    def bitStringToOctetList(self, bit_string:str, modulo:int=None)->list[int]:
-        '''
-        This method converts a bit string to an octet list
+    # def bitStringToOctetList(self, bit_string:str, modulo:int=None)->list[int]:
+    #     '''
+    #     This method converts a bit string to an octet list
 
-        Parameters : 
-            bit_string : str
-                The bit string to be converted
-            modulo : int
-                The modulus value for the int
+    #     Parameters : 
+    #         bit_string : str
+    #             The bit string to be converted
+    #         modulo : int
+    #             The modulus value for the int
 
-        Returns :
-            octet_list : [int]
-                The octet list representing the bit string
+    #     Returns :
+    #         octet_list : [int]
+    #             The octet list representing the bit string
 
-        uses the algorithm from Nist 186-5 B.2.4 "Conversion of a Bit String to an Octet String"
-        https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.186-5.pdf
-        '''
-        if modulo == None:
-            length_modulo = len(bit_string)
-            is_modulo = False
-        else:
-            length_modulo = len(self.intToBitString(modulo))
+    #     uses the algorithm from Nist 186-5 B.2.4 "Conversion of a Bit String to an Octet String"
+    #     https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.186-5.pdf
+    #     '''
+    #     if modulo == None:
+    #         length_modulo = len(bit_string)
+    #         is_modulo = False
+    #     else:
+    #         length_modulo = len(self.intToBitString(modulo))
 
-        length = len(bit_string)
-        if length < length_modulo:
-            bit_string = (length_modulo - length)*"0" + bit_string
-        elif length > length_modulo:
-            bit_string = bit_string[:length_modulo]
+    #     length = len(bit_string)
+    #     if length < length_modulo:
+    #         bit_string = (length_modulo - length)*"0" + bit_string
+    #     elif length > length_modulo:
+    #         bit_string = bit_string[:length_modulo]
 
-        integer_value = self.bitStringToInt(bit_string)
-        if is_modulo and integer_value > modulo:
-            integer_value = integer_value % modulo
-        X = self.intToOctetList(integer_value)
-        return X
+    #     integer_value = self.bitStringToInt(bit_string)
+    #     if is_modulo and integer_value > modulo:
+    #         integer_value = integer_value % modulo
+    #     X = self.intToOctetList(integer_value)
+    #     return X
     
-    def hexStringToInt(self, hex_string:str)-> int:
-        '''
-        This method converts a hex string to an int
+    # def hexStringToInt(self, hex_string:str)-> int:
+    #     '''
+    #     This method converts a hex string to an int
 
-        Parameters : 
-            hex_string : str
-                The hex string to be converted
+    #     Parameters : 
+    #         hex_string : str
+    #             The hex string to be converted
 
-        Returns :
-            int_value : int
-                The hex strings value as an integer
-        '''
+    #     Returns :
+    #         int_value : int
+    #             The hex strings value as an integer
+    #     '''
 
-        return self.bitStringToInt(self.hexStringToBitString(hex_string))
+    #     return self.bitStringToInt(self.hexStringToBitString(hex_string))
 
     def verifySignature(self, message_bit_string:str, signature:str, Q:str, is_debug = False):
         '''
@@ -758,15 +742,15 @@ if __name__ == '__main__':
 
     eddsa = EdwardsCurveDigitalSignatureAlgorithm(is_debug=True,print_excess_error=True)
     octet = 64
-    print(f"starting octet value = {octet}")
-    octet_bit_set = eddsa.setMostSignificantBitInOctet(octet,"1")
-    print(f"octet with its most significant bit set = {octet_bit_set}")
-    bit, octet_restored = eddsa.getMostSignificantBitInOctetAndResetIt(octet_bit_set)
-    print(f"bit was {bit} and restored octet value is {octet_restored}")
-    as_bit = eddsa.intToBitString(64)
-    print(f"64 as bit sting = {as_bit}")
-    result_str = eddsa.bitStringToInt(as_bit)
-    print(f"64 as bit sting as int = {result_str}")
+    # print(f"starting octet value = {octet}")
+    # octet_bit_set = eddsa.setMostSignificantBitInOctet(octet,"1")
+    # print(f"octet with its most significant bit set = {octet_bit_set}")
+    # bit, octet_restored = eddsa.getMostSignificantBitInOctetAndResetIt(octet_bit_set)
+    # print(f"bit was {bit} and restored octet value is {octet_restored}")
+    # as_bit = eddsa.intToBitString(64)
+    # print(f"64 as bit sting = {as_bit}")
+    # result_str = eddsa.bitStringToInt(as_bit)
+    # print(f"64 as bit sting as int = {result_str}")
 
     # num = eddsa.intToOctetList(26483764)
     # print(num)
