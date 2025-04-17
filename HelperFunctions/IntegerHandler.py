@@ -1,4 +1,4 @@
-
+from math import ceil
 class IntegerHandler():
     '''
     This class should handle an integer value, allowing it to be accessed in various forms as specified in algorithm documentation
@@ -54,6 +54,48 @@ class IntegerHandler():
                     bit_array = bit_array[len(bit_array)-self.bit_length:]
 
         return bit_array
+    
+    def getHexString(self, add_spacing:int = None) -> str:
+        '''
+        This method gets the integer value as a hex string, depending on whether it is little endian or not and bit length
+
+        Returns:
+            hex_string : str
+                The value as a hex string
+        '''
+        
+        if self.bit_length == None:
+            int_value = self.value
+        else:
+            int_value = self.value % (2**self.bit_length)
+        
+        if not self.is_little_endian:
+            hex_string = ""
+            while int_value != 0:
+                hex_string = self.singleByteIntToHex(int_value % 256) + hex_string
+                int_value = int_value // 256
+        else:
+            hex_string = ""
+            while int_value != 0:
+                hex_string += self.singleByteIntToHex(int_value % 256)
+                int_value = int_value // 256
+
+        length_in_bits = len(hex_string) * 4
+
+        if self.bit_length != None and length_in_bits < self.bit_length:
+            desired_hex_length = ceil(self.bit_length/4)
+            if desired_hex_length % 2 != 0: desired_hex_length += 1
+            if self.is_little_endian:
+                hex_string = hex_string + "0"*(desired_hex_length - len(hex_string))
+            else:
+                hex_string = "0"*(desired_hex_length - len(hex_string)) + hex_string
+
+        if add_spacing !=None:
+            hex_length = len(hex_string)
+            for i in range(1, hex_length//add_spacing):
+                position = i * add_spacing + i - 1
+                hex_string = hex_string[:position]+" "+hex_string[position:]
+        return hex_string
 
     def __str__(self) -> str:
         '''
@@ -64,6 +106,15 @@ class IntegerHandler():
                 The value as a string of underscore and the in the value
         '''
         return f"_{self.value}"
+    
+    @staticmethod
+    def singleByteIntToHex(int_byte):
+
+
+        hex_byte = hex(int_byte)[2:]
+        if len(hex_byte) == 1:
+            hex_byte = "0"+hex_byte
+        return hex_byte.upper()
 
     @staticmethod
     def fromBitArray(bit_array:list[int], little_endian:bool=False, bit_length:int=None):
@@ -110,54 +161,50 @@ class IntegerHandler():
             integer_handler : IntegerHandler
                 The value of the bit string as a handled integer
         '''
-
+        hex_string = hex_string.replace(" ","")
+        if len(hex_string) % 2 != 0:
+            if little_endian:
+                hex_string = hex_string[:len(hex_string)-1] + "0" +hex_string[len(hex_string)-1]
+            else:
+                hex_string = "0" + hex_string
         int_value:int = 0
+        hex_length = len(hex_string)
         if little_endian:
-            for i in range(0, len(hex_string)):
-                int_value += IntegerHandler.hexDigitToInt(hex_string[i],little_endian) * 8**i
+            for i in range(0, hex_length, 2):
+                int_value += int(IntegerHandler.hexByteToInt(hex_string[i:i+2]) * pow(256,i//2))
         else:
-            for i in range(0, len(hex_string)):
-                int_value += IntegerHandler.hexDigitToInt(hex_string[i],little_endian) * 8**(len(hex_string) - i - 1)
+            for i in range(0, hex_length, 2):
+                int_value += int(IntegerHandler.hexByteToInt(hex_string[i:i+2]) * pow(256,hex_length//2-1-i//2))
 
         return IntegerHandler(value=int_value, little_endian=little_endian, bit_length=bit_length)
     
     @staticmethod
-    def hexDigitToInt(hex_digit:str, little_endian:bool=False) -> int:
+    def hexByteToInt(hex_byte:str) -> int:
         '''
-        This method converts a single hex digit into an integer value based on whether it is little endian or not
+        This method converts a single hex byte into an integer value
 
         Parameters :
-            hex_digit : str
-                A single hexadecimal digit as a string
+            hex_byte : str
+                A single hexadecimal byte as a string
 
         Returns :
             int_value : int
-                The value of the digit as an integer
+                The value of the byte as an integer
         '''
-
-        if not little_endian:
-            return int(hex_digit,16)
+        return int(hex_byte,16)
         
-        int_val_big:int = int(hex_digit,16)
-
-        bits:list[int] = []
-        while int_val_big > 0:
-            bits.insert(0, int_val_big % 2)
-            int_val_big //= 2
-        if len(bits)<4:
-            bits =  bits + [0] * (4 - len(bits))
-        int_value = 0
-        for i in range(0,3):
-            int_value += bits[i] * 2**(3-i)
-        return int_value
 
 
         
 if __name__ == '__main__': 
-    handled_value = IntegerHandler.fromHexString("ABC",False) 
+    handled_value = IntegerHandler.fromHexString("106132DEE",False, bit_length=80) 
     print(handled_value)
-    handled_value = IntegerHandler.fromHexString("ABC",True)
+    assert handled_value.value == 4396887534
+    print(handled_value.getHexString(add_spacing=2))
+    handled_value = IntegerHandler.fromHexString("EE2D13061",True, bit_length=80)
     print(handled_value)
+    assert handled_value.value == 4396887534
+    print(handled_value.getHexString())
     handled_value = IntegerHandler.fromBitArray([1,0,1,1,1,0,0,0],True)
     print(handled_value)
     handled_value = IntegerHandler.fromBitArray([1,0,1,1,1,0,0,0],False)

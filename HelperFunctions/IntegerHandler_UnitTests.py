@@ -31,31 +31,31 @@ class IntegerHandler_UnitTests(unittest.TestCase):
         little_endian = False
         handled_value = IntegerHandler.fromBitArray(bit_array=input, little_endian=little_endian)
         print(f"Value : {handled_value.value} little_endian : {little_endian} from : {input}")
-        self.assertEqual(handled_value.value, expected_value)
+        self.assertEqual(handled_value.value, expected_value,f"actual:{handled_value.value} != expected:{expected_value}")
 
     def test_from_hex_string_big(self):
         '''
         This method tests creating a integer handler from a hex string in big endian
         '''
         
-        input = "AB1C9"
-        expected_value = 46761
+        input = "106132DEE"
+        expected_value = 4396887534
         little_endian = False
         handled_value = IntegerHandler.fromHexString(hex_string=input, little_endian=little_endian)
         print(f"Value : {handled_value.value} little_endian : {little_endian} from : {input}")
-        self.assertEqual(handled_value.value, expected_value)
+        self.assertEqual(handled_value.value, expected_value,f"actual:{handled_value.value} != expected:{expected_value}")
 
     def test_from_hex_string_little(self):
         '''
         This method tests creating a integer handler from a hex string in little endian
         '''
-        
-        input = "AB1C9"
-        expected_value = 39514
+
+        input = "EE2D13061"
+        expected_value = 4396887534
         little_endian = True
         handled_value = IntegerHandler.fromHexString(hex_string=input, little_endian=little_endian)
         print(f"Value : {handled_value.value} little_endian : {little_endian} from : {input}")
-        self.assertEqual(handled_value.value, expected_value)
+        self.assertEqual(handled_value.value, expected_value,f"actual:{handled_value.value} != expected:{expected_value}")
 
     def test_get_binary_array_little(self):
         '''
@@ -73,12 +73,14 @@ class IntegerHandler_UnitTests(unittest.TestCase):
         print(f"Value : {handled_value.value} little_endian : {little_endian} from : {input}")
         self.assertEqual(handled_value.value, expected_value, f"actual:{handled_value.value} != expected:{expected_value}")
         self.assertEqual(array, expected_array, f"actual:{array} != expected:{expected_array}")
-        
+        print(f"Array: {array} With bit length: {handled_value.bit_length}")
+
         handled_value = IntegerHandler.fromBitArray(input,little_endian=little_endian)
         array_no_length = handled_value.getBitArray()
         self.assertEqual(handled_value.value, expected_value, f"actual:{handled_value.value} != expected:{expected_value}")
         self.assertEqual(array_no_length, expected_array_no_length, f"actual:{array_no_length} != expected:{expected_array_no_length}")
-    
+        print(f"Array: {array_no_length} With bit length: {handled_value.bit_length}")
+
     def test_get_binary_array_big(self):
         '''
         This method tests getting the bit string as big endian
@@ -95,12 +97,14 @@ class IntegerHandler_UnitTests(unittest.TestCase):
         print(f"Value : {handled_value.value} little_endian : {little_endian} from : {input}")
         self.assertEqual(handled_value.value, expected_value, f"actual:{handled_value.value} != expected:{expected_value}")
         self.assertEqual(array, expected_array, f"actual:{array} != expected:{expected_array}")
-        
+        print(f"Array: {array} With bit length: {handled_value.bit_length}")
+
         handled_value = IntegerHandler.fromBitArray(input,little_endian=little_endian)
         array_no_length = handled_value.getBitArray()
         self.assertEqual(handled_value.value, expected_value, f"actual:{handled_value.value} != expected:{expected_value}")
         self.assertEqual(array_no_length, expected_array_no_length, f"actual:{array_no_length} != expected:{expected_array_no_length}")
-        
+        print(f"Array: {array_no_length} With bit length: {handled_value.bit_length}")
+
     def test_get_binary_array_big_extended(self):
         '''
         This method tests getting the bit string as big endian with a larger bit length
@@ -117,12 +121,56 @@ class IntegerHandler_UnitTests(unittest.TestCase):
         print(f"Value : {handled_value.value} little_endian : {little_endian} from : {input}")
         self.assertEqual(handled_value.value, expected_value, f"actual:{handled_value.value} != expected:{expected_value}")
         self.assertEqual(array, expected_array, f"actual:{array} != expected:{expected_array}")
-        
+        print(f"Array: {array} With bit length: {handled_value.bit_length}")
+
         handled_value = IntegerHandler.fromBitArray(input,little_endian=little_endian)
         array_no_length = handled_value.getBitArray()
         self.assertEqual(handled_value.value, expected_value, f"actual:{handled_value.value} != expected:{expected_value}")
         self.assertEqual(array_no_length, expected_array_no_length, f"actual:{array_no_length} != expected:{expected_array_no_length}")
-        
+        print(f"Array: {array_no_length} With bit length: {handled_value.bit_length}")
+
+    def test_get_hex_string_big(self):
+
+        input = "106132DEE"
+        expected_value = 4396887534
+        little_endian = False
+        bit_length = 56
+        expected_string_bits_spacing = "00 00 01 06 13 2D EE"
+        expected_string = "0106132DEE"
+
+        handled_value = IntegerHandler.fromHexString(hex_string=input, little_endian=little_endian, bit_length=bit_length)
+        print(f"Value : {handled_value.value} little_endian : {little_endian} from : {input}")
+        self.assertEqual(handled_value.value, expected_value,f"actual:{handled_value.value} != expected:{expected_value}")
+        hexstring_bits_spacing = handled_value.getHexString(add_spacing=2)
+        self.assertEqual(hexstring_bits_spacing, expected_string_bits_spacing, f"actual:{hexstring_bits_spacing} != expected:{expected_string_bits_spacing}")
+        print(f"Hex String: '{hexstring_bits_spacing}' With bit length: {handled_value.bit_length} and spacing: 2")
+
+        handled_value = IntegerHandler.fromHexString(hex_string=input, little_endian=little_endian)
+        hexstring = handled_value.getHexString()
+        self.assertEqual(hexstring, expected_string, f"actual:{hexstring} != expected:{expected_string} and spacing: None")
+        print(f"Hex String: '{hexstring}' With bit length: {handled_value.bit_length}")
+
+    def test_get_hex_string_little(self):
+
+        input = "EE2D13061"
+        expected_value = 4396887534
+        little_endian = True
+        bit_length = 56
+        expected_string_bits_spacing = "EE 2D 13 06 01 00 00"
+        expected_string = "EE2D130601"
+
+        handled_value = IntegerHandler.fromHexString(hex_string=input, little_endian=little_endian, bit_length=bit_length)
+        print(f"Value : {handled_value.value} little_endian : {little_endian} from : {input}")
+        self.assertEqual(handled_value.value, expected_value,f"actual:{handled_value.value} != expected:{expected_value}")
+        hexstring_bits_spacing = handled_value.getHexString(add_spacing=2)
+        self.assertEqual(hexstring_bits_spacing, expected_string_bits_spacing, f"actual:{hexstring_bits_spacing} != expected:{expected_string_bits_spacing}")
+        print(f"Hex String: '{hexstring_bits_spacing}' With bit length: {handled_value.bit_length} and spacing: 2")
+
+        handled_value = IntegerHandler.fromHexString(hex_string=input, little_endian=little_endian)
+        hexstring = handled_value.getHexString()
+        self.assertEqual(hexstring, expected_string, f"actual:{hexstring} != expected:{expected_string} and spacing: None")
+        print(f"Hex String: '{hexstring}' With bit length: {handled_value.bit_length}")
+
 
 if __name__ == '__main__':
     unittest.main()
