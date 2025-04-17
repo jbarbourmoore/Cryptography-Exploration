@@ -3,6 +3,7 @@ from HelperFunctions import EllipticCurveDetails
 from HelperFunctions.EllipticCurveCalculations import EdwardsCurveCalculation
 from CryptographySchemes.SecureHashAlgorithm3 import SHA3_512, SHA3
 from HelperFunctions.PrimeNumbers import calculateModuloInverse
+from HelperFunctions.IntegerHandler import *
 import hashlib
 
 class EdwardsCurveDigitalSignatureAlgorithm():
@@ -87,26 +88,25 @@ class EdwardsCurveDigitalSignatureAlgorithm():
         This method calculates the public key based on the selected edwards curve, hash and the private key
         '''
 
-        self.H_d = self.H(self.d.encode()).hexdigest()
-        self.H_d = self.hexStringToBitArray(self.H_d)
+        self.H_d = IntegerHandler.fromHexString(self.H(self.private.getBytes()).hexdigest(),little_endian=True,bit_length=self.b*2)
         if self.is_25519:
-            self.hdigest1 = [self.H_d[i] for i in range(0,self.b)]
+            self.hdigest1 = [self.H_d.getBitArray()[i] for i in range(0,self.b)]
             self.hdigest1[0] = 0
             self.hdigest1[1] = 0
             self.hdigest1[2] = 0
             self.hdigest1[self.b - 2] = 1
             self.hdigest1[self.b - 1] = 0
+            
         elif self.is_448:
-            self.hdigest1 = [self.H_d[i] if i < self.b-8 else 0 for i in range(0,self.b)]
+            self.hdigest1 = [self.H_d.getBitArray()[i] for i in range(0,self.b)]
             self.hdigest1[0] = 0
             self.hdigest1[1] = 0
             self.hdigest1[self.b - 9] = 1
-
-        self.hdigest1 = self.bitArrayToOctetArray(self.hdigest1)
-        self.s = self.octetListToInt(self.hdigest1)
+        self.hdigest1 = IntegerHandler.fromBitArray(self.hdigest1,little_endian=True,bit_length= self.b)
+        self.s = self.hdigest1.value
         self.public_key_point = self.multiplesOfG(self.s)
         self.Q = self.encodePoint(self.public_key_point)
-        self.public_key = self.intToHexString(self.octetListToInt(self.Q))
+        self.public_key = IntegerHandler.fromOctetList(self.Q,True,self.b)
 
     def encodePoint(self, point:tuple[int,int]) -> list[int]:
         '''
@@ -290,28 +290,27 @@ class EdwardsCurveDigitalSignatureAlgorithm():
         This method randomly generate a private key below the prime modulus of the selected curve
         '''
 
-        self.private = secrets.randbelow(self.curve.p)
-        self.d = self.intToBitString(self.private)
-        if self.is_debug:
-            self.private_key = self.intToHexString(self.private)
+        self.private = IntegerHandler(secrets.randbelow(self.curve.p), True, self.b)
 
-    def calculateHashOfBitString(self, item_to_hash:str) -> list[int]:
+        if self.is_debug:
+            self.private_key = self.private.getHexString()
+
+    def calculateHashOfIntegerHandler(self, item_to_hash:IntegerHandler) -> IntegerHandler:
         '''
         This method calculate the sha3-512 hash digest of the message and returns it as a bit string
 
         Parameter :
-            item_to_hash : str
-                The item that is being hashed
+            item_to_hash : IntegerHandler
+                The IntegerHandler that is being hashed
 
         Returns :
-            hash_value : [int]
-                The hash value of the item as a bit array
+            hash_value : IntegerHandler
+                The hash value of the item as an intger handler
         '''
-        bytes_to_hash = bytes(self.bitStringToOctetList(item_to_hash))
-        self.hash = self.H(bytes_to_hash).hexdigest()
+        self.hash = IntegerHandler.fromHexString(self.H(item_to_hash.getBytes()).hexdigest(),little_endian=True, bit_length=512)
         if self.is_debug:
-            print(f"The hash is {self.hash} and message length was{len(item_to_hash)}")
-        return self.hexStringToBitArray(self.hash)
+            print(f"The hash is {self.hash.getHexString()} and message length was {item_to_hash.bit_length}")
+        return self.hash
     
     def bitStringToHexString(self, bit_string:str) -> str :
         '''
@@ -486,36 +485,34 @@ class EdwardsCurveDigitalSignatureAlgorithm():
         https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.186-5.pdf
         '''
         
+        message_handler =  IntegerHandler.fromBitString(message_bit_string, little_endian=True, bit_length=len(message_bit_string))       
+        
         if d == None:
             d = self.private
-            d_bit = self.intToBitString(d)
             H_d = self.H_d
         else:
-            d_bit = self.intToBitString(d)
-            H_d = self.calculateHashOfBitString(d_bit)
+            d = IntegerHandler(d, True, self.b)
+            H_d = self.calculateHashOfIntegerHandler(d)
 
-        self.hdigest2 = H_d[self.b:]
-        hdigest2:str = self.bitArrayToBitString(self.hdigest2)
-        message_to_hash = hdigest2 + message_bit_string
-        r = self.bitStringToInt(self.bitArrayToBitString(self.calculateHashOfBitString(message_to_hash)))
-        self.hdigest1 = H_d[:self.b]
-        s = self.octetListToInt(self.hdigest1)
+        self.hdigest2 = IntegerHandler.fromBitArray([H_d.getBitArray()[i] for i in range(self.b,self.b*2)], little_endian=True, bit_length=self.b)
+        hashable_handler = concatenate([self.hdigest2,message_handler], little_endian=True)
+        message_hash = self.calculateHashOfIntegerHandler(hashable_handler)
+        r = message_hash.value
+        self.hdigest1 = IntegerHandler.fromBitArray([H_d.getBitArray()[i] for i in range(0,self.b)], little_endian=True, bit_length=self.b)
+        s = self.hdigest1.value
         point_rG = self.multiplesOfG(r)
-        R = self.encodePoint(point_rG)
-        R_bit_string = self.octetListToBitString(R)
-        Q = self.Q
-        Q_bit_string = self.octetListToBitString(Q)
-        RQM_bit_string = R_bit_string + Q_bit_string + message_bit_string
-        H_RQM = self.calculateHashOfBitString(RQM_bit_string)
-        H_RQM = self.bitArrayToOctetArray(H_RQM)
-        digest = self.octetListToInt(H_RQM)
+        R = IntegerHandler.fromOctetList(self.encodePoint(point_rG),True,self.b)
+        Q =  IntegerHandler.fromOctetList(self.Q,True,self.b)
+
+        RQM_handler = concatenate([R,Q,message_handler], True)
+        H_RQM = self.calculateHashOfIntegerHandler(RQM_handler)
+        digest = H_RQM.value
         S = (r + digest * s) % self.n
-        R_bit = self.intToBitString(self.octetListToInt(R),self.b)
-        S_bit = self.intToBitString(S,self.b)
-        signature = R_bit+S_bit
-        signature = self.bitStringToHexString(signature)
-        print(f"R is {self.bitStringToHexString(R_bit)} length is {len(self.bitStringToHexString(R_bit))}")
-        print(f"S is {self.bitStringToHexString(S_bit)} length is {len(self.bitStringToHexString(S_bit))}")
+        S = IntegerHandler(S,True,self.b)
+        signature = concatenate([R,S],True)
+
+        print(f"R is {R.getHexString(add_spacing=8)} length is {R.bit_length}")
+        print(f"S is {S.getHexString(add_spacing=8)} length is {S.bit_length}")
         return signature
     
     def bitArrayToBitString(self, bit_array:list[int]) -> str:
@@ -718,21 +715,30 @@ class EdwardsCurveDigitalSignatureAlgorithm():
         implemented based on nist fips 186-5 section 6.4.2 "ECDSA Signature Verification Algorithm"
         https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.186-5.pdf
         '''
+        message_handler =  IntegerHandler.fromBitString(message_bit_string, little_endian=True, bit_length=len(message_bit_string))       
 
-        R_hex = signature[:len(signature)//2]
-        S_hex = signature[len(signature)//2:]
+        if type(signature) == IntegerHandler:
+            signature_handler = signature
+        else:
+            signature_handler = IntegerHandler.fromHexString(signature,little_endian=True,bit_length=2*self.b)
+        R, S = signature_handler.splitBits()
+        print(R.bit_length)
+        if type(Q) == str:
+            Q = IntegerHandler.fromHexString(Q,True,self.b)
 
-        t = self.hexStringToInt(S_hex)
+        print(Q.bit_length)
+        t = S.value
 
-        R_point = self.decodePoint(R_hex)
-        Q_point = self.decodePoint(Q)
+        R_point = self.decodePoint(R.getHexString())
+        Q_point = self.decodePoint(Q.getHexString())
 
         if R_point == None or Q_point == None:
             return False
         
-        rqm = self.hexStringToBitString(R_hex)+self.hexStringToBitString(Q)+message_bit_string
-        digest = self.calculateHashOfBitString(rqm)
-        u = self.octetListToInt(digest)
+        rqm = concatenate([R,Q,message_handler],True)
+        digest = self.calculateHashOfIntegerHandler(rqm)
+        u = digest.value
+
         t_G = self.multiplesOfG(t)
         u_Q = self.curve.calculatedPointMultiplicationByConstant_doubleAndAddMethod(Q_point,u)
         R_u_Q = self.curve.calculatePointAddition(u_Q,R_point)

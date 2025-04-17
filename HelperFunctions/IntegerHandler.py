@@ -97,6 +97,23 @@ class IntegerHandler():
                 hex_string = hex_string[:position]+" "+hex_string[position:]
         return hex_string
     
+    def splitBits(self):
+        '''
+        This method returns two Integer Handlers, each holding half of the bits
+
+        Returns :
+            first_handler : IntegerHandler
+                The IntegerHandler holding the first half of the bits
+            second_handler : IntegerHandler
+                The IntegerHandler holding the second half of the bits
+        '''
+
+        bit_array = self.getBitArray()
+        length = len(bit_array)
+        first_array = [bit_array[i] for i in range(0,length//2)]
+        second_array = [bit_array[i] for i in range(length//2,length)]
+        return IntegerHandler.fromBitArray(first_array,self.is_little_endian,length//2),IntegerHandler.fromBitArray(second_array,self.is_little_endian,length//2)
+    
     def getBytes(self)-> bytes:
         '''
         This method returns a bytes object of the value
@@ -130,6 +147,32 @@ class IntegerHandler():
         return self.value % 2
     
     @staticmethod
+    def fromOctetList(octet_list:list[int], little_endian:bool=False, bit_length:int=None):
+        '''
+        This method converts an octet list to an IntegerHandler
+
+        Parameters : 
+            octet_list : list[int]
+                The list of octets to be converted
+            little_endian : bool, optional
+                Whether the integer will be interpretted as little endian, default is False
+            bit_length : int
+                How many bits the number is stored as, default is none or unlimited
+        Returns :
+            integer_value : Integer Handler
+                The integer representing the converted octet list
+
+        reversal of the algorithm from Nist 186-5 B.2.3 "Conversion of an Integer to an Octet String"
+        https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.186-5.pdf
+        '''
+
+        integer_value = 0
+        length = len(octet_list)
+        for i in range(0, length):
+            integer_value += octet_list[i]*(256**(i))
+        return IntegerHandler(integer_value,little_endian,bit_length)
+
+    @staticmethod
     def singleByteIntToHex(int_byte):
         '''
         This method transforms a single integer byte into 2 hex digits
@@ -140,14 +183,14 @@ class IntegerHandler():
 
         returns : 
             hex_digits : str
-                The 2 hex digits for that byte
+                The 2 hex digits for the int byte
         '''
 
         hex_byte = hex(int_byte)[2:]
         if len(hex_byte) == 1:
             hex_byte = "0"+hex_byte
         return hex_byte.upper()
-
+    
     @staticmethod
     def fromBitArray(bit_array:list[int], little_endian:bool=False, bit_length:int=None):
         '''
@@ -163,7 +206,7 @@ class IntegerHandler():
 
         Return :
             integer_handler : IntegerHandler
-                The value of the bit string as a handled integer
+                The value of the bit array as a handled integer
         '''
 
         int_value:int = 0
@@ -174,7 +217,33 @@ class IntegerHandler():
             for i in range(0,len(bit_array)):
                 int_value += bit_array[i] * 2**(len(bit_array) - 1 - i)
         return IntegerHandler(value=int_value, little_endian=little_endian, bit_length=bit_length)
-        
+    
+    @staticmethod
+    def fromBitString(bit_string:str, little_endian:bool=False, bit_length:int=None):
+        '''
+        This method constructs an integer handler from a bit string
+
+        Parameters :
+            bit_string : str
+                The value as a bit string
+            little_endian : bool, optional
+                Whether the integer will be interpretted as little endian, default is False
+            bit_length : int
+                How many bits the number is stored as, default is none or unlimited
+
+        Return :
+            integer_handler : IntegerHandler
+                The value of the bit string as a handled integer
+        '''
+
+        int_value:int = 0
+        if little_endian:
+            for i in range(0,len(bit_string)):
+                int_value += int(bit_string[i],2) * 2**i
+        else:
+            for i in range(0,len(bit_string)):
+                int_value += int(bit_string[i],2) * 2**(len(bit_string) - 1 - i)
+        return IntegerHandler(value=int_value, little_endian=little_endian, bit_length=bit_length)
 
     @staticmethod
     def fromHexString(hex_string:str, little_endian:bool=False, bit_length:int=None):
