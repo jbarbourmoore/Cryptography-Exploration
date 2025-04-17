@@ -230,5 +230,63 @@ class IntegerHandler_UnitTests(unittest.TestCase):
         concatenated = concatenate(list_handlers,True)
         print(f"{concatenated} : {first_array} || {second_array}")
         self.assertEqual(concatenated.getBitArray(),expected_concat)
+
+    def test_xor_little(self):
+        '''
+        This method tests bitwise xor of two integers in little endian
+        '''
+
+        first_array = [0,1,1,0,1]
+        second_array = [1,1,1,0,0]
+        expected_xor = [1,0,0,0,1]
+        list_handlers = [IntegerHandler.fromBitArray(first_array,True),IntegerHandler.fromBitArray(second_array,True)]
+
+        xored = bitwiseXor(list_handlers, little_endian=True)
+        print(f"{xored.getBitArray()} : {first_array} ^ {second_array}")
+        self.assertEqual(xored.getBitArray(),expected_xor)
+
+    def test_xor_little_different_lengths_and_endieness(self):
+        '''
+        This method tests bitwise xor of two integers with variable bit lengths and endianess. Result is little endian
+        '''
+
+        first_array = [0,1,1,0,1]
+        second_array = [1,0,0,0,1,0,1]
+        expected_xor = [0, 0, 1, 1, 1, 0, 1]
+        list_handlers = [IntegerHandler.fromBitArray(first_array,False),IntegerHandler.fromBitArray(second_array,True)]
+
+        xored = bitwiseXor(list_handlers, little_endian=True)
+        print(f"{xored.getBitArray()} : {first_array} ^ {second_array}")
+        self.assertEqual(xored.getBitArray(),expected_xor)
+
+    def test_xor_bit_set_length(self):
+        '''
+        This method tests bitwise xor of two integers with bit length 8 in big endian
+        '''
+
+        first_array = [0,1,1,0,1]
+        second_array = [1,1,1,0,0]
+        expected_xor = [0, 0, 0, 1, 0, 0, 0, 1]
+        list_handlers = [IntegerHandler.fromBitArray(first_array,False),IntegerHandler.fromBitArray(second_array,False)]
+
+        xored = bitwiseXor(list_handlers, little_endian=False,bit_length = 8)
+        print(f"{xored.getBitArray()} : {first_array} ^ {second_array} with bit length 8")
+        self.assertEqual(xored.getBitArray(),expected_xor)
+
+    def test_xor_big_set_length_shorter(self):
+        '''
+        This method tests bitwise xor of two integers with a set bit length of 3 in big endian
+        '''
+
+        first_array = [0,1,1,0,1]
+        second_array = [1,1,1,0,0]
+        expected_xor = [0, 0, 1]
+        list_handlers = [IntegerHandler.fromBitArray(first_array,False),IntegerHandler.fromBitArray(second_array,False)]
+
+        xored = bitwiseXor(list_handlers, little_endian=False,bit_length = 3)
+        print(f"{xored.getBitArray()} : {first_array} ^ {second_array} with bit length 3")
+        self.assertEqual(xored.getBitArray(),expected_xor)
+
+
 if __name__ == '__main__':
     unittest.main()

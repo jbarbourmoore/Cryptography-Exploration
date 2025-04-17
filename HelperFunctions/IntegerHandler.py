@@ -119,9 +119,29 @@ class IntegerHandler():
         '''
         return f"_{self.value}"
     
+    def getLeastSignificantBit(self) -> int:
+        '''
+        This method returns the least significant bit of the integer
+
+        Returns:
+            bit : int
+                The least significant bit
+        '''
+        return self.value % 2
+    
     @staticmethod
     def singleByteIntToHex(int_byte):
+        '''
+        This method transforms a single integer byte into 2 hex digits
 
+        Parameters : 
+            int_byte : int
+                The value for one byte as an int
+
+        returns : 
+            hex_digits : str
+                The 2 hex digits for that byte
+        '''
 
         hex_byte = hex(int_byte)[2:]
         if len(hex_byte) == 1:
@@ -231,9 +251,47 @@ def concatenate(list_of_handlers:list[IntegerHandler], little_endian: bool = Fal
 
     return IntegerHandler.fromBitArray(total_bit,little_endian=little_endian, bit_length=bit_length)
         
+def bitwiseXor(list_of_handlers:list[IntegerHandler], little_endian: bool = False, bit_length = None) -> IntegerHandler:
+    '''
+    This method performs a bit wise xor of a list of integer handlers
 
+    Parameters :
+        list_of_handler : [IntegerHandler]
+            The handlers that are being xored
+        little_endian : bool, optional
+            Whether the resulting IntegerHandler should be little endian, default is False
+        bit_length : int, optional
+            The bit length for the result, default is None
+    Return : 
+        xored_integer_handler : IntegerHandler
+            The integer handler containing the result of the xor
+    '''
 
-        
+    modified_handlers:list[IntegerHandler] = []
+    if bit_length == None:
+        bit_length_set = 0
+        for handler in list_of_handlers:
+            handler_length = 0
+            if handler.bit_length != None:
+                handler_length = bit_length_set
+            else:
+                handler_length = len(handler.getBitArray())
+            if handler_length > bit_length_set:
+                bit_length_set = handler_length
+    else:
+        bit_length_set=bit_length
+    for handler in list_of_handlers:
+        modified_handlers.append(IntegerHandler(handler.value, little_endian, bit_length_set))
+
+    current_bits = modified_handlers[0].getBitArray()
+    for j in range(1, len(modified_handlers)):
+        comparison_bits = modified_handlers[j].getBitArray()
+        new_bits = []
+        for i in range(0, bit_length_set):
+            new_bits.append(current_bits[i] ^ comparison_bits[i])
+        current_bits = new_bits
+    return IntegerHandler.fromBitArray(current_bits,little_endian,bit_length)
+
 if __name__ == '__main__': 
     handled_value = IntegerHandler.fromHexString("106132DEE",False, bit_length=80) 
     print(handled_value)
