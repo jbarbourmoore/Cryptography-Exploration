@@ -24,7 +24,38 @@ class IntegerHandler():
         if bit_length != None:
             self.value = value % (2**bit_length)
 
-    def __str__(self):
+
+    def getBitArray(self) -> list[int]:
+        '''
+        This method returns the integer value as a bit array
+        '''
+
+        if self.is_little_endian:
+            value = self.value
+            bit_array = []
+            while value > 0:
+                bit_array.insert(0,value % 2)
+                value = value // 2
+            if self.bit_length != None:
+                if len(bit_array) < self.bit_length:
+                    bit_array = bit_array + [0]*(self.bit_length-len(bit_array))
+                elif len(bit_array) > self.bit_length:
+                    bit_array = bit_array[:len(bit_array)-self.bit_length]
+        else:
+            value = self.value
+            bit_array = []
+            while value > 0:
+                bit_array.append(value % 2)
+                value = value // 2
+            if self.bit_length != None:
+                if len(bit_array) < self.bit_length:
+                    bit_array = [0]*(self.bit_length-len(bit_array))+bit_array
+                elif len(bit_array) > self.bit_length:
+                    bit_array = bit_array[len(bit_array)-self.bit_length:]
+
+        return bit_array
+
+    def __str__(self) -> str:
         '''
         This method outputs the integer a a _ and then the int value
 
@@ -52,7 +83,7 @@ class IntegerHandler():
                 The value of the bit string as a handled integer
         '''
 
-        int_value = 0
+        int_value:int = 0
         if little_endian:
             for i in range(0,len(bit_array)):
                 int_value += bit_array[i] * 2**i
@@ -80,7 +111,7 @@ class IntegerHandler():
                 The value of the bit string as a handled integer
         '''
 
-        int_value = 0
+        int_value:int = 0
         if little_endian:
             for i in range(0, len(hex_string)):
                 int_value += IntegerHandler.hexDigitToInt(hex_string[i],little_endian) * 8**i
@@ -92,12 +123,24 @@ class IntegerHandler():
     
     @staticmethod
     def hexDigitToInt(hex_digit:str, little_endian:bool=False) -> int:
+        '''
+        This method converts a single hex digit into an integer value based on whether it is little endian or not
+
+        Parameters :
+            hex_digit : str
+                A single hexadecimal digit as a string
+
+        Returns :
+            int_value : int
+                The value of the digit as an integer
+        '''
+
         if not little_endian:
             return int(hex_digit,16)
         
-        int_val_big = int(hex_digit,16)
+        int_val_big:int = int(hex_digit,16)
 
-        bits = []
+        bits:list[int] = []
         while int_val_big > 0:
             bits.insert(0, int_val_big % 2)
             int_val_big //= 2
@@ -111,7 +154,7 @@ class IntegerHandler():
 
         
         
-handled_value = IntegerHandler.fromHexString("1",False)
+handled_value = IntegerHandler.fromHexString("1",False) 
 print(handled_value)
 handled_value = IntegerHandler.fromHexString("1",True)
 print(handled_value)
@@ -119,3 +162,7 @@ handled_value = IntegerHandler.fromBitArray([1,0,1,1,1,0,0,0],True)
 print(handled_value)
 handled_value = IntegerHandler.fromBitArray([1,0,1,1,1,0,0,0],False)
 print(handled_value)
+handled_value = IntegerHandler.fromBitArray([1,0,1,1,1,0,0,0],True, 8)
+print(handled_value.getBitArray())
+handled_value = IntegerHandler.fromBitArray([1,0,1,1,1,0,0,0],False,8)
+print(handled_value.getBitArray())
