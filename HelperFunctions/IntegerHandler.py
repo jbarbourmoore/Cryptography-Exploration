@@ -55,6 +55,13 @@ class IntegerHandler():
 
         return bit_array
     
+    def getBitString(self) -> str:
+        bit_array = self.getBitArray()
+        bit_string = ""
+        for bit in bit_array:
+            bit_string += str(bit)
+        return bit_string
+    
     def getHexString(self, add_spacing:int = None) -> str:
         '''
         This method gets the integer value as a hex string, depending on whether it is little endian or not and bit length
@@ -163,18 +170,18 @@ class IntegerHandler():
             bit_length = len(self.getBitArray())
         else:
             bit_length = self.bit_length
-
+        new_value = self.value
         largest_bit_value = pow(2,bit_length-1)
         if self.value >= largest_bit_value:
             old_bit = 1
             if new_bit == 0:
-                self.value = self.value - largest_bit_value
+                new_value = self.value - largest_bit_value
         else:
             old_bit = 0
             if new_bit == 1:
-                self.value = self.value + largest_bit_value
-
-        return old_bit
+                new_value= self.value + largest_bit_value
+        new_handler = IntegerHandler(new_value,self.is_little_endian,self.bit_length)
+        return old_bit, new_handler
     
     @staticmethod
     def fromOctetList(octet_list:list[int], little_endian:bool=False, bit_length:int=None):
@@ -422,12 +429,12 @@ if __name__ == '__main__':
     handled_value = IntegerHandler.fromBitArray([1,1,1,0,0,0,1,0],True,8)
     print(handled_value)
     print(handled_value.getLeastSignificantBit())
-    print(handled_value.setMostSignificantBit(1))
+    y,handled_value = handled_value.setMostSignificantBit(1)
     print(handled_value)
 
     handled_value = IntegerHandler.fromBitArray([1,1,1,0,0,0,1,0],True,256)
     print(handled_value)
     print(handled_value.getLeastSignificantBit())
-    y = handled_value.setMostSignificantBit(1)
+    y,handled_value = handled_value.setMostSignificantBit(1)
     print(handled_value)
     print(y)
