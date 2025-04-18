@@ -59,6 +59,7 @@ class EdwardsCurveDigitalSignatureAlgorithm():
                         print("Retrying Key Generation")
         else:
             self.private_key = private_key
+            self.private = IntegerHandler.fromHexString(self.private_key, True, self.b)
             self.calculatePublicKey()
         if is_debug:
             print(F"Private Key: {self.private_key}")
