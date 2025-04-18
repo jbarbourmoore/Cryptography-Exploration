@@ -152,6 +152,7 @@ class ECDSA_UnitTests(unittest.TestCase):
         This method tests whether EdDSA can successfully verify a 912 bit signature
         '''
         print("Ed448 : Testing Successful Signature Verification")
+        
         self.eddsa = EdwardsCurveDigitalSignatureAlgorithm(useEdwards25519=False)
         signature = self.eddsa.createSignature(message_bit_string=self.message_bit_string)
         # print(f"Signature : {signature.getHexString(add_spacing = 8)}")
