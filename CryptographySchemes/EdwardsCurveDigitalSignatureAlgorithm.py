@@ -11,7 +11,7 @@ class EdwardsCurveDigitalSignatureAlgorithm():
     This class stores the public information for the edwards curve digital signature algorithm
     '''
 
-    def __init__(self, private_key = None, useEdwards25519 = True, is_debug:bool=False, print_excess_error:bool=False):
+    def __init__(self, private_key = None, useEdwards25519 = True, context:IntegerHandler=None, is_debug:bool=False, print_excess_error:bool=False):
         '''
         This method initializes the elliptic curve digital signature with a randomly selected curve and generator point
 
@@ -39,7 +39,7 @@ class EdwardsCurveDigitalSignatureAlgorithm():
             self.H = hashlib.shake_256
             self.is_25519 = False
             self.is_448 = True
-            self.context = IntegerHandler(123,True,16)
+            self.context = context
 
         self.n = self.curve.n
         self.is_debug = is_debug
@@ -89,7 +89,6 @@ class EdwardsCurveDigitalSignatureAlgorithm():
         '''
         self.getHashDigest()
         self.s = self.hdigest1.value
-        print(self.s)
         self.public_key_point = self.multiplesOfG(self.s)
         self.Q = self.encodePoint(self.public_key_point)
         self.public_key = self.Q
@@ -98,7 +97,7 @@ class EdwardsCurveDigitalSignatureAlgorithm():
         if self.is_25519:
             self.H_d = IntegerHandler.fromHexString(self.H(self.private.getBytes()).hexdigest(),little_endian=True,bit_length=self.b*2)
         else:
-            self.H_d = IntegerHandler.fromHexString(self.H(self.private.getBytes()).hexdigest(114),little_endian=True,bit_length=self.b*2)
+            self.H_d = IntegerHandler.fromHexString(self.H(self.private.getBytes()).hexdigest(self.b*2),little_endian=True,bit_length=self.b*2)
 
         if self.is_25519:
             self.hdigest1 = [self.H_d.getBitArray()[i] for i in range(0,self.b)]
@@ -113,6 +112,8 @@ class EdwardsCurveDigitalSignatureAlgorithm():
             self.hdigest1[0] = 0
             self.hdigest1[1] = 0
             self.hdigest1[self.b - 9] = 1
+            for i in range(self.b-8,self.b):
+                self.hdigest1[self.b - i] = 0
         self.hdigest1 = IntegerHandler.fromBitArray(self.hdigest1,little_endian=True,bit_length= self.b)
 
     def encodePoint(self, point:tuple[int,int]) -> list[int]:
@@ -333,16 +334,17 @@ class EdwardsCurveDigitalSignatureAlgorithm():
 
     def calculateHexWithContext(self, message_handler):
         siged = "SigEd448".encode("ascii")
-        print(len(siged))
         f = IntegerHandler(0,True,8).getBytes()
-        context_length = IntegerHandler(self.context.bit_length//8,True,8).getBytes()
-        context = self.context.getBytes()
-        dom4 = siged + f + context_length + context
-
+        if self.context!=None:
+            context_length = IntegerHandler(self.context.bit_length//8,True,8).getBytes()
+            context = self.context.getBytes()
+            dom4 = siged + f + context_length + context
+        else:
+            dom4 = siged + f
         bytesToHash = dom4 + self.hdigest2.getBytes() + message_handler.getBytes()
         return bytesToHash
     
-    def verifySignature(self, message_bit_string:str, signature:str, Q:str, is_debug = False):
+    def verifySignature(self, message_bit_string:str, signature:str, Q:str, is_debug:bool = False):
         '''
         This method verifies the signature using the message bit string, signature and purported Q
 

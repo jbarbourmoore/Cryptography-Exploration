@@ -57,6 +57,7 @@ class ECDSA_UnitTests(unittest.TestCase):
         self.assertEqual(signature.bit_length,512)
         self.assertTrue(is_signature_valid)
 
+   
     def test_2_rfc8032_ed25519(self):
         '''
         This method tests whether EdDSA successfully creates and verifies the expected signature given a specific private key and message
@@ -152,14 +153,15 @@ class ECDSA_UnitTests(unittest.TestCase):
         This method tests whether EdDSA can successfully verify a 912 bit signature
         '''
         print("Ed448 : Testing Successful Signature Verification")
-        
+
         self.eddsa = EdwardsCurveDigitalSignatureAlgorithm(useEdwards25519=False)
         signature = self.eddsa.createSignature(message_bit_string=self.message_bit_string)
-        # print(f"Signature : {signature.getHexString(add_spacing = 8)}")
         is_signature_valid = self.eddsa.verifySignature(self.message_bit_string,signature,self.eddsa.public_key)
         print(f"The signature is valid : {is_signature_valid}")
         self.assertEqual(signature.bit_length,912)
         self.assertTrue(is_signature_valid)
+        # print(f"Signature : {signature.getHexString()}")
+
 
     def test_signature_verification_wrong_public_key(self):
         '''
@@ -172,6 +174,19 @@ class ECDSA_UnitTests(unittest.TestCase):
         self.assertEqual(signature.bit_length,512)
         self.assertFalse(is_signature_valid)
 
+    def test_ed448_verification_wrong_public_key(self):
+        '''
+        This method tests whether EdDSA can successfully deny a 512 bit signature given the wrong public key
+        '''
+        print("Ed448 : Testing Signature Failing Verification Due To Wrong Public Key")
+
+        self.eddsa = EdwardsCurveDigitalSignatureAlgorithm(useEdwards25519=False)
+        signature = self.eddsa.createSignature(message_bit_string=self.message_bit_string)
+        is_signature_valid = self.eddsa.verifySignature(self.message_bit_string,signature,"AF8C2D384530290299B86DA18FF79D2388873AC66C87B7EE9A6D6B3941FA29A5")
+        print(f"The signature is valid : {is_signature_valid}")
+        self.assertEqual(signature.bit_length,912)
+        self.assertFalse(is_signature_valid)
+
     def test_signature_verification_wrong_signature(self):
         '''
         This method tests whether EdDSA can successfully deny a 512 bit signature given the wrong signature
@@ -179,21 +194,47 @@ class ECDSA_UnitTests(unittest.TestCase):
 
         print("Testing Signature Failing Verification Due To Wrong Signature")
         signature = self.eddsa.createSignature(message_bit_string=self.message_bit_string)
-        is_signature_valid = self.eddsa.verifySignature(self.message_bit_string,"4517EC65E21FBBD43957B80ED4A08EC15554ABEB0CBD31B22860F1E161EED1882909BAB48200F2D6780A8B4CB32D121C8ACBB3154AEBCFB789682FF76AE8E603",self.eddsa.public_key)
+        is_signature_valid = self.eddsa.verifySignature(self.message_bit_string,"5AF7EFAC9000987D83F51803F837B2A7CF3FBB851B320FB6B93B1F74E0E0799E886E77CA3E838A20B5D47C0F1D2767E0B83692A0F56670020060A0639C717DAF84F6B6B464E62A0311CC60FD48E5A6555EB7B058FDE4D01D879A19A427FB002BF0FAD17787175CD3E64171221291CAF82500",self.eddsa.public_key)
         print(f"The signature is valid : {is_signature_valid}")
         self.assertEqual(signature.bit_length,512)
         self.assertFalse(is_signature_valid)
 
-    def test_signature_verification_one_less_byte_message(self):
+    def test_ed448_verification_wrong_signature(self):
+        '''
+        This method tests whether EdDSA can successfully deny a 512 bit signature given the wrong signature
+        '''
+        print("Ed448 : Testing Signature Failing Verification Due To Wrong Signature")
+
+        self.eddsa = EdwardsCurveDigitalSignatureAlgorithm(useEdwards25519=False)
+        signature = self.eddsa.createSignature(message_bit_string=self.message_bit_string)
+        is_signature_valid = self.eddsa.verifySignature(self.message_bit_string,"4517EC65E21FBBD43957B80ED4A08EC15554ABEB0CBD31B22860F1E161EED1882909BAB48200F2D6780A8B4CB32D121C8ACBB3154AEBCFB789682FF76AE8E603",self.eddsa.public_key)
+        print(f"The signature is valid : {is_signature_valid}")
+        self.assertEqual(signature.bit_length,912)
+        self.assertFalse(is_signature_valid)
+
+    def test_signature_verification_one_less_bit_message(self):
         '''
         This method tests whether EdDSA can successfully deny a 512 bit signature given one less byte of the message
         '''
 
         print("Testing Signature Failing Verification Due To One Less Bit Of The Message")
         signature = self.eddsa.createSignature(message_bit_string=self.message_bit_string)
-        is_signature_valid = self.eddsa.verifySignature(self.message_bit_string[1:],"4517EC65E21FBBD43957B80ED4A08EC15554ABEB0CBD31B22860F1E161EED1882909BAB48200F2D6780A8B4CB32D121C8ACBB3154AEBCFB789682FF76AE8E603",self.eddsa.public_key)
+        is_signature_valid = self.eddsa.verifySignature(self.message_bit_string[1:],signature,self.eddsa.public_key)
         print(f"The signature is valid : {is_signature_valid}")
         self.assertEqual(signature.bit_length,512)
+        self.assertFalse(is_signature_valid)
+
+    def test_ed448_verification_wrong_signature(self):
+        '''
+        This method tests whether EdDSA can successfully deny a 512 bit signature given the one less bit of the message
+        '''
+        print("Ed448 : Testing Signature Failing Verification Due To One Less Bit Of The Message")
+
+        self.eddsa = EdwardsCurveDigitalSignatureAlgorithm(useEdwards25519=False)
+        signature = self.eddsa.createSignature(message_bit_string=self.message_bit_string)
+        is_signature_valid = self.eddsa.verifySignature(self.message_bit_string[1:],signature,self.eddsa.public_key)
+        print(f"The signature is valid : {is_signature_valid}")
+        self.assertEqual(signature.bit_length,912)
         self.assertFalse(is_signature_valid)
 
 
