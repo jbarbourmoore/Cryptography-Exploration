@@ -122,7 +122,7 @@ class ECDSA_UnitTests(unittest.TestCase):
         message = IntegerHandler.fromHexString("ddaf35a193617abacc417349ae20413112e6fa4e89a97ea20a9eeee64b55d39a2192992a274fc1a836ba3c23a3feebbd454d4423643ce80e2a9ac94fa54ca49f",True,512).getBitString()
         expected_signature = "dc2a4459e7369633a52b1bf277839a00201009a3efbf3ecb69bea2186c26b58909351fc9ac90b3ecfdfbc7c66431e0303dca179c138ac17ad9bef1177331a704"
         print("Testing Basic Key And Signature Generation With Set Private Key")
-        print("Test 3 From RFC 8032 Section 7.1.  \"Test Vectors for Ed25519\"")
+        print("Test 5 From RFC 8032 Section 7.1.  \"Test Vectors for Ed25519\"")
         self.eddsa = EdwardsCurveDigitalSignatureAlgorithm(is_debug=False, private_key=secret_key,print_excess_error=False)
         signature = self.eddsa.createSignature(message_bit_string=message)
         print(f"Public key is {self.eddsa.public_key.getHexString(add_spacing = 8)}")
@@ -147,6 +147,18 @@ class ECDSA_UnitTests(unittest.TestCase):
         self.assertEqual(signature.bit_length,512)
         self.assertTrue(is_signature_valid)
 
+    def test_ed448_signature_verification(self):
+        '''
+        This method tests whether EdDSA can successfully verify a 912 bit signature
+        '''
+        print("Ed448 : Testing Successful Signature Verification")
+        self.eddsa = EdwardsCurveDigitalSignatureAlgorithm(useEdwards25519=False)
+        signature = self.eddsa.createSignature(message_bit_string=self.message_bit_string)
+        # print(f"Signature : {signature.getHexString(add_spacing = 8)}")
+        is_signature_valid = self.eddsa.verifySignature(self.message_bit_string,signature,self.eddsa.public_key)
+        print(f"The signature is valid : {is_signature_valid}")
+        self.assertEqual(signature.bit_length,912)
+        self.assertTrue(is_signature_valid)
 
     def test_signature_verification_wrong_public_key(self):
         '''

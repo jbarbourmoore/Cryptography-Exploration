@@ -32,7 +32,7 @@ class EdwardsCurveDigitalSignatureAlgorithm():
             self.is_25519 = True
             self.is_448 = False
         else:
-            self.curve = EllipticCurveDetails.getEdwards448
+            self.curve = EllipticCurveDetails.getEdwards448()
             self.b = 456
             self.number_of_octets = self.b//8
             self.requested_security_strength = 224
@@ -86,8 +86,19 @@ class EdwardsCurveDigitalSignatureAlgorithm():
         '''
         This method calculates the public key based on the selected edwards curve, hash and the private key
         '''
+        self.getHashDigest()
+        self.s = self.hdigest1.value
+        print(self.s)
+        self.public_key_point = self.multiplesOfG(self.s)
+        self.Q = self.encodePoint(self.public_key_point)
+        self.public_key = self.Q
 
-        self.H_d = IntegerHandler.fromHexString(self.H(self.private.getBytes()).hexdigest(),little_endian=True,bit_length=self.b*2)
+    def getHashDigest(self):
+        if self.is_25519:
+            self.H_d = IntegerHandler.fromHexString(self.H(self.private.getBytes()).hexdigest(),little_endian=True,bit_length=self.b*2)
+        else:
+            self.H_d = IntegerHandler.fromHexString(self.H(self.private.getBytes()).hexdigest(114),little_endian=True,bit_length=self.b*2)
+
         if self.is_25519:
             self.hdigest1 = [self.H_d.getBitArray()[i] for i in range(0,self.b)]
             self.hdigest1[0] = 0
@@ -102,10 +113,6 @@ class EdwardsCurveDigitalSignatureAlgorithm():
             self.hdigest1[1] = 0
             self.hdigest1[self.b - 9] = 1
         self.hdigest1 = IntegerHandler.fromBitArray(self.hdigest1,little_endian=True,bit_length= self.b)
-        self.s = self.hdigest1.value
-        self.public_key_point = self.multiplesOfG(self.s)
-        self.Q = self.encodePoint(self.public_key_point)
-        self.public_key = self.Q
 
     def encodePoint(self, point:tuple[int,int]) -> list[int]:
         '''
@@ -156,7 +163,10 @@ class EdwardsCurveDigitalSignatureAlgorithm():
             hash_value : IntegerHandler
                 The hash value of the item as an intger handler
         '''
-        self.hash = IntegerHandler.fromHexString(self.H(item_to_hash.getBytes()).hexdigest(),little_endian=True, bit_length=512)
+        if self.is_25519:
+            self.hash = IntegerHandler.fromHexString(self.H(item_to_hash.getBytes()).hexdigest(),little_endian=True, bit_length=self.b*2)
+        else:
+            self.hash = IntegerHandler.fromHexString(self.H(item_to_hash.getBytes()).hexdigest(114),little_endian=True, bit_length=self.b*2)
         if self.is_debug:
             print(f"The hash is {self.hash.getHexString()} and message length was {item_to_hash.bit_length}")
         return self.hash
@@ -292,21 +302,7 @@ class EdwardsCurveDigitalSignatureAlgorithm():
         hashable_handler = concatenate([self.hdigest2,message_handler], little_endian=True)
         message_hash = self.calculateHashOfIntegerHandler(hashable_handler)
         r = message_hash.value % self.n
-        self.H_d = IntegerHandler.fromHexString(self.H(self.private.getBytes()).hexdigest(),little_endian=True,bit_length=self.b*2)
-        if self.is_25519:
-            self.hdigest1 = [self.H_d.getBitArray()[i] for i in range(0,self.b)]
-            self.hdigest1[0] = 0
-            self.hdigest1[1] = 0
-            self.hdigest1[2] = 0
-            self.hdigest1[self.b - 2] = 1
-            self.hdigest1[self.b - 1] = 0
-            
-        elif self.is_448:
-            self.hdigest1 = [self.H_d.getBitArray()[i] for i in range(0,self.b)]
-            self.hdigest1[0] = 0
-            self.hdigest1[1] = 0
-            self.hdigest1[self.b - 9] = 1
-        self.hdigest1 = IntegerHandler.fromBitArray(self.hdigest1,little_endian=True,bit_length= self.b)
+        self.getHashDigest()
         self.s = self.hdigest1.value        
         s = self.hdigest1.value % self.n
         point_rG = self.multiplesOfG(r)

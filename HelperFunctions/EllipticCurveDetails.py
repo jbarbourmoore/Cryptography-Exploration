@@ -1,4 +1,4 @@
-from HelperFunctions.EllipticCurveCalculations import EdwardsCurveCalculation
+from HelperFunctions.EllipticCurveCalculations import EdwardsCurveCalculation, Edwards448Calculation
 
 class EllipticCurveWeierstrassFormDetails():
     def __init__(self, name, a, b, prime_modulus, generator_x, generator_y, order=None, sha_seed=None, sha_output=None):
@@ -110,7 +110,7 @@ def getEdwards25519(is_debug:bool=False) -> EdwardsCurveCalculation:
 
     return EdwardsCurveCalculation(a=a,d=d,p=p,Gx=Gx,Gy=Gy,h=h,n=n,tr=tr,curve_name=name,is_debug=is_debug)
 
-def getEdwards448(is_debug:bool=False) -> EdwardsCurveCalculation:
+def getEdwards448(is_debug:bool=False) -> Edwards448Calculation:
     '''
     This method returns an EdwardsCurveCalculation object for the curve Edwards 448
 
@@ -134,7 +134,7 @@ def getEdwards448(is_debug:bool=False) -> EdwardsCurveCalculation:
     n = 2**446 - 0x8335dc163bb124b65129c96fde933d8d723a70aadc873d6d54a7bb0d
     tr = 0x10cd77058eec492d944a725bf7a4cf635c8e9c2ab721cf5b5529eec34
 
-    return EdwardsCurveCalculation(a=a,d=d,p=p,Gx=Gx,Gy=Gy,h=h,n=n,tr=tr,curve_name=name,is_debug=is_debug)
+    return Edwards448Calculation(a=a,d=d,p=p,Gx=Gx,Gy=Gy,h=h,n=n,tr=tr,curve_name=name,is_debug=is_debug)
 
 getCurveP521()
 getCurveP224()
