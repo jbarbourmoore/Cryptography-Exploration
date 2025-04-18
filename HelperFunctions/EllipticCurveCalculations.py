@@ -419,19 +419,177 @@ class EdwardsCurveCalculation(EllipticCurveCalculations):
             print(point_r)
             print("does not validate")
             raise AssertionError
+
+class Edwards448Calculation(EdwardsCurveCalculation):
+    '''
+    This class is intended to help with the calculations for an edwards curve
+    '''
+
+    def __init__(self, a:int, d:int, p:int=None, Gx:int=None, Gy:int=None, h:int=None, n:int=None, tr:int=None, curve_name:str=None,  is_debug=False):
+        '''
+        This method initializes an ed448 curve with the equation a * x**2 + y**2 = 1 + d x**2 y**2
+        '''
+        super().__init__( a=a, d=d, p=p, Gx=Gx, Gy=Gy, h=h, n=n, tr=tr, curve_name=curve_name,  is_debug=is_debug)
         
-    def compressPointOnEllipticCurve(self, point:tuple[int,int])-> int:
-        raise NotImplementedError
+    def calculatedPointMultiplicationByConstant_doubleAndAddMethod(self, point:tuple[int,int], constant:int) -> tuple[int,int]:
+        '''
+        This method calculates the multiplication of a point on the ed448 elliptic curve by a constant
+
+        Following Section 5.2. "Ed448ph and Ed448" of RFC 8032 
+        https://datatracker.ietf.org/doc/html/rfc8032#section-5
+        
+        Parameters : 
+            point : (int,int)
+                The point that is being multiplied by a constant
+            constant : int
+                The constant value that the point is being multiplied by
+
+        Returns : 
+            point_r : (int, int)
+                The resulting point of the multiplication
+        '''
+        point_ex = self.pointToExtendedPoint(point)
+
+        point_r = (0, 1, 1)  # Neutral element
+        while constant > 0:
+            if constant & 1:
+                point_r = self.calculatePointAddition(point_r, point_ex, True)
+            point_ex = self.calculatePointDoubling(point_ex,True)
+            constant >>= 1
+
+        point_r = self.extendedPointToPoint(point_r)        
+        # the result of the multiplication must also be on the elliptic curve
+        assert self.validatePointOnCurve(point=point_r)
+        return point_r
+
+    
+    def calculatePointAddition(self, point_p:tuple[int], point_q:tuple[int], is_extended:bool = False) -> tuple[int]:
+        '''
+        This method calculated the addition of point_p and point_q on the ed448 elliptic curve
+        
+        Following Section 5.2. "Ed448ph and Ed448" of RFC 8032 
+        https://datatracker.ietf.org/doc/html/rfc8032#section-5
+        
+        Parameters :
+            point_p : (int, int) or (int, int, int)
+                one of the points on the elliptic curve that are being added together
+            point_q : (int, int) or (int, int, int)
+                the other point on the elliptic curve that is being added
+            is_extended : bool, optional
+                Whether the point is already in its extended form, defulat is false
+
+        Returns :
+            point_r : (int, int) or (int, int, int)
+                The result of the point addition
+        '''
+        
+        if not is_extended:
+            point_p = self.pointToExtendedPoint(point_p)
+            point_q = self.pointToExtendedPoint(point_q)
+
+        p = self.p
+        d = self.d
+        A = point_p[2]*point_q[2]
+        B = A**2
+        C = point_p[0]*point_q[0]
+        D = point_p[1]*point_q[1]
+        E = d*C*D
+        F = B-E
+        G = B+E
+        H = (point_p[0]+point_p[1])*(point_q[0]+point_q[1])
+        X3 = A*F*(H-C-D)
+        Y3 = A*G*(D-C)
+        Z3 = F*G
+        point_r = X3%p,Y3%p,Z3%p
+
+        if not is_extended:
+            point_r = self.extendedPointToPoint(point_r)
+            if self.validatePointOnCurve(point_r):
+                return  point_r
+            else: 
+                print(point_r)
+                print("does not validate")
+                raise AssertionError
+        else: return point_r
             
-    def printEllipticCurveEquation(self):
+       
+    def calculatePointDoubling(self, point:tuple[int], is_extended = False) -> tuple[int]:    
         '''
-        This method outputs the values for this edwards curve to the command line
+        This method calculated the doubling of one point on the ed448 elliptic curve
+        
+        Following Section 5.2. "Ed448ph and Ed448" of RFC 8032 
+        https://datatracker.ietf.org/doc/html/rfc8032#section-5
+        
+        Parameters :
+            point : (int, int) or (int, int, int)
+                the point that is being doubled
+            is_extended : bool, optional
+                Whether the point is already in its extended form, default is false
+
+        Returns :
+            point_r : (int, int) or (int, int, int)
+                The result of the point addition
+        '''      
+
+        p = self.p
+        if not is_extended:
+            point = self.pointToExtendedPoint(point)
+        B = (point[0]+point[1])**2
+        C = point[0]**2
+        D = point[1]**2
+        E = C+D
+        H = point[2]**2
+        J = E-2*H
+        X3 = (B-E)*J
+        Y3 = E*(C-D)
+        Z3 = E*J
+        point_r = X3%p,Y3%p,Z3%p
+
+        if not is_extended:
+            point_r = self.extendedPointToPoint(point_r)
+            if self.validatePointOnCurve(point_r):
+                return  point_r
+            else: 
+                print(point_r)
+                print("does not validate")
+                raise AssertionError
+        else: return point_r
+
+    def pointToExtendedPoint(self, point:tuple[int]) -> tuple[int]:
         '''
+        This method translates a point into its extended form from its base form
 
-        print(f"The values for this edwards curve are: a={self.a} b={self.d} p={self.p} h={self.h} n={self.n}")
-        print(f"a * x**2 + y**2 = 1 + d x**2 y**2 ==> {self.a} * x**2 + y**2 = 1 + {self.d} x**2 y**2")
-        print(f"The Generator Point is ({self.Gx}, {self.Gy})")
+        Following Section 5.2. "Ed448ph and Ed448" of RFC 8032 
+        https://datatracker.ietf.org/doc/html/rfc8032#section-5
+        
+        Parameters :
+            point : (int, int)
+                the point the is being translated from its base form
 
+        Returns :
+            point_r : (int, int, int)
+                The extended form of the point
+        ''' 
+        return (point[0],point[1],1)
+    
+    
+    def extendedPointToPoint(self,point:tuple[int]) -> tuple[int]:
+        '''
+        This method translates a point from its extended form into its base form
+        
+        Following Section 5.2. "Ed448ph and Ed448" of RFC 8032 
+        https://datatracker.ietf.org/doc/html/rfc8032#section-5
+        
+        Parameters :
+            point : (int, int,int)
+                the point the is being translated to its base form
+
+        Returns :
+            point_r : (int, int)
+                The base form of the point
+        '''
+        return (point[0]*calculateModuloInverse(point[2],self.p)%self.p,point[1]*calculateModuloInverse(point[2],self.p)%self.p)
+    
 if __name__ == '__main__':
     elliptic_curve = WeirrstrassCurveCalculations(0,7,17)
     point = (15,13)
@@ -456,4 +614,27 @@ if __name__ == '__main__':
     result_point = edwards.calculatePointAddition(edwards.getGeneratorPoint(), edwards.getGeneratorPoint())
     print(result_point)
     result_point = edwards.calculatePointAddition(edwards.getGeneratorPoint(), result_point)
+    print(result_point)
+
+    result_point = edwards.calculatedPointMultiplicationByConstant_doubleAndAddMethod(edwards.getGeneratorPoint(), 77)
+    print(result_point)
+    
+    from EllipticCurveDetails import getEdwards448
+    edwards448 = getEdwards448()
+    print(edwards448.getGeneratorPoint())
+    G = edwards448.getGeneratorPoint()
+    extended_g = edwards448.pointToExtendedPoint(G)
+    print(extended_g)
+    result_point = edwards448.extendedPointToPoint(edwards448.calculatePointAddition(extended_g,extended_g, True))
+    validated = edwards448.validatePointOnCurve(result_point)
+    print(f"point 448 add validated: {validated}")
+    result_point = edwards448.calculatedPointMultiplicationByConstant_doubleAndAddMethod(G,87)
+    validated = edwards448.validatePointOnCurve(result_point)
+    print(f"point 448 mul validated: {validated}")
+    validated = edwards448.validatePointOnCurve(G)
+    print(f"point G add validated: {validated}")
+    result_point = edwards448.extendedPointToPoint(edwards448.pointToExtendedPoint(G))
+    assert result_point == G
+    print(result_point)
+    result_point = edwards448.calculatePointAddition(G, G)
     print(result_point)
