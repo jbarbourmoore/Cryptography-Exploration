@@ -23,7 +23,7 @@ For AES, I was also able to create unit tests based on the example data provided
 
 ### Elliptic Curve Digital Signature Algorithm (ECDSA)   
 
-I implemented a version of Elliptic Curve Digital Signature Algorithm as laid out in [NIST FIPS 186-6](https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.186-5.pdf), [NIST FIPS 186-4](https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.186-4.pdf) and [NIST SP 800-186](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-186.pdf). As ECDSA does require the use of a hashing algorithm I was able to use my implementation of SHA3, after verifying the hash output matched the NIST examples in the Digital Signatures section of ("Cryptographic Standards and Guidelines")[https://csrc.nist.gov/projects/cryptographic-standards-and-guidelines/example-values]. The elliptic curves that I have implemented at this time follow the Weirstrass Form of y**2 = x**3 +ax +b. Both of the curves shown in the examples below are from [NIST FIPS 186-4](https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.186-4.pdf) Section D.1.2 "Curves over Prime Fields". The sequence diagram shows the ECDSA both generating a digital signature based on the message hash, curve attributes and the private key, as well as verifying the signature using the message hash, curve attributes, and the public key.    
+I implemented a version of Elliptic Curve Digital Signature Algorithm as laid out in [NIST FIPS 186-6](https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.186-5.pdf), [NIST FIPS 186-4](https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.186-4.pdf) and [NIST SP 800-186](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-186.pdf). As ECDSA does require the use of a hashing algorithm I was able to use my implementation of SHA3, after verifying the hash output matched the NIST examples in the Digital Signatures section of ["Cryptographic Standards and Guidelines"](https://csrc.nist.gov/projects/cryptographic-standards-and-guidelines/example-values). The elliptic curves that I have implemented at this time follow the Weirstrass Form of y**2 = x**3 +ax +b. Both of the curves shown in the examples below are from [NIST FIPS 186-4](https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.186-4.pdf) Section D.1.2 "Curves over Prime Fields". The sequence diagram shows the ECDSA both generating a digital signature based on the message hash, curve attributes and the private key, as well as verifying the signature using the message hash, curve attributes, and the public key.    
 
 <img 
     style="display: block; margin-left: auto; margin-right: auto; width: 100%;"
@@ -37,6 +37,16 @@ I was able to get NIST  examples for a couple of the curves and hashing algorith
     style="display: block; margin-left: auto; margin-right: auto; width: 100%;"
     src="https://github.com/jbarbourmoore/Cryptography-Exploration/blob/3777c4a98aa1df785faa190a3a28292e70a5a232/CryptographySchemes/OutputImages/ECDSA_Examples.png" 
     alt="Sample output of ECDSA unit tests ran against NIST sample data.">
+</img>  
+
+### Edwards-Curve Digital Signature Algotithm (EdDSA)   
+
+Building on top of my ECDSA implementation, I was able to also implement EdDSA. Edwards-curve digital signature algorithm is closely related to ECDSA, except the curves used and the hashing algorithms are slighly different. In particular I used the curve Ed25519 with SHA-512 and Ed448 with Shake-256 as laid out in [NIST FIPS 186-5](https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.186-5.pdf) and [RFC 8032](https://datatracker.ietf.org/doc/html/rfc8032). Ed448 is designed to provide higher security than Ed25519 while both are designed to run faster than the standard ECDSA. I was able to create unit tests using known data provided in RFC 8032 in order to verify the implementation is generating the signatures expected and some example output is shown below.   
+
+<img 
+    style="display: block; margin-left: auto; margin-right: auto; width: 100%;"
+    src="https://github.com/jbarbourmoore/Cryptography-Exploration/blob/3e9b1aaa1cad4a2c966b3a1f09ef028855db453f/CryptographySchemes/OutputImages/EdDSA_Examples.png" 
+    alt="Sample output of EdDSA unit tests ran against sample data from RFC 8032.">
 </img>  
 
 ### RSA Cryptography Scheme  
@@ -66,7 +76,7 @@ I implemented a form of the Elliptic Curve Diffie Hellman Key Exchange based on 
 <img 
     style="display: block; margin-left: auto; margin-right: auto; width: 100%; max-height:100%"
     src="https://github.com/jbarbourmoore/Cryptography-Exploration/blob/56c29b0f81b7e892a86127e93d93269bb62d746d/GeneratingDiagrams/Diagrams/EllipticCurveDHKeyExchangeSequence.png" 
-    alt="This is a sequence diagram for a diffie hellman key exchange">
+    alt="This is a sequence diagram for an elliptic curve diffie hellman key exchange">
 </img>   
 
 ### SHA-3   
