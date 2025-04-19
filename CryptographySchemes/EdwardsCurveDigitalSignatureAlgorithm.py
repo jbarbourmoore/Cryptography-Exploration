@@ -327,9 +327,9 @@ class EdwardsCurveDigitalSignatureAlgorithm():
         S = (r + digest * s) % self.n
         S = IntegerHandler(S,True,self.b)
         signature = concatenate([R,S],True)
-
-        print(f"R is {R.getHexString(add_spacing=8)} length is {R.bit_length}")
-        print(f"S is {S.getHexString(add_spacing=8)} length is {S.bit_length}")
+        if is_debug:
+            print(f"R is {R.getHexString(add_spacing=8)} length is {R.bit_length}")
+            print(f"S is {S.getHexString(add_spacing=8)} length is {S.bit_length}")
         return signature
 
     def calculateHexWithContext(self, message_handler):
