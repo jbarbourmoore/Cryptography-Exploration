@@ -1,14 +1,14 @@
 from HelperFunctions.IntegerHandler import *
-from CryptographySchemes.SecureHashAlgorithm1 import Sha1Int
 
 class SHA1():
     '''
     This class should hold the methods and values necessary in order to implement sha 1
     '''
     def __init__(self):
-        pass
+        self.word_bits = 32
+        self.endian = False
 
-    def ch(self, x:Sha1Int, y:Sha1Int, z:Sha1Int) -> Sha1Int:
+    def ch(self, x:IntegerHandler, y:IntegerHandler, z:IntegerHandler) -> IntegerHandler:
         '''
         This method should perform the Ch function as required for sha1 
         Ch(x, y, z)=(x^y)xor(!x^z)
@@ -16,29 +16,58 @@ class SHA1():
         https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.180-4.pdf
 
         Parameters :
-            x, y, z : Sha1Int
+            x, y, z : IntegerHandler
                 The values that the operation is being performed on as 32 bit big endian integer values
 
         Returns :
-            ch_result : Sha1Int
+            ch_result : IntegerHandler
                 The resulting value for the ch function as a 32 bit big endian integer value
         '''
 
         not_x = x.bitwiseNot()
-        x_or_y = bitwiseOr([x,y],False,32)
-        not_x_or_z = bitwiseOr([not_x,z],False,32)
-        ch_result = bitwiseXor([x_or_y,not_x_or_z], False, 32)
+        x_and_y = bitwiseAnd([x,y],self.endian,self.word_bits)
+        not_x_and_z = bitwiseAnd([not_x,z],self.endian,self.word_bits)
+        ch_result = bitwiseXor([x_and_y,not_x_and_z], self.endian, self.word_bits)
         return ch_result
+    
+    def parity(self, x:IntegerHandler, y:IntegerHandler, z:IntegerHandler) -> IntegerHandler:
+        '''
+        This method should perform the parity function as required for sha1 
+        Parity(x, y, z)=x xor y xor z
+        Section 4.1.1 "SHA-1 Functions" of NIST FIPS 180-4
+        https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.180-4.pdf
 
+        Parameters :
+            x, y, z : IntegerHandler
+                The values that the operation is being performed on as 32 bit big endian integer values
 
-class Sha1Int(IntegerHandler):
-    '''
-    This class should control the values for SHA 1 
-    based on the knowledge that it involves manipulating words that are 32 bits in big endian notation
+        Returns :
+            parity_result : IntegerHandler
+                The resulting value for the parity function as a 32 bit big endian integer value
+        '''
 
-    Section 4.1.1 "SHA-1 Functions" of NIST FIPS 180-4
-    https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.180-4.pdf
-    '''
-    def __init__(self, value = 0):
-        super().__init__(value, False, 32)
-        self.max_value = 2**32 - 1
+        parity_result = bitwiseXor([x,y,z], self.endian, self.word_bits)
+        return parity_result
+
+    def maj(self, x:IntegerHandler, y:IntegerHandler, z:IntegerHandler) -> IntegerHandler:
+        '''
+        This method should perform the maj function as required for sha1 
+        Maj(x, y, z)=(x & y) xor (x & z) xor (y & z)
+        Section 4.1.1 "SHA-1 Functions" of NIST FIPS 180-4
+        https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.180-4.pdf
+
+        Parameters :
+            x, y, z : IntegerHandler
+                The values that the operation is being performed on as 32 bit big endian integer values
+
+        Returns :
+            maj_result : IntegerHandler
+                The resulting value for the maj function as a 32 bit big endian integer value
+        '''
+
+        x_and_y = bitwiseAnd([x, y], self.endian, self.word_bits)
+        x_and_z = bitwiseAnd([x, z], self.endian, self.word_bits)
+        y_and_z = bitwiseAnd([y, z], self.endian, self.word_bits)
+        maj_result = bitwiseXor([x_and_y,x_and_z,y_and_z], self.endian, self.word_bits)
+
+    
