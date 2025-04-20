@@ -321,7 +321,44 @@ class IntegerHandler_UnitTests(unittest.TestCase):
             self.assertEqual(bitwiseAnd([test_value,test_value_2],False).getBitArray(),expected_outputs[i])
             self.assertEqual(bitwiseAnd([test_value,test_value_2],True).getBitArray(),expected_outputs_little_endian[i])
             self.assertEqual(bitwiseAnd([test_value,test_value_2],False,6).getBitArray(),expected_outputs_bit_count[i])
+    def test_bitwise_or(self):
+        '''
+        This method tests performing an or of the value
+        '''
 
+        inputs = [[1,0,1,1,1,0,0,0],[0,0,0,0],[1,1,1,1],[1,0,0,0]]
+        inputs_2 = [[1,1,1,1,0,0,0,0],[1,1,1],[1,0,1],[0,1,0,1]]
+        expected_outputs = [[1,1,1,1,1,0,0,0],[1,1,1],[1,1,1,1],[1,1,0,1]]
+        expected_outputs_little_endian =[[0,0,0,1,1,1,1,1],[1,1,1],[1,1,1,1],[1,0,1,1]]
+        expected_outputs_bit_count =[[1,1,1,0,0,0],[0,0,0,1,1,1],[0,0,1,1,1,1],[0,0,1,1,0,1]]
+
+        for i in range(0, len(inputs)):
+            test_value = IntegerHandler.fromBitArray(inputs[i],False)
+            test_value_2 = IntegerHandler.fromBitArray(inputs_2[i],False)
+            self.assertEqual(bitwiseOr([test_value,test_value_2],False).getBitArray(),expected_outputs[i])
+            self.assertEqual(bitwiseOr([test_value,test_value_2],True).getBitArray(),expected_outputs_little_endian[i])
+            self.assertEqual(bitwiseOr([test_value,test_value_2],False,6).getBitArray(),expected_outputs_bit_count[i])
+
+    def test_bitwise_not(self):
+        '''
+        This method tests performing an not of the value
+        '''
+
+        inputs = [[1, 0, 0, 0, 1, 1, 1],[0,0,0,0],[1,1,1,1],[1,0,0,0]]
+        expected_outputs = [[1,1,1,0,0,0],[1],[0],[1,1,1]]
+        expected_outputs_little_endian =[[0,1,1,1],[1],[0],[0]]
+        expected_outputs_bit_count =[[1,1,1,0,0,0],[1,1,1,1,1,1],[1,1,0,0,0,0],[1,1,0,1,1,1]]
+
+        for i in range(0, len(inputs)):
+            test_value = IntegerHandler.fromBitArray(inputs[i],False)
+            not_value = test_value.bitwiseNot()
+            self.assertEqual(not_value.getBitArray(),expected_outputs[i])
+            test_value = IntegerHandler.fromBitArray(inputs[i],True)
+            not_value = test_value.bitwiseNot()
+            self.assertEqual(not_value.getBitArray(),expected_outputs_little_endian[i])
+            test_value = IntegerHandler.fromBitArray(inputs[i],False,6)
+            not_value = test_value.bitwiseNot()
+            self.assertEqual(not_value.getBitArray(),expected_outputs_bit_count[i])
 
 if __name__ == '__main__':
     unittest.main()

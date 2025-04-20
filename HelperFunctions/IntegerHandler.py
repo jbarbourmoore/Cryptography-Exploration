@@ -76,7 +76,8 @@ class IntegerHandler():
                     bit_array = bit_array+[0]*(self.bit_length-len(bit_array))
                 elif len(bit_array) > self.bit_length:
                     bit_array = bit_array[len(bit_array)-self.bit_length:]
-
+        if bit_array == []:
+            return [0]
         return bit_array
     
     def getBitString(self) -> str:
@@ -84,6 +85,8 @@ class IntegerHandler():
         bit_string = ""
         for bit in bit_array:
             bit_string += str(bit)
+        if bit_string == "":
+            return "0"
         return bit_string
     
     def getHexString(self, add_spacing:int = None) -> str:
@@ -206,7 +209,8 @@ class IntegerHandler():
                 new_value= self.value + largest_bit_value
         new_handler = IntegerHandler(new_value,self.is_little_endian,self.bit_length)
         return old_bit, new_handler
-    
+
+
     def getBitLength(self) -> int:
         '''
         This method finds the minimum number of bits to store a number or the bit length if it is set
@@ -224,6 +228,17 @@ class IntegerHandler():
             counter +=1
 
         return counter
+    
+
+    def bitwiseNot(self):
+        '''
+        This method returns the bitwise not for a value
+        '''
+
+        max_value = 2**self.getBitLength() - 1
+        not_result = max_value - self.value
+
+        return IntegerHandler(not_result,little_endian=self.is_little_endian, bit_length=self.bit_length)
     
     @staticmethod
     def fromOctetList(octet_list:list[int], little_endian:bool=False, bit_length:int=None):
@@ -432,7 +447,7 @@ def bitwiseAnd(list_of_handlers:list[IntegerHandler], little_endian: bool = Fals
 
     Parameters :
         list_of_handler : [IntegerHandler]
-            The handlers that are being xored
+            The handlers that are being and-ed
         little_endian : bool, optional
             Whether the resulting IntegerHandler should be little endian, default is False
         bit_length : int, optional
@@ -453,6 +468,37 @@ def bitwiseAnd(list_of_handlers:list[IntegerHandler], little_endian: bool = Fals
     initial_value = 2**bit_length_set-1
     for handler in list_of_handlers:
         initial_value = initial_value & handler.value
+        print(initial_value)
+
+    return IntegerHandler(value=initial_value, little_endian=little_endian,bit_length=bit_length_set)
+
+def bitwiseOr(list_of_handlers:list[IntegerHandler], little_endian: bool = False, bit_length = None) -> IntegerHandler:
+    '''
+    This method performs a bit wise or of a list of integer handlers
+
+    Parameters :
+        list_of_handler : [IntegerHandler]
+            The handlers that are being ored
+        little_endian : bool, optional
+            Whether the resulting IntegerHandler should be little endian, default is False
+        bit_length : int, optional
+            The bit length for the result, default is None
+    Return : 
+        xored_integer_handler : IntegerHandler
+            The integer handler containing the result of the or
+    '''
+
+    if bit_length == None:
+        bit_length_set = 0
+        for handler in list_of_handlers:
+            handler_length = handler.getBitLength()
+            if handler_length > bit_length_set:
+                bit_length_set = handler_length
+    else:
+        bit_length_set=bit_length
+    initial_value = 0
+    for handler in list_of_handlers:
+        initial_value = initial_value | handler.value
         print(initial_value)
 
     return IntegerHandler(value=initial_value, little_endian=little_endian,bit_length=bit_length_set)
