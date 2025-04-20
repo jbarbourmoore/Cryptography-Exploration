@@ -233,12 +233,54 @@ class IntegerHandler():
     def bitwiseNot(self):
         '''
         This method returns the bitwise not for a value
+
+        Returns :
+            not_result : IntegerHandler
+                The result of the not operation
         '''
 
         max_value = 2**self.getBitLength() - 1
         not_result = max_value - self.value
 
         return IntegerHandler(not_result,little_endian=self.is_little_endian, bit_length=self.bit_length)
+    
+    def leftShift(self,shift_amount):
+        '''
+        This method returns the left shift
+
+        Parameters :
+            shift_amount : int
+                The amount the value is being shifted to the left
+
+        Returns :
+            shift_result : IntegerHandler
+                The result of the shift operation
+        '''
+        if self.is_little_endian:
+            shift_result = self.value >> shift_amount
+        else:
+            shift_result = self.value << shift_amount
+
+        return IntegerHandler(shift_result,little_endian=self.is_little_endian, bit_length=self.bit_length)
+    
+    def rightShift(self,shift_amount):
+        '''
+        This method returns the right shift
+
+        Parameters :
+            shift_amount : int
+                The amount the value is being shifted to the right
+
+        Returns :
+            shift_result : IntegerHandler
+                The result of the shift operation
+        '''
+        if self.is_little_endian:
+            shift_result = self.value << shift_amount
+        else:
+            shift_result = self.value >> shift_amount
+
+        return IntegerHandler(shift_result,little_endian=self.is_little_endian, bit_length=self.bit_length)
     
     @staticmethod
     def fromOctetList(octet_list:list[int], little_endian:bool=False, bit_length:int=None):
