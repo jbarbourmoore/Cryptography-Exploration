@@ -24,6 +24,30 @@ class IntegerHandler():
         if bit_length != None:
             self.value = value % (2**bit_length)
 
+    def getValue(self)-> int:
+        '''
+        This method gets the value of the integer
+
+        Returns :
+            value : int
+                The value being handled
+        '''
+
+        if self.bit_length != None:
+            return self.value % (2**self.bit_length)
+        return self.value
+    
+    def setValue(self,newValue:int):
+        '''
+        This method sets the value for the integer
+
+        Parameters :
+            new_value : int
+                The new value for the integer
+        '''
+        if self.bit_length != None:
+            newValue = newValue % (2**self.bit_length)
+        self.value = newValue
 
     def getBitArray(self) -> list[int]:
         '''
@@ -182,6 +206,24 @@ class IntegerHandler():
                 new_value= self.value + largest_bit_value
         new_handler = IntegerHandler(new_value,self.is_little_endian,self.bit_length)
         return old_bit, new_handler
+    
+    def getBitLength(self) -> int:
+        '''
+        This method finds the minimum number of bits to store a number or the bit length if it is set
+
+        Returns :
+            counter : int
+                The number of bits necessary to store a number
+        '''
+
+        if self.bit_length != None:
+            return self.bit_length
+        
+        counter = 1
+        while 2 ** counter <= self.value:
+            counter +=1
+
+        return counter
     
     @staticmethod
     def fromOctetList(octet_list:list[int], little_endian:bool=False, bit_length:int=None):
@@ -350,10 +392,7 @@ def concatenate(list_of_handlers:list[IntegerHandler], little_endian: bool = Fal
     bit_length = 0
     for handler in list_of_handlers:
         total_bit += handler.getBitArray()
-        if handler.bit_length != None:
-            bit_length += handler.bit_length
-        else:
-            bit_length += len(handler.getBitArray())
+        bit_length += handler.getBitLength()
 
     return IntegerHandler.fromBitArray(total_bit,little_endian=little_endian, bit_length=bit_length)
         
@@ -373,30 +412,50 @@ def bitwiseXor(list_of_handlers:list[IntegerHandler], little_endian: bool = Fals
             The integer handler containing the result of the xor
     '''
 
-    modified_handlers:list[IntegerHandler] = []
     if bit_length == None:
         bit_length_set = 0
         for handler in list_of_handlers:
-            handler_length = 0
-            if handler.bit_length != None:
-                handler_length = bit_length_set
-            else:
-                handler_length = len(handler.getBitArray())
+            handler_length = handler.getBitLength()
             if handler_length > bit_length_set:
                 bit_length_set = handler_length
     else:
         bit_length_set=bit_length
+    initial_value = 0
     for handler in list_of_handlers:
-        modified_handlers.append(IntegerHandler(handler.value, little_endian, bit_length_set))
+        initial_value = initial_value ^ handler.value
 
-    current_bits = modified_handlers[0].getBitArray()
-    for j in range(1, len(modified_handlers)):
-        comparison_bits = modified_handlers[j].getBitArray()
-        new_bits = []
-        for i in range(0, bit_length_set):
-            new_bits.append(current_bits[i] ^ comparison_bits[i])
-        current_bits = new_bits
-    return IntegerHandler.fromBitArray(current_bits,little_endian,bit_length)
+    return IntegerHandler(value=initial_value, little_endian=little_endian,bit_length=bit_length_set)
+
+def bitwiseAnd(list_of_handlers:list[IntegerHandler], little_endian: bool = False, bit_length = None) -> IntegerHandler:
+    '''
+    This method performs a bit wise and of a list of integer handlers
+
+    Parameters :
+        list_of_handler : [IntegerHandler]
+            The handlers that are being xored
+        little_endian : bool, optional
+            Whether the resulting IntegerHandler should be little endian, default is False
+        bit_length : int, optional
+            The bit length for the result, default is None
+    Return : 
+        xored_integer_handler : IntegerHandler
+            The integer handler containing the result of the and
+    '''
+
+    if bit_length == None:
+        bit_length_set = 0
+        for handler in list_of_handlers:
+            handler_length = handler.getBitLength()
+            if handler_length > bit_length_set:
+                bit_length_set = handler_length
+    else:
+        bit_length_set=bit_length
+    initial_value = 2**bit_length_set-1
+    for handler in list_of_handlers:
+        initial_value = initial_value & handler.value
+        print(initial_value)
+
+    return IntegerHandler(value=initial_value, little_endian=little_endian,bit_length=bit_length_set)
 
 if __name__ == '__main__': 
     handled_value = IntegerHandler.fromHexString("106132DEE",False, bit_length=80) 
@@ -438,3 +497,7 @@ if __name__ == '__main__':
     y,handled_value = handled_value.setMostSignificantBit(1)
     print(handled_value)
     print(y)
+
+    handled_value = IntegerHandler.fromBitArray([0,0,0,0,0,0,1,0,0])
+    print(handled_value.getBitLength())
+    print(handled_value)

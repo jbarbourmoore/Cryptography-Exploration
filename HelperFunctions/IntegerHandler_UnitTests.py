@@ -287,6 +287,41 @@ class IntegerHandler_UnitTests(unittest.TestCase):
         print(f"{xored.getBitArray()} : {first_array} ^ {second_array} with bit length 3")
         self.assertEqual(xored.getBitArray(),expected_xor)
 
+    def test_get_bit_length(self):
+        '''
+        This method tests getting the number of bits required to store a number
+        '''
+
+        inputs = [[1,0,1,1,1,0,0,0],[0,0,0,0],[1,1,1,1],[1,0,0,0]]
+        expected_outputs = [8,1,4,4]
+        expected_outputs_little_endian = [5,1,4,1]
+
+        for i in range(0, len(inputs)):
+            test_value = IntegerHandler.fromBitArray(inputs[i],False)
+            test_value_little = IntegerHandler.fromBitArray(inputs[i],True)
+            self.assertEqual(test_value.getBitLength(),expected_outputs[i])
+            self.assertEqual(test_value_little.getBitLength(),expected_outputs_little_endian[i])
+            test_value_set_bit = IntegerHandler.fromBitArray(inputs[i],False,i)
+            self.assertEqual(test_value_set_bit.getBitLength(),i)
+
+    def test_bitwise_and(self):
+        '''
+        This method tests performing an and of the value
+        '''
+
+        inputs = [[1,0,1,1,1,0,0,0],[0,0,0,0],[1,1,1,1],[1,0,0,0]]
+        inputs_2 = [[1,1,1,1,0,0,0,0],[1,1,1],[1,0,1],[0,1,0,1]]
+        expected_outputs = [[1,0,1,1,0,0,0,0],[0,0,0],[0,1,0,1],[0,0,0,0]]
+        expected_outputs_little_endian =[[0,0,0,0,1,1,0,1],[0,0,0],[1,0,1,0],[0,0,0,0]]
+        expected_outputs_bit_count =[[1,1,0,0,0,0],[0,0,0,0,0,0],[0,0,0,1,0,1],[0,0,0,0,0,0]]
+
+        for i in range(0, len(inputs)):
+            test_value = IntegerHandler.fromBitArray(inputs[i],False)
+            test_value_2 = IntegerHandler.fromBitArray(inputs_2[i],False)
+            self.assertEqual(bitwiseAnd([test_value,test_value_2],False).getBitArray(),expected_outputs[i])
+            self.assertEqual(bitwiseAnd([test_value,test_value_2],True).getBitArray(),expected_outputs_little_endian[i])
+            self.assertEqual(bitwiseAnd([test_value,test_value_2],False,6).getBitArray(),expected_outputs_bit_count[i])
+
 
 if __name__ == '__main__':
     unittest.main()
