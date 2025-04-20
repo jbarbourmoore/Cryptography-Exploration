@@ -382,6 +382,49 @@ class IntegerHandler_UnitTests(unittest.TestCase):
             shift_value = test_value.leftShift(input_shift[i])
             self.assertEqual(shift_value.getBitArray(),expected_outputs_bit_count[i])
 
+    def test_rotate_right(self):
+        '''
+        This method tests rotating right
+        '''
+
+        inputs = [[1,0,0,0,1,1,1],[0,0,0,0],[1,1,1,1],[1,0,0,0]]
+        input_shift = [1,4,2,3]
+        expected_outputs = [[1,1,0,0,0,1,1],[0],[1,1,1,1],[1]]
+        expected_outputs_little_endian =[[1,1,0,0,0,1,1],[0],[1,1,1,1],[1]]
+        expected_outputs_bit_count =[[1,0,0,0,1,1],[0,0,0,0,0,0],[1,1,0,0,1,1],[0,0,0,0,0,1]]
+
+        for i in range(0, len(inputs)):
+            test_value = IntegerHandler.fromBitArray(inputs[i],False)
+            shift_value = test_value.rotateRight(input_shift[i])
+            self.assertEqual(shift_value.getBitArray(),expected_outputs[i])
+            test_value = IntegerHandler.fromBitArray(inputs[i],True)
+            shift_value = test_value.rotateRight(input_shift[i])
+            self.assertEqual(shift_value.getBitArray(),expected_outputs_little_endian[i])
+            test_value = IntegerHandler.fromBitArray(inputs[i],False,6)
+            shift_value = test_value.rotateRight(input_shift[i])
+            self.assertEqual(shift_value.getBitArray(),expected_outputs_bit_count[i])
+
+    def test_rotate_left(self):
+        '''
+        This method tests rotating left
+        '''
+
+        inputs = [[1,0,0,0,1,1,1],[0,0,0,0],[1,1,1,1],[1,0,0,0]]
+        input_shift = [1,4,2,3]
+        expected_outputs = [[1,1,1,1],[0],[1,1,1,1],[1,0,0]]
+        expected_outputs_little_endian =[[0,0,0,1,1,1,1],[0],[1,1,1,1],[1]]
+        expected_outputs_bit_count =[[0,0,1,1,1,0],[0,0,0,0,0,0],[1,1,1,1,0,0],[0,0,0,0,0,1]]
+
+        for i in range(0, len(inputs)):
+            test_value = IntegerHandler.fromBitArray(inputs[i],False)
+            shift_value = test_value.rotateLeft(input_shift[i])
+            self.assertEqual(shift_value.getBitArray(),expected_outputs[i])
+            test_value = IntegerHandler.fromBitArray(inputs[i],True)
+            shift_value = test_value.rotateLeft(input_shift[i])
+            self.assertEqual(shift_value.getBitArray(),expected_outputs_little_endian[i])
+            test_value = IntegerHandler.fromBitArray(inputs[i],False,6)
+            shift_value = test_value.rotateLeft(input_shift[i])
+            self.assertEqual(shift_value.getBitArray(),expected_outputs_bit_count[i])
     def test_right_shift(self):
         '''
         This method tests performing a right shift of the value

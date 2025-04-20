@@ -282,6 +282,54 @@ class IntegerHandler():
 
         return IntegerHandler(shift_result,little_endian=self.is_little_endian, bit_length=self.bit_length)
     
+    def rotateLeft(self, rotation_amount):
+        '''
+        This method rotates the bits of this value a set number of places to the left
+
+        Parameters :
+            rotation_amount : int
+                The amount the value is being rotated
+
+        Returns : 
+            rotate_result : IntegerHandler 
+                The result of the rotation operation
+        '''
+
+        bit_length = self.getBitLength()
+        rotation_amount = rotation_amount % bit_length
+        modulus = 2**bit_length
+        if self.is_little_endian:
+            rotate_result = (self.value >> rotation_amount)|(self.value << (bit_length - (rotation_amount))) & (2**(self.getBitLength())-1)
+        else:
+            rotate_result = (self.value << rotation_amount)|(self.value >> (bit_length - rotation_amount))
+        rotate_result %= modulus
+        return IntegerHandler(rotate_result,little_endian=self.is_little_endian, bit_length=self.bit_length)
+
+    def rotateRight(self, rotation_amount):
+        '''
+        This method rotates the bits of this value a set number of places to the right
+
+        Parameters :
+            rotation_amount : int
+                The amount the value is being rotated
+
+        Returns : 
+            rotate_result : IntegerHandler 
+                The result of the rotation operation
+        '''
+        
+        bit_length = self.getBitLength()
+        rotation_amount = rotation_amount % bit_length
+        modulus = 2**bit_length
+        if self.is_little_endian:
+            rotate_result = (self.value << rotation_amount)|(self.value >> (bit_length - rotation_amount))
+
+        else:
+            rotate_result = (self.value >> rotation_amount)|(self.value << (bit_length - (rotation_amount))) & (2**(self.getBitLength())-1)
+        rotate_result %= modulus
+        return IntegerHandler(rotate_result,little_endian=self.is_little_endian, bit_length=self.bit_length)
+
+
     @staticmethod
     def fromOctetList(octet_list:list[int], little_endian:bool=False, bit_length:int=None):
         '''
