@@ -1,10 +1,12 @@
 from HelperFunctions.IntegerHandler import *
 from CryptographySchemes.SecureHashAlgorithm1 import SHA1
 
-class SHA2(SHA1):
+class SHA256(SHA1):
     '''
     This class should hold the methods and values necessary in order to implement sha 2
     '''
+
+    H_0_hex = ["6a09e667", "bb67ae85", "3c6ef372", "a54ff53a", "510e527f", "9b05688c", "1f83d9ab", "5be0cd19"]
 
     K_hex =   ["428a2f98", "71374491", "b5c0fbcf", "e9b5dba5", "3956c25b", "59f111f1", "923f82a4", "ab1c5ed5",
                "d807aa98", "12835b01", "243185be", "550c7dc3", "72be5d74", "80deb1fe", "9bdc06a7", "c19bf174",
@@ -15,6 +17,11 @@ class SHA2(SHA1):
                "19a4c116", "1e376c08", "2748774c", "34b0bcb5", "391c0cb3", "4ed8aa4a", "5b9cca4f", "682e6ff3",
                "748f82ee", "78a5636f", "84c87814", "8cc70208", "90befffa", "a4506ceb", "bef9a3f7", "c67178f2"]
 
+
+    def __init__(self, word_bits = 32, truncate_bit_length = None):
+        super().__init__(word_bits=word_bits, truncate_bit_length=truncate_bit_length)
+        self.number_of_iterations = 64
+        
     def sigmaCapitalFromZero(self, x:IntegerHandler):
         '''
         This method implements Sigma from 0 as defined by section 4.1.2 "SHA-224 and SHA-256 Functions" of Nist Fips 180-4
@@ -99,14 +106,6 @@ class SHA2(SHA1):
         sigma_result = bitwiseXor([rotr_17,rotr_19,shr_10], self.endian, self.word_bits)
         return sigma_result
 
-
-
-class SHA256(SHA2):
-    H_0_hex = ["6a09e667", "bb67ae85", "3c6ef372", "a54ff53a", "510e527f", "9b05688c", "1f83d9ab", "5be0cd19"]
-    def __init__(self, word_bits = 32):
-        super().__init__(word_bits)
-        self.digest_length = 256
-
     def processMessageBlock(self, message_block:list[IntegerHandler],previousHash:list[IntegerHandler]):
         '''
         This message hashes a single message block
@@ -126,7 +125,7 @@ class SHA256(SHA2):
         for t in range(0,16):
             message_schedule.append(message_block[t])
 
-        for t in range(16,64):
+        for t in range(16, self.number_of_iterations):
             sigma_one_2 = self.sigmaLittleFromOne(message_schedule[t-2])
             sigma_zero_15 = self.sigmaLittleFromZero(message_schedule[t-15])
             W_7 = message_schedule[t-7]
@@ -136,7 +135,7 @@ class SHA256(SHA2):
 
         a,b,c,d,e,f,g,h = previousHash[0],previousHash[1],previousHash[2],previousHash[3],previousHash[4],previousHash[5],previousHash[6],previousHash[7]
 
-        for t in range(0,64):
+        for t in range(0, self.number_of_iterations):
             sigma_big_one_e = self.sigmaCapitalFromOne(e)
             ch_efg = self.ch(e,f,g)
             K_t = self.K[t]
@@ -189,32 +188,13 @@ class SHA256(SHA2):
 class SHA224(SHA256):
     H_0_hex = ["c1059ed8", "367cd507", "3070dd17", "f70e5939", "ffc00b31", "68581511", "64f98fa7", "befa4fa4"]
     def __init__(self):
-        super().__init__()
-        self.word_bits = 32
-        self.digest_length = 224
-
-    def hashAString(self,message:str) -> IntegerHandler:
-        '''
-        This method hashes a string using SHA224
-
-        Parameters :
-            message : str
-                The string to be hashed
-
-        Returns :
-            hash : IntegerHandler
-                The hash for the string as an IntegerHandler
-        '''
-
-        message_chunks = self.preprocessing_FromString(message=message)
-        hash_value = self.H_0
-        for i in range(0,len(message_chunks)):
-            hash_value = self.processMessageBlock(message_chunks[i],hash_value)
-            # self.printHash(hash_value)
-        hash = concatenate(hash_value[0:7],self.endian)
-        return hash
+        super().__init__(truncate_bit_length=224)
     
-class SHA2_64BitWords(SHA256):
+class SHA512(SHA256):
+
+    H_0_hex = ["6a09e667f3bcc908", "bb67ae8584caa73b", "3c6ef372fe94f82b", "a54ff53a5f1d36f1",
+               "510e527fade682d1", "9b05688c2b3e6c1f", "1f83d9abfb41bd6b", "5be0cd19137e2179"]
+     
     K_hex =    ["428a2f98d728ae22", "7137449123ef65cd", "b5c0fbcfec4d3b2f", "e9b5dba58189dbbc",
                 "3956c25bf348b538", "59f111f1b605d019", "923f82a4af194f9b", "ab1c5ed5da6d8118",
                 "d807aa98a3030242", "12835b0145706fbe", "243185be4ee4b28c", "550c7dc3d5ffb4e2",
@@ -236,8 +216,12 @@ class SHA2_64BitWords(SHA256):
                 "28db77f523047d84", "32caab7b40c72493", "3c9ebe0a15c9bebc", "431d67c49c100d4c",
                 "4cc5d4becb3e42b6", "597f299cfc657e2a", "5fcb6fab3ad6faec", "6c44198c4a475817"]
     
-    def __init__(self):
-        super().__init__(word_bits=64)
+    def __init__(self, truncate_bit_length=None):
+        super().__init__(word_bits=64, truncate_bit_length=truncate_bit_length)
+        self.number_of_iterations = 80
+        self.chunk_size = 1024
+        self.chunk_capacity = 896
+        self.length_bits = 128
 
     def sigmaCapitalFromZero(self, x:IntegerHandler):
         '''
@@ -323,220 +307,36 @@ class SHA2_64BitWords(SHA256):
         sigma_result = bitwiseXor([rotr_19,rotr_61,shr_6], self.endian, self.word_bits)
         return sigma_result
     
-    def preprocessing_FromString(self, message:str) -> list[list[IntegerHandler]]:
-        '''
-        This method should preprocess a string message, both adding padding and breaking it into chunks
-
-        5.1.2 "SHA-384, SHA-512, SHA-512/224 and SHA-512/256" of NIST FIPS 180-4
-        https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.180-4.pdf
-
-        Parameters :
-            message : str
-                The message to be hashed as a string (utf-8)
-
-        Returns :
-            message_chunks : [[IntegerHandler]]
-                The message in chunks of bits for processing
-        '''
-
-        chunk_size = 1024
-        message_handler = IntegerHandler.fromString(message, little_endian = self.endian)
-        length = 8 * len(message)
-        k = (-length - 1 + 896) % chunk_size
-        padding = [1]+[0]*k
-        padded_handler = concatenate([message_handler,IntegerHandler.fromBitArray(padding,bit_length= 1+k),IntegerHandler(length,self.endian,128)])
-        bits = padded_handler.getBitArray()
-        segment_count = len(bits) // chunk_size
-        message_chunks = []
-        for i in range(0, segment_count):
-            chunk = []
-            for j in range(0,16):
-                chunk.append(IntegerHandler.fromBitArray(bits[ i * chunk_size + j * self.word_bits: i * chunk_size + j * self.word_bits + self.word_bits], self.endian, bit_length = self.word_bits))
-            message_chunks.append(chunk)
-        return message_chunks
-
-
-
-class SHA512(SHA2_64BitWords):
-    H_0_hex = ["6a09e667f3bcc908", "bb67ae8584caa73b", "3c6ef372fe94f82b", "a54ff53a5f1d36f1",
-               "510e527fade682d1", "9b05688c2b3e6c1f", "1f83d9abfb41bd6b", "5be0cd19137e2179"]
-    
-    def processMessageBlock(self, message_block:list[IntegerHandler],previousHash:list[IntegerHandler]):
-        '''
-        This message hashes a single message block
-
-        Parameters :
-            message_block : [IntegerHandler]
-                The message block of 512 bits as a list of 32 bit IntegerHandlers
-            previous_hash : [IntegerHandler]
-                The previous hash value as a list of 8 32 bit IntegerHandlers
-
-        Returns
-            hash : [IntegerHandler]
-                The hash value after this message block as a list of 8 32 bit IntegerHandlers
-        '''
-
-        message_schedule = []
-        for t in range(0,16):
-            message_schedule.append(message_block[t])
-
-        for t in range(16,80):
-            sigma_one_2 = self.sigmaLittleFromOne(message_schedule[t-2])
-            sigma_zero_15 = self.sigmaLittleFromZero(message_schedule[t-15])
-            W_7 = message_schedule[t-7]
-            W_16 = message_schedule[t-16]
-            add_result = self.wordAddition([sigma_one_2,W_7,sigma_zero_15,W_16])
-            message_schedule.append(add_result)
-
-        a,b,c,d,e,f,g,h = previousHash[0],previousHash[1],previousHash[2],previousHash[3],previousHash[4],previousHash[5],previousHash[6],previousHash[7]
-
-        for t in range(0,80):
-            sigma_big_one_e = self.sigmaCapitalFromOne(e)
-            ch_efg = self.ch(e,f,g)
-            K_t = self.K[t]
-            W_t = message_schedule[t]
-            T_1 = self.wordAddition([h, sigma_big_one_e, ch_efg, K_t, W_t])
-
-            sigma_big_zero_a = self.sigmaCapitalFromZero(a)
-            maj_abc = self.maj(a,b,c)
-            T_2 = self.wordAddition([sigma_big_zero_a, maj_abc])
-
-            h = g
-            g = f
-            f = e
-            e = self.wordAddition([d, T_1])
-            d = c
-            c = b
-            b = a
-            a = self.wordAddition([T_1, T_2])
-            # self.printHash([a,b,c,d,e,f,g,h],t)
-
-            
-        current_hash = []
-        current_hash.append(self.wordAddition([previousHash[0], a]))
-        current_hash.append(self.wordAddition([previousHash[1], b]))
-        current_hash.append(self.wordAddition([previousHash[2], c]))
-        current_hash.append(self.wordAddition([previousHash[3], d]))
-        current_hash.append(self.wordAddition([previousHash[4], e]))
-        current_hash.append(self.wordAddition([previousHash[5], f]))
-        current_hash.append(self.wordAddition([previousHash[6], g]))
-        current_hash.append(self.wordAddition([previousHash[7], h]))
-        return current_hash
-    
-    
-
-class SHA386(SHA512):
+class SHA384(SHA512):
     H_0_hex = ["cbbb9d5dc1059ed8", "629a292a367cd507", "9159015a3070dd17", "152fecd8f70e5939",
                "67332667ffc00b31", "8eb44a8768581511", "db0c2e0d64f98fa7", "47b5481dbefa4fa4"]
     
-    def hashAString(self,message:str) -> IntegerHandler:
-        '''
-        This method hashes a string using SHA386
-
-        Parameters :
-            message : str
-                The string to be hashed
-
-        Returns :
-            hash : IntegerHandler
-                The hash for the string as an IntegerHandler
-        '''
-
-        message_chunks = self.preprocessing_FromString(message=message)
-        hash_value = self.H_0
-        for i in range(0,len(message_chunks)):
-            hash_value = self.processMessageBlock(message_chunks[i],hash_value)
-            # self.printHash(hash_value)
-        hash = concatenate(hash_value[0:6],self.endian)
-        return hash
+    def __init__(self):
+        super().__init__(truncate_bit_length=384)
     
 class SHA512_224(SHA512):
     H_0_hex = ["8C3D37C819544DA2", "73E1996689DCD4D6", "1DFAB7AE32FF9C82", "679DD514582F9FCF",
                "0F6D2B697BD44DA8", "77E36F7304C48942", "3F9D85A86A1D36C8", "1112E6AD91D692A1"]
     
-    def hashAString(self,message:str) -> IntegerHandler:
-        '''
-        This method hashes a string using SHA386
-
-        Parameters :
-            message : str
-                The string to be hashed
-
-        Returns :
-            hash : IntegerHandler
-                The hash for the string as an IntegerHandler
-        '''
-
-        message_chunks = self.preprocessing_FromString(message=message)
-        hash_value = self.H_0
-        for i in range(0,len(message_chunks)):
-            hash_value = self.processMessageBlock(message_chunks[i],hash_value)
-            # self.printHash(hash_value)
-        hash = concatenate(hash_value,self.endian)
-        hash = hash.setTruncateLeft(224)
-        return hash
-    
-class SHA512_224(SHA512):
-    H_0_hex = ["8C3D37C819544DA2", "73E1996689DCD4D6", "1DFAB7AE32FF9C82", "679DD514582F9FCF",
-               "0F6D2B697BD44DA8", "77E36F7304C48942", "3F9D85A86A1D36C8", "1112E6AD91D692A1"]
-    
-    def hashAString(self,message:str) -> IntegerHandler:
-        '''
-        This method hashes a string using SHA386
-
-        Parameters :
-            message : str
-                The string to be hashed
-
-        Returns :
-            hash : IntegerHandler
-                The hash for the string as an IntegerHandler
-        '''
-
-        message_chunks = self.preprocessing_FromString(message=message)
-        hash_value = self.H_0
-        for i in range(0,len(message_chunks)):
-            hash_value = self.processMessageBlock(message_chunks[i],hash_value)
-            # self.printHash(hash_value)
-        hash = concatenate(hash_value,self.endian)
-        hash = hash.setTruncateLeft(224)
-        return hash
+    def __init__(self):
+        super().__init__(truncate_bit_length=224)
     
 class SHA512_256(SHA512):
     H_0_hex = ["22312194FC2BF72C", "9F555FA3C84C64C2", "2393B86B6F53B151", "963877195940EABD",
                "96283EE2A88EFFE3", "BE5E1E2553863992", "2B0199FC2C85B8AA", "0EB72DDC81C52CA2"]
     
-    def hashAString(self,message:str) -> IntegerHandler:
-        '''
-        This method hashes a string using SHA386
-
-        Parameters :
-            message : str
-                The string to be hashed
-
-        Returns :
-            hash : IntegerHandler
-                The hash for the string as an IntegerHandler
-        '''
-
-        message_chunks = self.preprocessing_FromString(message=message)
-        hash_value = self.H_0
-        for i in range(0,len(message_chunks)):
-            hash_value = self.processMessageBlock(message_chunks[i],hash_value)
-            # self.printHash(hash_value)
-        hash = concatenate(hash_value,self.endian)
-        hash = hash.setTruncateLeft(256)
-        return hash
+    def __init__(self):
+        super().__init__(truncate_bit_length=256)
     
 sha256 = SHA256()
 sha224 = SHA224()
 sha512 = SHA512()
-sha386 = SHA386()
+sha384 = SHA384()
 sha512_224 = SHA512_224()
 sha512_256 = SHA512_256()
 
 if __name__ =="__main__":
-    hash = sha386.hashAString("hash this string please and thank you hopefully it comes out ok")
+    hash = sha384.hashAString("hash this string please and thank you hopefully it comes out ok")
     print(hash.getHexString(add_spacing=16))
     # hash = sha1.hashAString("This is my second string to hash with sha 1. I am hoping to make it a bit longer than the previous string but probably not too long.")
     # print(hash.getHexString())
@@ -614,28 +414,28 @@ if __name__ =="__main__":
     assert expected_handler.value == hash.value, "The second SHA512 example is not matching the expected value"
 
     print("- - - - - - - - - - - -")
-    print("Testing SHA-386 Against Known Values")
+    print("Testing SHA-384 Against Known Values")
     print("Expected Hashes are Sourced from Nist Cryptographic Standards and Guidelines: Examples With Intermediate Values")
     print("https://csrc.nist.gov/CSRC/media/Projects/Cryptographic-Standards-and-Guidelines/documents/examples/SHA386.pdf")
     print("- - - - - - - - - - - -")
 
-    hash = sha386.hashAString("abc")
+    hash = sha384.hashAString("abc")
     expected_value = "CB00753F 45A35E8B B5A03D69 9AC65007 272C32AB 0EDED163 1A8B605A 43FF5BED 8086072B A1E7CC23 58BAECA1 34C825A7 ".replace(" ","")
     expected_handler = IntegerHandler.fromHexString(expected_value,False,384)
     print("Hashing \"abc\"")
     print(f"Expected hash : {expected_handler.getHexString(add_spacing=8)}")
     print(f"Actual hash   : {hash.getHexString(add_spacing=8)}")
-    assert expected_handler.value == hash.value, "The first SHA386 example is not matching the expected value"
+    assert expected_handler.value == hash.value, "The first SHA384 example is not matching the expected value"
     print("- - - - - - - - - - - -")
 
-    hash = sha386.hashAString("abcdefghbcdefghicdefghijdefghijkefghijklfghijklmghijklmnhijklmnoijklmnopjklmnopqklmnopqrlmnopqrsmnopqrstnopqrstu")
+    hash = sha384.hashAString("abcdefghbcdefghicdefghijdefghijkefghijklfghijklmghijklmnhijklmnoijklmnopjklmnopqklmnopqrlmnopqrsmnopqrstnopqrstu")
     expected_value = "09330C33 F71147E8 3D192FC7 82CD1B47 53111B17 3B3B05D2 2FA08086 E3B0F712 FCC7C71A 557E2DB9 66C3E9FA 91746039".replace(" ","")
     expected_handler = IntegerHandler.fromHexString(expected_value,False,384)
     print("Hashing \"abcdefghbcdefghicdefghijdefghijkefghijklfghijklmghijklmnhijklmnoijklmnopjklmnopqklmnopqrlmnopqrsmnopqrstnopqrstu\"")
     print(f"Expected hash : {expected_handler.getHexString(add_spacing=8)}")
     print(f"Actual hash   : {hash.getHexString(add_spacing=8)}")
 
-    assert expected_handler.value == hash.value, "The second SHA386 example is not matching the expected value"
+    assert expected_handler.value == hash.value, "The second SHA384 example is not matching the expected value"
     
     print("- - - - - - - - - - - -")
     print("Testing SHA-512_224 Against Known Values")

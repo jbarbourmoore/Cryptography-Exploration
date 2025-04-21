@@ -7,15 +7,19 @@ class SHA1():
     K_hex = ["5a827999","6ed9eba1","8f1bbcdc","ca62c1d6"]
     H_0_hex = ["67452301","efcdab89","98badcfe","10325476","c3d2e1f0"]
 
-    def __init__(self, word_bits = 32):
+    def __init__(self, word_bits = 32, truncate_bit_length = None):
         self.word_bits:int = word_bits
         self.endian:bool = False
+        self.truncate_bit_length = truncate_bit_length
         self.H_0 = []
         self.K = []
         for i in range(0,len(self.H_0_hex)):
             self.H_0.append(IntegerHandler.fromHexString(self.H_0_hex[i],self.endian,self.word_bits))
         for i in range(0,len(self.K_hex)):
             self.K.append(IntegerHandler.fromHexString(self.K_hex[i],self.endian,self.word_bits))
+        self.chunk_size = 512
+        self.chunk_capacity = 448
+        self.length_bits = 64
     
     def hashAString(self,message:str) -> IntegerHandler:
         '''
@@ -36,6 +40,8 @@ class SHA1():
             hash_value = self.processMessageBlock(message_chunks[i],hash_value)
             # self.printHash(hash_value)
         hash = concatenate(hash_value,self.endian)
+        if self.truncate_bit_length != None:
+            hash = hash.truncateLeft(bit_length=self.truncate_bit_length)
         return hash
 
     def processMessageBlock(self, message_block:list[IntegerHandler],previousHash:list[IntegerHandler]):
@@ -142,19 +148,18 @@ class SHA1():
                 The message in chunks of bits for processing
         '''
 
-        chunk_size = 512
         message_handler = IntegerHandler.fromString(message, little_endian = self.endian)
         length = 8 * len(message)
-        k = (-length - 1 + 448) % chunk_size
+        k = (-length - 1 + self.chunk_capacity) % self.chunk_size
         padding = [1]+[0]*k
-        padded_handler = concatenate([message_handler,IntegerHandler.fromBitArray(padding,bit_length= 1+k),IntegerHandler(length,self.endian,64)])
+        padded_handler = concatenate([message_handler,IntegerHandler.fromBitArray(padding,bit_length= 1+k),IntegerHandler(length,self.endian,self.length_bits)])
         bits = padded_handler.getBitArray()
-        segment_count = len(bits) // chunk_size
+        segment_count = len(bits) // self.chunk_size
         message_chunks = []
         for i in range(0, segment_count):
             chunk = []
             for j in range(0,16):
-                chunk.append(IntegerHandler.fromBitArray(bits[ i * chunk_size + j * self.word_bits: i * chunk_size + j * self.word_bits + self.word_bits], self.endian, bit_length = self.word_bits))
+                chunk.append(IntegerHandler.fromBitArray(bits[ i * self.chunk_size + j * self.word_bits: i * self.chunk_size + j * self.word_bits + self.word_bits], self.endian, bit_length = self.word_bits))
             message_chunks.append(chunk)
         return message_chunks
 

@@ -24,13 +24,12 @@ class IntegerHandler():
         if bit_length != None:
             self.value = value % (2**bit_length)
 
-    def setTruncateLeft(self, bit_length:int):
+    def truncateLeft(self, bit_length:int):
         '''
         This method sets the 
         '''
-        
-        new_bits = self.getBitArray()[:bit_length]
-        return IntegerHandler.fromBitArray(new_bits,self.is_little_endian,bit_length=bit_length)
+        new_bits = self.getBitString()[0:bit_length]
+        return IntegerHandler.fromBitString(new_bits,self.is_little_endian,bit_length=bit_length)
 
     def getValue(self)-> int:
         '''
@@ -665,4 +664,12 @@ if __name__ == '__main__':
 
     handled_value = IntegerHandler.fromBitArray([0,0,0,0,0,0,1,0,0])
     print(handled_value.getBitLength())
+    print(handled_value)
+
+    handled_value = IntegerHandler.fromBitArray([1,1,0,1,1,0,1,1,0,1,1,0,1,1,0])
+    print(handled_value.getBitLength())
+    print(handled_value)
+
+    handled_value = IntegerHandler.fromBitArray([1,0,1,0,0,1,1,0,0,0,1,1,1,0,0,0,0,1,1,1,1,1])
+    handled_value = handled_value.truncateLeft(7).getBitArray()
     print(handled_value)
