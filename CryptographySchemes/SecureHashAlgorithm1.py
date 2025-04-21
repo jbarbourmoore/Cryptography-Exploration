@@ -7,8 +7,8 @@ class SHA1():
     K_hex = ["5a827999","6ed9eba1","8f1bbcdc","ca62c1d6"]
     H_0_hex = ["67452301","efcdab89","98badcfe","10325476","c3d2e1f0"]
 
-    def __init__(self):
-        self.word_bits:int = 32
+    def __init__(self, word_bits = 32):
+        self.word_bits:int = word_bits
         self.endian:bool = False
         self.H_0 = []
         self.K = []
