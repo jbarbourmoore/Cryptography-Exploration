@@ -34,6 +34,7 @@ class SHA1():
         hash_value = self.H_0
         for i in range(0,len(message_chunks)):
             hash_value = self.processMessageBlock(message_chunks[i],hash_value)
+            # self.printHash(hash_value)
         hash = concatenate(hash_value,self.endian)
         return hash
 
@@ -56,8 +57,8 @@ class SHA1():
         for t in range(0,16):
             message_schedule.append(message_block[t])
         for t in range(16,80):
-            xor_result = bitwiseXor([message_schedule[t-3],message_schedule[t-8],message_schedule[t-14],message_schedule[t-16]])
-            message_schedule.append(xor_result.rotateRight(1))
+            xor_result = bitwiseXor([message_schedule[t-3],message_schedule[t-8],message_schedule[t-14],message_schedule[t-16]],little_endian=self.endian,bit_length=self.word_bits)
+            message_schedule.append(xor_result.rotateLeft(1))
 
         a,b,c,d,e = previousHash[0],previousHash[1],previousHash[2],previousHash[3],previousHash[4]
 
@@ -81,6 +82,7 @@ class SHA1():
             c = b.rotateLeft(30)
             b = a
             a = T
+            # self.printHash([a,b,c,d,e],t)
         current_hash = []
         current_hash.append(self.wordAddition([previousHash[0], a]))
         current_hash.append(self.wordAddition([previousHash[1], b]))
@@ -89,6 +91,22 @@ class SHA1():
         current_hash.append(self.wordAddition([previousHash[4], e]))
         return current_hash
 
+    def printHash(self, hash:list[IntegerHandler],numbering=None):
+        '''
+        This method returns the prints a hash value to the console
+
+        Parameters :
+            hash : [IntegerHandlers]
+                The hash that is being printed
+            numbering : int, optional
+                The index for the hash to be printed, default is none
+        '''
+
+        if numbering != None:
+            number_str = f"{numbering}: "
+        else:
+            number_str = ""
+        print(f"{number_str}{hash[0].getHexString()} {hash[1].getHexString()} {hash[2].getHexString()} {hash[3].getHexString()} {hash[4].getHexString()}")
 
     def wordAddition(self, values:list[IntegerHandler]) -> IntegerHandler:
         '''
@@ -129,7 +147,7 @@ class SHA1():
         length = 8 * len(message)
         k = (-length - 1 + 448) % chunk_size
         padding = [1]+[0]*k
-        padded_handler = concatenate([message_handler,IntegerHandler.fromBitArray(padding,bit_length= 1+k)])
+        padded_handler = concatenate([message_handler,IntegerHandler.fromBitArray(padding,bit_length= 1+k),IntegerHandler(length,self.endian,64)])
         bits = padded_handler.getBitArray()
         segment_count = len(bits) // chunk_size
         message_chunks = []
@@ -206,7 +224,34 @@ class SHA1():
 sha1 = SHA1()
 
 if __name__ =="__main__":
-    hash = sha1.hashAString("hash this string please and thank you hopefully it comes out ok")
-    print(hash.getHexString())
-    hash = sha1.hashAString("This is my second string to hash with sha 1. I am hoping to make it a bit longer than the previous string but probably not too long.")
-    print(hash.getHexString())
+    # hash = sha1.hashAString("hash this string please and thank you hopefully it comes out ok")
+    # print(hash.getHexString())
+    # hash = sha1.hashAString("This is my second string to hash with sha 1. I am hoping to make it a bit longer than the previous string but probably not too long.")
+    # print(hash.getHexString())
+
+    print("- - - - - - - - - - - -")
+    print("Testing SHA-1 Against Known Values")
+    print("Expected Hashes are Sourced from Nist Cryptographic Standards and Guidelines: Examples With Intermediate Values")
+    print("https://csrc.nist.gov/CSRC/media/Projects/Cryptographic-Standards-and-Guidelines/documents/examples/SHA1.pdf")
+    print("- - - - - - - - - - - -")
+
+    hash = sha1.hashAString("abc")
+    expected_value = "A9993E364706816ABA3E25717850C26C9CD0D89D"
+    expected_handler = IntegerHandler.fromHexString(expected_value,False,32*5)
+    print("Hashing \"abc\"")
+    print(f"Expected hash : {expected_handler.getHexString(add_spacing=8)}")
+    print(f"Actual hash   : {hash.getHexString(add_spacing=8)}")
+    assert expected_handler.value == hash.value, "The first SHA1 example is not matching the expected value"
+    print("- - - - - - - - - - - -")
+
+    hash = sha1.hashAString("abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq")
+    expected_value = "84983E441C3BD26EBAAE4AA1F95129E5E54670F1"
+    expected_handler = IntegerHandler.fromHexString(expected_value,False,32*5)
+    print("Hashing \"abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq\"")
+    print(f"Expected hash : {expected_handler.getHexString(add_spacing=8)}")
+    print(f"Actual hash   : {hash.getHexString(add_spacing=8)}")
+
+    assert expected_handler.value == hash.value, "The second SHA1 example is not matching the expected value"
+
+    print("- - - - - - - - - - - -")
+
