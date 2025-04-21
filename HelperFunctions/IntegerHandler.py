@@ -317,7 +317,7 @@ class IntegerHandler():
             rotate_result : IntegerHandler 
                 The result of the rotation operation
         '''
-        
+
         bit_length = self.getBitLength()
         rotation_amount = rotation_amount % bit_length
         modulus = 2**bit_length
@@ -428,6 +428,29 @@ class IntegerHandler():
             for i in range(0,len(bit_string)):
                 int_value += int(bit_string[i],2) * 2**(len(bit_string) - 1 - i)
         return IntegerHandler(value=int_value, little_endian=little_endian, bit_length=bit_length)
+    
+    @staticmethod
+    def fromString(string:str, little_endian:bool=False, bit_length:int=None):
+        '''
+        This method constructs an integer handler from a string
+
+        Parameters :
+            bit_string : str
+                The value as a string
+            little_endian : bool, optional
+                Whether the integer will be interpretted as little endian, default is False
+            bit_length : int
+                How many bits the number is stored as, default is none or unlimited
+
+        Return :
+            integer_handler : IntegerHandler
+                The value of the string as a handled integer
+        '''
+
+        string_hex = string.encode("utf-8").hex()
+        if bit_length == None:
+            bit_length = len(string) * 8
+        return IntegerHandler.fromHexString(string_hex,little_endian=little_endian,bit_length=bit_length)
 
     @staticmethod
     def fromHexString(hex_string:str, little_endian:bool=False, bit_length:int=None):
@@ -558,7 +581,6 @@ def bitwiseAnd(list_of_handlers:list[IntegerHandler], little_endian: bool = Fals
     initial_value = 2**bit_length_set-1
     for handler in list_of_handlers:
         initial_value = initial_value & handler.value
-        print(initial_value)
 
     return IntegerHandler(value=initial_value, little_endian=little_endian,bit_length=bit_length_set)
 
@@ -589,7 +611,6 @@ def bitwiseOr(list_of_handlers:list[IntegerHandler], little_endian: bool = False
     initial_value = 0
     for handler in list_of_handlers:
         initial_value = initial_value | handler.value
-        print(initial_value)
 
     return IntegerHandler(value=initial_value, little_endian=little_endian,bit_length=bit_length_set)
 
