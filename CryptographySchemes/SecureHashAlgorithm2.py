@@ -425,16 +425,39 @@ class SHA512(SHA2_64BitWords):
     
     
 
-class SHA386(SHA2_64BitWords):
+class SHA386(SHA512):
     H_0_hex = ["cbbb9d5dc1059ed8", "629a292a367cd507", "9159015a3070dd17", "152fecd8f70e5939",
                "67332667ffc00b31", "8eb44a8768581511", "db0c2e0d64f98fa7", "47b5481dbefa4fa4"]
+    
+    def hashAString(self,message:str) -> IntegerHandler:
+        '''
+        This method hashes a string using SHA386
+
+        Parameters :
+            message : str
+                The string to be hashed
+
+        Returns :
+            hash : IntegerHandler
+                The hash for the string as an IntegerHandler
+        '''
+
+        message_chunks = self.preprocessing_FromString(message=message)
+        hash_value = self.H_0
+        for i in range(0,len(message_chunks)):
+            hash_value = self.processMessageBlock(message_chunks[i],hash_value)
+            # self.printHash(hash_value)
+        hash = concatenate(hash_value[0:6],self.endian)
+        print(hash.getBitLength())
+        return hash
     
 sha256 = SHA256()
 sha224 = SHA224()
 sha512 = SHA512()
+sha386 = SHA386()
 
 if __name__ =="__main__":
-    hash = sha512.hashAString("hash this string please and thank you hopefully it comes out ok")
+    hash = sha386.hashAString("hash this string please and thank you hopefully it comes out ok")
     print(hash.getHexString(add_spacing=16))
     # hash = sha1.hashAString("This is my second string to hash with sha 1. I am hoping to make it a bit longer than the previous string but probably not too long.")
     # print(hash.getHexString())
@@ -510,5 +533,29 @@ if __name__ =="__main__":
     print(f"Actual hash   : {hash.getHexString(add_spacing=8)}")
 
     assert expected_handler.value == hash.value, "The second SHA512 example is not matching the expected value"
+
+    print("- - - - - - - - - - - -")
+    print("Testing SHA-386 Against Known Values")
+    print("Expected Hashes are Sourced from Nist Cryptographic Standards and Guidelines: Examples With Intermediate Values")
+    print("https://csrc.nist.gov/CSRC/media/Projects/Cryptographic-Standards-and-Guidelines/documents/examples/SHA386.pdf")
+    print("- - - - - - - - - - - -")
+
+    hash = sha386.hashAString("abc")
+    expected_value = "CB00753F 45A35E8B B5A03D69 9AC65007 272C32AB 0EDED163 1A8B605A 43FF5BED 8086072B A1E7CC23 58BAECA1 34C825A7 ".replace(" ","")
+    expected_handler = IntegerHandler.fromHexString(expected_value,False,384)
+    print("Hashing \"abc\"")
+    print(f"Expected hash : {expected_handler.getHexString(add_spacing=8)}")
+    print(f"Actual hash   : {hash.getHexString(add_spacing=8)}")
+    assert expected_handler.value == hash.value, "The first SHA386 example is not matching the expected value"
+    print("- - - - - - - - - - - -")
+
+    hash = sha386.hashAString("abcdefghbcdefghicdefghijdefghijkefghijklfghijklmghijklmnhijklmnoijklmnopjklmnopqklmnopqrlmnopqrsmnopqrstnopqrstu")
+    expected_value = "09330C33 F71147E8 3D192FC7 82CD1B47 53111B17 3B3B05D2 2FA08086 E3B0F712 FCC7C71A 557E2DB9 66C3E9FA 91746039".replace(" ","")
+    expected_handler = IntegerHandler.fromHexString(expected_value,False,384)
+    print("Hashing \"abcdefghbcdefghicdefghijdefghijkefghijklfghijklmghijklmnhijklmnoijklmnopjklmnopqklmnopqrlmnopqrsmnopqrstnopqrstu\"")
+    print(f"Expected hash : {expected_handler.getHexString(add_spacing=8)}")
+    print(f"Actual hash   : {hash.getHexString(add_spacing=8)}")
+
+    assert expected_handler.value == hash.value, "The second SHA386 example is not matching the expected value"
 
     print("- - - - - - - - - - - -")
