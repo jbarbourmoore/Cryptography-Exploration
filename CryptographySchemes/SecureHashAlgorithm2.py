@@ -131,12 +131,13 @@ class SHA256(SHA2):
         message_schedule = []
         for t in range(0,16):
             message_schedule.append(message_block[t])
+
         for t in range(16,64):
             sigma_one_2 = self.sigmaLittleFromOne(message_schedule[t-2])
-            sigma_zero_16 = self.sigmaLittleFromZero(message_schedule[t-16])
+            sigma_zero_15 = self.sigmaLittleFromZero(message_schedule[t-15])
             W_7 = message_schedule[t-7]
             W_16 = message_schedule[t-16]
-            add_result = self.wordAddition([sigma_one_2,W_7,sigma_zero_16,W_16])
+            add_result = self.wordAddition([sigma_one_2,W_7,sigma_zero_15,W_16])
             message_schedule.append(add_result)
 
         a,b,c,d,e,f,g,h = previousHash[0],previousHash[1],previousHash[2],previousHash[3],previousHash[4],previousHash[5],previousHash[6],previousHash[7]
@@ -160,6 +161,8 @@ class SHA256(SHA2):
             c = b
             b = a
             a = self.wordAddition([T_1, T_2])
+            # self.printHash([a,b,c,d,e,f,g,h],t)
+
             
         current_hash = []
         current_hash.append(self.wordAddition([previousHash[0], a]))
@@ -170,14 +173,31 @@ class SHA256(SHA2):
         current_hash.append(self.wordAddition([previousHash[5], f]))
         current_hash.append(self.wordAddition([previousHash[6], g]))
         current_hash.append(self.wordAddition([previousHash[7], h]))
-
         return current_hash
+    
+    def printHash(self, hash:list[IntegerHandler],numbering=None):
+        '''
+        This method returns the prints a hash value to the console
+
+        Parameters :
+            hash : [IntegerHandlers]
+                The hash that is being printed
+            numbering : int, optional
+                The index for the hash to be printed, default is none
+        '''
+
+        if numbering != None:
+            number_str = f"{numbering}: "
+        else:
+            number_str = ""
+        print(f"{number_str}{hash[0].getHexString()} {hash[1].getHexString()} {hash[2].getHexString()} {hash[3].getHexString()} {hash[4].getHexString()} {hash[5].getHexString()} {hash[6].getHexString()} {hash[7].getHexString()}")
+
     
 sha256 = SHA256()
 
 if __name__ =="__main__":
-    hash = sha256.hashAString("hash this string please and thank you hopefully it comes out ok")
-    print(hash.getHexString())
+    # hash = sha256.hashAString("hash this string please and thank you hopefully it comes out ok")
+    # print(hash.getHexString())
     # hash = sha1.hashAString("This is my second string to hash with sha 1. I am hoping to make it a bit longer than the previous string but probably not too long.")
     # print(hash.getHexString())
 
@@ -196,14 +216,14 @@ if __name__ =="__main__":
     assert expected_handler.value == hash.value, "The first SHA256 example is not matching the expected value"
     print("- - - - - - - - - - - -")
 
-    # hash = sha1.hashAString("abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq")
-    # expected_value = "84983E441C3BD26EBAAE4AA1F95129E5E54670F1"
-    # expected_handler = IntegerHandler.fromHexString(expected_value,False,32*5)
-    # print("Hashing \"abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq\"")
-    # print(f"Expected hash : {expected_handler.getHexString(add_spacing=8)}")
-    # print(f"Actual hash   : {hash.getHexString(add_spacing=8)}")
+    hash = sha256.hashAString("abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq")
+    expected_value = "248D6A61D20638B8E5C026930C3E6039A33CE45964FF2167F6ECEDD419DB06C1"
+    expected_handler = IntegerHandler.fromHexString(expected_value,False,256)
+    print("Hashing \"abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq\"")
+    print(f"Expected hash : {expected_handler.getHexString(add_spacing=8)}")
+    print(f"Actual hash   : {hash.getHexString(add_spacing=8)}")
 
-    # assert expected_handler.value == hash.value, "The second SHA1 example is not matching the expected value"
+    assert expected_handler.value == hash.value, "The second SHA1 example is not matching the expected value"
 
-    # print("- - - - - - - - - - - -")
+    print("- - - - - - - - - - - -")
 
