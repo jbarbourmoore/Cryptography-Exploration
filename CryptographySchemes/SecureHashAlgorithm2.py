@@ -448,13 +448,92 @@ class SHA386(SHA512):
             hash_value = self.processMessageBlock(message_chunks[i],hash_value)
             # self.printHash(hash_value)
         hash = concatenate(hash_value[0:6],self.endian)
-        print(hash.getBitLength())
+        return hash
+    
+class SHA512_224(SHA512):
+    H_0_hex = ["8C3D37C819544DA2", "73E1996689DCD4D6", "1DFAB7AE32FF9C82", "679DD514582F9FCF",
+               "0F6D2B697BD44DA8", "77E36F7304C48942", "3F9D85A86A1D36C8", "1112E6AD91D692A1"]
+    
+    def hashAString(self,message:str) -> IntegerHandler:
+        '''
+        This method hashes a string using SHA386
+
+        Parameters :
+            message : str
+                The string to be hashed
+
+        Returns :
+            hash : IntegerHandler
+                The hash for the string as an IntegerHandler
+        '''
+
+        message_chunks = self.preprocessing_FromString(message=message)
+        hash_value = self.H_0
+        for i in range(0,len(message_chunks)):
+            hash_value = self.processMessageBlock(message_chunks[i],hash_value)
+            # self.printHash(hash_value)
+        hash = concatenate(hash_value,self.endian)
+        hash = hash.setTruncateLeft(224)
+        return hash
+    
+class SHA512_224(SHA512):
+    H_0_hex = ["8C3D37C819544DA2", "73E1996689DCD4D6", "1DFAB7AE32FF9C82", "679DD514582F9FCF",
+               "0F6D2B697BD44DA8", "77E36F7304C48942", "3F9D85A86A1D36C8", "1112E6AD91D692A1"]
+    
+    def hashAString(self,message:str) -> IntegerHandler:
+        '''
+        This method hashes a string using SHA386
+
+        Parameters :
+            message : str
+                The string to be hashed
+
+        Returns :
+            hash : IntegerHandler
+                The hash for the string as an IntegerHandler
+        '''
+
+        message_chunks = self.preprocessing_FromString(message=message)
+        hash_value = self.H_0
+        for i in range(0,len(message_chunks)):
+            hash_value = self.processMessageBlock(message_chunks[i],hash_value)
+            # self.printHash(hash_value)
+        hash = concatenate(hash_value,self.endian)
+        hash = hash.setTruncateLeft(224)
+        return hash
+    
+class SHA512_256(SHA512):
+    H_0_hex = ["22312194FC2BF72C", "9F555FA3C84C64C2", "2393B86B6F53B151", "963877195940EABD",
+               "96283EE2A88EFFE3", "BE5E1E2553863992", "2B0199FC2C85B8AA", "0EB72DDC81C52CA2"]
+    
+    def hashAString(self,message:str) -> IntegerHandler:
+        '''
+        This method hashes a string using SHA386
+
+        Parameters :
+            message : str
+                The string to be hashed
+
+        Returns :
+            hash : IntegerHandler
+                The hash for the string as an IntegerHandler
+        '''
+
+        message_chunks = self.preprocessing_FromString(message=message)
+        hash_value = self.H_0
+        for i in range(0,len(message_chunks)):
+            hash_value = self.processMessageBlock(message_chunks[i],hash_value)
+            # self.printHash(hash_value)
+        hash = concatenate(hash_value,self.endian)
+        hash = hash.setTruncateLeft(256)
         return hash
     
 sha256 = SHA256()
 sha224 = SHA224()
 sha512 = SHA512()
 sha386 = SHA386()
+sha512_224 = SHA512_224()
+sha512_256 = SHA512_256()
 
 if __name__ =="__main__":
     hash = sha386.hashAString("hash this string please and thank you hopefully it comes out ok")
@@ -557,5 +636,53 @@ if __name__ =="__main__":
     print(f"Actual hash   : {hash.getHexString(add_spacing=8)}")
 
     assert expected_handler.value == hash.value, "The second SHA386 example is not matching the expected value"
+    
+    print("- - - - - - - - - - - -")
+    print("Testing SHA-512_224 Against Known Values")
+    print("Expected Hashes are Sourced from Nist Cryptographic Standards and Guidelines: Examples With Intermediate Values")
+    print("https://csrc.nist.gov/CSRC/media/Projects/Cryptographic-Standards-and-Guidelines/documents/examples/SHA512_224.pdf")
+    print("- - - - - - - - - - - -")
+
+    hash = sha512_224.hashAString("abc")
+    expected_value = "4634270F 707B6A54 DAAE7530 460842E2 0E37ED26 5CEEE9A4 3E8924AA".replace(" ","")
+    expected_handler = IntegerHandler.fromHexString(expected_value,False,224)
+    print("Hashing \"abc\"")
+    print(f"Expected hash : {expected_handler.getHexString(add_spacing=8)}")
+    print(f"Actual hash   : {hash.getHexString(add_spacing=8)}")
+    assert expected_handler.value == hash.value, "The first SHA512-224 example is not matching the expected value"
+    print("- - - - - - - - - - - -")
+
+    hash = sha512_224.hashAString("abcdefghbcdefghicdefghijdefghijkefghijklfghijklmghijklmnhijklmnoijklmnopjklmnopqklmnopqrlmnopqrsmnopqrstnopqrstu")
+    expected_value = "23FEC5BB 94D60B23 30819264 0B0C4533 35D66473 4FE40E72 68674AF9".replace(" ","")
+    expected_handler = IntegerHandler.fromHexString(expected_value,False,224)
+    print("Hashing \"abcdefghbcdefghicdefghijdefghijkefghijklfghijklmghijklmnhijklmnoijklmnopjklmnopqklmnopqrlmnopqrsmnopqrstnopqrstu\"")
+    print(f"Expected hash : {expected_handler.getHexString(add_spacing=8)}")
+    print(f"Actual hash   : {hash.getHexString(add_spacing=8)}")
+
+    assert expected_handler.value == hash.value, "The second SHA512_224 example is not matching the expected value"
+
+    print("- - - - - - - - - - - -")
+    print("Testing SHA-512_256 Against Known Values")
+    print("Expected Hashes are Sourced from Nist Cryptographic Standards and Guidelines: Examples With Intermediate Values")
+    print("https://csrc.nist.gov/CSRC/media/Projects/Cryptographic-Standards-and-Guidelines/documents/examples/SHA512_256.pdf")
+    print("- - - - - - - - - - - -")
+
+    hash = sha512_256.hashAString("abc")
+    expected_value = "53048E26 81941EF9 9B2E29B7 6B4C7DAB E4C2D0C6 34FC6D46 E0E2F131 07E7AF23".replace(" ","")
+    expected_handler = IntegerHandler.fromHexString(expected_value,False,256)
+    print("Hashing \"abc\"")
+    print(f"Expected hash : {expected_handler.getHexString(add_spacing=8)}")
+    print(f"Actual hash   : {hash.getHexString(add_spacing=8)}")
+    assert expected_handler.value == hash.value, "The first SHA512-256 example is not matching the expected value"
+    print("- - - - - - - - - - - -")
+
+    hash = sha512_256.hashAString("abcdefghbcdefghicdefghijdefghijkefghijklfghijklmghijklmnhijklmnoijklmnopjklmnopqklmnopqrlmnopqrsmnopqrstnopqrstu")
+    expected_value = "3928E184 FB8690F8 40DA3988 121D31BE 65CB9D3E F83EE614 6FEAC861 E19B563A".replace(" ","")
+    expected_handler = IntegerHandler.fromHexString(expected_value,False,256)
+    print("Hashing \"abcdefghbcdefghicdefghijdefghijkefghijklfghijklmghijklmnhijklmnoijklmnopjklmnopqklmnopqrlmnopqrsmnopqrstnopqrstu\"")
+    print(f"Expected hash : {expected_handler.getHexString(add_spacing=8)}")
+    print(f"Actual hash   : {hash.getHexString(add_spacing=8)}")
+
+    assert expected_handler.value == hash.value, "The second SHA512_256 example is not matching the expected value"
 
     print("- - - - - - - - - - - -")

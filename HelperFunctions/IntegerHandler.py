@@ -24,6 +24,14 @@ class IntegerHandler():
         if bit_length != None:
             self.value = value % (2**bit_length)
 
+    def setTruncateLeft(self, bit_length:int):
+        '''
+        This method sets the 
+        '''
+        
+        new_bits = self.getBitArray()[:bit_length]
+        return IntegerHandler.fromBitArray(new_bits,self.is_little_endian,bit_length=bit_length)
+
     def getValue(self)-> int:
         '''
         This method gets the value of the integer
