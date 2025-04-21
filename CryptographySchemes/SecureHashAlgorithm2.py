@@ -336,10 +336,6 @@ sha512_224 = SHA512_224()
 sha512_256 = SHA512_256()
 
 if __name__ =="__main__":
-    hash = sha384.hashAString("hash this string please and thank you hopefully it comes out ok")
-    print(hash.getHexString(add_spacing=16))
-    # hash = sha1.hashAString("This is my second string to hash with sha 1. I am hoping to make it a bit longer than the previous string but probably not too long.")
-    # print(hash.getHexString())
 
     print("- - - - - - - - - - - -")
     print("Testing SHA-256 Against Known Values")

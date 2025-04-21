@@ -43,6 +43,31 @@ class SHA1():
         if self.truncate_bit_length != None:
             hash = hash.truncateLeft(bit_length=self.truncate_bit_length)
         return hash
+    
+    def hashAHexString(self,message:str,bytes:int) -> IntegerHandler:
+        '''
+        This method hashes a string using SHA1
+
+        Parameters :
+            message : str
+                The hex string to be hashed
+            bytes : int
+                The number of bytes in the hex string being hashed
+
+        Returns :
+            hash : IntegerHandler
+                The hash for the string as an IntegerHandler
+        '''
+
+        message_chunks = self.preprocessing_FromString(message=message,is_hex=True,bytes=bytes)
+        hash_value = self.H_0
+        for i in range(0,len(message_chunks)):
+            hash_value = self.processMessageBlock(message_chunks[i],hash_value)
+            # self.printHash(hash_value)
+        hash = concatenate(hash_value,self.endian)
+        if self.truncate_bit_length != None:
+            hash = hash.truncateLeft(bit_length=self.truncate_bit_length)
+        return hash
 
     def processMessageBlock(self, message_block:list[IntegerHandler],previousHash:list[IntegerHandler]):
         '''
@@ -132,7 +157,7 @@ class SHA1():
             current_value %= (2**self.word_bits)
         return IntegerHandler(current_value,self.endian,self.word_bits)
 
-    def preprocessing_FromString(self, message:str) -> list[list[IntegerHandler]]:
+    def preprocessing_FromString(self, message:str, is_hex:bool = False, bytes:int = 0) -> list[list[IntegerHandler]]:
         '''
         This method should preprocess a string message, both adding padding and breaking it into chunks
 
@@ -141,15 +166,22 @@ class SHA1():
 
         Parameters :
             message : str
-                The message to be hashed as a string (utf-8)
+                The message to be hashed as a string (utf-8) or a hex string
+            is_hex : bool
+                Whether the input is a hex string 
+            bytes : int
+                The number of bytes in the hex string
 
         Returns :
             message_chunks : [[IntegerHandler]]
                 The message in chunks of bits for processing
         '''
-
-        message_handler = IntegerHandler.fromString(message, little_endian = self.endian)
-        length = 8 * len(message)
+        if not is_hex:
+            message_handler = IntegerHandler.fromString(message, little_endian = self.endian)
+            length = 8 * len(message)
+        else: 
+            message_handler = IntegerHandler.fromHexString(message, little_endian = self.endian, bit_length=bytes*8)
+            length = 8 * bytes
         k = (-length - 1 + self.chunk_capacity) % self.chunk_size
         padding = [1]+[0]*k
         padded_handler = concatenate([message_handler,IntegerHandler.fromBitArray(padding,bit_length= 1+k),IntegerHandler(length,self.endian,self.length_bits)])
