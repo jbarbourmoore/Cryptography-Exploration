@@ -99,12 +99,7 @@ class SHA2(SHA1):
         sigma_result = bitwiseXor([rotr_17,rotr_19,shr_10], self.endian, self.word_bits)
         return sigma_result
 
-class SHA224(SHA2):
-    H_0_hex = ["c1059ed8", "367cd507", "3070dd17", "f70e5939", "ffc00b31", "68581511", "64f98fa7", "befa4fa4"]
-    def __init__(self):
-        super().__init__()
-        self.word_bits = 32
-        self.digest_length = 224
+
 
 class SHA256(SHA2):
     H_0_hex = ["6a09e667", "bb67ae85", "3c6ef372", "a54ff53a", "510e527f", "9b05688c", "1f83d9ab", "5be0cd19"]
@@ -121,11 +116,11 @@ class SHA256(SHA2):
             message_block : [IntegerHandler]
                 The message block of 512 bits as a list of 32 bit IntegerHandlers
             previous_hash : [IntegerHandler]
-                The previous hash value as a list of 5 32 bit IntegerHandlers
+                The previous hash value as a list of 8 32 bit IntegerHandlers
 
         Returns
             hash : [IntegerHandler]
-                The hash value after this message block as a list of 5 32 bit IntegerHandlers
+                The hash value after this message block as a list of 8 32 bit IntegerHandlers
         '''
 
         message_schedule = []
@@ -192,12 +187,40 @@ class SHA256(SHA2):
             number_str = ""
         print(f"{number_str}{hash[0].getHexString()} {hash[1].getHexString()} {hash[2].getHexString()} {hash[3].getHexString()} {hash[4].getHexString()} {hash[5].getHexString()} {hash[6].getHexString()} {hash[7].getHexString()}")
 
+class SHA224(SHA256):
+    H_0_hex = ["c1059ed8", "367cd507", "3070dd17", "f70e5939", "ffc00b31", "68581511", "64f98fa7", "befa4fa4"]
+    def __init__(self):
+        super().__init__()
+        self.word_bits = 32
+        self.digest_length = 224
+
+    def hashAString(self,message:str) -> IntegerHandler:
+        '''
+        This method hashes a string using SHA224
+
+        Parameters :
+            message : str
+                The string to be hashed
+
+        Returns :
+            hash : IntegerHandler
+                The hash for the string as an IntegerHandler
+        '''
+
+        message_chunks = self.preprocessing_FromString(message=message)
+        hash_value = self.H_0
+        for i in range(0,len(message_chunks)):
+            hash_value = self.processMessageBlock(message_chunks[i],hash_value)
+            # self.printHash(hash_value)
+        hash = concatenate(hash_value[0:7],self.endian)
+        return hash
     
 sha256 = SHA256()
+sha224 = SHA224()
 
 if __name__ =="__main__":
-    # hash = sha256.hashAString("hash this string please and thank you hopefully it comes out ok")
-    # print(hash.getHexString())
+    hash = sha224.hashAString("hash this string please and thank you hopefully it comes out ok")
+    print(hash.getHexString(add_spacing=8))
     # hash = sha1.hashAString("This is my second string to hash with sha 1. I am hoping to make it a bit longer than the previous string but probably not too long.")
     # print(hash.getHexString())
 
@@ -223,7 +246,31 @@ if __name__ =="__main__":
     print(f"Expected hash : {expected_handler.getHexString(add_spacing=8)}")
     print(f"Actual hash   : {hash.getHexString(add_spacing=8)}")
 
-    assert expected_handler.value == hash.value, "The second SHA1 example is not matching the expected value"
+    assert expected_handler.value == hash.value, "The second SHA256 example is not matching the expected value"
+
+    print("- - - - - - - - - - - -")
+    print("Testing SHA-224 Against Known Values")
+    print("Expected Hashes are Sourced from Nist Cryptographic Standards and Guidelines: Examples With Intermediate Values")
+    print("https://csrc.nist.gov/CSRC/media/Projects/Cryptographic-Standards-and-Guidelines/documents/examples/SHA224.pdf")
+    print("- - - - - - - - - - - -")
+
+    hash = sha224.hashAString("abc")
+    expected_value = "23097D223405D8228642A477BDA255B32AADBCE4BDA0B3F7E36C9DA7"
+    expected_handler = IntegerHandler.fromHexString(expected_value,False,224)
+    print("Hashing \"abc\"")
+    print(f"Expected hash : {expected_handler.getHexString(add_spacing=8)}")
+    print(f"Actual hash   : {hash.getHexString(add_spacing=8)}")
+    assert expected_handler.value == hash.value, "The first SHA224 example is not matching the expected value"
+    print("- - - - - - - - - - - -")
+
+    hash = sha224.hashAString("abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq")
+    expected_value = "75388B16512776CC5DBA5DA1FD890150B0C6455CB4F58B1952522525"
+    expected_handler = IntegerHandler.fromHexString(expected_value,False,224)
+    print("Hashing \"abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq\"")
+    print(f"Expected hash : {expected_handler.getHexString(add_spacing=8)}")
+    print(f"Actual hash   : {hash.getHexString(add_spacing=8)}")
+
+    assert expected_handler.value == hash.value, "The second SHA224 example is not matching the expected value"
 
     print("- - - - - - - - - - - -")
 
