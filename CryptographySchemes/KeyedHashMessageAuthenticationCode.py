@@ -1,4 +1,5 @@
 from CryptographySchemes.HashingAlgorithms.SecureHashAlgorithm3 import SHA3, SHA3_512
+from HelperFunctions.IntegerHandler import *
 
 class HMAC():
     '''
@@ -17,29 +18,31 @@ class HMAC():
         self.b = 72*8
         self.l = 64*8
 
-    def keyProcessing(self,secret_key:str)-> str:
+    def keyProcessing(self,secret_key:IntegerHandler)-> IntegerHandler:
         '''
         This message processes the key so it is the proper length
 
         Parameters : 
-            secret_key : str
-                The key as a bit string
+            secret_key : IntegerHandler
+                The key as an IntegerHandler
 
         Return : 
-            K_0 : str
-                The procesed key as a bit string
+            K_0 : IntegerHandler
+                The procesed key as an IntegerHandler
         '''
 
-        K = secret_key
-        len_K = len(K)
-        l = 64*8
-        b = 72*8
-        if len_K == b:
-            K_0 = K
-        elif len_K > b:
-            K_0 = self.hexStringToBitString(self.hashHexToHex(K))+"0"*(b-l)
-        elif len_K < b:
-            K_0 = K + "0"*(b-len_K)
+        if secret_key.bit_length == self.b:
+            K_0 = secret_key
+        elif secret_key.bit_length > self.b:
+            padding_length = self.b - self.l
+            padding = IntegerHandler(value=0, little_endian=False, bit_length=padding_length)
+            hash_hex = self.hashHexToHex(secret_key.getHexString())
+            hash = IntegerHandler.fromHexString(hash_hex, False, len(hash_hex) * 4)
+            K_0 = concatenate([hash, padding], False)
+        elif secret_key.bit_length < self.b:
+            padding_length = self.b - secret_key.bit_length
+            padding = IntegerHandler(value=0, little_endian=False, bit_length=padding_length)
+            K_0 = concatenate([secret_key, padding], False)
 
         return K_0
     
@@ -59,20 +62,23 @@ class HMAC():
         '''
         opad = "01011100" * (self.b // 8)
         ipad = "00110110" * (self.b // 8)
-        binary_key = self.hexStringToBitString(key)
-        K_0 = self.keyProcessing(binary_key)
-        K0_xor_opad = self.bitwiseXor(K_0,opad)
-        K0_xor_ipad = self.bitwiseXor(K_0,ipad)
-        hex_messge = message.encode().hex().upper()
-        hex_K0_xor_ipad = self.bitStringToHexString(K0_xor_ipad)
-        hex_K0_xor_opad = self.bitStringToHexString(K0_xor_opad)
-        assert hex_K0_xor_ipad == expected_k0_xor_ipad.upper()
-        assert hex_K0_xor_opad == expected_k0_xor_opad.replace(" ","").upper()
-        hex_concat = hex_K0_xor_ipad + hex_messge
-        hash_K0_xor_ipad_M = self.hashHexToHex(hex_concat)
-        K0_xor_opad_hex = self.bitStringToHexString(K0_xor_opad)
-        final_hash = self.hashHexToHex(str(K0_xor_opad_hex) + str(hash_K0_xor_ipad_M))
-        return final_hash
+        opad_handler = IntegerHandler.fromBitString(bit_string=opad, little_endian=False, bit_length=self.b)
+        ipad_handler = IntegerHandler.fromBitString(bit_string=ipad, little_endian=False, bit_length=self.b)
+        key_handler = IntegerHandler.fromHexString(hex_string=key, little_endian=False, bit_length=len(key)*4)
+
+        K_0 = self.keyProcessing(key_handler)
+
+        K0_xor_opad = bitwiseXor([K_0, opad_handler], little_endian=False, bit_length=self.b)
+        K0_xor_ipad = bitwiseXor([K_0, ipad_handler], little_endian=False, bit_length=self.b)
+
+        message_handler = IntegerHandler.fromString(message, little_endian=False,bit_length=len(message)*8)
+        
+        K0_ipad_M = concatenate([K0_xor_ipad, message_handler], little_endian=False)
+        hash_value = self.hashHexToHex(K0_ipad_M.getHexString())
+        hash_K0_ipad_M = IntegerHandler.fromHexString(hex_string=hash_value, little_endian=False, bit_length=len(hash_value)*4)
+        K0_opad_hash = concatenate([K0_xor_opad, hash_K0_ipad_M],little_endian=False)
+        final_hash = self.hashHexToHex(K0_opad_hash.getHexString())
+        return IntegerHandler.fromHexString(final_hash)
     
     def hashHexToHex(self, hex_value:str) -> str:
         '''
@@ -90,62 +96,6 @@ class HMAC():
         hash_result = hash_result.getHexString()
         return hash_result.upper()
     
-    def bitwiseXor(self,string_1,string_2):
-        '''
-        This method performs a bitwise xor of two binary strings of the same length
-
-        Parameters :
-            string_1 : str
-                The binary string for one of the values that is being xord
-            string_2 str 
-                The binary string for the other value being xord
-
-        Returns :
-            string_result : str
-                The binary string of the result of the xor
-        '''
-
-        int_result = int(string_1,2) ^ int(string_2,2)
-        string_result = '{0:0{1}b}'.format(int_result,len(string_1))
-        return string_result
-    
-    def bitStringToHexString(self, bit_string:str) -> str :
-        '''
-        This method translates a bit string into a hex string 
-
-        Parameters :
-            bit_string : str
-                The bit string to be translated
-
-        Returns :
-            hex_string : str
-                The hex string equivalent to the bit sting
-        '''
-
-        bit_string = bit_string.replace(" ","")
-        bit_len = len(bit_string)
-        value = int(bit_string,2)
-        hex_string = '{0:0{1}x}'.format(value,bit_len//4).upper()
-        return hex_string
-
-    def  hexStringToBitString(self, hex_string:str) -> str:
-        '''
-        This method translates a hex string into a bit string 
-
-        Parameters :
-            hex_string : str
-                The hex_string to be translated
-
-        Returns :
-            bit_string : str
-                The bit string equivalent to the hex sting
-        '''
-
-        hex_string = hex_string.replace(" ","")
-        hex_len = len(hex_string)
-        value = int(hex_string,16)
-        bit_string = '{0:0{1}b}'.format(value,hex_len*4)
-        return bit_string
 
 if __name__ == '__main__':
     message = "Sample message for keylen<blocklen"
@@ -159,5 +109,7 @@ if __name__ == '__main__':
     expected_k0_xor_ipad = "36373435 32333031 3e3f3c3d 3a3b383926272425 22232021 2e2f2c2d 2a2b282916171415 12131011 1e1f1c1d 1a1b181906070405 02030001 0e0f0c0d 0a0b080936363636 36363636".replace(" ","")
     hmac_mine = HMAC()
     mac = hmac_mine.HMAC(message,key)
-    print(mac)
-    assert mac == expected_mac.upper().replace(" ","")
+    print(mac.getHexString())
+    assert mac.getHexString() == expected_mac.upper().replace(" ","")
+    print(hmac_mine.b)
+    print(hmac_mine.l)
