@@ -79,13 +79,33 @@ I implemented a form of the Elliptic Curve Diffie Hellman Key Exchange based on 
     alt="This is a sequence diagram for an elliptic curve diffie hellman key exchange">
 </img>   
 
-### SHA-3   
+### Hashing Algorithms
 
-I implemented a version of SHA3, including SHA3-224, SHA3-256, SHA3-384 and SHA3-512. SHA3 is currently one of the recommended algorithms for creating secure hashes. The algorithm guidelines for SHA3 are laid out in NIST FIPS 202, ["SHA-3 Standard: Permutation-Based Hash and Extendable-Output Functions"](https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.202.pdf). SHA-3 is based on Keccak which was described in ["Keccek implementation overview"](https://keccak.team/files/Keccak-implementation-3.2.pdf) by Guido Bertoni, Joan Daemen, Michaël Peeters, Gilles Van Assche and Ronny Van Keer from 2012. Much like with AES, NIST provides a list of some example inputs and output at ["Cryptographic Standards and Guidelines"](https://csrc.nist.gov/projects/cryptographic-standards-and-guidelines/example-values) to allow a developer to verify their program is functioning as expected. I was able to use this information to develop unit tests for my implementation and an example of the output is shown below. I do think it is worth mentioning that the example data is not read to binary strings exactly as one would expect, but by the use of custom algorithms as laid out in the appendix of [NIST FIPS 202](https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.202.pdf) (Algorithm 10 "h2b" and Algorithm 11 "b2h").
+#### Secure Hash Algoithm 1 (SHA1)  
+
+I implemented a version of the SHA1 hashing algorithm as laid out in NIST FIPS 180-4, ["Secure Hash Standard (SHS)"](https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.180-4.pdf). SHA1 was developed by the United States National Security Agency(NSA) and was originally published in 1995. It is no longer considered secure. The SHA1 algorithm consists of a few functions that are run on 32 bit words, particularly ch, parity and maj, as well as bitwise operations including xor, and, shift and rotate. It produces a 160 bit hashdigest and can be quite prone to hash collisions compared to the other SHA algorithms.
+
+#### Secure Hash Algorithm 2 (SHA2)    
+
+##### (SHA-224, SHA-256, SHA-384, SHA-512, SHA-512/224 and SHA-512/256)    
+
+I implemented versions of the SHA2 hashing algorithms as laid out in NIST FIPS 180-4, ["Secure Hash Standard (SHS)"](https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.180-4.pdf). Much like SHA1, SHA2 was initial developed by the NSA and was published in 2001. SHA2 is really a collection of algorithms with varying hash digest lengths that are built upon some of the characteristics of SHA1. Particularly, SHA-256 also rely upon the use of the ch and maj functions on 32 bit words, though they do not use the parity function and also add sigma functions. SHA-512 builds on the foundations of the SHA-256 functions, however it uses them on 64-bit words. The other algorithms within the SHA2 family all are strongly connected with either SHA-256 or SHA-512. SHA-224 has different starting hash values than SHA-256 and truncates the ouput to 224 bit, but otherwise is the same internally. SHA-384, SHA-512/224 and SHA-512/256 share a similar relationship with SHA-512. Below you can see sample output from unit tests showing that the SHA1 and SHA2 implementations accurately produce the results provided by NIST in their [Cryptographic Standards and Guidelines: Example Values](https://csrc.nist.gov/projects/cryptographic-standards-and-guidelines/example-values).
 
 <img 
     style="display: block; margin-left: auto; margin-right: auto; width: 100%; max-height:100%"
-    src="https://github.com/jbarbourmoore/Cryptography-Exploration/blob/7749310c7971a234fdea77e301452805eec7d0c1/CryptographySchemes/OutputImages/SHA3_Examples.png" 
+    src="https://github.com/jbarbourmoore/Cryptography-Exploration/blob/8874f359a5e7d13f335a13659e313719045e1f86/CryptographySchemes/OutputImages/SHA1_SHA2_Examples.png" 
+    alt="This shows example from unit tests for the SHA1 and SHA2 implementations using known values from NIST">
+</img>   
+
+#### Secure Hash Algorithm 3 (SHA3)    
+
+##### (SHA3-224, SHA3-256, SHA3-384, SHA3-512, SHAKE128 and SHAKE256)
+
+I implemented versions of the SHA3 hashing algorithms as laid out in NIST FIPS 202, ["SHA-3 Standard: Permutation-Based Hash and Extendable-Output Functions)"](https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.202.pdf). SHA3 is an entirely separate algorithm compared to SHA1 and SHA2. It is based on Keccak which was described in ["Keccek implementation overview"](https://keccak.team/files/Keccak-implementation-3.2.pdf) by Guido Bertoni, Joan Daemen, Michaël Peeters, Gilles Van Assche and Ronny Van Keer from 2012. The internal state of the SHA3 algorithm is stored in a 3 dimensional bit array where x is between 0 and 4, y is between 0 and 4 and z is between 0 and 63. It is based on a sponge construction and each iteration it performs a series of function on the state array, theta, rho, pi, chi and iota. SHA3-224, SHA3-256, SHA3-384 and SHA3-512 each produce hashes of a set length and the largest difference between each of them is how much capacity there is in each iteration. SHAKE128 and SHAKE256 both allow the user to specify the length of the digest to be produced but still vary based on the internal capcity. SHA3 does have its own algorithms for translating bit strings into hex strings and back as specified in the appendix of NIST FIPS 202. Below you can see sample output from unit tests showing that the SHA3 implementations accurately produce the results provided by NIST in their [Cryptographic Standards and Guidelines: Example Values](https://csrc.nist.gov/projects/cryptographic-standards-and-guidelines/example-values).
+
+<img 
+    style="display: block; margin-left: auto; margin-right: auto; width: 100%; max-height:100%"
+    src="https://github.com/jbarbourmoore/Cryptography-Exploration/blob/8874f359a5e7d13f335a13659e313719045e1f86/CryptographySchemes/OutputImages/SHA3_Examples.png" 
     alt="This shows example from unit tests for the SHA3 implementation using known values from NIST">
 </img>   
 
