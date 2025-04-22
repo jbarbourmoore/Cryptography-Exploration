@@ -1,4 +1,5 @@
-from CryptographySchemes.HashingAlgorithms.SecureHashAlgorithm3 import SHA3, SHA3_512
+from CryptographySchemes.HashingAlgorithms.SecureHashAlgorithm3 import *
+from CryptographySchemes.HashingAlgorithms.SecureHashAlgorithm2 import *
 from HelperFunctions.IntegerHandler import *
 
 class HMAC():
@@ -10,13 +11,13 @@ class HMAC():
     https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.198-1.pdf
     Example values: https://csrc.nist.gov/CSRC/media/Projects/Cryptographic-Standards-and-Guidelines/documents/examples/HMAC_SHA3-512.pdf
     '''
-    def __init__(self):
+    def __init__(self, hashing_algorithm = SHA3_512(), b=576, l=512):
         '''
         This method initializes the HMAC object
         '''
-        self.sha3 = SHA3_512()
-        self.b = 72*8
-        self.l = 64*8
+        self.sha = hashing_algorithm
+        self.b = b
+        self.l = l
 
     def keyProcessing(self,secret_key:IntegerHandler)-> IntegerHandler:
         '''
@@ -36,8 +37,7 @@ class HMAC():
         elif secret_key.bit_length > self.b:
             padding_length = self.b - self.l
             padding = IntegerHandler(value=0, little_endian=False, bit_length=padding_length)
-            hash_hex = self.hashHexToHex(secret_key.getHexString())
-            hash = IntegerHandler.fromHexString(hash_hex, False, len(hash_hex) * 4)
+            hash = self.hashIntegerHandler(secret_key)
             K_0 = concatenate([hash, padding], False)
         elif secret_key.bit_length < self.b:
             padding_length = self.b - secret_key.bit_length
@@ -46,7 +46,7 @@ class HMAC():
 
         return K_0
     
-    def HMAC(self, message:str, key:str) -> str:
+    def HMAC(self, message:str, key:str, is_debug:bool = False) -> IntegerHandler|tuple[IntegerHandler,dict]:
         '''
         This method calculates the HMAC for a given message and key
 
@@ -57,45 +57,97 @@ class HMAC():
                 The hex string for the key
 
         Returns :
-            hmac : str
-                The hmac as a hex string
+            hmac : IntegerHandler
+                The hmac as an IntegerHandler
         '''
         opad = "01011100" * (self.b // 8)
         ipad = "00110110" * (self.b // 8)
         opad_handler = IntegerHandler.fromBitString(bit_string=opad, little_endian=False, bit_length=self.b)
         ipad_handler = IntegerHandler.fromBitString(bit_string=ipad, little_endian=False, bit_length=self.b)
-        key_handler = IntegerHandler.fromHexString(hex_string=key, little_endian=False, bit_length=len(key)*4)
 
+        key_handler = IntegerHandler.fromHexString(hex_string=key, little_endian=False, bit_length=len(key.replace(" ",""))*4)
+        message_handler = IntegerHandler.fromString(message, little_endian=False,bit_length=len(message)*8)
+        
         K_0 = self.keyProcessing(key_handler)
 
         K0_xor_opad = bitwiseXor([K_0, opad_handler], little_endian=False, bit_length=self.b)
         K0_xor_ipad = bitwiseXor([K_0, ipad_handler], little_endian=False, bit_length=self.b)
 
-        message_handler = IntegerHandler.fromString(message, little_endian=False,bit_length=len(message)*8)
-        
         K0_ipad_M = concatenate([K0_xor_ipad, message_handler], little_endian=False)
-        hash_value = self.hashHexToHex(K0_ipad_M.getHexString())
-        hash_K0_ipad_M = IntegerHandler.fromHexString(hex_string=hash_value, little_endian=False, bit_length=len(hash_value)*4)
-        K0_opad_hash = concatenate([K0_xor_opad, hash_K0_ipad_M],little_endian=False)
-        final_hash = self.hashHexToHex(K0_opad_hash.getHexString())
-        return IntegerHandler.fromHexString(final_hash)
+        hash_K0_ipad_M = self.hashIntegerHandler(K0_ipad_M)
+
+        K0_opad_hash_K0_ipad_M = concatenate([K0_xor_opad, hash_K0_ipad_M],little_endian=False)
+        final_hash = self.hashIntegerHandler(K0_opad_hash_K0_ipad_M)
+        if is_debug:
+            print(f"Text             : {message_handler.getHexString(add_spacing=8)}")
+            print(f"Key              : {key_handler.getHexString(add_spacing=8)}")
+            print(f"K_0              : {K_0.getHexString(add_spacing=8)}")
+            print(f"K0_xor_opad      : {K0_xor_opad.getHexString(add_spacing=8)}")
+            print(f"K0_xor_ipad      : {K0_xor_ipad.getHexString(add_spacing=8)}")
+            print(f"hash_K0_ipad_M   : {hash_K0_ipad_M.getHexString(add_spacing=8)}")
+            print(f"final_hash       : {final_hash.getHexString(add_spacing=8)}")
+            intermediate_values={
+                "Text": message_handler,
+                "Key": key_handler,
+                "K_0": K_0,
+                "K0_xor_opad":K0_xor_opad,
+                "K0_xor_ipad":K0_xor_ipad,
+                "hash_K0_ipad_M":hash_K0_ipad_M,
+            }
+            return final_hash, intermediate_values
+
+        return final_hash
     
-    def hashHexToHex(self, hex_value:str) -> str:
+    def hashIntegerHandler(self, handler: IntegerHandler) -> IntegerHandler:
         '''
-        This method generates the hex hash for the hex value which has been passed to it
+        This method generates the hash value for the Integer Handler which has been passed to it
 
         Parameters :
-            hex_value : str
-                The hex string to be hashed
+            handler : IntegerHandler
+                The IntegerHandler to be hashed
 
         Returns :
-            hash_result : str
-                The result of the hash as a hex string
+            hash_result : IntegerHandler
+                The result of the hash as a IntegerHandler
         '''
-        hash_result = self.sha3.hashHex(hex_input=hex_value)
+        if issubclass(type(self.sha),SHA3):
+            hash_result = self.sha.hashHex(hex_input=handler.getHexString())
+        else:
+            hash_result = self.sha.hashAHexString(handler.getHexString(), handler.bit_length//8)
+        bit_length = hash_result.bit_length
         hash_result = hash_result.getHexString()
-        return hash_result.upper()
+        return IntegerHandler.fromHexString(hash_result, little_endian=False, bit_length=bit_length)
     
+class HMAC_SHA224(HMAC):
+    def __init__(self):
+        super().__init__(hashing_algorithm=sha224, b=512, l=224)
+class HMAC_SHA256(HMAC):
+    def __init__(self):
+        super().__init__(hashing_algorithm=sha256, b=512, l=256)
+class HMAC_SHA384(HMAC):
+    def __init__(self):
+        super().__init__(hashing_algorithm=sha384, b=1024, l=384)
+class HMAC_SHA512(HMAC):
+    def __init__(self):
+        super().__init__(hashing_algorithm=sha512, b=1024, l=512)
+class HMAC_SHA512_224(HMAC):
+    def __init__(self):
+        super().__init__(hashing_algorithm=sha512_224, b=1024, l=224)
+class HMAC_SHA512_256(HMAC):
+    def __init__(self):
+        super().__init__(hashing_algorithm=sha512_256, b=1024, l=256)
+class HMAC_SHA3_224(HMAC):
+    def __init__(self):
+        super().__init__(hashing_algorithm=sha3_224, b=1152, l=224)
+class HMAC_SHA3_256(HMAC):
+    def __init__(self):
+        super().__init__(hashing_algorithm=sha3_256, b=1088, l=256)
+class HMAC_SHA3_384(HMAC):
+    def __init__(self):
+        super().__init__(hashing_algorithm=sha3_384, b=832, l=384)
+class HMAC_SHA3_512(HMAC):
+    def __init__(self):
+        super().__init__(hashing_algorithm=sha3_512, b=576, l=512)
 
 if __name__ == '__main__':
     message = "Sample message for keylen<blocklen"
@@ -111,5 +163,12 @@ if __name__ == '__main__':
     mac = hmac_mine.HMAC(message,key)
     print(mac.getHexString())
     assert mac.getHexString() == expected_mac.upper().replace(" ","")
-    print(hmac_mine.b)
-    print(hmac_mine.l)
+    text = "5361 6D706C65 206D6573 73616765 20666F72 206B6579 6C656E3D 626C6F63 6B6C656E"
+    key = "00010203 04050607 08090A0B 0C0D0E0F 10111213 14151617 18191A1B 1C1D1E1F 20212223 24252627 28292A2B 2C2D2E2F 30313233 34353637 38393A3B 3C3D3E3F "
+    expected_mac = "C7405E3A E058E8CD 30B08B41 40248581 ED174CB3 4E1224BC C1EFC81B"
+    expected_handler = IntegerHandler.fromHexString(expected_mac,little_endian=False,bit_length=len(expected_mac.replace(" ",""))*4)
+    message = "Sample message for keylen=blocklen"
+    hmac_sha224 = HMAC_SHA224()
+    mac, intermediate_values = hmac_sha224.HMAC(message,key,True)
+    print(mac.getHexString(add_spacing=8))
+    assert mac.getHexString() == expected_handler.getHexString()
