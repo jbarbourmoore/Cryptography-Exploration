@@ -1,5 +1,5 @@
 import unittest
-from CryptographySchemes.SecureHashAlgorithm2 import *
+from CryptographySchemes.HashingAlgorithms.SecureHashAlgorithm2 import *
 
 class TestCase():
     '''

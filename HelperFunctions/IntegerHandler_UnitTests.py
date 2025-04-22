@@ -425,6 +425,7 @@ class IntegerHandler_UnitTests(unittest.TestCase):
             test_value = IntegerHandler.fromBitArray(inputs[i],False,6)
             shift_value = test_value.rotateLeft(input_shift[i])
             self.assertEqual(shift_value.getBitArray(),expected_outputs_bit_count[i])
+    
     def test_right_shift(self):
         '''
         This method tests performing a right shift of the value

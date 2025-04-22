@@ -10,7 +10,7 @@ class ECDSA_UnitTests(unittest.TestCase):
         self.ecdsa = EllipticCurveDigitalSignatureAlgorithm([getCurveP521])
 
         self.message = "Example of ECDSA with P-521"
-        self.sha = SHA3_512()
+        self.sha = sha3_512
         # expected values for signature generation
         self.H = "EF88FB5AC01F35F5CB8A1B008E801146C13983CF8C2CCF1D88AFA8E9FEDE121C11FE829D41B402B32ADFDE20679C3F4D9101A3C4073A2E49039F5D38061CDBCC"
         self.E = "EF88FB5AC01F35F5CB8A1B008E801146C13983CF8C2CCF1D88AFA8E9FEDE121C11FE829D41B402B32ADFDE20679C3F4D9101A3C4073A2E49039F5D38061CDBCC"
@@ -70,7 +70,7 @@ class ECDSA_UnitTests(unittest.TestCase):
         '''
 
         print("Testing SHA3-512 Hashing")
-        actual_hash = self.sha.hashStringToHex(self.message)
+        actual_hash = self.sha.hashString(self.message).getHexString()
         print(f"Actual Hash     : {actual_hash}")
         print(f"Expected Hash   : {self.H}")
         self.assertEqual(self.H,actual_hash)

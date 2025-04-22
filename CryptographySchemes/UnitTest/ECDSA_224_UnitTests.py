@@ -1,7 +1,7 @@
 import unittest
 from CryptographySchemes.EllipticCurveDigitalSignatureAlgorithm import *
 from HelperFunctions.EllipticCurveDetails import getCurveP224
-from CryptographySchemes.HashingAlgorithms.SHA3_modular import sha3_224
+from CryptographySchemes.HashingAlgorithms.SecureHashAlgorithm3 import sha3_224
 
 class ECDSA_UnitTests(unittest.TestCase):
     '''

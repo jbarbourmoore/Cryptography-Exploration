@@ -2,7 +2,7 @@ from CryptographySchemes.AdvancedEncryptionStandard import AES256
 from HelperFunctions import EllipticCurveDetails
 from CryptographySchemes.EllipticCurveDHKeyExchange import EllipticCurveDHKeyExchange, EllipticCurveDHKeyPair
 from GeneratingDiagrams.BasicSequenceDiagramSetup import BasicSequenceDiagramSetup
-from CryptographySchemes.SecureHashAlgorithm3 import SHA3_512
+from CryptographySchemes.HashingAlgorithms.SecureHashAlgorithm3 import *
 from math import ceil
 
 def runEllipticCurveDHKeyExchangeExampleScenario():
@@ -64,20 +64,23 @@ def getAES256KeyFromSharedSecret(curve, shared_secret):
     https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-56Cr2.pdf
     '''
     L = 256
-    sha3 = SHA3_512()
-    H = sha3.hashStringToHex
-    Z = sha3.h2b(curve.compressPointOnEllipticCurve(shared_secret)[2:])
-    fixed_info = "This is fixed information to be used in the generation of a key"
+    sha3 = sha3_512
+    H = sha3.hashBitArray
+    Z = SHA3_ValueHandler.fromHexString(curve.compressPointOnEllipticCurve(shared_secret)[2:])
+    fixed_info = SHA3_ValueHandler.fromString("This is fixed information to be used in the generation of a key")
 
     if L > 0:
         reps = ceil(L/sha3.digest_length)
 
-    result = ""
+    result = SHA3_ValueHandler([0])
     for i in range(0,reps):
-        k = sha3.h2b(H(str(i)+Z+fixed_info))
-        result = result+k
-    derived_key_material = result[:L]
-    return sha3.b2h(derived_key_material)
+        hash_contents = SHA3_ValueHandler.fromHexString(str(i))
+        hash_contents = hash_contents.concatenate(Z)
+        hash_contents = hash_contents.concatenate(fixed_info)
+        k = H(hash_contents.bit_array)
+        result = result.concatenate(k)
+    derived_key_material = SHA3_ValueHandler(result.bit_array[:L])
+    return derived_key_material.getHexString()
 
 def sendMessageWithAES(originator_ecdhkeypair, receiver_ecdhkeypair):
     '''

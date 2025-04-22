@@ -1,5 +1,5 @@
 from HelperFunctions.IntegerHandler import *
-from CryptographySchemes.SecureHashAlgorithm1 import SHA1
+from CryptographySchemes.HashingAlgorithms.SecureHashAlgorithm1 import SHA1
 
 class SHA256(SHA1):
     '''
