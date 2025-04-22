@@ -682,10 +682,110 @@ class SHA3_512(SHA3):
         
         super().__init__(f="SHA3-512", digest_length=512)
 
+class SHAKE_128(SHA3):
+    '''
+    This class instantiates a sha 3 object with a 512 bit digest length
+    '''
+    def __init__(self,f="Shake-128", digest_length:int = 128):
+        '''
+        This method instantiates a sha 3 object with a 512 bit digest length
+        '''
+        
+        super().__init__(f=f, digest_length=digest_length)
+
+    def hashBitArray(self, bit_array:list[int], digest_length:int) -> SHA3_ValueHandler:
+        '''
+        This method takes in a bit array and creates the SHA3 hash for it
+
+        Parameters :
+            bit_array : [int]
+                The array of bit that are to be hashed
+
+        Returns :
+            hash_digest : SHA3_ValueHandler
+                The hash digest as a SHA3_ValueHandler
+        '''
+        input_handler = SHA3_ValueHandler(bit_array=bit_array)
+        input_handler = input_handler.concatenate(SHA3_ValueHandler([1,1,1,1]))
+        return self.sponge(input_handler, digest_length)
+    
+    def hashString(self, string_input:str, digest_length:int) -> SHA3_ValueHandler:
+        '''
+        This method takes in a string and creates the SHA3 hash for it
+
+        Parameters :
+            string_input : str
+                The string that is to be hashed
+
+        Returns :
+            hash_digest : SHA3_ValueHandler
+                The hash digest as a SHA3_ValueHandler
+        '''
+        input_handler = SHA3_ValueHandler.fromString(string=string_input)
+        input_handler = input_handler.concatenate(SHA3_ValueHandler([1,1,1,1]))
+        return self.sponge(input_handler, digest_length)
+    
+    def hashHex(self, hex_input:str, digest_length:int) -> SHA3_ValueHandler:
+        '''
+        This method takes in a hex string and creates the SHA3 hash for it
+
+        Parameters :
+            hex_inpute : str
+                The hex string that is to be hashed
+
+        Returns :
+            hash_digest : SHA3_ValueHandler
+                The hash digest as a SHA3_ValueHandler
+        '''
+        input_handler = SHA3_ValueHandler.fromHexString(hex_string=hex_input)
+        input_handler = input_handler.concatenate(SHA3_ValueHandler([1,1,1,1]))
+        return self.sponge(input_handler, digest_length)
+
+    def sponge(self, input_handler:SHA3_ValueHandler, d:int) -> SHA3_ValueHandler:
+        '''
+        This method should implement sponge as according to Algorithm 8 of https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.202.pdf
+
+        Parameters:
+            input_handler : SHA3_ValueHandler
+                The input currently being processessed as a SHA3_ValueHandler
+        
+        Returns :
+            digest : SHA3_ValueHandler
+                The hash digest as a binary string
+        '''
+        r = self.b - self.capacity
+        padded_input = input_handler.concatenate(self.addPadding(r, input_handler.bit_length))
+        input_chunks:list[SHA3_ValueHandler] = padded_input.splitSegments(r)
+        segment_count = len(input_chunks)
+        S = SHA3_ValueHandler([0] * self.b)
+        for x in range(0,segment_count):
+            value_to_xor = input_chunks[x].concatenate(SHA3_ValueHandler([0]*self.capacity))
+            S = S.bitwiseXor(value_to_xor)
+            S = Keccak.keccak_f(S)
+       
+        Z = SHA3_ValueHandler(S.bit_array[:r])
+        while d > Z.bit_length:
+            S = Keccak.keccak_f(S)
+            Z = Z.concatenate(SHA3_ValueHandler(S.bit_array[:r]))
+        return SHA3_ValueHandler(Z.bit_array[:d])
+    
+class SHAKE_256(SHAKE_128):
+    '''
+    This class instantiates a sha 3 object with a 512 bit digest length
+    '''
+    def __init__(self):
+        '''
+        This method instantiates a sha 3 object with a 512 bit digest length
+        '''
+        
+        super().__init__(f="Shake-128", digest_length=256)
+
 sha3_224 = SHA3_224()
 sha3_256 = SHA3_256()
 sha3_384 = SHA3_384()
 sha3_512 = SHA3_512()
+shake_128 = SHAKE_128()
+shake_256 = SHAKE_256()
     
 if __name__ == '__main__':
 
