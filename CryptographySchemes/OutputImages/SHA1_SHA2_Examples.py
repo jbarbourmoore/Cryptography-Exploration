@@ -106,7 +106,7 @@ class SHA3_UnitTest(unittest.TestCase):
         result = sha512_224.hashAString(input_string)
         expected_value = "4634270F 707B6A54 DAAE7530 460842E2 0E37ED26 5CEEE9A4 3E8924AA".replace(" ","")
         handler_expected = IntegerHandler.fromHexString(expected_value,False,224)
-        print(f"Testing SHA-512-224 With 3 Character Input \"{input_string}\"")
+        print(f"Testing SHA-512/224 With 3 Character Input \"{input_string}\"")
         print(f"Expected Hash : {handler_expected.getHexString()}")
         print(f"Actual Hash   : {result.getHexString()}")
         
@@ -123,7 +123,7 @@ class SHA3_UnitTest(unittest.TestCase):
         result = sha512_256.hashAString(input_string)
         expected_value = "53048E26 81941EF9 9B2E29B7 6B4C7DAB E4C2D0C6 34FC6D46 E0E2F131 07E7AF23".replace(" ","")
         handler_expected = IntegerHandler.fromHexString(expected_value,False,256)
-        print(f"Testing SHA-512-224 With 3 Character Input \"{input_string}\"")
+        print(f"Testing SHA-512/256 With 3 Character Input \"{input_string}\"")
         print(f"Expected Hash : {handler_expected.getHexString()}")
         print(f"Actual Hash   : {result.getHexString()}")
 
