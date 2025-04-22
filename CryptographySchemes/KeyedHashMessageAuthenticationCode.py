@@ -1,5 +1,4 @@
-from SecureHashAlgorithm3 import SHA3, SHA3_512
-import hashlib
+from CryptographySchemes.HashingAlgorithms.SecureHashAlgorithm3 import SHA3, SHA3_512
 
 class HMAC():
     '''
@@ -87,27 +86,9 @@ class HMAC():
             hash_result : str
                 The result of the hash as a hex string
         '''
-        byte_values = bytes.fromhex(hex_value)
-        hash_result = hashlib.sha3_512(byte_values).hexdigest()
-        # hash_result = self.sha3.h2b(self.sha3.hashHexToHex(self.sha3.b2h(self.hexStringToBitString(hex_value))))
-        # hash_result = self.bitStringToHexString(hash_result)
+        hash_result = self.sha3.hashHex(hex_input=hex_value)
+        hash_result = hash_result.getHexString()
         return hash_result.upper()
-
-    def calculateHashOfItem(self, item_to_hash:str) -> str:
-        '''
-        This method calculate the sha3-512 hash digest of the message and returns it as a bit string
-
-        Parameter :
-            item_to_hash : str
-                The item that is being hashed
-
-        Returns :
-            hash_value : str
-                The hash value of the item as a bit string
-        '''
-
-        self.hash = self.sha3.hashStringToHex(item_to_hash)
-        return self.bitStringToHexString(self.hexStringToBitString(self.hash))
     
     def bitwiseXor(self,string_1,string_2):
         '''

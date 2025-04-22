@@ -1,7 +1,7 @@
 import secrets
 from HelperFunctions import EllipticCurveDetails
 from HelperFunctions.EllipticCurveCalculations import EdwardsCurveCalculation
-from CryptographySchemes.SecureHashAlgorithm3 import SHA3_512, SHA3
+from CryptographySchemes.HashingAlgorithms.SecureHashAlgorithm3 import SHA3_512, SHA3
 from HelperFunctions.PrimeNumbers import calculateModuloInverse
 from HelperFunctions.IntegerHandler import *
 import hashlib

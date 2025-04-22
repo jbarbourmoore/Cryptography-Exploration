@@ -557,7 +557,7 @@ class SHA3():
     
     def hashString(self, string_input:str) -> SHA3_ValueHandler:
         '''
-        This method takes in a bit array and creates the SHA3 hash for it
+        This method takes in a string and creates the SHA3 hash for it
 
         Parameters :
             string_input : str
@@ -568,6 +568,22 @@ class SHA3():
                 The hash digest as a SHA3_ValueHandler
         '''
         input_handler = SHA3_ValueHandler.fromString(string=string_input)
+        input_handler = input_handler.concatenate(SHA3_ValueHandler([0,1]))
+        return self.sponge(input_handler)
+    
+    def hashHex(self, hex_input:str) -> SHA3_ValueHandler:
+        '''
+        This method takes in a hex string and creates the SHA3 hash for it
+
+        Parameters :
+            hex_inpute : str
+                The hex string that is to be hashed
+
+        Returns :
+            hash_digest : SHA3_ValueHandler
+                The hash digest as a SHA3_ValueHandler
+        '''
+        input_handler = SHA3_ValueHandler.fromHexString(hex_string=hex_input)
         input_handler = input_handler.concatenate(SHA3_ValueHandler([0,1]))
         return self.sponge(input_handler)
 
