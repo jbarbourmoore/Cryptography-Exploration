@@ -1,7 +1,7 @@
 import secrets
 from HelperFunctions import EllipticCurveDetails
 from HelperFunctions.EllipticCurveCalculations import WeirrstrassCurveCalculations
-from CryptographySchemes.SecureHashAlgorithm3 import SHA3_512, SHA3
+from CryptographySchemes.HashingAlgorithms.SecureHashAlgorithm3 import SHA3,sha3_512
 from HelperFunctions.PrimeNumbers import calculateModuloInverse
 
 class EllipticCurveDigitalSignatureAlgorithm():
@@ -31,7 +31,7 @@ class EllipticCurveDigitalSignatureAlgorithm():
             get_curve_function = get_curve_functions[random_index]
         
         if sha3 == None:
-            self.sha3 = SHA3_512()
+            self.sha3 = sha3_512
         else:
             self.sha3 = sha3
 
@@ -84,7 +84,7 @@ class EllipticCurveDigitalSignatureAlgorithm():
                 The hash value of the item as a bit string
         '''
 
-        self.hash = self.sha3.hashStringToHex(item_to_hash)
+        self.hash = self.sha3.hashString(item_to_hash).getHexString()
         if self.is_debug:
             print(self.hash)
         return self.hexStringToBitString(self.hash)

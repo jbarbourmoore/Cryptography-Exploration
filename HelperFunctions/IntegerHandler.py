@@ -673,3 +673,7 @@ if __name__ == '__main__':
     handled_value = IntegerHandler.fromBitArray([1,0,1,0,0,1,1,0,0,0,1,1,1,0,0,0,0,1,1,1,1,1])
     handled_value = handled_value.truncateLeft(7).getBitArray()
     print(handled_value)
+
+    handled_value = IntegerHandler.fromHexString("A3", True,8)
+    print(handled_value)
+    print(handled_value.getBitString())

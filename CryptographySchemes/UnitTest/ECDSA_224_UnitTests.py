@@ -1,7 +1,7 @@
 import unittest
 from CryptographySchemes.EllipticCurveDigitalSignatureAlgorithm import *
 from HelperFunctions.EllipticCurveDetails import getCurveP224
-from CryptographySchemes.SecureHashAlgorithm3 import SHA3_224
+from CryptographySchemes.HashingAlgorithms.SHA3_modular import sha3_224
 
 class ECDSA_UnitTests(unittest.TestCase):
     '''
@@ -10,7 +10,7 @@ class ECDSA_UnitTests(unittest.TestCase):
 
     def setUp(self):
         print("- - - - - - - - - - - -")
-        self.sha = SHA3_224()
+        self.sha = sha3_224
         self.ecdsa = EllipticCurveDigitalSignatureAlgorithm([getCurveP224],self.sha)
 
         self.message = "Example of ECDSA with P-224"
@@ -178,7 +178,7 @@ class ECDSA_UnitTests(unittest.TestCase):
         '''
 
         print("Testing SHA2-224 Hashing")
-        actual_hash = self.sha.hashStringToHex(self.message)
+        actual_hash = self.sha.hashString(self.message).getHexString()
         print(f"Actual Hash   : {actual_hash}")
         print(f"Expected Hash : {self.H}")
         self.assertEqual(self.H,actual_hash)
