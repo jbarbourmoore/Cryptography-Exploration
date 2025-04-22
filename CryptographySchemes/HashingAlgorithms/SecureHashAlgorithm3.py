@@ -210,6 +210,7 @@ class SHA3():
         for x in range(0, len(A)):
             for z in range(0, w):
                 C[x][z] = A[x][0][z] ^ A[x][1][z] ^ A[x][2][z] ^ A[x][3][z] ^ A[x][4][z]
+        print(C)
 
         # 2. For all pairs (x, z) such that 0≤x<5 and 0≤z<w let 
         # D[x,z]=C[(x-1) mod 5, z] ⊕ C[(x+1) mod 5, (z –1) mod w].
