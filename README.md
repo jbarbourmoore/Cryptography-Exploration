@@ -93,7 +93,7 @@ I implemented versions of the SHA2 hashing algorithms as laid out in NIST FIPS 1
 
 <img 
     style="display: block; margin-left: auto; margin-right: auto; width: 100%; max-height:100%"
-    src="https://github.com/jbarbourmoore/Cryptography-Exploration/blob/8874f359a5e7d13f335a13659e313719045e1f86/CryptographySchemes/OutputImages/SHA1_SHA2_Examples.png" 
+    src="https://github.com/jbarbourmoore/Cryptography-Exploration/blob/c64dd77d1af011e085e4f557b75676b456d3a54d/CryptographySchemes/OutputImages/SHA1_SHA2_Examples.png" 
     alt="This shows example from unit tests for the SHA1 and SHA2 implementations using known values from NIST">
 </img>   
 
