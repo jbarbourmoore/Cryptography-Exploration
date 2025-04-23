@@ -1,4 +1,5 @@
 from CryptographySchemes.SymmetricEncryptionAlgorithms.AdvancedEncryptionStandard import *
+from HelperFunctions.IntegerHandler import *
 class AES_ECB_128(AES128):
     '''
     This class should allow AES 128 to be used in electronic cookbook mode
@@ -310,6 +311,126 @@ class AES_CBC_256(AES_CBC_128):
         '''
 
         super().__init__(key)
+        self.key_length = 256
+        self.number_of_rounds = 14
+        self.number_key_words = 8
+        self.keyExpansion()
+
+class AES_CFB_128(AES_CBC_128):
+    '''
+    This class implements the Cipher Feedback (CFB) Mode for AES 128
+    '''
+
+    def __init__(self, key, s:int):
+        super().__init__(key)
+        self.s = s
+
+    def encryptHexList(self, hex_list:list[str], initialization_vector:str)->list[str]:
+        '''
+        This method encrypts a list of hex strings using AES
+
+        Parameters : 
+            hex_list : [str]
+                The content to be encrypted as a list of hex strings in the appropriate block size
+            initialization_vector : str
+                The initializtion vector as a hex string
+
+        Returns :
+            encrypted_hex_list : [str]
+                The result of the encryption as a list of hex strings
+        '''
+        number_of_message_blocks = len(hex_list)
+        b = self.block_size
+        s = self.s
+        rotations_per_segment = b // s        
+        result_list = []
+        I = initialization_vector
+        for i in range (0, number_of_message_blocks):
+            message_chunk = IntegerHandler.fromHexString(hex_list[i],False,b)
+            encrypted_message = IntegerHandler(0,False,0)
+            for j in range (0, rotations_per_segment):
+                O = self.cypher(I)
+                # result_list.append(O)
+                most_sig_O = IntegerHandler.fromHexString(O,False,b).getMostSignificantBits(s)
+                P = IntegerHandler.fromBitArray(message_chunk.getBitArray()[j*s:j*s+s],False,s)
+                C = bitwiseXor([P,most_sig_O],False,s)
+                encrypted_message = concatenate([encrypted_message,C],False)
+                lsb = IntegerHandler.fromHexString(I,False,128).getLeastSignificantBits(b-s)
+                I = concatenate([lsb,C],False).getHexString()
+            result_list.append(encrypted_message.getHexString())
+        return result_list
+
+    def decryptHexList(self, encrypted_list:list[str], initialization_vector:str) -> list[str]:
+        '''
+        This method takes in a list of encrypted hex strings and decypts them
+
+        Parameters :
+            encrypted_list : [str]
+                The result of the encryption as a list of hexadecimal strings
+            initialization_vector : str
+                The initializtion vector as a hex string
+        
+        Returns : 
+            unencrypted_hex_list : [str]
+                The message that was encrypted using AES
+            
+        '''
+
+        result_list = []
+        b = self.block_size
+        s = self.s
+        rotations_per_segment = b // s    
+        number_of_message_blocks = len(encrypted_list)
+        result_list = []
+        I = initialization_vector
+        for i in range (0, number_of_message_blocks):
+            message_chunk = IntegerHandler(0,False,0)
+            encrypted_chunk = IntegerHandler.fromHexString(encrypted_list[i],False,b)
+            for j in range (0, rotations_per_segment):
+                O = self.cypher(I)
+                most_sig_O = IntegerHandler.fromHexString(O,False,b).getMostSignificantBits(s)
+                C = IntegerHandler.fromBitArray(encrypted_chunk.getBitArray()[j*s:j*s+s],False,s)
+                P = bitwiseXor([C,most_sig_O],False,s)
+                message_chunk = concatenate([message_chunk,P],False)
+                lsb = IntegerHandler.fromHexString(I,False,128).getLeastSignificantBits(b-s)
+                I = concatenate([lsb,C],False).getHexString()
+            result_list.append(message_chunk.getHexString())
+        return result_list
+
+class AES_CFB_192(AES_CFB_128):
+    '''
+    This class is a subclass of AES_CBC_128 with a key length of 192 bits in Cipher Feedback (CFB) Mode
+    '''
+    def __init__(self, key, s:int):
+        '''
+        This method should initialize aes_ecb_192 with a given key
+
+        Parameters : 
+            key : str
+                The 192 bit key for the aes algorithm
+        '''
+
+        super().__init__(key, s)
+        self.key_length = 192
+        self.number_key_words = 6
+        self.number_of_rounds = 12
+        self.keyExpansion()
+
+class AES_CFB_256(AES_CFB_128):
+    '''
+    This class is a subclass of AES_CBC_128 with a key length of 256 bits in Cipher Feedback (CFB) Mode
+    '''
+
+    def __init__(self, key, s:int):
+        '''
+        This method should initialize aes ecb 256 with a given key
+
+        Parameters : 
+            key : str
+                The 256 bit key for the aes algorithm
+        '''
+
+        super().__init__(key, s)
         self.key_length = 256
         self.number_of_rounds = 14
         self.number_key_words = 8

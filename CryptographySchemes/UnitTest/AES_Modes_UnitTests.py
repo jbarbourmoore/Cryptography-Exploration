@@ -1,9 +1,10 @@
 import unittest
 from CryptographySchemes.SymmetricEncryptionAlgorithms.AES_ModesOfOperation import*
+from HelperFunctions.IntegerHandler import *
 
 class AES_UnitTest(unittest.TestCase):
     '''
-    This class contains basic unit tests for aes
+    This class contains basic unit tests for aes modes
     '''
 
     def setUp(self):
@@ -21,6 +22,13 @@ class AES_UnitTest(unittest.TestCase):
         self.aes_cbc_192 = AES_CBC_192(example_aes_192_key)
         self.aes_cbc_256 = AES_CBC_256(example_aes_256_key)
         self.initialization_vector = "000102030405060708090a0b0c0d0e0f"
+
+        self.aes_cfb8_128 = AES_CFB_128(key,8)
+        self.aes_cfb8_192 = AES_CFB_192(example_aes_192_key,8)
+        self.aes_cfb8_256 = AES_CFB_256(example_aes_256_key,8)
+
+        self.aes_cfb1_128 = AES_CFB_128(key,1)
+        self.aes_cfb128_128 = AES_CFB_128(key,128)
 
     def test_aes_ecb_128_1encrypt(self):
         '''
@@ -277,6 +285,222 @@ class AES_UnitTest(unittest.TestCase):
         print(f"Expected Plain Text  : {expected_results}")
         print(f"Decrypted Text       : {result_list}")
 
+    def test_aes_cfb_128_1encrypt(self):
+        '''
+        This method tests that the aes cypher for aes 128 in Cipher Feedback (CFB) Mode
+        Uses test vectors from https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38a.pdf
+        '''
+        hex_to_encrypt   = ["6BC1BEE22E409F96E93D7E117393172A",
+                            "AE2D8A571E03AC9C9EB76FAC45AF8E51",
+                            "30C81C46A35CE411E5FBC1191A0A52EF",
+                            "F69F2445DF4F9B17AD2B417BE66C3710"]
+        expected_results = ['3B79424C9C0DD436BACE9E0ED4586A4F',
+                            '32B9DED50AE3BA69D472E88267FB5052',
+                            '70CBAD1E257691F7C47C5038297EDDA3',
+                            '2FF26D0ED19174096161ECC14086DD62']
+        
+        result_list = self.aes_cfb8_128.encryptHexList(hex_to_encrypt,self.initialization_vector)
+        self.assertListEqual(expected_results, result_list)
+        print("Testing Encryption With AES 128 In Cipher Feedback (CFB) Mode With 8 Bits")
+        print(f"Plain Text           : {hex_to_encrypt}")
+        print(f"Expected Cypher Text : {expected_results}")
+        print(f"Encrypted Text       : {result_list}")
+
+    def test_aes_cfb_128_2decrypt(self):
+        '''
+        This method tests that the aes inverse cypher for aes 128 in Cipher Feedback (CFB) Mode
+        Uses test vectors from https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38a.pdf
+        '''
+        expected_results = ["6BC1BEE22E409F96E93D7E117393172A",
+                            "AE2D8A571E03AC9C9EB76FAC45AF8E51",
+                            "30C81C46A35CE411E5FBC1191A0A52EF",
+                            "F69F2445DF4F9B17AD2B417BE66C3710"]
+        hex_to_decrypt =   ['3B79424C9C0DD436BACE9E0ED4586A4F',
+                            '32B9DED50AE3BA69D472E88267FB5052',
+                            '70CBAD1E257691F7C47C5038297EDDA3',
+                            '2FF26D0ED19174096161ECC14086DD62']
+        
+        result_list = self.aes_cfb8_128.decryptHexList(hex_to_decrypt,self.initialization_vector)
+        self.assertListEqual(expected_results, result_list)
+        print("Testing Decryption With AES 128 In Cipher Feedback (CFB) Mode With 8 Bits")
+        print(f"Cypher Text          : {hex_to_decrypt}")
+        print(f"Expected Plain Text  : {expected_results}")
+        print(f"Decrypted Text       : {result_list}")
+
+    def test_aes_cfb_192_1encrypt(self):
+        '''
+        This method tests that the aes cypher for aes 192 in Cipher Feedback (CFB) Mode
+        Uses test vectors from https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38a.pdf
+        '''
+        hex_to_encrypt   = ["6BC1BEE22E409F96E93D7E117393172A",
+                            "AE2D8A571E03AC9C9EB76FAC45AF8E51",
+                            "30C81C46A35CE411E5FBC1191A0A52EF",
+                            "F69F2445DF4F9B17AD2B417BE66C3710"]
+        expected_results = ['CDA2521EF0A905CA44CD057CBF0D47A0',
+                            '678A7BCFB6AEAA3047B38936021F48BB',
+                            'B63CEFDAC02B2E840904EFCE6F4326BE',
+                            '228683739063DC30E937FFEDD63E3C94']
+        
+        result_list = self.aes_cfb8_192.encryptHexList(hex_to_encrypt, self.initialization_vector)
+        self.assertListEqual(expected_results, result_list)
+        print("Testing Encryption With AES 192 In Cipher Feedback (CFB) Mode With 8 Bits")
+        print(f"Plain Text           : {hex_to_encrypt}")
+        print(f"Expected Cypher Text : {expected_results}")
+        print(f"Encrypted Text       : {result_list}")
+
+    def test_aes_cfb_192_2decrypt(self):
+        '''
+        This method tests that the aes inverse cypher for aes 192 in Cipher Feedback (CFB) Mode
+        Uses test vectors from https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38a.pdf
+        '''
+        expected_results = ["6BC1BEE22E409F96E93D7E117393172A",
+                            "AE2D8A571E03AC9C9EB76FAC45AF8E51",
+                            "30C81C46A35CE411E5FBC1191A0A52EF",
+                            "F69F2445DF4F9B17AD2B417BE66C3710"]
+        hex_to_decrypt =   ['CDA2521EF0A905CA44CD057CBF0D47A0',
+                            '678A7BCFB6AEAA3047B38936021F48BB',
+                            'B63CEFDAC02B2E840904EFCE6F4326BE',
+                            '228683739063DC30E937FFEDD63E3C94']
+        
+        result_list = self.aes_cfb8_192.decryptHexList(hex_to_decrypt,self.initialization_vector)
+        self.assertListEqual(expected_results, result_list)
+        print("Testing Decryption With AES 192 In Cipher Feedback (CFB) Mode With 8 Bits")
+        print(f"Cypher Text          : {hex_to_decrypt}")
+        print(f"Expected Plain Text  : {expected_results}")
+        print(f"Decrypted Text       : {result_list}")
+
+    def test_aes_cfb_256_1encrypt(self):
+        '''
+        This method tests that the aes cypher for aes 256 in Cipher Feedback (CFB) Mode
+        Uses test vectors from https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38a.pdf
+        '''
+        hex_to_encrypt   = ["6BC1BEE22E409F96E93D7E117393172A",
+                            "AE2D8A571E03AC9C9EB76FAC45AF8E51",
+                            "30C81C46A35CE411E5FBC1191A0A52EF",
+                            "F69F2445DF4F9B17AD2B417BE66C3710"]
+        expected_results = ['DC1F1A8520A64DB55FCC8AC554844E88',
+                            '9700ADC6E10C63CF2D8CD2D8CE668F3E',
+                            'B9191719C47444FB43BFF9B9883C2CD0',
+                            '51120402009F974998C89D195722A75B']
+        
+        result_list = self.aes_cfb8_256.encryptHexList(hex_to_encrypt, self.initialization_vector)
+        self.assertListEqual(expected_results, result_list)
+        print("Testing Encryption With AES 256 In Cipher Feedback (CFB) Mode With 8 Bits")
+        print(f"Plain Text           : {hex_to_encrypt}")
+        print(f"Expected Cypher Text : {expected_results}")
+        print(f"Encrypted Text       : {result_list}")
+
+    def test_aes_cfb_256_2decrypt(self):
+        '''
+        This method tests that the aes inverse cypher for aes 256 in Cipher Feedback (CFB) Mode
+        Uses test vectors from https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38a.pdf
+        '''
+        expected_results = ["6BC1BEE22E409F96E93D7E117393172A",
+                            "AE2D8A571E03AC9C9EB76FAC45AF8E51",
+                            "30C81C46A35CE411E5FBC1191A0A52EF",
+                            "F69F2445DF4F9B17AD2B417BE66C3710"]
+        hex_to_decrypt =   ['DC1F1A8520A64DB55FCC8AC554844E88',
+                            '9700ADC6E10C63CF2D8CD2D8CE668F3E',
+                            'B9191719C47444FB43BFF9B9883C2CD0',
+                            '51120402009F974998C89D195722A75B']
+        
+        result_list = self.aes_cfb8_256.decryptHexList(hex_to_decrypt,self.initialization_vector)
+        self.assertListEqual(expected_results, result_list)
+        print("Testing Decryption With AES 256 In Cipher Feedback (CFB) Mode With 8 Bits")
+        print(f"Cypher Text          : {hex_to_decrypt}")
+        print(f"Expected Plain Text  : {expected_results}")
+        print(f"Decrypted Text       : {result_list}")
+
+    def test_aes_cfb1_128_1encrypt(self):
+        '''
+        This method tests that the aes cypher for aes 128 in Cipher Feedback (CFB) Mode
+        Uses test vectors from https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38a.pdf
+        '''
+        hex_to_encrypt   = ["6BC1BEE22E409F96E93D7E117393172A",
+                            "AE2D8A571E03AC9C9EB76FAC45AF8E51",
+                            "30C81C46A35CE411E5FBC1191A0A52EF",
+                            "F69F2445DF4F9B17AD2B417BE66C3710"]
+        expected_results = ['68B3A264F838F5F8C3101070D1AB4C2E',
+                            '22E7F950383A0B71ADE4FAD0095CB188',
+                            'A57972C3C1882615F7511411FBEBF119',
+                            '3997069704FC1D1F27028434C99E60F4']
+        expected_bits =[0,1,1,0,1,0,0,0,1,0,1,1,0,0,1,1]
+        expected_bits_handler = IntegerHandler.fromBitArray(expected_bits,False,16)
+
+        result_list = self.aes_cfb1_128.encryptHexList(hex_to_encrypt,self.initialization_vector)
+        result_bits_handler = IntegerHandler.fromHexString(result_list[0][:4],False,16)
+
+        self.assertListEqual(expected_results, result_list)
+        self.assertEqual(expected_bits_handler.getBitString(),result_bits_handler.getBitString())
+
+        print("Testing Encryption With AES 128 In Cipher Feedback (CFB) Mode With 1 Bit")
+        print(f"Plain Text           : {hex_to_encrypt}")
+        print(f"Expected Cypher Text : {expected_results}")
+        print(f"Encrypted Text       : {result_list}")
+
+    def test_aes_cfb1_128_2decrypt(self):
+        '''
+        This method tests that the aes inverse cypher for aes 128 in Cipher Feedback (CFB) Mode
+        Uses test vectors from https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38a.pdf
+        '''
+        expected_results = ["6BC1BEE22E409F96E93D7E117393172A",
+                            "AE2D8A571E03AC9C9EB76FAC45AF8E51",
+                            "30C81C46A35CE411E5FBC1191A0A52EF",
+                            "F69F2445DF4F9B17AD2B417BE66C3710"]
+        hex_to_decrypt =   ['68B3A264F838F5F8C3101070D1AB4C2E',
+                            '22E7F950383A0B71ADE4FAD0095CB188',
+                            'A57972C3C1882615F7511411FBEBF119',
+                            '3997069704FC1D1F27028434C99E60F4']
+        
+        result_list = self.aes_cfb1_128.decryptHexList(hex_to_decrypt,self.initialization_vector)
+        self.assertListEqual(expected_results, result_list)
+        print("Testing Decryption With AES 128 In Cipher Feedback (CFB) Mode With 1 Bit")
+        print(f"Cypher Text          : {hex_to_decrypt}")
+        print(f"Expected Plain Text  : {expected_results}")
+        print(f"Decrypted Text       : {result_list}")
+
+    def test_aes_cfb128_128_1encrypt(self):
+        '''
+        This method tests that the aes cypher for aes 128 in Cipher Feedback (CFB) Mode
+        Uses test vectors from https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38a.pdf
+        '''
+        hex_to_encrypt   = ["6BC1BEE22E409F96E93D7E117393172A",
+                            "AE2D8A571E03AC9C9EB76FAC45AF8E51",
+                            "30C81C46A35CE411E5FBC1191A0A52EF",
+                            "F69F2445DF4F9B17AD2B417BE66C3710"]
+        expected_results = ['3B3FD92EB72DAD20333449F8E83CFB4A',
+                            'C8A64537A0B3A93FCDE3CDAD9F1CE58B',
+                            '26751F67A3CBB140B1808CF187A4F4DF',
+                            'C04B05357C5D1C0EEAC4C66F9FF7F2E6']
+        
+        result_list = self.aes_cfb128_128.encryptHexList(hex_to_encrypt,self.initialization_vector)
+        self.assertListEqual(expected_results, result_list)
+
+        print("Testing Encryption With AES 128 In Cipher Feedback (CFB) Mode With 128 Bits")
+        print(f"Plain Text           : {hex_to_encrypt}")
+        print(f"Expected Cypher Text : {expected_results}")
+        print(f"Encrypted Text       : {result_list}")
+
+    def test_aes_cfb1_128_2decrypt(self):
+        '''
+        This method tests that the aes inverse cypher for aes 128 in Cipher Feedback (CFB) Mode
+        Uses test vectors from https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38a.pdf
+        '''
+        expected_results = ["6BC1BEE22E409F96E93D7E117393172A",
+                            "AE2D8A571E03AC9C9EB76FAC45AF8E51",
+                            "30C81C46A35CE411E5FBC1191A0A52EF",
+                            "F69F2445DF4F9B17AD2B417BE66C3710"]
+        hex_to_decrypt =   ['3B3FD92EB72DAD20333449F8E83CFB4A',
+                            'C8A64537A0B3A93FCDE3CDAD9F1CE58B',
+                            '26751F67A3CBB140B1808CF187A4F4DF',
+                            'C04B05357C5D1C0EEAC4C66F9FF7F2E6']
+        
+        result_list = self.aes_cfb128_128.decryptHexList(hex_to_decrypt,self.initialization_vector)
+        self.assertListEqual(expected_results, result_list)
+        print("Testing Decryption With AES 128 In Cipher Feedback (CFB) Mode With 128 Bits")
+        print(f"Cypher Text          : {hex_to_decrypt}")
+        print(f"Expected Plain Text  : {expected_results}")
+        print(f"Decrypted Text       : {result_list}")
 
 if __name__ == '__main__':
     unittest.main()

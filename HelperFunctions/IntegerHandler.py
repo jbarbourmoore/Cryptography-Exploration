@@ -238,6 +238,19 @@ class IntegerHandler():
 
         return counter
     
+    def getMostSignificantBits(self,number_of_bits):
+        if self.is_little_endian:
+            bit_array = self.getBitArray()[self.getBitLength()-number_of_bits:self.getBitLength()]
+        else:
+            bit_array = self.getBitArray()[0:number_of_bits]
+        return IntegerHandler.fromBitArray(bit_array,self.is_little_endian,number_of_bits)
+        
+    def getLeastSignificantBits(self,number_of_bits):
+        if self.is_little_endian:
+            bit_array = self.getBitArray()[0:number_of_bits]
+        else:
+            bit_array = self.getBitArray()[self.getBitLength()-number_of_bits:self.getBitLength()]
+        return IntegerHandler.fromBitArray(bit_array,self.is_little_endian,number_of_bits)
 
     def bitwiseNot(self):
         '''
