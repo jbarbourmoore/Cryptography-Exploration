@@ -1,4 +1,4 @@
-from CryptographySchemes.AdvancedEncryptionStandard import AES256
+from CryptographySchemes.SymmetricEncryptionAlgorithms.AdvancedEncryptionStandard import AES256
 from HelperFunctions import EllipticCurveDetails
 from CryptographySchemes.EllipticCurveDHKeyExchange import EllipticCurveDHKeyExchange, EllipticCurveDHKeyPair
 from GeneratingDiagrams.BasicSequenceDiagramSetup import BasicSequenceDiagramSetup

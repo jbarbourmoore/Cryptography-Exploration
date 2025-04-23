@@ -1,5 +1,5 @@
 import unittest
-from CryptographySchemes.AdvancedEncryptionStandard import *
+from CryptographySchemes.SymmetricEncryptionAlgorithms.AdvancedEncryptionStandard import *
 
 class AES_UnitTest(unittest.TestCase):
     '''
