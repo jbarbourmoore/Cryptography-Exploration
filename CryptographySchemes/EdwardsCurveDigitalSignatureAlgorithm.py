@@ -1,10 +1,8 @@
 import secrets
 from HelperFunctions import EllipticCurveDetails
-from HelperFunctions.EllipticCurveCalculations import EdwardsCurveCalculation
-from CryptographySchemes.HashingAlgorithms.SecureHashAlgorithm3 import SHA3_512, SHA3
-from HelperFunctions.PrimeNumbers import calculateModuloInverse
+from CryptographySchemes.HashingAlgorithms.SecureHashAlgorithm2 import sha512
+from CryptographySchemes.HashingAlgorithms.SecureHashAlgorithm3 import shake_256
 from HelperFunctions.IntegerHandler import *
-import hashlib
 
 class EdwardsCurveDigitalSignatureAlgorithm():
     '''
@@ -28,7 +26,7 @@ class EdwardsCurveDigitalSignatureAlgorithm():
             self.b = 256
             self.number_of_octets = self.b//8
             self.requested_security_strength = 128
-            self.H = hashlib.sha512 
+            self.H = sha512
             self.is_25519 = True
             self.is_448 = False
         else:
@@ -36,7 +34,7 @@ class EdwardsCurveDigitalSignatureAlgorithm():
             self.b = 456
             self.number_of_octets = self.b//8
             self.requested_security_strength = 224
-            self.H = hashlib.shake_256
+            self.H = shake_256.hashHex
             self.is_25519 = False
             self.is_448 = True
             self.context = context
@@ -95,9 +93,9 @@ class EdwardsCurveDigitalSignatureAlgorithm():
 
     def getHashDigest(self):
         if self.is_25519:
-            self.H_d = IntegerHandler.fromHexString(self.H(self.private.getBytes()).hexdigest(),little_endian=True,bit_length=self.b*2)
+            self.H_d = IntegerHandler.fromHexString(self.H.hashAHexString(self.private.getHexString(),self.private.bit_length//8).getHexString(),little_endian=True,bit_length=self.b*2)
         else:
-            self.H_d = IntegerHandler.fromHexString(self.H(self.private.getBytes()).hexdigest(self.b*2),little_endian=True,bit_length=self.b*2)
+            self.H_d = IntegerHandler.fromHexString(self.H(self.private.getHexString(),self.b*2).getHexString(),little_endian=True,bit_length=self.b*2)
 
         if self.is_25519:
             self.hdigest1 = [self.H_d.getBitArray()[i] for i in range(0,self.b)]
@@ -112,11 +110,11 @@ class EdwardsCurveDigitalSignatureAlgorithm():
             self.hdigest1[0] = 0
             self.hdigest1[1] = 0
             self.hdigest1[self.b - 9] = 1
-            for i in range(self.b-8,self.b):
-                self.hdigest1[self.b - i] = 0
+            for i in range(self.b - 8, self.b):
+                self.hdigest1[i] = 0
         self.hdigest1 = IntegerHandler.fromBitArray(self.hdigest1,little_endian=True,bit_length= self.b)
 
-    def encodePoint(self, point:tuple[int,int]) -> list[int]:
+    def encodePoint(self, point:tuple[int,int]) -> IntegerHandler:
         '''
         This method encodes a point (x, y) as a list of octets as ints
 
@@ -125,8 +123,8 @@ class EdwardsCurveDigitalSignatureAlgorithm():
                 The point to encode
 
         Returns :
-            encoded_point : [int]
-                The encoded point as a list of octets as ints
+            encoded_point : IntegerHandler
+                The encoded point as a IntegerHandler
         '''
         
         x_handler = IntegerHandler(point[0] % self.curve.p,little_endian=True,bit_length=self.b)
@@ -166,7 +164,8 @@ class EdwardsCurveDigitalSignatureAlgorithm():
                 The hash value of the item as an intger handler
         '''
         if self.is_25519:
-            self.hash = IntegerHandler.fromHexString(self.H(item_to_hash.getBytes()).hexdigest(),little_endian=True, bit_length=self.b*2)
+            hash_hex = self.H.hashAHexString(item_to_hash.getHexString(), item_to_hash.getBitLength()//8).getHexString()
+            self.hash = IntegerHandler.fromHexString(hash_hex,little_endian=True, bit_length=self.b*2)
         else:
             self.hash = IntegerHandler.fromHexString(self.H(item_to_hash.getBytes()).hexdigest(114),little_endian=True, bit_length=self.b*2)
         if self.is_debug:
@@ -268,7 +267,7 @@ class EdwardsCurveDigitalSignatureAlgorithm():
         point =  self.curve.calculatedPointMultiplicationByConstant_doubleAndAddMethod(self.curve.getGeneratorPoint(),multiplier)
         return point
     
-    def createSignature(self, message_bit_string:str , d:int = None, is_debug:bool = False) -> tuple[str,str]:
+    def createSignature(self, message_bit_string:str , d:int = None, is_debug:bool = False) -> IntegerHandler:
         '''
         This method creates the signature (r,s) for a message
 
@@ -302,8 +301,8 @@ class EdwardsCurveDigitalSignatureAlgorithm():
 
         self.hdigest2 = IntegerHandler.fromBitArray([H_d.getBitArray()[i] for i in range(self.b,self.b*2)], little_endian=True, bit_length=self.b)
         if self.is_448:
-            bytesToHash = self.calculateHexWithContext(message_handler) 
-            message_hash = IntegerHandler.fromHexString(self.H(bytesToHash).hexdigest(self.b*2),little_endian=True,bit_length=self.b*2)
+            message_with_context = self.concatenateMessageWithContext(message_handler) 
+            message_hash = IntegerHandler.fromHexString(self.H(message_with_context.getHexString(),self.b*2).getHexString(),little_endian=True,bit_length=self.b*2)
         elif self.is_25519:
             hashable_handler = concatenate([self.hdigest2,message_handler], little_endian=True)
             message_hash = self.calculateHashOfIntegerHandler(hashable_handler)
@@ -317,8 +316,8 @@ class EdwardsCurveDigitalSignatureAlgorithm():
         Q =  self.Q
         rqm = concatenate([R,Q,message_handler], True)
         if self.is_448:
-            bytesToHash = self.calculateHexWithContext(rqm) 
-            H_RQM = IntegerHandler.fromHexString(self.H(bytesToHash).hexdigest(2*self.b),little_endian=True,bit_length=self.b*2)
+            message_with_context = self.concatenateRQMWithContext(rqm) 
+            H_RQM = IntegerHandler.fromHexString(self.H(message_with_context.getHexString(),self.b*2).getHexString(),little_endian=True,bit_length=self.b*2)
         
         elif self.is_25519:
             H_RQM = self.calculateHashOfIntegerHandler(rqm)
@@ -332,17 +331,31 @@ class EdwardsCurveDigitalSignatureAlgorithm():
             print(f"S is {S.getHexString(add_spacing=8)} length is {S.bit_length}")
         return signature
 
-    def calculateHexWithContext(self, message_handler):
-        siged = "SigEd448".encode("ascii")
-        f = IntegerHandler(0,True,8).getBytes()
+    def concatenateMessageWithContext(self, message_handler:IntegerHandler)-> IntegerHandler:
+        siged = IntegerHandler.fromString("SigEd448",True,64)
+        f = IntegerHandler(0,True,8)
         if self.context!=None:
-            context_length = IntegerHandler(self.context.bit_length//8,True,8).getBytes()
-            context = self.context.getBytes()
-            dom4 = siged + f + context_length + context
+            context_length = IntegerHandler(self.context.bit_length//8,True,8)
+            context = self.context
+            dom4 = concatenate([siged,f,context_length ,context],little_endian=True)
         else:
-            dom4 = siged + f
-        bytesToHash = dom4 + self.hdigest2.getBytes() + message_handler.getBytes()
-        return bytesToHash
+            context_length = IntegerHandler(0,True,8)
+            dom4 = concatenate([siged,f,context_length], little_endian=True)
+        concat_handler =concatenate( [dom4, self.hdigest2, message_handler],little_endian=True)
+        return concat_handler
+    
+    def concatenateRQMWithContext(self, rqm_handler:IntegerHandler)-> IntegerHandler:
+        siged = IntegerHandler.fromString("SigEd448",True,64)
+        f = IntegerHandler(0,True,8)
+        if self.context!=None:
+            context_length = IntegerHandler(self.context.bit_length//8,True,8)
+            context = self.context
+            dom4 = concatenate([siged,f,context_length ,context],little_endian=True)
+        else:
+            context_length = IntegerHandler(0,True,8)
+            dom4 = concatenate([siged,f,context_length], little_endian=True)
+        concat_handler =concatenate( [dom4, rqm_handler],little_endian=True)
+        return concat_handler
     
     def verifySignature(self, message_bit_string:str, signature:str, Q:str, is_debug:bool = False):
         '''
@@ -386,8 +399,8 @@ class EdwardsCurveDigitalSignatureAlgorithm():
         rqm = concatenate([R,Q,message_handler],True)
 
         if self.is_448:
-            bytesToHash = self.calculateHexWithContext(rqm) 
-            digest = IntegerHandler.fromHexString(self.H(bytesToHash).hexdigest(2*self.b),little_endian=True,bit_length=self.b*2)
+            message_with_context = self.concatenateRQMWithContext(rqm) 
+            digest = IntegerHandler.fromHexString(self.H(message_with_context.getHexString(),self.b*2).getHexString(),little_endian=True,bit_length=self.b*2)
         
         elif self.is_25519:
             digest = self.calculateHashOfIntegerHandler(rqm)

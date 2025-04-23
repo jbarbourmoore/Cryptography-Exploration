@@ -187,7 +187,7 @@ class IntegerHandler():
         '''
         return self.value % 2
     
-    def setMostSignificantBit(self, new_bit:int) -> int:
+    def setMostSignificantBit(self, new_bit:int):
         '''
         This method sets the most significant bit and returns the previous value
 
@@ -198,6 +198,8 @@ class IntegerHandler():
         Returns :
             old_bit : int
                 The value of the most significant bit before it was set
+            new_value: IntegerHandler
+                The updated handler
         '''
 
         if self.bit_length == None:
