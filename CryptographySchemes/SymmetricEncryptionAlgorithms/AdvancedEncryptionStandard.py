@@ -643,7 +643,7 @@ class AES():
 
     def stringToHex(self, string):
         '''
-        This method converts a string message a 64 bit binary string
+        This method converts a string message a 64 bit hex string
 
         Parameters :
             string : str
@@ -651,7 +651,7 @@ class AES():
 
         Returns : 
             binary : str
-                The message as a 64 bit binary string
+                The message as a 64 bit hex string
         '''
         string_utf8 = string.encode('utf-8')
         hex_string = string_utf8.hex()
