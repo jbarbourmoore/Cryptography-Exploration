@@ -17,6 +17,11 @@ class AES_UnitTest(unittest.TestCase):
         self.aes_ecb_192 = AES_ECB_192(example_aes_192_key)
         self.aes_ecb_128 = AES_ECB_128(key)
 
+        self.aes_cbc_128 = AES_CBC_128(key)
+        self.aes_cbc_192 = AES_CBC_192(example_aes_192_key)
+        self.aes_cbc_256 = AES_CBC_256(example_aes_256_key)
+        self.initialization_vector = "000102030405060708090a0b0c0d0e0f"
+
     def test_aes_ecb_128_1encrypt(self):
         '''
         This method tests that the aes cypher for aes 128 in  Electronic Codebook (ECB) mode 
@@ -145,6 +150,133 @@ class AES_UnitTest(unittest.TestCase):
         print(f"Cypher Text          : {hex_to_decrypt}")
         print(f"Expected Plain Text  : {expected_results}")
         print(f"Decrypted Text       : {result_list}")
+
+    def test_aes_cbc_128_1encrypt(self):
+        '''
+        This method tests that the aes cypher for aes 128 in Cipher Block Chaining (CBC) Mode
+        Uses test vectors from https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38a.pdf
+        '''
+        hex_to_encrypt   = ["6BC1BEE22E409F96E93D7E117393172A",
+                            "AE2D8A571E03AC9C9EB76FAC45AF8E51",
+                            "30C81C46A35CE411E5FBC1191A0A52EF",
+                            "F69F2445DF4F9B17AD2B417BE66C3710"]
+        expected_results = ['7649ABAC8119B246CEE98E9B12E9197D', 
+                            '5086CB9B507219EE95DB113A917678B2', 
+                            '73BED6B8E3C1743B7116E69E22229516', 
+                            '3FF1CAA1681FAC09120ECA307586E1A7']
+        for i in range(0, 4):
+            expected_results[i] = expected_results[i].upper()
+        result_list = self.aes_cbc_128.encryptHexList(hex_to_encrypt,self.initialization_vector)
+        self.assertListEqual(expected_results, result_list)
+        print("Testing Encryption With AES 128 In Cipher Block Chaining (CBC) Mode")
+        print(f"Plain Text           : {hex_to_encrypt}")
+        print(f"Expected Cypher Text : {expected_results}")
+        print(f"Encrypted Text       : {result_list}")
+
+    def test_aes_cbc_128_2decrypt(self):
+        '''
+        This method tests that the aes inverse cypher for aes 128 in Cipher Block Chaining (CBC) Mode
+        Uses test vectors from https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38a.pdf
+        '''
+
+        expected_results = ["6BC1BEE22E409F96E93D7E117393172A",
+                            "AE2D8A571E03AC9C9EB76FAC45AF8E51",
+                            "30C81C46A35CE411E5FBC1191A0A52EF",
+                            "F69F2445DF4F9B17AD2B417BE66C3710"]
+        hex_to_decrypt   = ['7649ABAC8119B246CEE98E9B12E9197D', 
+                            '5086CB9B507219EE95DB113A917678B2', 
+                            '73BED6B8E3C1743B7116E69E22229516', 
+                            '3FF1CAA1681FAC09120ECA307586E1A7']
+        result_list = self.aes_cbc_128.decryptHexList(hex_to_decrypt, self.initialization_vector)
+        self.assertListEqual(expected_results, result_list)
+        print("Testing Decryption With AES 128 Cipher Block Chaining (CBC) Mode")
+        print(f"Cypher Text          : {hex_to_decrypt}")
+        print(f"Expected Plain Text  : {expected_results}")
+        print(f"Decrypted Text       : {result_list}")
+
+    def test_aes_cbc_192_1encrypt(self):
+        '''
+        This method tests that the aes cypher for aes 192 in Cipher Block Chaining (CBC) Mode
+        Uses test vectors from https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38a.pdf
+        '''
+
+        hex_to_encrypt   = ["6BC1BEE22E409F96E93D7E117393172A",
+                            "AE2D8A571E03AC9C9EB76FAC45AF8E51",
+                            "30C81C46A35CE411E5FBC1191A0A52EF",
+                            "F69F2445DF4F9B17AD2B417BE66C3710"]
+        expected_results = ['4F021DB243BC633D7178183A9FA071E8',
+                            'B4D9ADA9AD7DEDF4E5E738763F69145A',
+                            '571B242012FB7AE07FA9BAAC3DF102E0',
+                            '08B0E27988598881D920A9E64F5615CD']
+        result_list = self.aes_cbc_192.encryptHexList(hex_to_encrypt,self.initialization_vector)
+        self.assertListEqual(expected_results, result_list)
+        print("Testing Encryption With AES 192 In Cipher Block Chaining (CBC) Mode")
+        print(f"Plain Text           : {hex_to_encrypt}")
+        print(f"Expected Cypher Text : {expected_results}")
+        print(f"Encrypted Text       : {result_list}")
+
+    def test_aes_cbc_192_2decrypt(self):
+        '''
+        This method tests that the aes inverse cypher for aes 192 in Cipher Block Chaining (CBC) Mode 
+        Uses test vectors from https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38a.pdf
+        '''
+
+        expected_results = ["6BC1BEE22E409F96E93D7E117393172A",
+                            "AE2D8A571E03AC9C9EB76FAC45AF8E51",
+                            "30C81C46A35CE411E5FBC1191A0A52EF",
+                            "F69F2445DF4F9B17AD2B417BE66C3710"]
+        hex_to_decrypt   = ['4F021DB243BC633D7178183A9FA071E8',
+                            'B4D9ADA9AD7DEDF4E5E738763F69145A',
+                            '571B242012FB7AE07FA9BAAC3DF102E0',
+                            '08B0E27988598881D920A9E64F5615CD']
+        result_list = self.aes_cbc_192.decryptHexList(hex_to_decrypt, self.initialization_vector)
+        self.assertListEqual(expected_results, result_list)
+        print("Testing Decryption With AES 192 Cipher Block Chaining (CBC) Mode")
+        print(f"Cypher Text          : {hex_to_decrypt}")
+        print(f"Expected Plain Text  : {expected_results}")
+        print(f"Decrypted Text       : {result_list}")
+
+    def test_aes_cbc_256_1encrypt(self):
+        '''
+        This method tests that the aes cypher for aes 256 in Cipher Block Chaining (CBC) Mode
+        Uses test vectors from https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38a.pdf
+        '''
+        hex_to_encrypt   = ["6BC1BEE22E409F96E93D7E117393172A",
+                            "AE2D8A571E03AC9C9EB76FAC45AF8E51",
+                            "30C81C46A35CE411E5FBC1191A0A52EF",
+                            "F69F2445DF4F9B17AD2B417BE66C3710"]
+        expected_results = ['F58C4C04D6E5F1BA779EABFB5F7BFBD6',
+                            '9CFC4E967EDB808D679F777BC6702C7D',
+                            '39F23369A9D9BACFA530E26304231461',
+                            'B2EB05E2C39BE9FCDA6C19078C6A9D1B']
+        result_list = self.aes_cbc_256.encryptHexList(hex_to_encrypt,self.initialization_vector)
+        self.assertListEqual(expected_results, result_list)
+        print("Testing Encryption With AES 256 In Cipher Block Chaining (CBC) Mode")
+        print(f"Plain Text           : {hex_to_encrypt}")
+        print(f"Expected Cypher Text : {expected_results}")
+        print(f"Encrypted Text       : {result_list}")
+
+    def test_aes_cbc_256_2decrypt(self):
+        '''
+        This method tests that the aes inverse cypher for aes 256 in Cipher Block Chaining (CBC) Mode
+        according to https://csrc.nist.gov/CSRC/media/Projects/Cryptographic-Standards-and-Guidelines/documents/examples/AES_Core128.pdf
+        '''
+
+        expected_results = ["6BC1BEE22E409F96E93D7E117393172A",
+                            "AE2D8A571E03AC9C9EB76FAC45AF8E51",
+                            "30C81C46A35CE411E5FBC1191A0A52EF",
+                            "F69F2445DF4F9B17AD2B417BE66C3710"]
+        hex_to_decrypt   = ['F58C4C04D6E5F1BA779EABFB5F7BFBD6',
+                            '9CFC4E967EDB808D679F777BC6702C7D',
+                            '39F23369A9D9BACFA530E26304231461',
+                            'B2EB05E2C39BE9FCDA6C19078C6A9D1B']
+        result_list = self.aes_cbc_256.decryptHexList(hex_to_decrypt, self.initialization_vector)
+        self.assertListEqual(expected_results, result_list)
+        print("Testing Decryption With AES 256 Cipher Block Chaining (CBC) Mode")
+        print(f"Cypher Text          : {hex_to_decrypt}")
+        print(f"Expected Plain Text  : {expected_results}")
+        print(f"Decrypted Text       : {result_list}")
+
 
 if __name__ == '__main__':
     unittest.main()
