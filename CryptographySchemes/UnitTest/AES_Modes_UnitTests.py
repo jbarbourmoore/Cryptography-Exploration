@@ -30,6 +30,15 @@ class AES_UnitTest(unittest.TestCase):
         self.aes_cfb1_128 = AES_CFB_128(key,1)
         self.aes_cfb128_128 = AES_CFB_128(key,128)
 
+        self.aes_ofb_128 = AES_OFB_128(key)
+        self.aes_ofb_192 = AES_OFB_192(example_aes_192_key)
+        self.aes_ofb_256 = AES_OFB_256(example_aes_256_key)
+
+        self.initialization_counter = "f0f1f2f3f4f5f6f7f8f9fafbfcfdfeff"
+        self.aes_ctr_128 = AES_CTR_128(key)
+        self.aes_ctr_192 = AES_CTR_192(example_aes_192_key)
+        self.aes_ctr_256 = AES_CTR_256(example_aes_256_key)
+
     def test_aes_ecb_128_1encrypt(self):
         '''
         This method tests that the aes cypher for aes 128 in  Electronic Codebook (ECB) mode 
@@ -481,7 +490,7 @@ class AES_UnitTest(unittest.TestCase):
         print(f"Expected Cypher Text : {expected_results}")
         print(f"Encrypted Text       : {result_list}")
 
-    def test_aes_cfb1_128_2decrypt(self):
+    def test_aes_cfb128_128_2decrypt(self):
         '''
         This method tests that the aes inverse cypher for aes 128 in Cipher Feedback (CFB) Mode
         Uses test vectors from https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38a.pdf
@@ -502,5 +511,267 @@ class AES_UnitTest(unittest.TestCase):
         print(f"Expected Plain Text  : {expected_results}")
         print(f"Decrypted Text       : {result_list}")
 
+    def test_aes_ofb_128_1encrypt(self):
+        '''
+        This method tests that the aes cypher for aes 128 in Output Feedback (OFB) Mode
+        Uses test vectors from https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38a.pdf
+        '''
+        hex_to_encrypt   = ["6BC1BEE22E409F96E93D7E117393172A",
+                            "AE2D8A571E03AC9C9EB76FAC45AF8E51",
+                            "30C81C46A35CE411E5FBC1191A0A52EF",
+                            "F69F2445DF4F9B17AD2B417BE66C3710"]
+        expected_results = ['3B3FD92EB72DAD20333449F8E83CFB4A',
+                            '7789508D16918F03F53C52DAC54ED825',
+                            '9740051E9C5FECF64344F7A82260EDCC',
+                            '304C6528F659C77866A510D9C1D6AE5E']
+        
+        result_list = self.aes_ofb_128.encryptHexList(hex_to_encrypt,self.initialization_vector)
+        self.assertListEqual(expected_results, result_list)
+
+        print("Testing Encryption With AES 128 In Output Feedback (OFB) Mode")
+        print(f"Plain Text           : {hex_to_encrypt}")
+        print(f"Expected Cypher Text : {expected_results}")
+        print(f"Encrypted Text       : {result_list}")
+
+    def test_aes_ofb_128_2decrypt(self):
+        '''
+        This method tests that the aes inverse cypher for aes 128 in Output Feedback (OFB) Mode
+        Uses test vectors from https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38a.pdf
+        '''
+        expected_results = ["6BC1BEE22E409F96E93D7E117393172A",
+                            "AE2D8A571E03AC9C9EB76FAC45AF8E51",
+                            "30C81C46A35CE411E5FBC1191A0A52EF",
+                            "F69F2445DF4F9B17AD2B417BE66C3710"]
+        hex_to_decrypt =   ['3B3FD92EB72DAD20333449F8E83CFB4A',
+                            '7789508D16918F03F53C52DAC54ED825',
+                            '9740051E9C5FECF64344F7A82260EDCC',
+                            '304C6528F659C77866A510D9C1D6AE5E']
+        
+        result_list = self.aes_ofb_128.decryptHexList(hex_to_decrypt,self.initialization_vector)
+        self.assertListEqual(expected_results, result_list)
+        print("Testing Decryption With AES 128 In Output Feedback (OFB) Mode")
+        print(f"Cypher Text          : {hex_to_decrypt}")
+        print(f"Expected Plain Text  : {expected_results}")
+        print(f"Decrypted Text       : {result_list}")
+
+    def test_aes_ofb_192_1encrypt(self):
+        '''
+        This method tests that the aes cypher for aes 192 in Output Feedback (OFB) Mode
+        Uses test vectors from https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38a.pdf
+        '''
+        hex_to_encrypt   = ["6BC1BEE22E409F96E93D7E117393172A",
+                            "AE2D8A571E03AC9C9EB76FAC45AF8E51",
+                            "30C81C46A35CE411E5FBC1191A0A52EF",
+                            "F69F2445DF4F9B17AD2B417BE66C3710"]
+        expected_results = ['CDC80D6FDDF18CAB34C25909C99A4174',
+                            'FCC28B8D4C63837C09E81700C1100401',
+                            '8D9A9AEAC0F6596F559C6D4DAF59A5F2',
+                            '6D9F200857CA6C3E9CAC524BD9ACC92A']
+        
+        result_list = self.aes_ofb_192.encryptHexList(hex_to_encrypt,self.initialization_vector)
+        self.assertListEqual(expected_results, result_list)
+
+        print("Testing Encryption With AES 192 In Output Feedback (OFB) Mode")
+        print(f"Plain Text           : {hex_to_encrypt}")
+        print(f"Expected Cypher Text : {expected_results}")
+        print(f"Encrypted Text       : {result_list}")
+
+    def test_aes_ofb_192_2decrypt(self):
+        '''
+        This method tests that the aes inverse cypher for aes 192 in Output Feedback (OFB) Mode
+        Uses test vectors from https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38a.pdf
+        '''
+        expected_results = ["6BC1BEE22E409F96E93D7E117393172A",
+                            "AE2D8A571E03AC9C9EB76FAC45AF8E51",
+                            "30C81C46A35CE411E5FBC1191A0A52EF",
+                            "F69F2445DF4F9B17AD2B417BE66C3710"]
+        hex_to_decrypt =   ['CDC80D6FDDF18CAB34C25909C99A4174',
+                            'FCC28B8D4C63837C09E81700C1100401',
+                            '8D9A9AEAC0F6596F559C6D4DAF59A5F2',
+                            '6D9F200857CA6C3E9CAC524BD9ACC92A']
+        
+        result_list = self.aes_ofb_192.decryptHexList(hex_to_decrypt,self.initialization_vector)
+        self.assertListEqual(expected_results, result_list)
+        print("Testing Decryption With AES 192 In Output Feedback (OFB) Mode")
+        print(f"Cypher Text          : {hex_to_decrypt}")
+        print(f"Expected Plain Text  : {expected_results}")
+        print(f"Decrypted Text       : {result_list}")
+
+    def test_aes_ofb_256_1encrypt(self):
+        '''
+        This method tests that the aes cypher for aes 256 in Output Feedback (OFB) Mode
+        Uses test vectors from https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38a.pdf
+        '''
+        hex_to_encrypt   = ["6BC1BEE22E409F96E93D7E117393172A",
+                            "AE2D8A571E03AC9C9EB76FAC45AF8E51",
+                            "30C81C46A35CE411E5FBC1191A0A52EF",
+                            "F69F2445DF4F9B17AD2B417BE66C3710"]
+        expected_results = ['DC7E84BFDA79164B7ECD8486985D3860',
+                            '4FEBDC6740D20B3AC88F6AD82A4FB08D',
+                            '71AB47A086E86EEDF39D1C5BBA97C408',
+                            '0126141D67F37BE8538F5A8BE740E484']
+        
+        result_list = self.aes_ofb_256.encryptHexList(hex_to_encrypt,self.initialization_vector)
+        self.assertListEqual(expected_results, result_list)
+
+        print("Testing Encryption With AES 256 In Output Feedback (OFB) Mode")
+        print(f"Plain Text           : {hex_to_encrypt}")
+        print(f"Expected Cypher Text : {expected_results}")
+        print(f"Encrypted Text       : {result_list}")
+
+    def test_aes_ofb_256_2decrypt(self):
+        '''
+        This method tests that the aes inverse cypher for aes 256 in Output Feedback (OFB) Mode
+        Uses test vectors from https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38a.pdf
+        '''
+        expected_results = ["6BC1BEE22E409F96E93D7E117393172A",
+                            "AE2D8A571E03AC9C9EB76FAC45AF8E51",
+                            "30C81C46A35CE411E5FBC1191A0A52EF",
+                            "F69F2445DF4F9B17AD2B417BE66C3710"]
+        hex_to_decrypt =   ['DC7E84BFDA79164B7ECD8486985D3860',
+                            '4FEBDC6740D20B3AC88F6AD82A4FB08D',
+                            '71AB47A086E86EEDF39D1C5BBA97C408',
+                            '0126141D67F37BE8538F5A8BE740E484']
+        
+        result_list = self.aes_ofb_256.decryptHexList(hex_to_decrypt,self.initialization_vector)
+        self.assertListEqual(expected_results, result_list)
+        print("Testing Decryption With AES 256 In Output Feedback (OFB) Mode")
+        print(f"Cypher Text          : {hex_to_decrypt}")
+        print(f"Expected Plain Text  : {expected_results}")
+        print(f"Decrypted Text       : {result_list}")
+
+    def test_aes_ctr_128_1encrypt(self):
+        '''
+        This method tests that the aes cypher for aes 128 in Counter (CTR) Mode
+        Uses test vectors from https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38a.pdf
+        '''
+        hex_to_encrypt   = ["6BC1BEE22E409F96E93D7E117393172A",
+                            "AE2D8A571E03AC9C9EB76FAC45AF8E51",
+                            "30C81C46A35CE411E5FBC1191A0A52EF",
+                            "F69F2445DF4F9B17AD2B417BE66C3710"]
+        expected_results = ['874D6191B620E3261BEF6864990DB6CE',
+                            '9806F66B7970FDFF8617187BB9FFFDFF',
+                            '5AE4DF3EDBD5D35E5B4F09020DB03EAB',
+                            '1E031DDA2FBE03D1792170A0F3009CEE']
+        
+        result_list = self.aes_ctr_128.encryptHexList(hex_to_encrypt,self.initialization_counter)
+        self.assertListEqual(expected_results, result_list)
+
+        print("Testing Encryption With AES 128 In Counter (CTR) Mode")
+        print(f"Plain Text           : {hex_to_encrypt}")
+        print(f"Expected Cypher Text : {expected_results}")
+        print(f"Encrypted Text       : {result_list}")
+
+    def test_aes_ctr_128_2decrypt(self):
+        '''
+        This method tests that the aes inverse cypher for aes 128 in Counter (CTR) Mode
+        Uses test vectors from https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38a.pdf
+        '''
+        expected_results = ["6BC1BEE22E409F96E93D7E117393172A",
+                            "AE2D8A571E03AC9C9EB76FAC45AF8E51",
+                            "30C81C46A35CE411E5FBC1191A0A52EF",
+                            "F69F2445DF4F9B17AD2B417BE66C3710"]
+        hex_to_decrypt =   ['874D6191B620E3261BEF6864990DB6CE',
+                            '9806F66B7970FDFF8617187BB9FFFDFF',
+                            '5AE4DF3EDBD5D35E5B4F09020DB03EAB',
+                            '1E031DDA2FBE03D1792170A0F3009CEE']
+        
+        result_list = self.aes_ctr_128.decryptHexList(hex_to_decrypt,self.initialization_counter)
+        self.assertListEqual(expected_results, result_list)
+        print("Testing Decryption With AES 128 In Counter (CTR) Mode")
+        print(f"Cypher Text          : {hex_to_decrypt}")
+        print(f"Expected Plain Text  : {expected_results}")
+        print(f"Decrypted Text       : {result_list}")
+
+    def test_aes_ctr_192_1encrypt(self):
+        '''
+        This method tests that the aes cypher for aes 192 in Counter (CTR) Mode
+        Uses test vectors from https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38a.pdf
+        '''
+        hex_to_encrypt   = ["6BC1BEE22E409F96E93D7E117393172A",
+                            "AE2D8A571E03AC9C9EB76FAC45AF8E51",
+                            "30C81C46A35CE411E5FBC1191A0A52EF",
+                            "F69F2445DF4F9B17AD2B417BE66C3710"]
+        expected_results = ['1ABC932417521CA24F2B0459FE7E6E0B',
+                            '090339EC0AA6FAEFD5CCC2C6F4CE8E94',
+                            '1E36B26BD1EBC670D1BD1D665620ABF7',
+                            '4F78A7F6D29809585A97DAEC58C6B050']
+        
+        result_list = self.aes_ctr_192.encryptHexList(hex_to_encrypt,self.initialization_counter)
+        self.assertListEqual(expected_results, result_list)
+
+        print("Testing Encryption With AES 192 In Counter (CTR) Mode")
+        print(f"Plain Text           : {hex_to_encrypt}")
+        print(f"Expected Cypher Text : {expected_results}")
+        print(f"Encrypted Text       : {result_list}")
+
+    def test_aes_ctr_192_2decrypt(self):
+        '''
+        This method tests that the aes inverse cypher for aes 192 in Counter (CTR) Mode
+        Uses test vectors from https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38a.pdf
+        '''
+        expected_results = ["6BC1BEE22E409F96E93D7E117393172A",
+                            "AE2D8A571E03AC9C9EB76FAC45AF8E51",
+                            "30C81C46A35CE411E5FBC1191A0A52EF",
+                            "F69F2445DF4F9B17AD2B417BE66C3710"]
+        hex_to_decrypt =   ['1ABC932417521CA24F2B0459FE7E6E0B',
+                            '090339EC0AA6FAEFD5CCC2C6F4CE8E94',
+                            '1E36B26BD1EBC670D1BD1D665620ABF7',
+                            '4F78A7F6D29809585A97DAEC58C6B050']
+        
+        result_list = self.aes_ctr_192.decryptHexList(hex_to_decrypt,self.initialization_counter)
+        self.assertListEqual(expected_results, result_list)
+        print("Testing Decryption With AES 192 In Counter (CTR) Mode")
+        print(f"Cypher Text          : {hex_to_decrypt}")
+        print(f"Expected Plain Text  : {expected_results}")
+        print(f"Decrypted Text       : {result_list}")
+
+    def test_aes_ctr_256_1encrypt(self):
+        '''
+        This method tests that the aes cypher for aes 256 in Counter (CTR) Mode
+        Uses test vectors from https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38a.pdf
+        '''
+        hex_to_encrypt   = ["6BC1BEE22E409F96E93D7E117393172A",
+                            "AE2D8A571E03AC9C9EB76FAC45AF8E51",
+                            "30C81C46A35CE411E5FBC1191A0A52EF",
+                            "F69F2445DF4F9B17AD2B417BE66C3710"]
+        expected_results = ['601EC313775789A5B7A7F504BBF3D228',
+                            'F443E3CA4D62B59ACA84E990CACAF5C5',
+                            '2B0930DAA23DE94CE87017BA2D84988D',
+                            'DFC9C58DB67AADA613C2DD08457941A6']
+        
+        result_list = self.aes_ctr_256.encryptHexList(hex_to_encrypt,self.initialization_counter)
+        self.assertListEqual(expected_results, result_list)
+
+        print("Testing Encryption With AES 256 In Counter (CTR) Mode")
+        print(f"Plain Text           : {hex_to_encrypt}")
+        print(f"Expected Cypher Text : {expected_results}")
+        print(f"Encrypted Text       : {result_list}")
+
+    def test_aes_ctr_256_2decrypt(self):
+        '''
+        This method tests that the aes inverse cypher for aes 256 in Counter (CTR) Mode
+        Uses test vectors from https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38a.pdf
+        '''
+        expected_results = ["6BC1BEE22E409F96E93D7E117393172A",
+                            "AE2D8A571E03AC9C9EB76FAC45AF8E51",
+                            "30C81C46A35CE411E5FBC1191A0A52EF",
+                            "F69F2445DF4F9B17AD2B417BE66C3710"]
+        hex_to_decrypt =   ['601EC313775789A5B7A7F504BBF3D228',
+                            'F443E3CA4D62B59ACA84E990CACAF5C5',
+                            '2B0930DAA23DE94CE87017BA2D84988D',
+                            'DFC9C58DB67AADA613C2DD08457941A6']
+        
+        result_list = self.aes_ctr_256.decryptHexList(hex_to_decrypt,self.initialization_counter)
+        self.assertListEqual(expected_results, result_list)
+        print("Testing Decryption With AES 256 In Counter (CTR) Mode")
+        print(f"Cypher Text          : {hex_to_decrypt}")
+        print(f"Expected Plain Text  : {expected_results}")
+        print(f"Decrypted Text       : {result_list}")
+
 if __name__ == '__main__':
+    print("Testing AES With Block Cypher Modes Of Operation")
+    print("Electronic Cookbook (ECB) Mode, Cipher Block Chaining (CBC) Mode, Cipher Feedback (CFB) Mode, Output Feedback (OFB) Mode and Counter (CTR) Mode")
+    print("From NIST SP 800-38A, \"Recommendation for Block Cipher Modes of Operation\"")
+    print("https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38a.pdf")
     unittest.main()

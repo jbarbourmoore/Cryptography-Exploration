@@ -2,7 +2,10 @@ from CryptographySchemes.SymmetricEncryptionAlgorithms.AdvancedEncryptionStandar
 from HelperFunctions.IntegerHandler import *
 class AES_ECB_128(AES128):
     '''
-    This class should allow AES 128 to be used in electronic cookbook mode
+    This class should allow AES 128 to be used in electronic cookbook (ECB) mode
+
+    ECB is described in NIST SP 800-38a Section 6.1
+    https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38a.pdf
     '''
 
     def encryptHexStringMessage(self, hex_message:str)->list[str]:
@@ -32,6 +35,9 @@ class AES_ECB_128(AES128):
     def encryptHexList(self, hex_list:list[str])->list[str]:
         '''
         This method encrypts a list of hex strings using AES
+
+        Follows Eletronic Codebook (ECB) Mode Encryption as described in NIST SP 800-38a Section 6.1
+        https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38a.pdf
 
         Parameters : 
             hex_list : [str]
@@ -68,6 +74,9 @@ class AES_ECB_128(AES128):
         '''
         This method takes in a list of encrypted hex strings and decypts them
 
+        Follows Eletronic Codebook (ECB) Mode Decryption as described in NIST SP 800-38a Section 6.1
+        https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38a.pdf
+
         Parameters :
             encrypted_list : [str]
                 The result of the encryption as a list of hexadecimal strings
@@ -103,6 +112,9 @@ class AES_ECB_128(AES128):
 class AES_ECB_192(AES_ECB_128):
     '''
     This class is a subclass of AES_ECB_128 with a key length of 192 bits in Electronic Cookbook Mode
+
+    ECB is described in NIST SP 800-38a Section 6.1
+    https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38a.pdf
     '''
     def __init__(self, key):
         '''
@@ -122,6 +134,9 @@ class AES_ECB_192(AES_ECB_128):
 class AES_ECB_256(AES_ECB_128):
     '''
     This class is a subclass of AES_ECB_128 with a key length of 256 bits in Electronic Cookbook Mode
+
+    ECB is described in NIST SP 800-38a Section 6.1
+    https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38a.pdf
     '''
 
     def __init__(self, key):
@@ -142,11 +157,17 @@ class AES_ECB_256(AES_ECB_128):
 class AES_CBC_128(AES_ECB_128):
     '''
     This class implements the Cipher Block Chaining (CBC) Mode for AES 128
+
+    CBC is described in NIST SP 800-38a Section 6.2
+    https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38a.pdf
     '''
 
     def encryptHexList(self, hex_list:list[str], initialization_vector:str)->list[str]:
         '''
         This method encrypts a list of hex strings using AES
+
+        Follows Cipher Block Chaining (CBC) Mode Encryption as described in NIST SP 800-38a Section 6.2
+        https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38a.pdf
 
         Parameters : 
             hex_list : [str]
@@ -186,12 +207,15 @@ class AES_CBC_128(AES_ECB_128):
         xor_value = value_1 ^ value_2
         xor_string = str(hex(xor_value)[2:])
         if len(xor_string)< len(hex_string_1):
-            xor_string = "0"*(len(hex_string_1)-len(xor_string)+xor_string)
+            xor_string = "0"*(len(hex_string_1)-len(xor_string))+xor_string
         return xor_string.upper()
 
     def decryptHexList(self, encrypted_list:list[str], initialization_vector:str) -> list[str]:
         '''
         This method takes in a list of encrypted hex strings and decypts them
+        
+        Follows Cipher Block Chaining (CBC) Mode Decryption as described in NIST SP 800-38a Section 6.2
+        https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38a.pdf
 
         Parameters :
             encrypted_list : [str]
@@ -280,6 +304,9 @@ class AES_CBC_128(AES_ECB_128):
 class AES_CBC_192(AES_CBC_128):
     '''
     This class is a subclass of AES_CBC_128 with a key length of 192 bits in Cipher Block Chaining (CBC) Mode
+
+    CBC is described in NIST SP 800-38a Section 6.2
+    https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38a.pdf
     '''
     def __init__(self, key):
         '''
@@ -299,6 +326,9 @@ class AES_CBC_192(AES_CBC_128):
 class AES_CBC_256(AES_CBC_128):
     '''
     This class is a subclass of AES_CBC_128 with a key length of 256 bits in Cipher Block Chaining (CBC) Mode
+
+    CBC is described in NIST SP 800-38a Section 6.2
+    https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38a.pdf
     '''
 
     def __init__(self, key):
@@ -319,6 +349,9 @@ class AES_CBC_256(AES_CBC_128):
 class AES_CFB_128(AES_CBC_128):
     '''
     This class implements the Cipher Feedback (CFB) Mode for AES 128
+
+    CFB is described in NIST SP 800-38a Section 6.3
+    https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38a.pdf
     '''
 
     def __init__(self, key, s:int):
@@ -328,6 +361,9 @@ class AES_CFB_128(AES_CBC_128):
     def encryptHexList(self, hex_list:list[str], initialization_vector:str)->list[str]:
         '''
         This method encrypts a list of hex strings using AES
+
+        Follows Cipher Feedback (CFB) Mode Encryption as described in NIST SP 800-38a Section 6.3
+        https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38a.pdf
 
         Parameters : 
             hex_list : [str]
@@ -364,6 +400,9 @@ class AES_CFB_128(AES_CBC_128):
         '''
         This method takes in a list of encrypted hex strings and decypts them
 
+        Follows Cipher Feedback (CFB) Mode Decryption as described in NIST SP 800-38a Section 6.3
+        https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38a.pdf
+
         Parameters :
             encrypted_list : [str]
                 The result of the encryption as a list of hexadecimal strings
@@ -399,11 +438,14 @@ class AES_CFB_128(AES_CBC_128):
 
 class AES_CFB_192(AES_CFB_128):
     '''
-    This class is a subclass of AES_CBC_128 with a key length of 192 bits in Cipher Feedback (CFB) Mode
+    This class is a subclass of AES_CFB_128 with a key length of 192 bits in Cipher Feedback (CFB) Mode
+
+    CFB is described in NIST SP 800-38a Section 6.3
+    https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38a.pdf
     '''
     def __init__(self, key, s:int):
         '''
-        This method should initialize aes_ecb_192 with a given key
+        This method should initialize aes_cfb_192 with a given key
 
         Parameters : 
             key : str
@@ -418,10 +460,122 @@ class AES_CFB_192(AES_CFB_128):
 
 class AES_CFB_256(AES_CFB_128):
     '''
-    This class is a subclass of AES_CBC_128 with a key length of 256 bits in Cipher Feedback (CFB) Mode
+    This class is a subclass of AES_CFB_128 with a key length of 256 bits in Cipher Feedback (CFB) Mode
+
+    CFB is described in NIST SP 800-38a Section 6.3
+    https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38a.pdf
     '''
 
     def __init__(self, key, s:int):
+        '''
+        This method should initialize aes cfb 256 with a given key
+
+        Parameters : 
+            key : str
+                The 256 bit key for the aes algorithm
+        '''
+
+        super().__init__(key, s)
+        self.key_length = 256
+        self.number_of_rounds = 14
+        self.number_key_words = 8
+        self.keyExpansion()
+
+class AES_OFB_128(AES_CBC_128):
+    '''
+    This class implements the Output Feedback (OFB) Mode for AES 128
+    
+    OFB is described in NIST SP 800-38a Section 6.4
+    https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38a.pdf
+    '''
+
+    def encryptHexList(self, hex_list:list[str], initialization_vector:str)->list[str]:
+        '''
+        This method encrypts a list of hex strings using AES
+
+        Follows Output Feedback (OFB) Mode Encryption as described in NIST SP 800-38a Section 6.4
+        https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38a.pdf
+
+        Parameters : 
+            hex_list : [str]
+                The content to be encrypted as a list of hex strings in the appropriate block size
+            initialization_vector : str
+                The initializtion vector as a hex string
+
+        Returns :
+            encrypted_hex_list : [str]
+                The result of the encryption as a list of hex strings
+        '''
+        number_of_message_blocks = len(hex_list)
+        result_list = []
+        I = initialization_vector
+        for i in range (0, number_of_message_blocks):
+            hex_segment = hex_list[i]
+            O = self.cypher(I)
+            C = self.xorHexString(hex_segment,O)
+            result_list.append(C)
+            I = O
+        return result_list
+    
+    def decryptHexList(self, encrypted_list:list[str], initialization_vector:str) -> list[str]:
+        '''
+        This method takes in a list of encrypted hex strings and decypts them
+
+        Follows Output Feedback (OFB) Mode Decryption as described in NIST SP 800-38a Section 6.4
+        https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38a.pdf
+
+        Parameters :
+            encrypted_list : [str]
+                The result of the encryption as a list of hexadecimal strings
+            initialization_vector : str
+                The initializtion vector as a hex string
+        
+        Returns : 
+            unencrypted_hex_list : [str]
+                The message that was encrypted using AES
+            
+        '''
+
+        result_list = []
+        I = initialization_vector
+        for encoded_hex in encrypted_list:
+            O = self.cypher(I)
+            P = self.xorHexString(encoded_hex,O)
+            result_list.append(P)
+            I = O
+        return result_list
+    
+class AES_OFB_192(AES_OFB_128):
+    '''
+    This class is a subclass of AES_OFB_128 with a key length of 192 bits in Output Feedback (OFB) Mode
+
+    OFB is described in NIST SP 800-38a Section 6.4
+    https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38a.pdf
+    '''
+    def __init__(self, key):
+        '''
+        This method should initialize aes_ecb_192 with a given key
+
+        Parameters : 
+            key : str
+                The 192 bit key for the aes algorithm
+        '''
+
+        super().__init__(key)
+        self.key_length = 192
+        self.number_key_words = 6
+        self.number_of_rounds = 12
+        self.keyExpansion()
+
+class AES_OFB_256(AES_OFB_128):
+    '''
+    This class is a subclass of AES_OFB_128 with a key length of 256 bits in Output Feedback (OFB) Mode
+
+    OFB is described in NIST SP 800-38a Section 6.4
+    https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38a.pdf
+    '''
+
+    def __init__(self, key):
         '''
         This method should initialize aes ecb 256 with a given key
 
@@ -430,7 +584,116 @@ class AES_CFB_256(AES_CFB_128):
                 The 256 bit key for the aes algorithm
         '''
 
-        super().__init__(key, s)
+        super().__init__(key)
+        self.key_length = 256
+        self.number_of_rounds = 14
+        self.number_key_words = 8
+        self.keyExpansion()
+
+class AES_CTR_128(AES_CBC_128):
+    '''
+    This class implements the Counter (CTR) Mode for AES 128
+
+    CTR is described in NIST SP 800-38a Section 6.5
+    https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38a.pdf
+    '''
+
+    def encryptHexList(self, hex_list:list[str], initialization_vector:str)->list[str]:
+        '''
+        This method encrypts a list of hex strings using AES
+
+        Follows Counter (CTR) Mode Encryption as described in NIST SP 800-38a Section 6.5
+        https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38a.pdf
+
+        Parameters : 
+            hex_list : [str]
+                The content to be encrypted as a list of hex strings in the appropriate block size
+            initialization_vector : str
+                The initializtion vector as a hex string
+
+        Returns :
+            encrypted_hex_list : [str]
+                The result of the encryption as a list of hex strings
+        '''
+        number_of_message_blocks = len(hex_list)
+        result_list = []
+        T = IntegerHandler.fromHexString(initialization_vector,False,self.block_size)
+        for i in range (0, number_of_message_blocks):
+            hex_segment = hex_list[i]
+            O = self.cypher(T.getHexString())
+            C = self.xorHexString(hex_segment,O)
+            result_list.append(C)
+            T.setValue(T.getValue()+1)
+        return result_list
+    
+    def decryptHexList(self, encrypted_list:list[str], initialization_vector:str) -> list[str]:
+        '''
+        This method takes in a list of encrypted hex strings and decypts them
+
+        Follows Counter (CTR) Mode Decryption as described in NIST SP 800-38a Section 6.5
+        https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38a.pdf
+
+        Parameters :
+            encrypted_list : [str]
+                The result of the encryption as a list of hexadecimal strings
+            initialization_vector : str
+                The initializtion vector as a hex string
+        
+        Returns : 
+            unencrypted_hex_list : [str]
+                The message that was encrypted using AES
+            
+        '''
+
+        result_list = []
+        T = IntegerHandler.fromHexString(initialization_vector,False,self.block_size)
+        for encoded_hex in encrypted_list:
+            O = self.cypher(T.getHexString())
+            P = self.xorHexString(encoded_hex,O)
+            result_list.append(P)
+            T.setValue(T.getValue()+1)
+        return result_list
+    
+class AES_CTR_192(AES_CTR_128):
+    '''
+    This class is a subclass of AES_CTR_128 with a key length of 192 bits in Counter (CTR) Mode
+
+    CTR is described in NIST SP 800-38a Section 6.5
+    https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38a.pdf
+    '''
+    def __init__(self, key):
+        '''
+        This method should initialize aes_ctr_192 with a given key
+
+        Parameters : 
+            key : str
+                The 192 bit key for the aes algorithm
+        '''
+
+        super().__init__(key)
+        self.key_length = 192
+        self.number_key_words = 6
+        self.number_of_rounds = 12
+        self.keyExpansion()
+
+class AES_CTR_256(AES_CTR_128):
+    '''
+    This class is a subclass of AES_CTR_128 with a key length of 256 bits in Counter (CTR) Mode
+
+    CTR is described in NIST SP 800-38a Section 6.5
+    https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38a.pdf
+    '''
+
+    def __init__(self, key):
+        '''
+        This method should initialize aes ctr 256 with a given key
+
+        Parameters : 
+            key : str
+                The 256 bit key for the aes algorithm
+        '''
+
+        super().__init__(key)
         self.key_length = 256
         self.number_of_rounds = 14
         self.number_key_words = 8
