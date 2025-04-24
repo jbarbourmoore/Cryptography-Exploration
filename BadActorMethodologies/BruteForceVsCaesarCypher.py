@@ -1,4 +1,4 @@
-from CryptographySchemes.CaesarCypher import CaesarCipher
+from CryptographySchemes.HistoricalCyphers.CaesarCypher import CaesarCipher
 
 class BruteForceVsCaesarCypher():
     '''

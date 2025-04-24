@@ -1,5 +1,5 @@
 from BadActorMethodologies.BruteForceVsMultiplicativeCypher import BruteForceVsMultiplicativeCypher, interpret_decryption_attempt
-from CryptographySchemes.MultiplicativeCypher import MultiplicativeCypher
+from CryptographySchemes.HistoricalCyphers.MultiplicativeCypher import MultiplicativeCypher
 from GeneratingDiagrams.BasicSequenceDiagramSetup import BasicSequenceDiagramSetup
 
 

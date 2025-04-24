@@ -1,4 +1,4 @@
-from CryptographySchemes.MultiplicativeCypher import MultiplicativeCypher
+from CryptographySchemes.HistoricalCyphers.MultiplicativeCypher import MultiplicativeCypher
 
 
 class BruteForceVsMultiplicativeCypher():

@@ -1,5 +1,5 @@
 from BadActorMethodologies.BruteForceVsCaesarCypher import BruteForceVsCaesarCypher, interpret_decryption_attempt
-from CryptographySchemes.CaesarCypher import CaesarCipher
+from CryptographySchemes.HistoricalCyphers.CaesarCypher import CaesarCipher
 from GeneratingDiagrams.BasicSequenceDiagramSetup import BasicSequenceDiagramSetup
 
 
