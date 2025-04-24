@@ -60,21 +60,25 @@ class GCM_Block(IntegerHandler):
 
         return GCM_Block(value=int_value)
     
-    def inc(self, inc_amount):
+    def inc(self, variable_bit_count):
         '''
         This method increments the GCM_block value by a given amount
 
         Parameters :
-            inc_amount : int
-                The amount of the increment
+            variable_bits : int
+                The number of bits which may vary during the increment
 
         Returns :
             gcm_block : GCM_Block
                 The new GCM Block with the incremented value
         '''
+        stationary_bit_count = 128 - variable_bit_count
+        stationary_bits = self.getBitArray()[:stationary_bit_count]
+        variable_bits =  IntegerHandler.fromBitArray(self.getBitArray()[stationary_bit_count:], False, variable_bit_count)
+        variable_bits.setValue(variable_bits.getValue()+1)
 
-        new_value = self.getValue()+inc_amount
-        return GCM_Block(new_value)
+        updated_bits = stationary_bits + variable_bits.getBitArray()
+        return GCM_Block.fromBitArray(updated_bits)
 
     def rightShift(self,shift_amount):
         '''
@@ -210,7 +214,7 @@ class AES_GCM_128(AES128):
             result_bits += current_result_block.getBitArray()
             if self.is_debug:
                 print(f"{i}: X:{current_block.getHexString()} Cypher:{cypher_result_block.getHexString()} Y_i:{current_result_block.getHexString()}")
-            counter_block = counter_block.inc(1)
+            counter_block = counter_block.inc(32)
 
         # Perform the GCTR Operation on any partial block from the data and add the resulting less that 128 bits to the output
         # Use IntegerHandler instead of GCM Block in order to handle data under 128 bits
@@ -273,7 +277,7 @@ class AES_GCM_128(AES128):
             print(f"J_0 is {pre_counter_block.getHexString()}")
 
         # use GCTR in order to create the cypher text 
-        counter_block = pre_counter_block.inc(1)
+        counter_block = pre_counter_block.inc(32)
         cypher_text = self.GCTR(counter_block ,plain_text)
 
         # create and pad the bit array of the data to be GHASHed in order to create cypher blcok generate the tag
@@ -338,7 +342,7 @@ class AES_GCM_128(AES128):
             print(f"J_0 is {pre_counter_block.getHexString()}")
 
         # use GCTR in order to create the plain text 
-        counter_block = pre_counter_block.inc(1)
+        counter_block = pre_counter_block.inc(32)
         plain_text = self.GCTR(counter_block , cypher_text)
 
         # create and pad the bit array of the data to be GHASHed in order to create cypher blcok generate the tag
