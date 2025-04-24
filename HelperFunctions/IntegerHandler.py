@@ -59,8 +59,13 @@ class IntegerHandler():
     def getBitArray(self) -> list[int]:
         '''
         This method returns the integer value as a bit array
-        '''
 
+        Returns : 
+            bit_array : [int]
+                The value being handled as a bit array
+        '''
+        if self.bit_length == 0:
+            return []
         if not self.is_little_endian:
             value = self.value
             bit_array = []
@@ -88,6 +93,15 @@ class IntegerHandler():
         return bit_array
     
     def getBitString(self) -> str:
+        '''
+        This method returns the integer value as a bit string
+
+        Returns : 
+            bit_string : [int]
+                The value being handled as a bit string
+        '''
+        if self.bit_length == 0:
+            return ""
         bit_array = self.getBitArray()
         bit_string = ""
         for bit in bit_array:
@@ -104,7 +118,8 @@ class IntegerHandler():
             hex_string : str
                 The value as a hex string
         '''
-        
+        if self.bit_length == 0:
+            return ""
         if self.bit_length == None:
             int_value = self.value
         else:
@@ -239,6 +254,17 @@ class IntegerHandler():
         return counter
     
     def getMostSignificantBits(self,number_of_bits):
+        '''
+        This method returns the most significant bits of the handled value
+
+        Parameters :
+            number_of_bits : int
+                The number of bits to return
+
+        Returns : 
+            most_significant_bits : [int]
+                The most significant bits of the handled value as a bit array
+        '''
         if self.is_little_endian:
             bit_array = self.getBitArray()[self.getBitLength()-number_of_bits:self.getBitLength()]
         else:
@@ -246,6 +272,18 @@ class IntegerHandler():
         return IntegerHandler.fromBitArray(bit_array,self.is_little_endian,number_of_bits)
         
     def getLeastSignificantBits(self,number_of_bits):
+        '''
+        This method returns the least significant bits of the handled value
+
+        Parameters :
+            number_of_bits : int
+                The number of bits to return
+
+        Returns : 
+            least_significant_bits : [int]
+                The least significant bits of the handled value as a bit array
+        '''
+
         if self.is_little_endian:
             bit_array = self.getBitArray()[0:number_of_bits]
         else:
