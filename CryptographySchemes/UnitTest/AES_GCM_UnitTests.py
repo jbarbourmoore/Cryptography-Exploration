@@ -248,6 +248,122 @@ class AES_GCM_UnitTest(unittest.TestCase):
         # verify that the test's results are as expected
         self.verify_test_results(plain_text, expected_tag, expected_cypher, cypher_text, tag, authenticated, unencrypted_text)
 
+    def test_009_multi_block_text(self):
+        '''
+        This method tests AES 192 GCM with a multiple blocks of 128 bits plain text
+
+        Test Case 9 from "The Galois/Counter Mode of Operation (GCM)" : Appendix B "AES Test Vectors"
+        https://csrc.nist.rip/groups/ST/toolkit/BCM/documents/proposedmodes/gcm/gcm-spec.pdf
+        '''
+        
+        # load the test data
+        key = "feffe9928665731c6d6a8f9467308308feffe9928665731c".upper()
+        initialization_vector = "cafebabefacedbaddecaf888".upper()
+        expected_tag = "9924a7c8587336bfb118024db8674a14".upper()
+        expected_cypher = "3980ca0b3c00e841eb06fac4872a2757859e1ceaa6efd984628593b40ca1e19c7d773d00c144c525ac619d18c84a3f4718e2448b2fe324d9ccda2710acade256".upper()
+        plain_text = "d9313225f88406e5a55909c5aff5269a86a7a9531534f7da2e4c303d8a318a721c3c0c95956809532fcf0e2449a6b525b16aedf5aa0de657ba637b391aafd255".upper()
+        additional_data=""
+
+        # run the aes 192 gcm on the test data
+        aes_192_gcm = AES_GCM_192(key)
+        cypher_text, tag = aes_192_gcm.authenticatedEncryption(initialization_vector,plain_text,additional_data,128)
+        authenticated, unencrypted_text = aes_192_gcm.authenticatedDecryption(initialization_vector,cypher_text,additional_data,tag)
+        if authenticated:   
+            unencrypted_text = unencrypted_text.getHexString()
+    
+        # output the test results
+        self.print_test_results(9, "AES 192", "With Multi Block Length Plain Text", key, initialization_vector,additional_data, plain_text, cypher_text, tag, authenticated, unencrypted_text)
+
+        # verify that the test's results are as expected
+        self.verify_test_results(plain_text, expected_tag, expected_cypher, cypher_text, tag, authenticated, unencrypted_text)
+
+    def test_010_partial_block_text(self):
+        '''
+        This method tests AES 192 GCM with a partial block of plain text
+
+        Test Case 10 from "The Galois/Counter Mode of Operation (GCM)" : Appendix B "AES Test Vectors"
+        https://csrc.nist.rip/groups/ST/toolkit/BCM/documents/proposedmodes/gcm/gcm-spec.pdf
+        '''
+        
+        # load the test data
+        key = "feffe9928665731c6d6a8f9467308308feffe9928665731c".upper()
+        initialization_vector = "cafebabefacedbaddecaf888".upper()
+        expected_tag = "2519498e80f1478f37ba55bd6d27618c".upper()
+        expected_cypher = "3980ca0b3c00e841eb06fac4872a2757859e1ceaa6efd984628593b40ca1e19c7d773d00c144c525ac619d18c84a3f4718e2448b2fe324d9ccda2710".upper()
+        plain_text = "d9313225f88406e5a55909c5aff5269a86a7a9531534f7da2e4c303d8a318a721c3c0c95956809532fcf0e2449a6b525b16aedf5aa0de657ba637b39".upper()
+        additional_data="feedfacedeadbeeffeedfacedeadbeefabaddad2".upper()
+
+        # run the aes 192 gcm on the test data
+        aes_192_gcm = AES_GCM_192(key)
+        cypher_text, tag = aes_192_gcm.authenticatedEncryption(initialization_vector,plain_text,additional_data,128)
+        authenticated, unencrypted_text = aes_192_gcm.authenticatedDecryption(initialization_vector,cypher_text,additional_data,tag)
+        if authenticated:   
+            unencrypted_text = unencrypted_text.getHexString()
+    
+        # output the test results
+        self.print_test_results(10, "AES 192", "With Partial Block Length Plain Text", key, initialization_vector,additional_data, plain_text, cypher_text, tag, authenticated, unencrypted_text)
+
+        # verify that the test's results are as expected
+        self.verify_test_results(plain_text, expected_tag, expected_cypher, cypher_text, tag, authenticated, unencrypted_text)
+
+    def test_011_short_iv(self):
+        '''
+        This method tests AES 192 GCM with an initialization vector shorter than 92 bite
+
+        Test Case 11 from "The Galois/Counter Mode of Operation (GCM)" : Appendix B "AES Test Vectors"
+        https://csrc.nist.rip/groups/ST/toolkit/BCM/documents/proposedmodes/gcm/gcm-spec.pdf
+        '''
+        
+        # load the test data
+        key = "feffe9928665731c6d6a8f9467308308feffe9928665731c".upper()
+        initialization_vector = "cafebabefacedbad".upper()
+        expected_tag = "65dcc57fcf623a24094fcca40d3533f8".upper()
+        expected_cypher = "0f10f599ae14a154ed24b36e25324db8c566632ef2bbb34f8347280fc4507057fddc29df9a471f75c66541d4d4dad1c9e93a19a58e8b473fa0f062f7".upper()
+        plain_text = "d9313225f88406e5a55909c5aff5269a86a7a9531534f7da2e4c303d8a318a721c3c0c95956809532fcf0e2449a6b525b16aedf5aa0de657ba637b39".upper()
+        additional_data="feedfacedeadbeeffeedfacedeadbeefabaddad2".upper()
+
+        # run the aes 192 gcm on the test data
+        aes_192_gcm = AES_GCM_192(key)
+        cypher_text, tag = aes_192_gcm.authenticatedEncryption(initialization_vector,plain_text,additional_data,128)
+        authenticated, unencrypted_text = aes_192_gcm.authenticatedDecryption(initialization_vector,cypher_text,additional_data,tag)
+        if authenticated:   
+            unencrypted_text = unencrypted_text.getHexString()
+    
+        # output the test results
+        self.print_test_results(11, "AES 192", "With Short IV", key, initialization_vector,additional_data, plain_text, cypher_text, tag, authenticated, unencrypted_text)
+
+        # verify that the test's results are as expected
+        self.verify_test_results(plain_text, expected_tag, expected_cypher, cypher_text, tag, authenticated, unencrypted_text)
+
+    def test_012_long_iv(self):
+        '''
+        This method tests AES 192 GCM with an initialization vector longer than 128 bits
+
+        Test Case 12 from "The Galois/Counter Mode of Operation (GCM)" : Appendix B "AES Test Vectors"
+        https://csrc.nist.rip/groups/ST/toolkit/BCM/documents/proposedmodes/gcm/gcm-spec.pdf
+        '''
+        
+        # load the test data
+        key = "feffe9928665731c6d6a8f9467308308feffe9928665731c".upper()
+        initialization_vector = "9313225df88406e555909c5aff5269aa6a7a9538534f7da1e4c303d2a318a728c3c0c95156809539fcf0e2429a6b525416aedbf5a0de6a57a637b39b".upper()
+        expected_tag = "dcf566ff291c25bbb8568fc3d376a6d9".upper()
+        expected_cypher = "d27e88681ce3243c4830165a8fdcf9ff1de9a1d8e6b447ef6ef7b79828666e4581e79012af34ddd9e2f037589b292db3e67c036745fa22e7e9b7373b".upper()
+        plain_text = "d9313225f88406e5a55909c5aff5269a86a7a9531534f7da2e4c303d8a318a721c3c0c95956809532fcf0e2449a6b525b16aedf5aa0de657ba637b39".upper()
+        additional_data="feedfacedeadbeeffeedfacedeadbeefabaddad2".upper()
+
+        # run the aes 192 gcm on the test data
+        aes_192_gcm = AES_GCM_192(key)
+        cypher_text, tag = aes_192_gcm.authenticatedEncryption(initialization_vector,plain_text,additional_data,128)
+        authenticated, unencrypted_text = aes_192_gcm.authenticatedDecryption(initialization_vector,cypher_text,additional_data,tag)
+        if authenticated:   
+            unencrypted_text = unencrypted_text.getHexString()
+    
+        # output the test results
+        self.print_test_results(12, "AES 192", "With Long IV", key, initialization_vector,additional_data, plain_text, cypher_text, tag, authenticated, unencrypted_text)
+
+        # verify that the test's results are as expected
+        self.verify_test_results(plain_text, expected_tag, expected_cypher, cypher_text, tag, authenticated, unencrypted_text)
+
     def test_013_empty_text(self):
         '''
         This method tests AES 256 GCM with an empty plain text
