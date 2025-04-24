@@ -129,6 +129,67 @@ class AES_GCM_UnitTest(unittest.TestCase):
         # verify that the test's results are as expected
         self.verify_test_results(plain_text, expected_tag, expected_cypher, cypher_text, tag, authenticated, unencrypted_text)
 
+    def test_5_short_iv(self):
+        '''
+        This method tests AES GCM with an initialization vector that is less than 92 bits
+
+        Test Case 5 from "The Galois/Counter Mode of Operation (GCM)" : Appendix B "AES Test Vectors"
+        https://csrc.nist.rip/groups/ST/toolkit/BCM/documents/proposedmodes/gcm/gcm-spec.pdf
+        '''
+
+        # load test data
+        key = "feffe9928665731c6d6a8f9467308308".upper()
+        initialization_vector = "cafebabefacedbad".upper()
+        plain_text = "d9313225f88406e5a55909c5aff5269a86a7a9531534f7da2e4c303d8a318a721c3c0c95956809532fcf0e2449a6b525b16aedf5aa0de657ba637b39".upper()
+        expected_tag = "3612d2e79e3b0785561be14aaca2fccb".upper()
+        expected_cypher = "61353b4c2806934a777ff51fa22a4755699b2a714fcdc6f83766e5f97b6c742373806900e49f24b22b097544d4896b424989b5e1ebac0f07c23f4598".upper()
+        additional_data="feedfacedeadbeeffeedfacedeadbeefabaddad2".upper()
+        tag_length = 128
+
+        # run the aes 128 gcm on the test data
+        aes_128_gcm = GaloisCounterMode(key,is_debug=False)
+        cypher_text, tag = aes_128_gcm.authenticatedEncryption(initialization_vector,plain_text,additional_data,tag_length)
+        authenticated, unencrypted_text = aes_128_gcm.authenticatedDecryption(initialization_vector,cypher_text,additional_data,tag)
+        if authenticated:   
+            unencrypted_text = unencrypted_text.getHexString()
+
+        # output the test results
+        self.print_test_results(5, "AES 128", key, initialization_vector, plain_text, cypher_text, tag, authenticated, unencrypted_text)
+
+        # verify that the test's results are as expected
+        self.verify_test_results(plain_text, expected_tag, expected_cypher, cypher_text, tag, authenticated, unencrypted_text)
+
+
+    def test_6_long_iv(self):
+        '''
+        This method tests AES GCM with an initialization vector that is longer than 128 bits
+
+        Test Case 6 from "The Galois/Counter Mode of Operation (GCM)" : Appendix B "AES Test Vectors"
+        https://csrc.nist.rip/groups/ST/toolkit/BCM/documents/proposedmodes/gcm/gcm-spec.pdf
+        '''
+
+        # load test data
+        key = "feffe9928665731c6d6a8f9467308308".upper()
+        initialization_vector = "9313225df88406e555909c5aff5269aa6a7a9538534f7da1e4c303d2a318a728c3c0c95156809539fcf0e2429a6b525416aedbf5a0de6a57a637b39b".upper()
+        plain_text = "d9313225f88406e5a55909c5aff5269a86a7a9531534f7da2e4c303d8a318a721c3c0c95956809532fcf0e2449a6b525b16aedf5aa0de657ba637b39".upper()
+        expected_tag = "619cc5aefffe0bfa462af43c1699d050".upper()
+        expected_cypher = "8ce24998625615b603a033aca13fb894be9112a5c3a211a8ba262a3cca7e2ca701e4a9a4fba43c90ccdcb281d48c7c6fd62875d2aca417034c34aee5".upper()
+        additional_data="feedfacedeadbeeffeedfacedeadbeefabaddad2".upper()
+        tag_length = 128
+
+        # run the aes 128 gcm on the test data
+        aes_128_gcm = GaloisCounterMode(key,is_debug=False)
+        cypher_text, tag = aes_128_gcm.authenticatedEncryption(initialization_vector,plain_text,additional_data,tag_length)
+        authenticated, unencrypted_text = aes_128_gcm.authenticatedDecryption(initialization_vector,cypher_text,additional_data,tag)
+        if authenticated:   
+            unencrypted_text = unencrypted_text.getHexString()
+
+        # output the test results
+        self.print_test_results(5, "AES 128", key, initialization_vector, plain_text, cypher_text, tag, authenticated, unencrypted_text)
+
+        # verify that the test's results are as expected
+        self.verify_test_results(plain_text, expected_tag, expected_cypher, cypher_text, tag, authenticated, unencrypted_text)
+
     def verify_test_results(self, plain_text, expected_tag, expected_cypher, cypher_text:GCM_Block, tag:GCM_Block, authenticated, unencrypted_text):
         self.assertEqual(cypher_text.getHexString(), expected_cypher)
         self.assertEqual(tag.getHexString(), expected_tag)
