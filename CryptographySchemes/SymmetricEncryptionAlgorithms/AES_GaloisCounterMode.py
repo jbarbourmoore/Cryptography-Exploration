@@ -114,7 +114,7 @@ class GCM_Block(IntegerHandler):
             x = (x >> 1) ^ ((x & 1) * 0xE1000000000000000000000000000000)
         return GCM_Block(result)
     
-class GaloisCounterMode(AES128):
+class AES_GCM_128(AES128):
     '''
     This class is a subclass of AES 128 and implements the Galois / Counter Mode
 
@@ -401,3 +401,48 @@ def bitwiseXorGCM(list_of_blocks:list[GCM_Block]) -> GCM_Block:
         initial_value = initial_value ^ block.value
 
     return GCM_Block(value=initial_value)
+
+class AES_GCM_192(AES_GCM_128):
+    '''
+    This class is a subclass of AES_GCM_128 with a key length of 192 bits in Galois/Counter Mode (GCM)
+
+    GCM is detailed in NIST SP 800-38 D "Recommendation for Block Cipher Modes of Operation: Galois/Counter Mode (GCM) and GMAC"
+    https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38d.pdf
+    '''
+    def __init__(self, key):
+        '''
+        This method should initialize aes_ecb_192 with a given key
+
+        Parameters : 
+            key : str
+                The 192 bit key for the aes algorithm
+        '''
+
+        super().__init__(key)
+        self.key_length = 192
+        self.number_key_words = 6
+        self.number_of_rounds = 12
+        self.keyExpansion()
+
+class AES_GCM_256(AES_GCM_128):
+    '''
+    This class is a subclass of AES_GCM_128 with a key length of 256 bits in Galois/Counter Mode (GCM)
+
+    GCM is detailed in NIST SP 800-38 D "Recommendation for Block Cipher Modes of Operation: Galois/Counter Mode (GCM) and GMAC"
+    https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38d.pdf
+    '''
+
+    def __init__(self, key):
+        '''
+        This method should initialize aes ecb 256 with a given key
+
+        Parameters : 
+            key : str
+                The 256 bit key for the aes algorithm
+        '''
+
+        super().__init__(key)
+        self.key_length = 256
+        self.number_of_rounds = 14
+        self.number_key_words = 8
+        self.keyExpansion()

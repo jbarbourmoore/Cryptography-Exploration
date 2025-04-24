@@ -10,7 +10,7 @@ class AES_GCM_UnitTest(unittest.TestCase):
     def setUp(self):
         print("- - - - - - - - - - - -")
 
-    def test_1_empty_text(self):
+    def test_001_empty_text(self):
         '''
         This method tests AES GCM with an empty plain text
 
@@ -27,19 +27,19 @@ class AES_GCM_UnitTest(unittest.TestCase):
         additional_data=""
 
         # run the aes 128 gcm on the test data
-        aes_128_gcm = GaloisCounterMode(key)
+        aes_128_gcm = AES_GCM_128(key)
         cypher_text,tag = aes_128_gcm.authenticatedEncryption(initialization_vector,plain_text,additional_data,128)
         authenticated, unencrypted_text = aes_128_gcm.authenticatedDecryption(initialization_vector,cypher_text,additional_data,tag)
         if authenticated:   
             unencrypted_text = unencrypted_text.getHexString()
     
         # output the test results
-        self.print_test_results(1, "AES 128", key, initialization_vector, plain_text, cypher_text, tag, authenticated, unencrypted_text)
+        self.print_test_results(1, "AES 128","With Empty Plain Text", key, initialization_vector, additional_data, plain_text, cypher_text, tag, authenticated, unencrypted_text)
 
         # verify that the test's results are as expected
         self.verify_test_results(plain_text, expected_tag, expected_cypher, cypher_text, tag, authenticated, unencrypted_text)
 
-    def test_2_128bit_text(self):
+    def test_002_128bit_text(self):
         '''
         This method tests AES GCM with a 128 bit plain text length
 
@@ -57,19 +57,19 @@ class AES_GCM_UnitTest(unittest.TestCase):
         additional_data=[]
 
         # run the aes 128 gcm on the test data
-        aes_128_gcm = GaloisCounterMode(key)
+        aes_128_gcm = AES_GCM_128(key)
         cypher_text,tag = aes_128_gcm.authenticatedEncryption(initialization_vector,plain_text,additional_data,tag_length)
         authenticated, unencrypted_text = aes_128_gcm.authenticatedDecryption(initialization_vector,cypher_text,additional_data,tag)
         if authenticated:   
             unencrypted_text = unencrypted_text.getHexString()
 
         # output the test results
-        self.print_test_results(2, "AES 128", key, initialization_vector, plain_text, cypher_text, tag, authenticated, unencrypted_text)
+        self.print_test_results(2, "AES 128", "With 128 Bit Plain Text", key, initialization_vector, additional_data, plain_text, cypher_text, tag, authenticated, unencrypted_text)
 
         # verify that the test's results are as expected
         self.verify_test_results(plain_text, expected_tag, expected_cypher, cypher_text, tag, authenticated, unencrypted_text)
 
-    def test_3_multiple_block_text(self):
+    def test_003_multiple_block_text(self):
         '''
         This method tests AES GCM with a plain text length that is 4 128 bit blocks
 
@@ -87,19 +87,19 @@ class AES_GCM_UnitTest(unittest.TestCase):
         additional_data=[]
 
         # run the aes 128 gcm on the test data
-        aes_128_gcm = GaloisCounterMode(key)
+        aes_128_gcm = AES_GCM_128(key)
         cypher_text,tag = aes_128_gcm.authenticatedEncryption(initialization_vector,plain_text,additional_data,tag_length)
         authenticated, unencrypted_text = aes_128_gcm.authenticatedDecryption(initialization_vector,cypher_text,additional_data,tag)
         if authenticated:   
             unencrypted_text = unencrypted_text.getHexString()
 
         # output the test results
-        self.print_test_results(3, "AES 128", key, initialization_vector, plain_text, cypher_text, tag, authenticated, unencrypted_text)
+        self.print_test_results(3, "AES 128", "With Multi Block Length Plain Text", key, initialization_vector, additional_data, plain_text, cypher_text, tag, authenticated, unencrypted_text)
 
         # verify that the test's results are as expected
         self.verify_test_results(plain_text, expected_tag, expected_cypher, cypher_text, tag, authenticated, unencrypted_text)
 
-    def test_4_incomplete_block_text(self):
+    def test_004_incomplete_block_text(self):
         '''
         This method tests AES GCM with a plain text length which is not divisible by 128
 
@@ -117,19 +117,19 @@ class AES_GCM_UnitTest(unittest.TestCase):
         tag_length = 128
 
         # run the aes 128 gcm on the test data
-        aes_128_gcm = GaloisCounterMode(key,is_debug=False)
+        aes_128_gcm = AES_GCM_128(key,is_debug=False)
         cypher_text, tag = aes_128_gcm.authenticatedEncryption(initialization_vector,plain_text,additional_data,tag_length)
         authenticated, unencrypted_text = aes_128_gcm.authenticatedDecryption(initialization_vector,cypher_text,additional_data,tag)
         if authenticated:   
             unencrypted_text = unencrypted_text.getHexString()
 
         # output the test results
-        self.print_test_results(4, "AES 128", key, initialization_vector, plain_text, cypher_text, tag, authenticated, unencrypted_text)
+        self.print_test_results(4, "AES 128", "With Partial Block Length Plain Text", key, initialization_vector, additional_data, plain_text, cypher_text, tag, authenticated, unencrypted_text)
 
         # verify that the test's results are as expected
         self.verify_test_results(plain_text, expected_tag, expected_cypher, cypher_text, tag, authenticated, unencrypted_text)
 
-    def test_5_short_iv(self):
+    def test_005_short_iv(self):
         '''
         This method tests AES GCM with an initialization vector that is less than 92 bits
 
@@ -147,20 +147,20 @@ class AES_GCM_UnitTest(unittest.TestCase):
         tag_length = 128
 
         # run the aes 128 gcm on the test data
-        aes_128_gcm = GaloisCounterMode(key,is_debug=False)
+        aes_128_gcm = AES_GCM_128(key,is_debug=False)
         cypher_text, tag = aes_128_gcm.authenticatedEncryption(initialization_vector,plain_text,additional_data,tag_length)
         authenticated, unencrypted_text = aes_128_gcm.authenticatedDecryption(initialization_vector,cypher_text,additional_data,tag)
         if authenticated:   
             unencrypted_text = unencrypted_text.getHexString()
 
         # output the test results
-        self.print_test_results(5, "AES 128", key, initialization_vector, plain_text, cypher_text, tag, authenticated, unencrypted_text)
+        self.print_test_results(5, "AES 128", "With Short IV", key, initialization_vector, additional_data, plain_text, cypher_text, tag, authenticated, unencrypted_text)
 
         # verify that the test's results are as expected
         self.verify_test_results(plain_text, expected_tag, expected_cypher, cypher_text, tag, authenticated, unencrypted_text)
 
 
-    def test_6_long_iv(self):
+    def test_006_long_iv(self):
         '''
         This method tests AES GCM with an initialization vector that is longer than 128 bits
 
@@ -178,14 +178,130 @@ class AES_GCM_UnitTest(unittest.TestCase):
         tag_length = 128
 
         # run the aes 128 gcm on the test data
-        aes_128_gcm = GaloisCounterMode(key,is_debug=False)
+        aes_128_gcm = AES_GCM_128(key,is_debug=False)
         cypher_text, tag = aes_128_gcm.authenticatedEncryption(initialization_vector,plain_text,additional_data,tag_length)
         authenticated, unencrypted_text = aes_128_gcm.authenticatedDecryption(initialization_vector,cypher_text,additional_data,tag)
         if authenticated:   
             unencrypted_text = unencrypted_text.getHexString()
 
         # output the test results
-        self.print_test_results(5, "AES 128", key, initialization_vector, plain_text, cypher_text, tag, authenticated, unencrypted_text)
+        self.print_test_results(6, "AES 128", "With Long IV", key, initialization_vector, additional_data, plain_text, cypher_text, tag, authenticated, unencrypted_text)
+
+        # verify that the test's results are as expected
+        self.verify_test_results(plain_text, expected_tag, expected_cypher, cypher_text, tag, authenticated, unencrypted_text)
+
+    def test_007_empty_text(self):
+        '''
+        This method tests AES 192 GCM with an empty plain text
+
+        Test Case 7 from "The Galois/Counter Mode of Operation (GCM)" : Appendix B "AES Test Vectors"
+        https://csrc.nist.rip/groups/ST/toolkit/BCM/documents/proposedmodes/gcm/gcm-spec.pdf
+        '''
+        
+        # load the test data
+        key = "000000000000000000000000000000000000000000000000"
+        initialization_vector = "000000000000000000000000"
+        expected_tag = "cd33b28ac773f74ba00ed1f312572435".upper()
+        expected_cypher = ""
+        plain_text = ""
+        additional_data=""
+
+        # run the aes 192 gcm on the test data
+        aes_192_gcm = AES_GCM_192(key)
+        cypher_text, tag = aes_192_gcm.authenticatedEncryption(initialization_vector,plain_text,additional_data,128)
+        authenticated, unencrypted_text = aes_192_gcm.authenticatedDecryption(initialization_vector,cypher_text,additional_data,tag)
+        if authenticated:   
+            unencrypted_text = unencrypted_text.getHexString()
+    
+        # output the test results
+        self.print_test_results(7, "AES 192", "With Empty Plain Text", key, initialization_vector,additional_data, plain_text, cypher_text, tag, authenticated, unencrypted_text)
+
+        # verify that the test's results are as expected
+        self.verify_test_results(plain_text, expected_tag, expected_cypher, cypher_text, tag, authenticated, unencrypted_text)
+
+    def test_008_single_block_text(self):
+        '''
+        This method tests AES 192 GCM with a single block of 128 bits plain text
+
+        Test Case 8 from "The Galois/Counter Mode of Operation (GCM)" : Appendix B "AES Test Vectors"
+        https://csrc.nist.rip/groups/ST/toolkit/BCM/documents/proposedmodes/gcm/gcm-spec.pdf
+        '''
+        
+        # load the test data
+        key = "000000000000000000000000000000000000000000000000"
+        initialization_vector = "000000000000000000000000"
+        expected_tag = "2ff58d80033927ab8ef4d4587514f0fb".upper()
+        expected_cypher = "98e7247c07f0fe411c267e4384b0f600".upper()
+        plain_text = "00000000000000000000000000000000"
+        additional_data=""
+
+        # run the aes 192 gcm on the test data
+        aes_192_gcm = AES_GCM_192(key)
+        cypher_text, tag = aes_192_gcm.authenticatedEncryption(initialization_vector,plain_text,additional_data,128)
+        authenticated, unencrypted_text = aes_192_gcm.authenticatedDecryption(initialization_vector,cypher_text,additional_data,tag)
+        if authenticated:   
+            unencrypted_text = unencrypted_text.getHexString()
+    
+        # output the test results
+        self.print_test_results(8, "AES 192", "With 128 Bit Plain Text", key, initialization_vector,additional_data, plain_text, cypher_text, tag, authenticated, unencrypted_text)
+
+        # verify that the test's results are as expected
+        self.verify_test_results(plain_text, expected_tag, expected_cypher, cypher_text, tag, authenticated, unencrypted_text)
+
+    def test_013_empty_text(self):
+        '''
+        This method tests AES 256 GCM with an empty plain text
+
+        Test Case 13 from "The Galois/Counter Mode of Operation (GCM)" : Appendix B "AES Test Vectors"
+        https://csrc.nist.rip/groups/ST/toolkit/BCM/documents/proposedmodes/gcm/gcm-spec.pdf
+        '''
+        
+        # load the test data
+        key = "0000000000000000000000000000000000000000000000000000000000000000"
+        initialization_vector = "000000000000000000000000"
+        expected_tag = "530f8afbc74536b9a963b4f1c4cb738b".upper()
+        expected_cypher = ""
+        plain_text = ""
+        additional_data=""
+
+        # run the aes 256 gcm on the test data
+        aes_256_gcm = AES_GCM_256(key)
+        cypher_text, tag = aes_256_gcm.authenticatedEncryption(initialization_vector,plain_text,additional_data,128)
+        authenticated, unencrypted_text = aes_256_gcm.authenticatedDecryption(initialization_vector,cypher_text,additional_data,tag)
+        if authenticated:   
+            unencrypted_text = unencrypted_text.getHexString()
+    
+        # output the test results
+        self.print_test_results(13, "AES 256", "With Empty Plain Text", key, initialization_vector,additional_data, plain_text, cypher_text, tag, authenticated, unencrypted_text)
+
+        # verify that the test's results are as expected
+        self.verify_test_results(plain_text, expected_tag, expected_cypher, cypher_text, tag, authenticated, unencrypted_text)
+
+    def test_014_single_block_text(self):
+        '''
+        This method tests AES 256 GCM with a single block of 128 bits plain text
+
+        Test Case 14 from "The Galois/Counter Mode of Operation (GCM)" : Appendix B "AES Test Vectors"
+        https://csrc.nist.rip/groups/ST/toolkit/BCM/documents/proposedmodes/gcm/gcm-spec.pdf
+        '''
+        
+        # load the test data
+        key = "0000000000000000000000000000000000000000000000000000000000000000"
+        initialization_vector = "000000000000000000000000"
+        expected_tag = "d0d1c8a799996bf0265b98b5d48ab919".upper()
+        expected_cypher = "cea7403d4d606b6e074ec5d3baf39d18".upper()
+        plain_text = "00000000000000000000000000000000"
+        additional_data=""
+
+        # run the aes 256 gcm on the test data
+        aes_256_gcm = AES_GCM_256(key)
+        cypher_text, tag = aes_256_gcm.authenticatedEncryption(initialization_vector,plain_text,additional_data,128)
+        authenticated, unencrypted_text = aes_256_gcm.authenticatedDecryption(initialization_vector,cypher_text,additional_data,tag)
+        if authenticated:   
+            unencrypted_text = unencrypted_text.getHexString()
+    
+        # output the test results
+        self.print_test_results(14, "AES 256", "With 128 Bit Plain Text", key, initialization_vector,additional_data, plain_text, cypher_text, tag, authenticated, unencrypted_text)
 
         # verify that the test's results are as expected
         self.verify_test_results(plain_text, expected_tag, expected_cypher, cypher_text, tag, authenticated, unencrypted_text)
@@ -196,12 +312,15 @@ class AES_GCM_UnitTest(unittest.TestCase):
         self.assertTrue(authenticated)
         self.assertEqual(unencrypted_text, plain_text)
 
-    def print_test_results(self, i, encryption_algorithm:str, key:str, initialization_vector:str, plain_text:str, cypher_text:GCM_Block, tag:GCM_Block, authenticated:bool, unencrypted_text:str):
-        print(f"Test {i}: Using {encryption_algorithm} Galois/Counter Mode With Key:{key} and IV:{initialization_vector}")
+    def print_test_results(self, i, encryption_algorithm:str, test_description:str, key:str, initialization_vector:str, additional_data:str, plain_text:str, cypher_text:GCM_Block, tag:GCM_Block, authenticated:bool, unencrypted_text:str):
+        print(f"Test {i}: Using {encryption_algorithm} Galois/Counter Mode {test_description}")
+        print(f"Key            : {key}")
+        print(f"IV             : {initialization_vector}")
+        print(f"Additional Data: {additional_data}")
         print(f"Plain Text     : {plain_text}")
         print(f"Tag            : {tag.getHexString()}")
         print(f"Encrypted Text : {cypher_text.getHexString()}")
-        print(f"Authenticate   : {"Tag was authenticated" if authenticated else "Tag failed authentication"}")
+        print(f"Authenticate   : {"Tag successfully authenticated" if authenticated else "Tag failed authentication"}")
         print(f"Decrypted Text : {unencrypted_text}")
 
 
