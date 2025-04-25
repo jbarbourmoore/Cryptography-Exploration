@@ -294,6 +294,89 @@ class BasicSequenceDiagramSetup():
         self.sendSelfMessage(participant=end_participant,message=(decrypted_message if decrypted_message != None else message),note="Decrypting Message")
         if deactivate_end: self.deactivateParticipant(participant_input=end_participant)
 
+    def encryptSendAndDecryptMessageWithTagAuth(self, start_participant_number, end_participant_number, message, encrypted_message, tag, authenticated, decrypted_message=None, message_label = "Message", deactivate_end = True, activate_start = True):
+        '''
+        This method setups up sending and receiving an encrypted message 
+
+        Parameters :
+            start_participant_number : int
+                The index of the person sending the message
+            end_participant_number : int
+                The index of the intended recipient for the message
+            message : str
+                The message content to be sent
+            encrypted_message : any
+                The encrypted form of the message being sent
+            tag : str
+                The tag for the encrypted message
+            authenticated : bool
+                Whether the message was successfully authenticated
+            decrypted_message : str, optional
+                The message content decrypted by the intended recipient, defaults to message
+            message_label : str, optional
+                The label for the message, defaults to "Message"
+            activate_start : Boolean, optional
+                whether to activate the starting participant before begining, default is True
+            deactivate_end : Boolean, optional
+                whether to deactivate the ending participant at completion, default is True
+        '''
+        
+        start_participant = self.participants[start_participant_number]
+        end_participant = self.participants[end_participant_number]
+        if activate_start: self.activateParticipant(participant_input=start_participant)
+        self.sendSelfMessage(participant=start_participant,message=message,note=f"Encrypting {message_label}")
+        self.sendALabeledMessage(start_participant_input=start_participant,end_participant_input=end_participant,message=encrypted_message, note=f"Sending Encrypted {message_label}")
+        self.sendALabeledMessage(start_participant_input=start_participant,end_participant_input=end_participant,message=tag, note=f"Sending Tag")
+        self.deactivateParticipant(participant_input=start_participant)
+        self.activateParticipant(participant_input=end_participant)
+        self.sendSelfMessage(participant=end_participant,message=("Message was successfully authenticated" if authenticated else "Message failed authentication"),note="Authenticating Message")
+        if authenticated:
+            self.sendSelfMessage(participant=end_participant,message=(decrypted_message if decrypted_message != None else message),note="Decrypting Message")
+        if deactivate_end: self.deactivateParticipant(participant_input=end_participant)
+
+    def encryptSendAndDecryptMessageWithTagAuthAndIV(self, start_participant_number:int, end_participant_number:int, message:str, encrypted_message:str, tag:str, authenticated:bool, initialization_vector:str, decrypted_message:str=None, message_label:str = "Message", deactivate_end:bool = True, activate_start:bool = True):
+        '''
+        This method setups up sending and receiving an encrypted message 
+
+        Parameters :
+            start_participant_number : int
+                The index of the person sending the message
+            end_participant_number : int
+                The index of the intended recipient for the message
+            message : str
+                The message content to be sent
+            encrypted_message : any
+                The encrypted form of the message being sent
+            tag : str
+                The tag for the encrypted message
+            authenticated : bool
+                Whether the message was successfully authenticated
+            initialization_vector : str
+                The initialization vector as a hex string
+            decrypted_message : str, optional
+                The message content decrypted by the intended recipient, defaults to message
+            message_label : str, optional
+                The label for the message, defaults to "Message"
+            activate_start : Boolean, optional
+                whether to activate the starting participant before begining, default is True
+            deactivate_end : Boolean, optional
+                whether to deactivate the ending participant at completion, default is True
+        '''
+        
+        start_participant = self.participants[start_participant_number]
+        end_participant = self.participants[end_participant_number]
+        if activate_start: self.activateParticipant(participant_input=start_participant)
+        self.sendSelfMessage(participant=start_participant,message=message,note=f"Encrypting {message_label}")
+        self.sendALabeledMessage(start_participant_input=start_participant,end_participant_input=end_participant,message=f"Initialization Vector is {initialization_vector}", note=f"Sending Header")
+        self.sendALabeledMessage(start_participant_input=start_participant,end_participant_input=end_participant,message=encrypted_message, note=f"Sending Encrypted {message_label}")
+        self.sendALabeledMessage(start_participant_input=start_participant,end_participant_input=end_participant,message=f"Tag is {tag}", note=f"Sending Tag")
+        self.deactivateParticipant(participant_input=start_participant)
+        self.activateParticipant(participant_input=end_participant)
+        self.sendSelfMessage(participant=end_participant,message=("Message was successfully authenticated" if authenticated else "Message failed authentication"),note="Authenticating Message")
+        if authenticated:
+            self.sendSelfMessage(participant=end_participant,message=(decrypted_message if decrypted_message != None else message),note="Decrypting Message")
+        if deactivate_end: self.deactivateParticipant(participant_input=end_participant)
+
     def encryptSendAndDecryptMessageIntercepted(self, start_participant_number, end_participant_number, message, encrypted_message, intercepting_participent_number, intercepted_message=None, intercepted_note="Attempting to Decrypt Message", decrypted_message=None, message_label = "Message", deactivate_end = True, activate_start = True):
         '''
         This method setups up sending an encrypted message which is intercepted
@@ -643,7 +726,7 @@ class BasicCommunication(BasicEvent):
         self.end_participant = end_participant
         self.direction = direction
 
-        max_message_width = 90
+        max_message_width = 110
         if len(self.message)>max_message_width:
             for i in range(max_message_width,len(self.message),max_message_width+2):
                 first_half = self.message[:i]

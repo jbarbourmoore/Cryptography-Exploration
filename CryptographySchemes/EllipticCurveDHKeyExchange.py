@@ -49,7 +49,7 @@ class EllipticCurveDHKeyPair():
 
         self.public_key = self.elliptic_curve_dh_key_exchange_data.curve.calculatedPointMultiplicationByConstant_doubleAndAddMethod(self.elliptic_curve_dh_key_exchange_data.curve_details.generator_point,self.private_key)
 
-    def getCompressedPublicKey(self):
+    def getCompressedPublicKey(self) -> str:
         '''
         This method gets the compressed form of the public key
 
@@ -107,8 +107,8 @@ class EllipticCurveDHKeyExchange():
             random_index = randint(0,number_of_functions - 1)
             get_curve_function = get_curve_functions[random_index]
 
-        self.curve_details = get_curve_function()
-        self.curve = WeirrstrassCurveCalculations(self.curve_details.a,self.curve_details.b,finite_field=self.curve_details.prime_modulus)
+        self.curve_details:EllipticCurveDetails.EllipticCurveWeierstrassFormDetails = get_curve_function()
+        self.curve:WeirrstrassCurveCalculations = WeirrstrassCurveCalculations(self.curve_details.a,self.curve_details.b,finite_field=self.curve_details.prime_modulus)
         
         if is_debug:
             print("A elliptic curve diffie hellman exchange has been initiated")

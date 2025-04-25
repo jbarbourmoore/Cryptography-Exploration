@@ -303,13 +303,13 @@ class AES_GCM_128(AES128):
         This method performs an authenticated decryption using AES Galois Counter Mode
 
         Parameters : 
-            IV : [int] | IntegerHandler | str | int
+            initialization_vector : [int] | IntegerHandler | str | int
                 The initialization vector as a bit array, IntegerHandler, hex string or int
-            C : [int] | IntegerHandler | str | int
+            cypher_text : [int] | IntegerHandler | str | int
                 The cypher text as a bit array, IntegerHandler, hex string or int
-            A : [int] | IntegerHandler | str | int
+            additional_data : [int] | IntegerHandler | str | int
                 The additional data as a bit array, IntegerHandler, hex string or int
-            T : [int] | IntegerHandler | str | int
+            tag : [int] | IntegerHandler | str | int
                 The tag as a bit array, IntegerHandler, hex string or int
         
         Returns :
@@ -366,6 +366,63 @@ class AES_GCM_128(AES128):
         if tag_prime == tag:
             return True, IntegerHandler.fromBitArray(plain_text, False, len(plain_text))
         return False, None
+    
+    def authenticatedEncryption_StringMessage(self, initialization_vector:IntegerHandler | str | int | list[int], string_message:str, additional_data:IntegerHandler | str | int | list[int], tag_length:int) -> tuple[IntegerHandler, IntegerHandler]:
+        '''
+        This method performs an authenticated encryption using AES Galois Counter Mode
+
+        As laid out in NIST SP-800 38D Section 7.1 "Algorithm for the Authenticated Encryption Function"
+
+        https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38d.pdf
+
+        Parameters : 
+            initialization_vector : [int] | IntegerHandler | str | int
+                The initialization vector as a bit array, IntegerHandler, hex string or int
+            string_message : str
+                The string message to encrypt
+            additional_data : [int] | IntegerHandler | str | int
+                The additional data as a bit array, IntegerHandler, hex string or int
+            tag_length : int
+                The tag length as an int
+        
+        Returns :
+            cypher_text : IntegerHandler
+                The cypher text that was generated as an Integer_Handler object
+            tag : IntegerHandler
+                The tag that was generated as an Integer Handler object
+        '''
+
+        message_handler = IntegerHandler.fromString(string_message,False, bit_length=len(string_message)*8)
+
+        return self.authenticatedEncryption(initialization_vector, message_handler, additional_data, tag_length)
+
+    def authenticatedDecryption_StringMessage(self, initialization_vector:IntegerHandler | str | int | list[int], cypher_text:IntegerHandler | str | int | list[int], additional_data:IntegerHandler | str | int | list[int], tag:IntegerHandler | str | int | list[int]):
+        '''
+        This method performs an authenticated decryption using AES Galois Counter Mode
+
+        Parameters : 
+            initialization_vector : [int] | IntegerHandler | str | int
+                The initialization vector as a bit array, IntegerHandler, hex string or int
+            cypher_text : [int] | IntegerHandler | str | int
+                The cypher text as a bit array, IntegerHandler, hex string or int
+            additional_data : [int] | IntegerHandler | str | int
+                The additional data as a bit array, IntegerHandler, hex string or int
+            tag : [int] | IntegerHandler | str | int
+                The tag as a bit array, IntegerHandler, hex string or int
+        
+        Returns :
+            is_authenticated : bool
+                Whether the tag was able to be successfully authenticated
+            unencrypted_text : string | None
+                The unencrypted data as an string or None if the tag was not authenticated
+        '''
+
+        authenticated, decrypted_handler = self.authenticatedDecryption(initialization_vector,cypher_text,additional_data,tag)
+
+        if not authenticated:
+            return False, None
+        else:
+            return True, bytes.fromhex(decrypted_handler.getHexString()).decode()
 
     def makeBitArray(self, value) -> list[int]:
         '''
@@ -415,7 +472,7 @@ class AES_GCM_192(AES_GCM_128):
     '''
     def __init__(self, key):
         '''
-        This method should initialize aes_ecb_192 with a given key
+        This method should initialize aes_gcm_192 with a given key
 
         Parameters : 
             key : str
@@ -438,7 +495,7 @@ class AES_GCM_256(AES_GCM_128):
 
     def __init__(self, key):
         '''
-        This method should initialize aes ecb 256 with a given key
+        This method should initialize aes gcm 256 with a given key
 
         Parameters : 
             key : str
@@ -450,3 +507,21 @@ class AES_GCM_256(AES_GCM_128):
         self.number_of_rounds = 14
         self.number_key_words = 8
         self.keyExpansion()
+
+
+if __name__ == '__main__':
+    aes_256_gcm = AES_GCM_256("163D28AB"*8)
+    initialization_vector = "1234567890abc1243567890"
+    additional_data = "testing aes gcm encryption of string".encode().hex()
+    tag_length = 128
+
+    string_message = "Hello! How are you doing today? Why don't we try encrypting this with AES 256 Galois/Counter Mode"
+
+    cypher_text, tag = aes_256_gcm.authenticatedEncryption_StringMessage(initialization_vector,string_message,additional_data,tag_length)
+    print(cypher_text.getHexString())
+    print(f"Cypher Text    : {cypher_text.getHexString()}")
+    print(f"Tag            : {tag.getHexString()}")
+
+    authenticated, decrypted_string = aes_256_gcm.authenticatedDecryption_StringMessage(initialization_vector,cypher_text,additional_data,tag)
+    print(f"Authenticate   : {authenticated}")
+    print(f"Decrypted Text : {decrypted_string}")
