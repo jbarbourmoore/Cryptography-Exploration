@@ -24,7 +24,11 @@ class DES_UnitTest(unittest.TestCase):
                             "20B9E767B2FB1456",
                             "55579380D77138EF",
                             "6CC5DEFAAF04512F",
-                            "0D9F279BA5D87260"]
+                            "0D9F279BA5D87260",
+                            "D9031B0271BD5A0A",
+                            "424250B37C3DD951",
+                            "B8061B7ECD9A21E5",
+                            "F15D0F286B65BD28"]
         expected_results = ["8000000000000000",
                             "4000000000000000",
                             "2000000000000000",
@@ -32,13 +36,16 @@ class DES_UnitTest(unittest.TestCase):
                             "0800000000000000",
                             "0400000000000000",
                             "0200000000000000",
-                            "0100000000000000"]
+                            "0100000000000000",
+                            "0080000000000000",
+                            "0040000000000000",
+                            "0020000000000000",
+                            "0010000000000000"]
         
         hex_key ="0101010101010101"
         des = DataEncryptionStandard(hex_key, is_hex_key=True)
         for i in range(0,len(hex_to_encrypt)):
-            encrypted = des.encryptHexMessage(hex_to_encrypt[i])[0]
-            encrypted = IntegerHandler.fromBitString(encrypted,False,64).getHexString()
+            encrypted = des.encryptHexMessage(hex_to_encrypt[i])
             self.assertEqual(encrypted,expected_results[i])
             print(f"Plain Text  : {hex_to_encrypt[i]}  ->  Cypher Text : {encrypted} (expected was {expected_results[i]})")
 
@@ -58,7 +65,11 @@ class DES_UnitTest(unittest.TestCase):
                             "20B9E767B2FB1456",
                             "55579380D77138EF",
                             "6CC5DEFAAF04512F",
-                            "0D9F279BA5D87260"]
+                            "0D9F279BA5D87260",
+                            "D9031B0271BD5A0A",
+                            "424250B37C3DD951",
+                            "B8061B7ECD9A21E5",
+                            "F15D0F286B65BD28"]
         hex_to_decrypt   = ["8000000000000000",
                             "4000000000000000",
                             "2000000000000000",
@@ -66,11 +77,15 @@ class DES_UnitTest(unittest.TestCase):
                             "0800000000000000",
                             "0400000000000000",
                             "0200000000000000",
-                            "0100000000000000"]
+                            "0100000000000000",
+                            "0080000000000000",
+                            "0040000000000000",
+                            "0020000000000000",
+                            "0010000000000000"]
         hex_key ="0101010101010101"
         des = DataEncryptionStandard(hex_key, is_hex_key=True)
         for i in range(0,len(hex_to_decrypt)):
-            decrypted = des.decryptHexMessage([IntegerHandler.fromHexString(hex_to_decrypt[i],False,64).getBitString()])
+            decrypted = des.decryptHexMessage(hex_to_decrypt[i])
             self.assertEqual(decrypted,expected_results[i])
             print(f"Cypher Text : {hex_to_decrypt[i]}  ->  Plain Text : {decrypted} (expected was {expected_results[i]})")
 
