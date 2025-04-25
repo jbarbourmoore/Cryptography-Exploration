@@ -181,6 +181,22 @@ class IntegerHandler():
 
         bytes_list = bytes.fromhex(self.getHexString())
         return bytes_list
+    
+    def getString(self)-> str:
+        '''
+        This method returns a utf-8 string based on the value or the hexstring if decoding fails
+
+        Returns : 
+            string : str
+                The str corresponding to this value
+        '''
+        bytes_to_decode = self.getBytes()
+        try:
+            string = bytes_to_decode.decode("utf-8")
+            string = string.replace("\x00","")
+            return string
+        except:
+            return self.getHexString()
 
     def __str__(self) -> str:
         '''

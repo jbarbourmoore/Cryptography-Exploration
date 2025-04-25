@@ -1,4 +1,4 @@
-
+from HelperFunctions.IntegerHandler import *
 
 class DataEncryptionStandard():
     '''
@@ -92,7 +92,7 @@ class DataEncryptionStandard():
         34, 53, 46, 42, 50, 36, 29, 32]
     left_shift_schedule = [1, 1, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 1]
     
-    def __init__(self, key):
+    def __init__(self, key, is_hex_key = False):
         '''
         This method initializes a DataEncryptionStandard with a given key
 
@@ -102,6 +102,7 @@ class DataEncryptionStandard():
         '''
 
         self.key = key
+        self.is_hex_key = is_hex_key
 
     def stringToBinaryList(self, string_message:str):
         '''
@@ -120,11 +121,31 @@ class DataEncryptionStandard():
         list_of_blocks = []
         for x in range(0,length,8):
             list_of_blocks.append(string_message[x:x+8])
+        
         for j in range(0,len(list_of_blocks)):
             list_of_blocks[j]=self.stringToBinary(list_of_blocks[j])
         return list_of_blocks
+    
+    def hexToBinaryList(self, string_message:str):
+        '''
+        This method converts a string message into a list of binary strings with a 64 bit length
 
-    def stringToBinary(self, string):
+        Parameters :
+            string_message : str
+                The message to be encrypted as a string
+
+        Returns : 
+            binary_list : [str]
+                The message as a list of 64 bit binary strings
+        '''
+
+        length = len(string_message)
+        list_of_blocks = []
+        for x in range(0,length,16):
+            list_of_blocks.append(IntegerHandler.fromHexString(string_message[x:x+16],0,64).getBitString())
+        return list_of_blocks
+
+    def stringToBinary(self, string:str):
         '''
         This method converts a string message a 64 bit binary string
 
@@ -137,10 +158,10 @@ class DataEncryptionStandard():
                 The message as a 64 bit binary string
         '''
 
-        string = ''.join(format(ord(i), '08b') for i in string)
-        if(len(string) < 64):
-            string += '0'*(64-len(string))
-        return string
+        bit_string =  IntegerHandler.fromString(string,False,bit_length=len(string)*8).getBitString()
+        if(len(bit_string) < 64):
+            bit_string += '0' * (64 - len(bit_string))
+        return bit_string
 
     def binaryToString(self,binary_str):
         '''
@@ -154,10 +175,8 @@ class DataEncryptionStandard():
             message_string : str
                 The binary string converted into a readable string
         '''
-
-        message_string = ''.join([chr(int(binary_str[i:i+8], 2)) for i in range(0, len(binary_str), 8)])
-        message_string = message_string.replace('\x00','')
-        return message_string
+        return IntegerHandler.fromBitString(binary_str, False,bit_length=64).getString() 
+        
     
     def binaryListToString(self, binary_list):
         '''
@@ -205,8 +224,11 @@ class DataEncryptionStandard():
             binary_key : str
                 The key as a binary sting
         '''
-
-        return self.stringToBinary(self.key)
+        if not self.is_hex_key:
+            return self.stringToBinary(self.key)
+        else:
+            
+            return IntegerHandler.fromHexString(hex_string=self.key, little_endian=False,bit_length=len(self.key)*4).getBitString()
     
     def generateKeysForEachRound(self):
         '''
@@ -328,6 +350,26 @@ class DataEncryptionStandard():
             encrypted_list.append(self.encryptSingleBlock(binary_string))
 
         return encrypted_list
+    
+    def encryptHexMessage(self, message:str)->list[str]:
+        '''
+        This method encrypts a message
+
+        Parameters :
+            message : str
+                The message to be encrypted
+
+        Returns : 
+            binary_encrypted_list : [str]
+                A list of the encrypted binary strings in 8 character blocks
+        '''
+
+        binary_list = self.hexToBinaryList(message)
+        result_string = ""
+        for binary_string in binary_list:
+            #encrypted_list.append(self.encryptSingleBlock(binary_string))
+            result_string += IntegerHandler.fromBitString(self.encryptSingleBlock(binary_string),False,64).getHexString()
+        return result_string
         
     def decryptSingleBlock(self, encrypted_binary):
         '''
@@ -379,6 +421,34 @@ class DataEncryptionStandard():
             decrypted_list.append(self.decryptSingleBlock(encrypted_binary))
         decrypted_message = self.binaryListToString(decrypted_list)
         return decrypted_message
+    
+    def decryptHexMessage(self, encrypted_hex):
+        '''
+        This method decrypts an encrypted message
+
+        Parameters :
+            encrypted_binary_list : [str]
+                A list of the encrypted binary strings in 8 character blocks
+
+        Returns : 
+            decrypted_message : str
+                The message that has been decrypted
+        '''
+        length = len(encrypted_hex) * 4
+        block_count = length // 64
+        decrypted_hex = ""
+        for i in range (0, block_count):
+            encrypted_bits = IntegerHandler.fromHexString(encrypted_hex[i*16:i*16+16],False,64).getBitString()
+            decrypted_bits = self.decryptSingleBlock(encrypted_bits)
+            decrypted_hex = decrypted_hex + IntegerHandler.fromBitString(decrypted_bits,False,64).getHexString()
+        # decrypted_list = []
+        # for encrypted_binary in encrypted_hex:
+        #     decrypted_list.append(self.decryptSingleBlock(encrypted_binary))
+        # result_string = ""
+        # for message in decrypted_list:
+        #     result_string = result_string + IntegerHandler.fromBitString(message,False,64).getHexString()
+        return decrypted_hex
+    
 if __name__ == '__main__':
 
     key = "key"
@@ -389,11 +459,10 @@ if __name__ == '__main__':
 
     encrypted = des.encryptSingleBlock(binary_message_list[0])
     decrypted = des.decryptSingleBlock(encrypted)
-    print(f"First block encrypted: {des.binaryToString(encrypted)}    --->   decrypted: {des.binaryToString(decrypted)}")
+    print(f"First block encrypted: {encrypted}    --->   decrypted: {decrypted}")
 
     entire_encrypted_message = des.encryptMessage(message=message)
-    entire_encrypted_message_string = des.binaryListToString(entire_encrypted_message)
-    print(entire_encrypted_message_string)
+    print(entire_encrypted_message)
     decrypted_message = des.decryptMessage(entire_encrypted_message)
     print(decrypted_message)
     print(f"{message} : {decrypted_message}")
@@ -402,3 +471,10 @@ if __name__ == '__main__':
     decrypted_message_wrong_key = other_des.decryptMessage(entire_encrypted_message)
     print(decrypted_message_wrong_key)
     assert message != decrypted_message_wrong_key
+
+    des = DataEncryptionStandard(key="0101010101010101", is_hex_key=True)
+    data = "95F8A5E5DD31D900"
+    encrypt_data = des.encryptHexMessage(data)
+    print(encrypt_data)
+    decrypt_data = des.decryptHexMessage(encrypt_data)
+    print(decrypt_data)
