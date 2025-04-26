@@ -17,13 +17,15 @@ class TripleDataEncryptionStandard():
         '''
 
 
-        self.key = key
+        
         self.is_debug = is_debug
         if string_key != None:
+            self.key = string_key
             self.des_1 = DataEncryptionStandard(string_key[:8])
             self.des_2 = DataEncryptionStandard(string_key[8:16])
             self.des_3 = DataEncryptionStandard(string_key[16:])
         else:
+            self.key = hex_key
             self.des_1 = DataEncryptionStandard(hex_key[:16],is_hex_key=True)
             self.des_2 = DataEncryptionStandard(hex_key[16:32],is_hex_key=True)
             self.des_3 = DataEncryptionStandard(hex_key[32:],is_hex_key=True)
@@ -98,6 +100,210 @@ class TripleDataEncryptionStandard():
         message = self.des_1.decryptHexMessage(encrypted)
 
         return message
+    
+class TDES_ECB():
+    '''
+    This class should allow Triple Data Encryption Standard to be used in electronic cookbook (ECB) mode
+
+    ECB is described in NIST SP 800-38a Section 6.1
+    https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38a.pdf
+    '''
+    def __init__(self, key:str, is_hex_key:bool=True):
+        '''
+        This method initializes TDES in ECB mode
+
+        Parameters :
+            key : str
+                The key for the triple data encription as either a utf-8 string or hex string
+            is_hex_key : bool
+                Whether the key is a hexadecimal string
+        '''
+        if is_hex_key:
+            self.tdes = TripleDataEncryptionStandard(hex_key=key)
+        else:
+            self.tdes = TripleDataEncryptionStandard(string_key=key)
+
+        self.block_size = 64
+
+    def encryptHexString(self, hex_message:str) -> str:
+        '''
+        This method encrypts a hexadecimal string
+
+        Parameters :
+            hex_message : str
+                The hexadecimal string to be encrypted
+
+        Returns :
+            encrypted_hex : str
+                The hexadecimal string as an encrypted hexadecimal string
+        '''
+
+        return self.tdes.encryptHex(hex_message)
+        
+    def decryptHexString(self, hex_encrypted:str) -> str:
+        '''
+        This method decrypts an encrypted hexadecimal string using TDES
+
+        Parameters :
+            hex_encrypted : stre
+                The encrypted message as a hexadecimal string
+
+        Returns :
+            decrypted_hex : str
+                The decrypted message as a hexadecimal string
+        '''
+
+        return self.tdes.decryptHex(hex_encrypted)
+    
+    def encryptString(self, string_message:str) -> str:
+        '''
+        This method encrypts a string message encoded using utf-8 and returns the encryption as a hexadecimal string
+
+        Parameters :
+            string_message : str
+                The string to be encrypted
+
+        Returns :
+            encrypted_hex : str
+                The string as an encrypted hexadecimal string
+        '''
+
+        hex_message = IntegerHandler.fromString(string_message,False,len(string_message)*8).getHexString()
+        return self.encryptHexString(hex_message)
+    
+    def decryptString(self, encrypted_hex:str) -> str:
+        '''
+        This method decrypts an encrypted string using TDES
+
+        Parameters :
+            hex_encrypted : str
+                The encrypted message as a hexadecimal string
+
+        Returns :
+            decrypted_string : str
+                The decrypted message as a string decoded from utf-8
+        '''
+
+        decrypted_hex = self.decryptHexString(encrypted_hex)
+        return IntegerHandler.fromHexString(decrypted_hex,False,len(decrypted_hex)*4).getString()
+
+class TDES_CBC(TDES_ECB):
+    '''
+    This class implements the Cipher Block Chaining (CBC) Mode for Triple Data Encryption Standard (TDES)
+
+    CBC is described in NIST SP 800-38a Section 6.2
+    https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38a.pdf
+    '''
+
+    def encryptHexString(self, hex_message:str, initialization_vector:str) -> str:
+        '''
+        This method encrypts a hexadecimal string
+
+        Parameters :
+            hex_message : str
+                The hexadecimal string to be encrypted
+            initialization_vector : str
+                The initialization vector to be used with the encryption mode
+
+        Returns :
+            encrypted_hex : str
+                The hexadecimal string as an encrypted hexadecimal string
+        '''
+
+        if len(hex_message) % 16 != 0:
+            hex_message = hex_message + "0" * (16 - (hex_message % 16))
+
+        number_of_blocks = len(hex_message) // 16
+        current_to_xor = initialization_vector
+        encrypted_hex = ""
+        for i in range(0, number_of_blocks):
+            hex_segment = hex_message[i * 16 : i * 16 + 16]
+            xor_result = self.xorHexString(current_to_xor, hex_segment)
+            cipher_text = self.tdes.encryptHex(xor_result)
+            encrypted_hex += cipher_text
+            current_to_xor = cipher_text
+            # print(f"hex:{hex_segment}, xord:{xor_result}, cipher:{cipher_text}")
+
+        return encrypted_hex
+    
+    def xorHexString(self, hex_string_1:str, hex_string_2:str)-> str:
+        '''
+        This method performs an exclusive or operation on two hex strings
+
+        Parameters:
+            hex_string_1, hex_string_2 : str
+                The two hex strings the xor operation is being performed on
+
+        Returns : 
+            xor_string : str
+                The result of the xor operation as a hex string
+        '''
+        handler_1 = IntegerHandler.fromHexString(hex_string_1,False,len(hex_string_1)*4)
+        handler_2 = IntegerHandler.fromHexString(hex_string_2,False,len(hex_string_2)*4)
+        return bitwiseXor([handler_1,handler_2], False, handler_1.getBitLength()).getHexString()
+    
+    def decryptHexString(self, hex_encrypted:str, initialization_vector:str) -> str:
+        '''
+        This method decrypts an encrypted hexadecimal string using TDES
+
+        Parameters :
+            hex_encrypted : stre
+                The encrypted message as a hexadecimal string
+            initialization_vector : str
+                The initialization vector to be used with the encryption mode
+
+        Returns :
+            decrypted_hex : str
+                The decrypted message as a hexadecimal string
+        '''
+
+        number_of_blocks = len(hex_encrypted) // 16
+        current_to_xor = initialization_vector
+        unencrypted_hex = ""
+        for i in range(0, number_of_blocks):
+            hex_segment = hex_encrypted[i * 16 : i * 16 +16]
+            post_cypher = self.tdes.decryptHex(hex_segment)
+            post_xor =self.xorHexString(current_to_xor,post_cypher)
+            current_to_xor = hex_segment
+            unencrypted_hex += post_xor
+        return unencrypted_hex
+    
+    def encryptString(self, string_message:str, initialization_vector:str) -> str:
+        '''
+        This method encrypts a string message encoded using utf-8 and returns the encryption as a hexadecimal string
+
+        Parameters :
+            string_message : str
+                The string to be encrypted
+            initialization_vector : str
+                The initialization vector to be used with the encryption mode
+
+        Returns :
+            encrypted_hex : str
+                The string as an encrypted hexadecimal string
+        '''
+
+        hex_message = IntegerHandler.fromString(string_message,False,len(string_message)*8).getHexString()
+        return self.encryptHexString(hex_message, initialization_vector)
+    
+    def decryptString(self, encrypted_hex:str, initialization_vector:str) -> str:
+        '''
+        This method decrypts an encrypted string using TDES
+
+        Parameters :
+            hex_encrypted : str
+                The encrypted message as a hexadecimal string
+            initialization_vector : str
+                The initialization vector to be used with the encryption mode
+
+        Returns :
+            decrypted_string : str
+                The decrypted message as a string decoded from utf-8
+        '''
+
+        decrypted_hex = self.decryptHexString(encrypted_hex, initialization_vector)
+        return IntegerHandler.fromHexString(decrypted_hex,False,len(decrypted_hex)*4).getString()
+    
     
 if __name__ == '__main__':
 
