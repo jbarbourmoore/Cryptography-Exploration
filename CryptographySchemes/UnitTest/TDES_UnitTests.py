@@ -254,6 +254,46 @@ class TDES_UnitTest(unittest.TestCase):
         print(f"Expected Plain Text  : {expected_results}")
         print(f"Decrypted Text       : {result_hex}")
 
+    def test_tdes_ctr_1encrypt(self):
+        '''
+        This method tests that the tdes encryption works properly in Counter (CTR) mode 
+        according to https://github.com/coruus/nist-testvectors/blob/master/csrc.nist.gov/groups/ST/toolkit/documents/Examples/TDES_ModesA_All.txt
+        '''
+
+        hex_to_encrypt   =  "6BC1BEE2 2E409F96 E93D7E11 7393172A AE2D8A57 1E03AC9C 9EB76FAC 45AF8E51".replace(" ","")
+        expected_results =  "078BB74E 59CE7ED6 19AA11D2 5004FB65 A03CEDF1 BA0B09BA A3BC81B8 F69C1DA9".replace(" ","")
+        
+        key = "01234567 89ABCDEF 23456789 ABCDEF01 456789AB CDEF0123".replace(" ","")
+        initialization_vector = "F69F2445 DF4F9B17"
+
+        tdes = TDES_CTR(key=key, is_hex_key=True)
+        result_hex = tdes.encryptHexString(hex_to_encrypt,initialization_vector=initialization_vector)
+        self.assertEqual(expected_results, result_hex)
+        print("Testing Encryption With Triple Data Encryption Standard In Counter (CTR) Mode")
+        print(f"Plain Text           : {hex_to_encrypt}")
+        print(f"Expected Cypher Text : {expected_results}")
+        print(f"Encrypted Text       : {result_hex}")
+
+    def test_tdes_ctr_2decrypt(self):
+        '''
+        This method tests that the tdes decryption works properly in Counter (CTR) mode
+        according to https://github.com/coruus/nist-testvectors/blob/master/csrc.nist.gov/groups/ST/toolkit/documents/Examples/TDES_ModesA_All.txt
+        '''
+
+        expected_results = "6BC1BEE2 2E409F96 E93D7E11 7393172A AE2D8A57 1E03AC9C 9EB76FAC 45AF8E51".replace(" ","")
+        hex_to_decrypt   = "078BB74E 59CE7ED6 19AA11D2 5004FB65 A03CEDF1 BA0B09BA A3BC81B8 F69C1DA9".replace(" ","")
+        
+        key = "01234567 89ABCDEF 23456789 ABCDEF01 456789AB CDEF0123".replace(" ","")
+        initialization_vector = "F69F2445DF4F9B17"
+
+        tdes = TDES_CTR(key=key, is_hex_key=True)
+        result_hex = tdes.decryptHexString(hex_to_decrypt, initialization_vector)
+        self.assertEqual(expected_results, result_hex)
+        print("Testing Decryption With Triple Data Encryption Standard In Counter (CTR) Mode")
+        print(f"Cypher Text          : {hex_to_decrypt}")
+        print(f"Expected Plain Text  : {expected_results}")
+        print(f"Decrypted Text       : {result_hex}")
+
 if __name__ == '__main__':
     print("Testing TDES With Block Cypher Modes Of Operation")
     print("https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38a.pdf")
