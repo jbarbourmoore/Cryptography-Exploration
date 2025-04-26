@@ -381,7 +381,6 @@ class TDES_CFB(TDES_CBC):
         Returns : 
             decrypted_hex : str
                 The message that was encrypted using TDES
-            
         '''
 
         b = 64
@@ -403,6 +402,72 @@ class TDES_CFB(TDES_CBC):
                 I = concatenate([lsb, C], False).getHexString()
             result_hex += message_chunk.getHexString()
         return result_hex
+    
+class TDES_OFB(TDES_CBC):
+    '''
+    This class implements the Output Feedback (OFB) Mode for TDES
+    
+    OFB is described in NIST SP 800-38a Section 6.4
+    https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38a.pdf
+    '''
+
+    def encryptHexString(self, hex_string:str, initialization_vector:str)->list[str]:
+        '''
+        This method encrypts a list of hex strings using TDES
+
+        Follows Output Feedback (OFB) Mode Encryption as described in NIST SP 800-38a Section 6.3
+        https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38a.pdf
+
+        Parameters : 
+            hex_string : str
+                The content to be encrypted as a hex string in the appropriate block size
+            initialization_vector : str
+                The initializtion vector as a hex string
+
+        Returns :
+            encrypted_hex : str
+                The result of the encryption as a list of hex strings
+        '''
+        number_of_message_blocks = len(hex_string) // 16
+        encrypted_hex = ""
+        I = initialization_vector
+        for i in range (0, number_of_message_blocks):
+            hex_segment = hex_string[i * 16 : i * 16 + 16]
+            O = self.tdes.encryptHex(I)
+            C = self.xorHexString(hex_segment, O)
+            encrypted_hex += C
+            I = O
+        return encrypted_hex
+    
+    def decryptHexString(self, encrypted_hex:str, initialization_vector:str) -> list[str]:
+        '''
+        This method takes in a encrypted bex string and decrypts it using TDES
+
+        Follows Cipher Feedback (CFB) Mode Decryption as described in NIST SP 800-38a Section 6.3
+        https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38a.pdf
+
+        Parameters :
+            encrypted_hex : hex
+                The result of the encryption as a hexadecimal string
+            initialization_vector : str
+                The initializtion vector as a hex string
+        
+        Returns : 
+            decrypted_hex : str
+                The message that was encrypted using TDES
+            
+        '''
+
+        number_of_message_blocks = len(encrypted_hex) // 16
+        decrypted_hex = ""
+        I = initialization_vector
+        for i in range (0, number_of_message_blocks):
+            hex_segment = encrypted_hex[i * 16 : i * 16 + 16]
+            O = self.tdes.encryptHex(I)
+            P = self.xorHexString(hex_segment, O)
+            decrypted_hex += P
+            I = O
+        return decrypted_hex
     
 if __name__ == '__main__':
 
