@@ -304,6 +304,105 @@ class TDES_CBC(TDES_ECB):
         decrypted_hex = self.decryptHexString(encrypted_hex, initialization_vector)
         return IntegerHandler.fromHexString(decrypted_hex,False,len(decrypted_hex)*4).getString()
     
+class TDES_CFB(TDES_CBC):
+    '''
+    This class implements the Cipher Feedback (CFB) Mode for TDES
+
+    CFB is described in NIST SP 800-38a Section 6.3
+    https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38a.pdf
+    '''
+
+    def __init__(self,  key:str, s:int, is_hex_key:bool=True):
+        '''
+        This method initializes TDES in CFB mode
+
+        Parameters :
+            key : str
+                The key for the triple data encription as either a utf-8 string or hex string
+            s : int
+                The s value for the cypher feedback encryption mode
+            is_hex_key : bool
+                Whether the key is a hexadecimal string
+        '''
+        super().__init__(key)
+        self.s = s
+
+    def encryptHexString(self, hex_string:str, initialization_vector:str)->list[str]:
+        '''
+        This method encrypts a list of hex strings using TDES
+
+        Follows Cipher Feedback (CFB) Mode Encryption as described in NIST SP 800-38a Section 6.3
+        https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38a.pdf
+
+        Parameters : 
+            hex_string : str
+                The content to be encrypted as a hex string in the appropriate block size
+            initialization_vector : str
+                The initializtion vector as a hex string
+
+        Returns :
+            encrypted_hex : str
+                The result of the encryption as a list of hex strings
+        '''
+        number_of_message_blocks = len(hex_string) // 16
+        b = 64
+        s = self.s
+        rotations_per_segment = b // s        
+        result_string = ""
+        I = initialization_vector
+        for i in range (0, number_of_message_blocks):
+            message_chunk = IntegerHandler.fromHexString(hex_string[i*16:i*16+16],False,b)
+            encrypted_message = IntegerHandler(0,False,0)
+            for j in range (0, rotations_per_segment):
+                O = self.tdes.encryptHex(I)
+                # result_list.append(O)
+                most_sig_O = IntegerHandler.fromHexString(O,False,b).getMostSignificantBits(s)
+                P = IntegerHandler.fromBitArray(message_chunk.getBitArray()[j*s:j*s+s],False,s)
+                C = bitwiseXor([P,most_sig_O],False,s)
+                encrypted_message = concatenate([encrypted_message,C],False)
+                lsb = IntegerHandler.fromHexString(I,False,64).getLeastSignificantBits(b-s)
+                I = concatenate([lsb,C],False).getHexString()
+            result_string += encrypted_message.getHexString()
+        return result_string
+    
+    def decryptHexString(self, encrypted_hex:str, initialization_vector:str) -> list[str]:
+        '''
+        This method takes in a encrypted bex string and decrypts it using TDES
+
+        Follows Cipher Feedback (CFB) Mode Decryption as described in NIST SP 800-38a Section 6.3
+        https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38a.pdf
+
+        Parameters :
+            encrypted_hex : hex
+                The result of the encryption as a hexadecimal string
+            initialization_vector : str
+                The initializtion vector as a hex string
+        
+        Returns : 
+            decrypted_hex : str
+                The message that was encrypted using TDES
+            
+        '''
+
+        b = 64
+        s = self.s
+        rotations_per_segment = b // s    
+        number_of_message_blocks = len(encrypted_hex) // 16
+        result_hex = ""
+        I = initialization_vector
+        for i in range (0, number_of_message_blocks):
+            message_chunk = IntegerHandler(0, False, 0)
+            encrypted_chunk = IntegerHandler.fromHexString(encrypted_hex[i * 16 : i * 16 + 16], False, b)
+            for j in range (0, rotations_per_segment):
+                O = self.tdes.encryptHex(I)
+                most_sig_O = IntegerHandler.fromHexString(O,False,b).getMostSignificantBits(s)
+                C = IntegerHandler.fromBitArray(encrypted_chunk.getBitArray()[j * s : j * s + s], False, s)
+                P = bitwiseXor([C, most_sig_O], False, s)
+                message_chunk = concatenate([message_chunk,P],False)
+                lsb = IntegerHandler.fromHexString(I, False, 64).getLeastSignificantBits(b - s)
+                I = concatenate([lsb, C], False).getHexString()
+            result_hex += message_chunk.getHexString()
+        return result_hex
     
 if __name__ == '__main__':
 
