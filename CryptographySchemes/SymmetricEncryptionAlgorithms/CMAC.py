@@ -39,12 +39,13 @@ class CMAC_3DES():
         '''
 
         byte_length = self.block_size // 4
-        L = IntegerHandler.fromHexString("0"*byte_length,False,self.block_size)
+        L = self.cypher("0" * byte_length)
+        L = IntegerHandler.fromHexString(L,False,self.block_size)
         K1 = L.leftShift(1)
-        if L.getMostSignificantBits(1)[0] == 1:
+        if L.getMostSignificantBits(1).getBitArray()[0] == 1:
             K1 = bitwiseXor([K1,self.R_b], False, self.block_size)
         K2 = K1.leftShift(1)
-        if K1.getMostSignificantBits(1)[0] == 1:
+        if K1.getMostSignificantBits(1).getBitArray()[0] == 1:
             K2 = bitwiseXor([K2,self.R_b], False, self.block_size)
         return K1, K2
     
@@ -57,27 +58,33 @@ class CMAC_3DES():
                 The message as a hexadecimal string
             tag_length : int
                 The length of the desired tag as an integer
+
+        Returns :
+            tag : str
+                The tag as a hex string
         '''
 
         message_bits = IntegerHandler.fromHexString(message_hex, False, len(message_hex) * 4).getBitArray()
         K1, K2 = self.subkeyGeneration()
         message_length = len(message_bits)
         if message_length == 0:
-            n = 1
+            number_of_blocks = 1
         else:
-            n = ceil(message_length // self.block_size)
-        number_of_blocks = message_length // self.block_size
+            number_of_blocks = ceil(message_length // self.block_size)
         has_partial_block = message_length % self.block_size != 0
         message_handlers = []
-        if has_partial_block:
+        if has_partial_block or message_length == 0:
             message_bits = message_bits + [1] + [0] * (self.block_size * number_of_blocks - message_length - 1)
         for i in range(0, number_of_blocks):
             bit_segment = message_bits[i * self.block_size : i * self.block_size + self.block_size]
             message_handlers.append(IntegerHandler.fromBitArray(bit_segment, False, self.block_size))
-        if has_partial_block:
+        if has_partial_block or message_length == 0:
             message_handlers[number_of_blocks - 1] = bitwiseXor([K2, message_handlers[number_of_blocks - 1]])
         else:
             message_handlers[number_of_blocks - 1] = bitwiseXor([K1, message_handlers[number_of_blocks - 1]])
         C = IntegerHandler.fromBitString("0"*self.block_size, False, self.block_size)
         for i in range(0, number_of_blocks):
-            xor_result = bitwiseXor([C, ])
+            xor_result = bitwiseXor([C, message_handlers[i]], False, self.block_size)
+            C = IntegerHandler.fromHexString(self.cypher(xor_result.getHexString()), False, self.block_size)
+        T = C.getMostSignificantBits(tag_length)
+        return T.getHexString()
