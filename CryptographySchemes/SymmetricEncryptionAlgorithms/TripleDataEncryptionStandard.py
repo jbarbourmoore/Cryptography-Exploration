@@ -16,8 +16,6 @@ class TripleDataEncryptionStandard():
                 The string for the key for 3DES
         '''
 
-
-        
         self.is_debug = is_debug
         if string_key != None:
             self.key = string_key
@@ -30,42 +28,42 @@ class TripleDataEncryptionStandard():
             self.des_2 = DataEncryptionStandard(hex_key[16:32],is_hex_key=True)
             self.des_3 = DataEncryptionStandard(hex_key[32:],is_hex_key=True)
 
-    def encrypt(self, message):
+    def encrypt(self, message_string:str) -> str:
         '''
         This method encrypts a message using three rounds of des (encrypt, then decrypt, then encrypt) with different keys
 
         Parameters : 
             message : str
-                The message to be encrypted
+                The message to be encrypted as a string (utf-8)
         
         Returns : 
-            encrypted_decrypted_encrypted : [str]
-                The encrypted message as a list of binarys
+            encrypted_decrypted_encrypted : str
+                The encrypted message as a hex string
         '''
-        message_hex = IntegerHandler.fromString(message).getHexString()
+        message_hex = IntegerHandler.fromString(message_string).getHexString()
         hex_encrypted = self.encryptHex(message_hex)
         return hex_encrypted
     
-    def encryptHex(self, message):
+    def encryptHex(self, hex_string: str) -> str:
         '''
         This method encrypts a message using three rounds of des (encrypt, then decrypt, then encrypt) with different keys
 
         Parameters : 
-            message : str
-                The message to be encrypted
+            hex_string : str
+                The message to be encrypted as a hex string
         
         Returns : 
-            encrypted_decrypted_encrypted : [str]
-                The encrypted message as a list of binarys
+            final_encrypted_hex : str
+                The encrypted message as a hex string
         '''
 
-        encrypted = self.des_1.encryptHexMessage(message)
-        encrypted_decrypted = self.des_2.decryptHexMessage(encrypted)
-        encrypted_decrypted_encrypted = self.des_3.encryptHexMessage(encrypted_decrypted)
+        first_encrypted = self.des_1.encryptHexMessage(hex_string)
+        second_encrypted = self.des_2.decryptHexMessage(first_encrypted)
+        final_encrypted_hex = self.des_3.encryptHexMessage(second_encrypted)
 
-        return encrypted_decrypted_encrypted
+        return final_encrypted_hex
     
-    def decrypt(self,encrypted_decrypted_encrypted):
+    def decrypt(self, encrypted_decrypted_encrypted:str) -> str:
         '''
         This method decrypts a message using three rounds of des (decrypt, then encrypt, then decrypt) with different keys
 
@@ -74,32 +72,31 @@ class TripleDataEncryptionStandard():
                 The encrypted message as a list of binarys
         
         Returns : 
-            message : str
+            message_string : str
                 The message to be encrypted
         '''
 
         decrypted_hex = self.decryptHex(encrypted_decrypted_encrypted)
-        message = IntegerHandler.fromHexString(decrypted_hex,False).getString()
-        return message
+        message_string = IntegerHandler.fromHexString(decrypted_hex,False).getString()
+        return message_string
     
-    def decryptHex(self,encrypted_hex):
+    def decryptHex(self, encrypted_hex:str) -> str:
         '''
         This method decrypts a message using three rounds of des (decrypt, then encrypt, then decrypt) with different keys
 
         Parameters : 
-            encrypted_decrypted_encrypted : [str]
-                The encrypted message as a list of binarys
+            encrypted_hex : str
+                The encrypted message as a hex string
         
         Returns : 
-            message : str
+            hex_string : str
                 The message to be encrypted
         '''
 
-        encrypted_decrypted = self.des_3.decryptHexMessage(encrypted_hex)
-        encrypted = self.des_2.encryptHexMessage(encrypted_decrypted)
-        message = self.des_1.decryptHexMessage(encrypted)
-
-        return message
+        second_encrypted = self.des_3.decryptHexMessage(encrypted_hex)
+        first_encrypted = self.des_2.encryptHexMessage(second_encrypted)
+        hex_string = self.des_1.decryptHexMessage(first_encrypted)
+        return hex_string
     
 class TDES_ECB():
     '''
