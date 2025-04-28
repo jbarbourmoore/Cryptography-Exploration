@@ -88,3 +88,26 @@ class CMAC_3DES():
             C = IntegerHandler.fromHexString(self.cypher(xor_result.getHexString()), False, self.block_size)
         T = C.getMostSignificantBits(tag_length)
         return T.getHexString()
+    
+    def cmacVerification(self, message_hex:str, tag_length:int, tag:str) -> bool:
+        '''
+        This method verifies the CMAC tag for a hexadecimal message
+
+        Parameters : 
+            message_hex : str
+                The message as a hexadecimal string
+            tag_length : int
+                The length of the desired tag as an integer
+            tag : str
+                The hexadecimal string of the tag to be verified
+
+        Returns :
+            verified : bool
+                Whether or not the tag was successfully verified
+        '''
+
+        tag_prime = self.cmacGeneration(message_hex=message_hex, tag_length=tag_length)
+        if tag == tag_prime:
+            return True
+        else:
+            return False

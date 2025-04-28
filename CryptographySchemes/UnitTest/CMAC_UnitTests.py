@@ -28,7 +28,9 @@ class CMAS_UnitTest(unittest.TestCase):
         cmac = CMAC_3DES(key=key)
         k1, k2 = cmac.subkeyGeneration()
         tag = cmac.cmacGeneration(plain_text, tag_length)
+        verified = cmac.cmacVerification(plain_text, tag_length, tag)
 
+        self.assertTrue(verified)
         self.assertEqual(k2.getHexString(), expected_k2)
         self.assertEqual(tag, expected_tag)
 
@@ -36,6 +38,8 @@ class CMAS_UnitTest(unittest.TestCase):
         print(f"Message     : \"{plain_text}\"")
         print(f"Subkey (2)  : {k2.getHexString()}")
         print(f"Tag         : {tag}")
+        print(f"Verified    : {"The tag was successfully verified" if verified else "The tag failed verification"}")
+
 
     def test_3des_k1k3match_no_message(self):
         '''
@@ -58,11 +62,15 @@ class CMAS_UnitTest(unittest.TestCase):
 
         self.assertEqual(k2.getHexString(), expected_k2)
         self.assertEqual(tag, expected_tag)
+        verified = cmac.cmacVerification(plain_text, tag_length, tag)
 
+        self.assertTrue(verified)
         print("Testing CMAC With 3DES And An Empty Message With K1 and K3 Matching")
         print(f"Message     : \"{plain_text}\"")
         print(f"Subkey (2)  : {k2.getHexString()}")
         print(f"Tag         : {tag}")
+        print(f"Verified    : {"The tag was successfully verified" if verified else "The tag failed verification"}")
+
 
     def test_3des_2block_message(self):
         '''
@@ -82,7 +90,9 @@ class CMAS_UnitTest(unittest.TestCase):
         cmac = CMAC_3DES(key=key)
         k1, k2 = cmac.subkeyGeneration()
         tag = cmac.cmacGeneration(plain_text, tag_length)
+        verified = cmac.cmacVerification(plain_text, tag_length, tag)
 
+        self.assertTrue(verified)
         self.assertEqual(k1.getHexString(), expected_subkey)
         self.assertEqual(tag, expected_tag)
 
@@ -90,6 +100,8 @@ class CMAS_UnitTest(unittest.TestCase):
         print(f"Message     : \"{plain_text}\"")
         print(f"Subkey (1)  : {k1.getHexString()}")
         print(f"Tag         : {tag}")
+        print(f"Verified    : {"The tag was successfully verified" if verified else "The tag failed verification"}")
+
 
     def test_3des_k1k3match_2block_message(self):
         '''
@@ -109,7 +121,9 @@ class CMAS_UnitTest(unittest.TestCase):
         cmac = CMAC_3DES(key=key)
         k1, k2 = cmac.subkeyGeneration()
         tag = cmac.cmacGeneration(plain_text, tag_length)
+        verified = cmac.cmacVerification(plain_text, tag_length, tag)
 
+        self.assertTrue(verified)
         self.assertEqual(k1.getHexString(), expected_subkey)
         self.assertEqual(tag, expected_tag)
 
@@ -117,6 +131,8 @@ class CMAS_UnitTest(unittest.TestCase):
         print(f"Message     : \"{plain_text}\"")
         print(f"Subkey (1)  : {k1.getHexString()}")
         print(f"Tag         : {tag}")
+        print(f"Verified    : {"The tag was successfully verified" if verified else "The tag failed verification"}")
+
         
     def test_3des_2_and_half_block_message(self):
         '''
@@ -136,7 +152,9 @@ class CMAS_UnitTest(unittest.TestCase):
         cmac = CMAC_3DES(key=key)
         k1, k2 = cmac.subkeyGeneration()
         tag = cmac.cmacGeneration(plain_text, tag_length)
+        verified = cmac.cmacVerification(plain_text, tag_length, tag)
 
+        self.assertTrue(verified)
         self.assertEqual(k2.getHexString(), expected_subkey)
         self.assertEqual(tag, expected_tag)
 
@@ -144,6 +162,8 @@ class CMAS_UnitTest(unittest.TestCase):
         print(f"Message     : \"{plain_text}\"")
         print(f"Subkey (2)  : {k2.getHexString()}")
         print(f"Tag         : {tag}")
+        print(f"Verified    : {"The tag was successfully verified" if verified else "The tag failed verification"}")
+
 
     def test_3des_k1k3match_2_and_half_block_message(self):
         '''
@@ -163,7 +183,9 @@ class CMAS_UnitTest(unittest.TestCase):
         cmac = CMAC_3DES(key=key)
         k1, k2 = cmac.subkeyGeneration()
         tag = cmac.cmacGeneration(plain_text, tag_length)
+        verified = cmac.cmacVerification(plain_text, tag_length, tag)
 
+        self.assertTrue(verified)
         self.assertEqual(k2.getHexString(), expected_subkey)
         self.assertEqual(tag, expected_tag)
 
@@ -171,6 +193,8 @@ class CMAS_UnitTest(unittest.TestCase):
         print(f"Message     : \"{plain_text}\"")
         print(f"Subkey (2)  : {k2.getHexString()}")
         print(f"Tag         : {tag}")
+        print(f"Verified    : {"The tag was successfully verified" if verified else "The tag failed verification"}")
+
 
     def test_3des_4_block_message(self):
         '''
@@ -190,7 +214,9 @@ class CMAS_UnitTest(unittest.TestCase):
         cmac = CMAC_3DES(key=key)
         k1, k2 = cmac.subkeyGeneration()
         tag = cmac.cmacGeneration(plain_text, tag_length)
+        verified = cmac.cmacVerification(plain_text, tag_length, tag)
 
+        self.assertTrue(verified)
         self.assertEqual(k1.getHexString(), expected_subkey)
         self.assertEqual(tag, expected_tag)
 
@@ -198,6 +224,8 @@ class CMAS_UnitTest(unittest.TestCase):
         print(f"Message     : \"{plain_text}\"")
         print(f"Subkey (1)  : {k1.getHexString()}")
         print(f"Tag         : {tag}")
+        print(f"Verified    : {"The tag was successfully verified" if verified else "The tag failed verification"}")
+
     
     def test_3des_k1k3match_4_block_message(self):
         '''
@@ -217,7 +245,9 @@ class CMAS_UnitTest(unittest.TestCase):
         cmac = CMAC_3DES(key=key)
         k1, k2 = cmac.subkeyGeneration()
         tag = cmac.cmacGeneration(plain_text, tag_length)
+        verified = cmac.cmacVerification(plain_text, tag_length, tag)
 
+        self.assertTrue(verified)
         self.assertEqual(k1.getHexString(), expected_subkey)
         self.assertEqual(tag, expected_tag)
 
@@ -225,6 +255,7 @@ class CMAS_UnitTest(unittest.TestCase):
         print(f"Message     : \"{plain_text}\"")
         print(f"Subkey (1)  : {k1.getHexString()}")
         print(f"Tag         : {tag}")
+        print(f"Verified    : {"The tag was successfully verified" if verified else "The tag failed verification"}")
 
 if __name__ == '__main__':
     print("- - - - - - - - - - - -")
