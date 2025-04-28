@@ -1,4 +1,5 @@
 from CryptographySchemes.SymmetricEncryptionAlgorithms.TripleDataEncryptionStandard import TripleDataEncryptionStandard
+from CryptographySchemes.SymmetricEncryptionAlgorithms.AES_ModesOfOperation import AES_ECB_128
 from HelperFunctions.IntegerHandler import *
 from math import ceil
 
@@ -111,3 +112,14 @@ class CMAC_3DES():
             return True
         else:
             return False
+        
+class CMAC_AES128(CMAC_3DES):
+
+    def __init__(self, key):
+        self.block_encryption = AES_ECB_128(key=key)
+        self.block_size = 128
+        self.R_b = IntegerHandler.fromBitString("0" * 120 + "10000111", False, self.block_size)
+
+    def cypher(self, hex_string):
+        result_list = self.block_encryption.encryptHexList([hex_string])
+        return result_list[0]
