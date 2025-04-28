@@ -1,16 +1,23 @@
 from CryptographySchemes.SymmetricEncryptionAlgorithms.TripleDataEncryptionStandard import TripleDataEncryptionStandard
-from CryptographySchemes.SymmetricEncryptionAlgorithms.AES_ModesOfOperation import AES_ECB_128
+from CryptographySchemes.SymmetricEncryptionAlgorithms.AES_ModesOfOperation import AES_ECB_128, AES_ECB_192, AES_ECB_256
 from HelperFunctions.IntegerHandler import *
 from math import ceil
 
 class CMAC_3DES():
     '''
-    A Cypher Based Message Authentication Code abbreviared as CMAC.
+    A Cypher Based Message Authentication Code abbreviated as CMAC.
     
     https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-38b.pdf
     '''
 
     def __init__(self, key:str):
+        '''
+        This message initializes CMAC with 3DES and a given key
+
+        Parameters : 
+            key : str
+                The key for 3DES as a hex string
+        '''
         self.block_size = 64
         self.block_encryption = TripleDataEncryptionStandard(hex_key=key)
         self.R_b = IntegerHandler.fromBitString("0" * 59 + "11011", False, self.block_size)
@@ -114,8 +121,20 @@ class CMAC_3DES():
             return False
         
 class CMAC_AES128(CMAC_3DES):
+    '''
+    A Cypher Based Message Authentication Code abbreviated as CMAC.
+    
+    https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-38b.pdf
+    '''
 
-    def __init__(self, key):
+    def __init__(self, key:str):
+        '''
+        This message initializes CMAC with AES 128 and a given key
+
+        Parameters : 
+            key : str
+                The key for AES 128 as a hex string
+        '''
         self.block_encryption = AES_ECB_128(key=key)
         self.block_size = 128
         self.R_b = IntegerHandler.fromBitString("0" * 120 + "10000111", False, self.block_size)
@@ -123,3 +142,41 @@ class CMAC_AES128(CMAC_3DES):
     def cypher(self, hex_string):
         result_list = self.block_encryption.encryptHexList([hex_string])
         return result_list[0]
+        
+class CMAC_AES192(CMAC_AES128):
+    '''
+    A Cypher Based Message Authentication Code abbreviated as CMAC.
+    
+    https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-38b.pdf
+    '''
+
+    def __init__(self, key):
+        '''
+        This message initializes CMAC with AES 192 and a given key
+
+        Parameters : 
+            key : str
+                The key for AES 192 as a hex string
+        '''
+        self.block_encryption = AES_ECB_192(key=key)
+        self.block_size = 128
+        self.R_b = IntegerHandler.fromBitString("0" * 120 + "10000111", False, self.block_size)
+
+class CMAC_AES256(CMAC_AES128):
+    '''
+    A Cypher Based Message Authentication Code abbreviated as CMAC.
+    
+    https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-38b.pdf
+    '''
+
+    def __init__(self, key):
+        '''
+        This message initializes CMAC with AES 256 and a given key
+
+        Parameters : 
+            key : str
+                The key for AES 256 as a hex string
+        '''
+        self.block_encryption = AES_ECB_256(key=key)
+        self.block_size = 128
+        self.R_b = IntegerHandler.fromBitString("0" * 120 + "10000111", False, self.block_size)

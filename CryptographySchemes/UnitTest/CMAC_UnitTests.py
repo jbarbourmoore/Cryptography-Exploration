@@ -377,6 +377,246 @@ class CMAS_UnitTest(unittest.TestCase):
         print(f"Tag         : {tag}")
         print(f"Verified    : {"The tag was successfully verified" if verified else "The tag failed verification"}")
 
+    def test_aes192_no_message(self):
+        '''
+        This method tests CMAC with the AES 192 block cypher and an empty message
+
+        CMAC is Laid Out In Nist SP 800-38b : https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-38b.pdf
+        Test vectors from https://csrc.nist.gov/CSRC/media/Projects/Cryptographic-Standards-and-Guidelines/documents/examples/AES_CMAC.pdf
+        '''
+
+        key = "8E73B0F7 DA0E6452 C810F32B 809079E5 62F8EAD2 522C6B7B".replace(" ","")
+        plain_text = ""
+        tag_length = 128
+
+        expected_tag = "D17DDF46 ADAACDE5 31CAC483 DE7A9367".replace(" ","")
+        expected_k2 = "8914B639 26A2964E 7DCC873B A9B5452C".replace(" ","")
+
+        cmac = CMAC_AES192(key=key)
+        k1, k2 = cmac.subkeyGeneration()
+        tag = cmac.cmacGeneration(plain_text, tag_length)
+        verified = cmac.cmacVerification(plain_text, tag_length, tag)
+
+        self.assertTrue(verified)
+        self.assertEqual(k2.getHexString(), expected_k2)
+        self.assertEqual(tag, expected_tag)
+
+        print("Testing CMAC With AES 192 And An Empty Message")
+        print(f"Message     : \"{plain_text}\"")
+        print(f"Subkey (2)  : {k2.getHexString()}")
+        print(f"Tag         : {tag}")
+        print(f"Verified    : {"The tag was successfully verified" if verified else "The tag failed verification"}")
+
+    def test_aes192_1block_message(self):
+        '''
+        This method tests CMAC with the AES 192 block cypher and a single block message
+
+        CMAC is Laid Out In Nist SP 800-38b : https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-38b.pdf
+        Test vectors from https://csrc.nist.gov/CSRC/media/Projects/Cryptographic-Standards-and-Guidelines/documents/examples/AES_CMAC.pdf
+        '''
+
+        key = "8E73B0F7 DA0E6452 C810F32B 809079E5 62F8EAD2 522C6B7B".replace(" ","")
+        plain_text = "6BC1BEE2 2E409F96 E93D7E11 7393172A".replace(" ","")
+        tag_length = 128
+
+        expected_tag = "9E99A7BF 31E71090 0662F65E 617C5184".replace(" ","")
+        expected_subkey = "448A5B1C 93514B27 3EE6439D D4DAA296".replace(" ","")
+
+        cmac = CMAC_AES192(key=key)
+        k1, k2 = cmac.subkeyGeneration()
+        tag = cmac.cmacGeneration(plain_text, tag_length)
+        verified = cmac.cmacVerification(plain_text, tag_length, tag)
+
+        self.assertTrue(verified)
+        self.assertEqual(k1.getHexString(), expected_subkey)
+        self.assertEqual(tag, expected_tag)
+
+        print("Testing CMAC With AES 192 And A Single Block Message")
+        print(f"Message     : \"{plain_text}\"")
+        print(f"Subkey (1)  : {k1.getHexString()}")
+        print(f"Tag         : {tag}")
+        print(f"Verified    : {"The tag was successfully verified" if verified else "The tag failed verification"}")
+
+    def test_aes192_1andquarter_block_message(self):
+        '''
+        This method tests CMAC with the AES 192 block cypher and a one and a quarter block message
+
+        CMAC is Laid Out In Nist SP 800-38b : https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-38b.pdf
+        Test vectors from https://csrc.nist.gov/CSRC/media/Projects/Cryptographic-Standards-and-Guidelines/documents/examples/AES_CMAC.pdf
+        '''
+
+        key = "8E73B0F7 DA0E6452 C810F32B 809079E5 62F8EAD2 522C6B7B".replace(" ","")
+        plain_text = "6BC1BEE2 2E409F96 E93D7E11 7393172A AE2D8A57".replace(" ","")
+        tag_length = 128
+
+        expected_tag = "3D75C194 ED960704 44A9FA7E C740ECF8".replace(" ","")
+        expected_subkey = "8914B639 26A2964E 7DCC873B A9B5452C".replace(" ","")
+
+        cmac = CMAC_AES192(key=key)
+        k1, k2 = cmac.subkeyGeneration()
+        tag = cmac.cmacGeneration(plain_text, tag_length)
+        verified = cmac.cmacVerification(plain_text, tag_length, tag)
+
+        self.assertTrue(verified)
+        self.assertEqual(k2.getHexString(), expected_subkey)
+        self.assertEqual(tag, expected_tag)
+
+        print("Testing CMAC With AES 192 And A One And A Quarter Block Message")
+        print(f"Message     : \"{plain_text}\"")
+        print(f"Subkey (2)  : {k2.getHexString()}")
+        print(f"Tag         : {tag}")
+        print(f"Verified    : {"The tag was successfully verified" if verified else "The tag failed verification"}")
+
+    def test_aes192_4_block_message(self):
+        '''
+        This method tests CMAC with the AES 192 block cypher and a four block message
+
+        CMAC is Laid Out In Nist SP 800-38b : https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-38b.pdf
+        Test vectors from https://csrc.nist.gov/CSRC/media/Projects/Cryptographic-Standards-and-Guidelines/documents/examples/AES_CMAC.pdf
+        '''
+
+        key = "8E73B0F7 DA0E6452 C810F32B 809079E5 62F8EAD2 522C6B7B".replace(" ","")
+        plain_text = "6BC1BEE2 2E409F96 E93D7E11 7393172A AE2D8A57 1E03AC9C 9EB76FAC 45AF8E51 30C81C46 A35CE411 E5FBC119 1A0A52EF F69F2445 DF4F9B17 AD2B417B E66C3710".replace(" ","")
+        tag_length = 128
+
+        expected_tag = "A1D5DF0E ED790F79 4D775896 59F39A11".replace(" ","")
+        expected_subkey = "448A5B1C 93514B27 3EE6439D D4DAA296".replace(" ","")
+
+        cmac = CMAC_AES192(key=key)
+        k1, k2 = cmac.subkeyGeneration()
+        tag = cmac.cmacGeneration(plain_text, tag_length)
+        verified = cmac.cmacVerification(plain_text, tag_length, tag)
+
+        self.assertTrue(verified)
+        self.assertEqual(k1.getHexString(), expected_subkey)
+        self.assertEqual(tag, expected_tag)
+
+        print("Testing CMAC With AES 192 And A Four Block Message")
+        print(f"Message     : \"{plain_text}\"")
+        print(f"Subkey (1)  : {k1.getHexString()}")
+        print(f"Tag         : {tag}")
+        print(f"Verified    : {"The tag was successfully verified" if verified else "The tag failed verification"}")
+
+    def test_aes256_no_message(self):
+        '''
+        This method tests CMAC with the AES 256 block cypher and an empty message
+
+        CMAC is Laid Out In Nist SP 800-38b : https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-38b.pdf
+        Test vectors from https://csrc.nist.gov/CSRC/media/Projects/Cryptographic-Standards-and-Guidelines/documents/examples/AES_CMAC.pdf
+        '''
+
+        key = "603DEB10 15CA71BE 2B73AEF0 857D7781 1F352C07 3B6108D7 2D9810A3 0914DFF4".replace(" ","")
+        plain_text = ""
+        tag_length = 128
+
+        expected_tag = "028962F6 1B7BF89E FC6B551F 4667D983".replace(" ","")
+        expected_k2 = "95A3DA06 533DDB58 5D353301 0C42A0D9".replace(" ","")
+
+        cmac = CMAC_AES256(key=key)
+        k1, k2 = cmac.subkeyGeneration()
+        tag = cmac.cmacGeneration(plain_text, tag_length)
+        verified = cmac.cmacVerification(plain_text, tag_length, tag)
+
+        self.assertTrue(verified)
+        self.assertEqual(k2.getHexString(), expected_k2)
+        self.assertEqual(tag, expected_tag)
+
+        print("Testing CMAC With AES 256 And An Empty Message")
+        print(f"Message     : \"{plain_text}\"")
+        print(f"Subkey (2)  : {k2.getHexString()}")
+        print(f"Tag         : {tag}")
+        print(f"Verified    : {"The tag was successfully verified" if verified else "The tag failed verification"}")
+
+    def test_aes256_1block_message(self):
+        '''
+        This method tests CMAC with the 256 192 block cypher and a single block message
+
+        CMAC is Laid Out In Nist SP 800-38b : https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-38b.pdf
+        Test vectors from https://csrc.nist.gov/CSRC/media/Projects/Cryptographic-Standards-and-Guidelines/documents/examples/AES_CMAC.pdf
+        '''
+
+        key = "603DEB10 15CA71BE 2B73AEF0 857D7781 1F352C07 3B6108D7 2D9810A3 0914DFF4".replace(" ","")
+        plain_text = "6BC1BEE2 2E409F96 E93D7E11 7393172A".replace(" ","")
+        tag_length = 128
+
+        expected_tag = "28A7023F 452E8F82 BD4BF28D 8C37C35C".replace(" ","")
+        expected_subkey = "CAD1ED03 299EEDAC 2E9A9980 8621502F".replace(" ","")
+
+        cmac = CMAC_AES256(key=key)
+        k1, k2 = cmac.subkeyGeneration()
+        tag = cmac.cmacGeneration(plain_text, tag_length)
+        verified = cmac.cmacVerification(plain_text, tag_length, tag)
+
+        self.assertTrue(verified)
+        self.assertEqual(k1.getHexString(), expected_subkey)
+        self.assertEqual(tag, expected_tag)
+
+        print("Testing CMAC With AES 256 And A Single Block Message")
+        print(f"Message     : \"{plain_text}\"")
+        print(f"Subkey (1)  : {k1.getHexString()}")
+        print(f"Tag         : {tag}")
+        print(f"Verified    : {"The tag was successfully verified" if verified else "The tag failed verification"}")
+
+    def test_aes256_1andquarter_block_message(self):
+        '''
+        This method tests CMAC with the AES 256 block cypher and a one and a quarter block message
+
+        CMAC is Laid Out In Nist SP 800-38b : https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-38b.pdf
+        Test vectors from https://csrc.nist.gov/CSRC/media/Projects/Cryptographic-Standards-and-Guidelines/documents/examples/AES_CMAC.pdf
+        '''
+
+        key = "603DEB10 15CA71BE 2B73AEF0 857D7781 1F352C07 3B6108D7 2D9810A3 0914DFF4".replace(" ","")
+        plain_text = "6BC1BEE2 2E409F96 E93D7E11 7393172A AE2D8A57".replace(" ","")
+        tag_length = 128
+
+        expected_tag = "156727DC 0878944A 023C1FE0 3BAD6D93".replace(" ","")
+        expected_subkey = "95A3DA06 533DDB58 5D353301 0C42A0D9".replace(" ","")
+
+        cmac = CMAC_AES256(key=key)
+        k1, k2 = cmac.subkeyGeneration()
+        tag = cmac.cmacGeneration(plain_text, tag_length)
+        verified = cmac.cmacVerification(plain_text, tag_length, tag)
+
+        self.assertTrue(verified)
+        self.assertEqual(k2.getHexString(), expected_subkey)
+        self.assertEqual(tag, expected_tag)
+
+        print("Testing CMAC With AES 256 And A One And A Quarter Block Message")
+        print(f"Message     : \"{plain_text}\"")
+        print(f"Subkey (2)  : {k2.getHexString()}")
+        print(f"Tag         : {tag}")
+        print(f"Verified    : {"The tag was successfully verified" if verified else "The tag failed verification"}")
+
+    def test_aes256_4_block_message(self):
+        '''
+        This method tests CMAC with the AES 256 block cypher and a four block message
+
+        CMAC is Laid Out In Nist SP 800-38b : https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-38b.pdf
+        Test vectors from https://csrc.nist.gov/CSRC/media/Projects/Cryptographic-Standards-and-Guidelines/documents/examples/AES_CMAC.pdf
+        '''
+
+        key = "603DEB10 15CA71BE 2B73AEF0 857D7781 1F352C07 3B6108D7 2D9810A3 0914DFF4".replace(" ","")
+        plain_text = "6BC1BEE2 2E409F96 E93D7E11 7393172A AE2D8A57 1E03AC9C 9EB76FAC 45AF8E51 30C81C46 A35CE411 E5FBC119 1A0A52EF F69F2445 DF4F9B17 AD2B417B E66C3710".replace(" ","")
+        tag_length = 128
+
+        expected_tag = "E1992190 549F6ED5 696A2C05 6C315410".replace(" ","")
+        expected_subkey = "CAD1ED03 299EEDAC 2E9A9980 8621502F".replace(" ","")
+
+        cmac = CMAC_AES256(key=key)
+        k1, k2 = cmac.subkeyGeneration()
+        tag = cmac.cmacGeneration(plain_text, tag_length)
+        verified = cmac.cmacVerification(plain_text, tag_length, tag)
+
+        self.assertTrue(verified)
+        self.assertEqual(k1.getHexString(), expected_subkey)
+        self.assertEqual(tag, expected_tag)
+
+        print("Testing CMAC With AES 256 And A Four Block Message")
+        print(f"Message     : \"{plain_text}\"")
+        print(f"Subkey (1)  : {k1.getHexString()}")
+        print(f"Tag         : {tag}")
+        print(f"Verified    : {"The tag was successfully verified" if verified else "The tag failed verification"}")
+
 if __name__ == '__main__':
     print("- - - - - - - - - - - -")
     print("Testing CMAC")
