@@ -70,7 +70,7 @@ class CMAC_3DES():
         if message_length == 0:
             number_of_blocks = 1
         else:
-            number_of_blocks = ceil(message_length // self.block_size)
+            number_of_blocks = ceil(message_length / self.block_size)
         has_partial_block = message_length % self.block_size != 0
         message_handlers = []
         if has_partial_block or message_length == 0:
