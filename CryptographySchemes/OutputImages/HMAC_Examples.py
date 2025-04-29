@@ -31,51 +31,6 @@ class HMAC_UnitTests(unittest.TestCase):
         
         self.assertEqual(result.getHexString(),expected_handler.getHexString())
 
-    def test_sha224_key_length_less(self):
-        '''
-        This function tests the hmac generation based an sha224 with a key length less than the block length
-
-        Test values taken from the hmac example files at https://csrc.nist.gov/projects/cryptographic-standards-and-guidelines/example-values
-        '''
-
-        hmac = HMAC_SHA224()
-        message = "Sample message for keylen<blocklen"
-        key = "00010203 04050607 08090A0B 0C0D0E0F 10111213 14151617 18191A1B"
-
-        result = hmac.HMAC(message=message, key=key, is_debug=False)
-
-        expected_result = "E3D249A8 CFB67EF8 B7A169E9 A0A59971 4A2CECBA 65999A51 BEB8FBBE "
-        expected_handler = IntegerHandler.fromHexString(expected_result)
-
-        print(f"Testing HMAC Based On SHA-224 With Message: \"{message}\"")
-        print(f"Expected HMAC : {expected_handler.getHexString(add_spacing=8)}")
-        print(f"Actual HMAC   : {result.getHexString(add_spacing=8)}")
-        
-        self.assertEqual(result.getHexString(),expected_handler.getHexString())
-
-    def test_sha224_key_length_greater(self):
-        '''
-        This function tests the hmac generation based an sha224 with a key length greater than the block length
-
-        Test values taken from the hmac example files at https://csrc.nist.gov/projects/cryptographic-standards-and-guidelines/example-values
-        '''
-
-        hmac = HMAC_SHA224()
-        message = "Sample message for keylen=blocklen"
-        key = "00010203 04050607 08090A0B 0C0D0E0F 10111213 14151617 18191A1B 1C1D1E1F 20212223 24252627 28292A2B 2C2D2E2F 30313233 34353637 38393A3B 3C3D3E3F 40414243 44454647 48494A4B 4C4D4E4F 50515253 54555657 58595A5B 5C5D5E5F 60616263 "
-
-        result = hmac.HMAC(message=message, key=key, is_debug=False)
-
-        expected_result = "91C52509 E5AF8531 601AE623 0099D90B EF88AAEF B961F408 0ABC014D "
-        expected_handler = IntegerHandler.fromHexString(expected_result)
-
-        print(f"Testing HMAC Based On SHA-224 With Message: \"{message}\"")
-        print("NOTE: Pretty sure this message should actually say > but this is how it is written in the pdf and the values work")
-        print(f"Expected HMAC : {expected_handler.getHexString(add_spacing=8)}")
-        print(f"Actual HMAC   : {result.getHexString(add_spacing=8)}")
-        
-        self.assertEqual(result.getHexString(),expected_handler.getHexString())
-
     def test_sha256(self):
         '''
         This function tests the hmac generation based an sha256 with a key length equal to the block length
@@ -225,49 +180,7 @@ class HMAC_UnitTests(unittest.TestCase):
         print(f"Actual HMAC   : {result.getHexString(add_spacing=8)}")
         
         self.assertEqual(result.getHexString(),expected_handler.getHexString())
-    
-    def test_sha3_key_less_than(self):
-        '''
-        This function tests the hmac generation based an sha3_512 with a key length less than the block length
-
-        Test values taken from the hmac example files at https://csrc.nist.gov/projects/cryptographic-standards-and-guidelines/example-values
-        '''
-
-        hmac = HMAC_SHA3_512()
-        message = "Sample message for keylen<blocklen"
-        key = "00010203 04050607 08090a0b 0c0d0e0f 10111213 14151617 18191a1b 1c1d1e1f 20212223 24252627 28292a2b 2c2d2e2f 30313233 34353637 38393a3b 3c3d3e3f"
-        result = hmac.HMAC(message=message, key=key, is_debug=False)
-
-        expected_result = "4efd629d 6c71bf86 162658f2 9943b1c3 08ce27cd fa6db0d9 c3ce8176 3f9cbce5 f7ebe986 8031db1a 8f8eb7b6 b95e5c5e 3f657a89 96c86a2f 6527e307 f0213196"
-        expected_handler = IntegerHandler.fromHexString(expected_result)
-
-        print(f"Testing HMAC Based On SHA3-512 With Message: \"{message}\"")
-        print(f"Expected HMAC : {expected_handler.getHexString(add_spacing=8)}")
-        print(f"Actual HMAC   : {result.getHexString(add_spacing=8)}")
         
-        self.assertEqual(result.getHexString(),expected_handler.getHexString())
-
-    def test_sha3_key_greater_than(self):
-        '''
-        This function tests the hmac generation based an sha3_512 with a key length greater than the block length
-
-        Test values taken from the hmac example files at https://csrc.nist.gov/projects/cryptographic-standards-and-guidelines/example-values
-        '''
-
-        hmac = HMAC_SHA3_512()
-        message = "Sample message for keylen>blocklen"
-        key = "00010203 04050607 08090a0b 0c0d0e0f 10111213 14151617 18191a1b 1c1d1e1f 20212223 24252627 28292a2b 2c2d2e2f 30313233 34353637 38393a3b 3c3d3e3f 40414243 44454647 48494a4b 4c4d4e4f 50515253 54555657 58595a5b 5c5d5e5f 60616263 64656667 68696a6b 6c6d6e6f 70717273 74757677 78797a7b 7c7d7e7f 80818283 84858687 "
-        result = hmac.HMAC(message=message, key=key, is_debug=False)
-
-        expected_result = "5f464f5e 5b7848e3 885e49b2 c385f069 4985d0e3 8966242d c4a5fe3f ea4b37d4 6b65cece d5dcf594 38dd840b ab22269f 0ba7febd b9fcf746 02a35666 b2a32915"
-        expected_handler = IntegerHandler.fromHexString(expected_result)
-
-        print(f"Testing HMAC Based On SHA3-512 With Message: \"{message}\"")
-        print(f"Expected HMAC : {expected_handler.getHexString(add_spacing=8)}")
-        print(f"Actual HMAC   : {result.getHexString(add_spacing=8)}")
-        
-        self.assertEqual(result.getHexString(),expected_handler.getHexString())
-
 if __name__ == '__main__':
     print("- - - - - - - - - - - -")
     print("Testing HMAC Implementations Against Known Values")

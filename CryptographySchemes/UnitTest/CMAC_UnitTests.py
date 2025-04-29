@@ -1,5 +1,5 @@
 import unittest
-from CryptographySchemes.SymmetricEncryptionAlgorithms.CMAC import *
+from CryptographySchemes.MessageAuthenticationCodes.CMAC import *
 from HelperFunctions.IntegerHandler import *
 
 class CMAS_UnitTest(unittest.TestCase):
