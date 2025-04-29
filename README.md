@@ -3,22 +3,47 @@ A repository created in order to explore cryptography related algorithms, implem
 
 ## Cryptography Schemes  
 
-### Advanced Encryption Standard (AES)   
+### Symmetric Encryption Algorithms
 
-I implemented a version of the Advanced Encryption Standard as laid out in [NIST FIPS 197](https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.197-upd1.pdf). AES has several variants based on the length of the key and I implemented AES-128, AES-192 and AES 256. The Advanced Encryption Standard is a symetric encryption algorithm, so it is necessary to have the same key to encrypt the message as you use to decrypt the message. For the example sequence shown below, I relied on the use of Elliptic Curve Diffie Hellman key exchange in order to use the shared secret to generate the same key as both the originator and the receiver.    
+#### Advanced Encryption Standard (AES)
+
+I implemented a version of the Advanced Encryption Standard as laid out in [NIST FIPS 197](https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.197-upd1.pdf). It operates on blocks of 128 bits of the input at a time. AES has several variants based on the length of the key and I implemented AES-128, AES-192 and AES-256. . As the Advanced Encryption Standard is a symetric encryption algorithm, so it is necessary to have the same key to encrypt the message as you use to decrypt the message. For the example sequence shown below, I relied on the use of Elliptic Curve Diffie Hellman key exchange in order to use the shared secret to generate the same key as both the originator and the receiver. Symmetric Block Ciphers such as AES also operate in various modes in order to increase security or provide various supplemental functionality such as verifying authenticity. The example sequence diagram portrays the use of AES 256 in Galois/Counter Mode (GCM).
 
 <img 
     style="display: block; margin-left: auto; margin-right: auto; width: 100%;"
-    src="https://github.com/jbarbourmoore/Cryptography-Exploration/blob/7749310c7971a234fdea77e301452805eec7d0c1/GeneratingDiagrams/Diagrams/AES_With_ECDHKeyExchange.png" 
+    src="https://github.com/jbarbourmoore/Cryptography-Exploration/blob/9b2f53435d36261373e30b008615e10c703e2e98/GeneratingDiagrams/Diagrams/AES_GCM_With_ECDHKeyExchange.png" 
     alt="This is a sequence diagram for a message exchange using AES, with ECDH key exchange used to generate the key">
 </img>  
 
-For AES, I was also able to create unit tests based on the example data provided by NIST in their [Cryptographic Standards and Guidelines](https://csrc.nist.gov/CSRC/media/Projects/Cryptographic-Standards-and-Guidelines/documents/examples/AES_Core_All.pdf). This allowed me to verify both encryption and decryption against several known hex strings, in order to be sure they were being properly encrypted. Below is a sample of the output from this testing.
+##### Galois / Counter Mode (GCM)    
+
+##### Basic Modes of Operation   
+###### Electronic Cookbook (ECB), Cipher Block Chaining (CBC), Cipher Feedback (CFB), Output Feedback (OFB) and Counter (CTR)
+
+There are several modes of operation outlined in NIST SP 800-38A ["Recommendation for Block Cipher Modes of Operation"](https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38a.pdf). Electronic Cookbook (ECB) Mode simply applies the same AES cypher to each block of the input. The other modes rely on the use of an initialization vector, which is a separate block of input from the key that does not need to be secret, but should be unpredictable and different each time. Cipher Block Chaining (CBC) Mode uses xor with the initialization vector and the first block of input before running that through the AES Cipher. Each following block is xored with the result of the previous cypher in the place of the initialization block. Cipher Feedback Mode (CFB) does not apply the AES cipher directly to the input, but to the initialization vector and then xors that with the input. Each successive block uses the result of the xor operation from the previous block in the place of the initialization vector. It also allows the user to select an 's', which is the number of bits of the input to use in each block. The other bits are the least significant bits from the initialization vector concatenated with the previous cipher values. Output Feedback Mode (OFB) also does not apply the AES cipher directly to the input. The initialization vector for each subsequent block is the result of the cipher operation in the previous block. Counter Mode (CTR) also does not apply the apply the cipher directly to the input, but to the initialization vector which it xors with the input. The initialization vector is incremented for each successive block.     
+
+For these basic modes of operation for AES, I was able to create unit tests based on the example data provided by NIST in their [Cryptographic Standards and Guidelines](https://csrc.nist.gov/CSRC/media/Projects/Cryptographic-Standards-and-Guidelines/documents/examples/AES_ModesA_All.pdf). This allowed me to verify both encryption and decryption against several known hex strings, in order to be sure my implementations were operating appropriately. Below is a sample of the output from this testing.    
 
 <img 
     style="display: block; margin-left: auto; margin-right: auto; width: 100%;"
-    src="https://github.com/jbarbourmoore/Cryptography-Exploration/blob/7749310c7971a234fdea77e301452805eec7d0c1/CryptographySchemes/OutputImages/AES_Examples.png" 
+    src="https://github.com/jbarbourmoore/Cryptography-Exploration/blob/9b2f53435d36261373e30b008615e10c703e2e98/CryptographySchemes/OutputImages/AES_Modes_Examples.png" 
     alt="Sample output of AES unit tests ran against NIST sample data.">
+</img>  
+
+#### Triple Data Encryption Standard (TDES)
+
+I implemented a version of the Triple Data Encryption Standard as laid out in NIST SP 800-67 [Recommendation for the Triple 
+Data Encryption Algorithm (TDEA) Block Cipher](https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-67r1.pdf). It is a symmetric block cipher much like AES, though it operates on 64 bit blocks of input at a time instead of 128 bit blocks. It is built upon Data Encryption Standard (DES) from [NIST FIPS 46-3](https://csrc.nist.gov/files/pubs/fips/46-3/final/docs/fips46-3.pdf). TDES uses three keys with DES and encrypts with the first key, decrypts with the second and then encrypts with the third.
+
+##### Basic Modes of Operation   
+###### Electronic Cookbook (ECB), Cipher Block Chaining (CBC), Cipher Feedback (CFB), Output Feedback (OFB) and Counter (CTR)
+
+Triple Data Encryption Standard also uses the same basic modes of operation from NIST SP 800-38A ["Recommendation for Block Cipher Modes of Operation"](https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38a.pdf) as seen with AES. For these basic modes of operation for TDES, I was able to create unit tests based on the example data provided by NIST in their [Cryptographic Standards and Guidelines](https://csrc.nist.gov/CSRC/media/Projects/Cryptographic-Standards-and-Guidelines/documents/examples/TDES_ModesA_All.pdf). This allowed me to verify both encryption and decryption against several known hex strings, in order to be sure my implementations were operating appropriately. Below is a sample of the output from this testing.    
+
+<img 
+    style="display: block; margin-left: auto; margin-right: auto; width: 100%;"
+    src="https://github.com/jbarbourmoore/Cryptography-Exploration/blob/9b2f53435d36261373e30b008615e10c703e2e98/CryptographySchemes/OutputImages/TDES_Modes_Examples.png" 
+    alt="Sample output of TDES unit tests ran against NIST sample data.">
 </img>  
 
 ### Elliptic Curve Digital Signature Algorithm (ECDSA)   
@@ -109,7 +134,9 @@ I implemented versions of the SHA3 hashing algorithms as laid out in NIST FIPS 2
     alt="This shows example from unit tests for the SHA3 implementation using known values from NIST">
 </img>   
 
-### Caesar Cypher  
+### Historical Cyphers
+
+#### Caesar Cypher  
 
 I implemented a version of the caesar cypher in Python. The caesar cypher is a very simple example of a cypher which relies on shifting every character in a message the same number of places in the alphabet. For example if you were to encrypt "def" with a multiplcation value of four the result would be "hij". The idea is that, without the knowing the shift value, it is harder to find the original message. However, since the cypher is limited by the number of letters in the alphabet, it is trivial to brute force.
 
@@ -119,7 +146,7 @@ I implemented a version of the caesar cypher in Python. The caesar cypher is a v
     alt="This is a sequence diagram for a simple message and reply using caesar cypher">
 </img>
 
-### Multiplicative Cypher  
+#### Multiplicative Cypher  
 
 I implemented a version of the multiplicative cypher in Python.The multiplicative cypher is also a very simple example of a cypher. It relies on multiplying every character in a message by the same value before calculating the modulus. For example if you were to encrypt "def" with a shift value of four the result would be "mqu". The idea is that, without the knowing the multiplication value, it is harder to find the original message. While it relies on more calculation than the caesar cypher, the multiplicative cypher is still limited and is trivial to brute force.
 
