@@ -17,12 +17,20 @@ I implemented a version of the Advanced Encryption Standard as laid out in [NIST
 
 ##### Galois / Counter Mode (GCM)    
 
+Galois / Counter Mode is laid out in NIST SP 800-38D ["Recommendation for Block Cipher Modes of Operation: Galois/Counter Mode (GCM) and GMAC"](https://github.com/jbarbourmoore/Cryptography-Exploration/blob/21d2d0c8f185f773bf07ad21e2de559f8f14cbb2/CryptographySchemes/OutputImages/AES_GCM_Examples.png). GCM relies on the use of an initialization vector, which is a separate block of input from the key that does not need to be secret, but should be unpredictable and different each time. The IV is incremented for processing each subsequent block of input. Operations on blocks are performed within the Galois Field, 2**128. The Galois / Counter Mode produces a unique tag based on all of the input which allows for the authenticity to be verified, as well as the encrypted cypher text. I was able to create unit tests based on the example data from Appendix B "AES Test Vectors" of ["The Galois/Counter Mode of Operation (GCM)"](https://csrc.nist.rip/groups/ST/toolkit/BCM/documents/proposedmodes/gcm/gcm-spec.pdf). This allowed me to verify both encryption and decryption, as well as the creation of the appropriate tags, against several known hex strings, in order to be sure my implementations were operating appropriately. Below is a sample of the output from this testing. 
+
+<img 
+    style="display: block; margin-left: auto; margin-right: auto; width: 100%;"
+    src="https://github.com/jbarbourmoore/Cryptography-Exploration/blob/21d2d0c8f185f773bf07ad21e2de559f8f14cbb2/CryptographySchemes/OutputImages/AES_GCM_Examples.png" 
+    alt="Sample output of AES GCM unit tests ran against NIST sample data.">
+</img>  
+
 ##### Basic Modes of Operation   
 ###### Electronic Cookbook (ECB), Cipher Block Chaining (CBC), Cipher Feedback (CFB), Output Feedback (OFB) and Counter (CTR)
 
 There are several modes of operation outlined in NIST SP 800-38A ["Recommendation for Block Cipher Modes of Operation"](https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38a.pdf). Electronic Cookbook (ECB) Mode simply applies the same AES cypher to each block of the input. The other modes rely on the use of an initialization vector, which is a separate block of input from the key that does not need to be secret, but should be unpredictable and different each time. Cipher Block Chaining (CBC) Mode uses xor with the initialization vector and the first block of input before running that through the AES Cipher. Each following block is xored with the result of the previous cypher in the place of the initialization block. Cipher Feedback Mode (CFB) does not apply the AES cipher directly to the input, but to the initialization vector and then xors that with the input. Each successive block uses the result of the xor operation from the previous block in the place of the initialization vector. It also allows the user to select an 's', which is the number of bits of the input to use in each block. The other bits are the least significant bits from the initialization vector concatenated with the previous cipher values. Output Feedback Mode (OFB) also does not apply the AES cipher directly to the input. The initialization vector for each subsequent block is the result of the cipher operation in the previous block. Counter Mode (CTR) also does not apply the apply the cipher directly to the input, but to the initialization vector which it xors with the input. The initialization vector is incremented for each successive block.     
 
-For these basic modes of operation for AES, I was able to create unit tests based on the example data provided by NIST in their [Cryptographic Standards and Guidelines](https://csrc.nist.gov/CSRC/media/Projects/Cryptographic-Standards-and-Guidelines/documents/examples/AES_ModesA_All.pdf). This allowed me to verify both encryption and decryption against several known hex strings, in order to be sure my implementations were operating appropriately. Below is a sample of the output from this testing.    
+For these basic modes of operation for AES, I was able to create unit tests based on the example data provided by NIST in their [Cryptographic Standards and Guidelines](https://csrc.nist.gov/CSRC/media/Projects/Cryptographic-Standards-and-Guidelines/documents/examples/AES_ModesA_All.pdf). Below is a sample of the output from this testing.    
 
 <img 
     style="display: block; margin-left: auto; margin-right: auto; width: 100%;"
@@ -38,7 +46,7 @@ Data Encryption Algorithm (TDEA) Block Cipher](https://nvlpubs.nist.gov/nistpubs
 ##### Basic Modes of Operation   
 ###### Electronic Cookbook (ECB), Cipher Block Chaining (CBC), Cipher Feedback (CFB), Output Feedback (OFB) and Counter (CTR)
 
-Triple Data Encryption Standard also uses the same basic modes of operation from NIST SP 800-38A ["Recommendation for Block Cipher Modes of Operation"](https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38a.pdf) as seen with AES. For these basic modes of operation for TDES, I was able to create unit tests based on the example data provided by NIST in their [Cryptographic Standards and Guidelines](https://csrc.nist.gov/CSRC/media/Projects/Cryptographic-Standards-and-Guidelines/documents/examples/TDES_ModesA_All.pdf). This allowed me to verify both encryption and decryption against several known hex strings, in order to be sure my implementations were operating appropriately. Below is a sample of the output from this testing.    
+Triple Data Encryption Standard also uses the same basic modes of operation from NIST SP 800-38A ["Recommendation for Block Cipher Modes of Operation"](https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38a.pdf) as seen with AES. For these basic modes of operation for TDES, I was able to create unit tests based on the example data provided by NIST in their [Cryptographic Standards and Guidelines](https://csrc.nist.gov/CSRC/media/Projects/Cryptographic-Standards-and-Guidelines/documents/examples/TDES_ModesA_All.pdf). Below is a sample of the output from this testing.    
 
 <img 
     style="display: block; margin-left: auto; margin-right: auto; width: 100%;"
@@ -132,6 +140,28 @@ I implemented versions of the SHA3 hashing algorithms as laid out in NIST FIPS 2
     style="display: block; margin-left: auto; margin-right: auto; width: 100%; max-height:100%"
     src="https://github.com/jbarbourmoore/Cryptography-Exploration/blob/8874f359a5e7d13f335a13659e313719045e1f86/CryptographySchemes/OutputImages/SHA3_Examples.png" 
     alt="This shows example from unit tests for the SHA3 implementation using known values from NIST">
+</img>   
+
+### Message Authentication Codes 
+
+#### Keyed-Hash Message Authentication Code (HMAC)
+
+I implemented a version of HMAC as defined in NIST SP 800-224 [Keyed-Hash Message Authentication Code (HMAC)](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-224.ipd.pdf). It creates a unique code for a given message based on a secret key which allows for the message to be authenticated. HMAC relies on hashing algorithms in order to generate the unique code. This is implemented on top of my secure hashing implementations for both SHA2 and SHA3. Below is sample output from unit tests based on test vectors from NIST's [Cryptographic Standards and Guidelines: Example Values](https://csrc.nist.gov/projects/cryptographic-standards-and-guidelines/example-values).
+
+<img 
+    style="display: block; margin-left: auto; margin-right: auto; width: 100%; max-height:100%"
+    src="https://github.com/jbarbourmoore/Cryptography-Exploration/blob/120d2786aaa72224296367cad6b1191e4523be37/CryptographySchemes/OutputImages/HMAC_Examples.png" 
+    alt="This shows example from unit tests for the hmac message authentication">
+</img>   
+
+#### CMAC Mode For Authentication    
+
+I implemented a version of CMAC as defined in NIST SP 800-38B [The CMAC Mode for Authentication](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-38b.pdf). Unlike HMAC's reliance on hashing algorithms in order to generate the unique code, CMAC relies on Block Cyphers. This is built on top of my implementations for both AES and TDES. Below is sample output from unit tests based on test vectors from NIST's [Cryptographic Standards and Guidelines: Example Values](https://csrc.nist.gov/projects/cryptographic-standards-and-guidelines/example-values).
+
+<img 
+    style="display: block; margin-left: auto; margin-right: auto; width: 100%; max-height:100%"
+    src="https://github.com/jbarbourmoore/Cryptography-Exploration/blob/120d2786aaa72224296367cad6b1191e4523be37/CryptographySchemes/OutputImages/CMAC_Examples.png" 
+    alt="This shows example from unit tests for the cmac message authentication">
 </img>   
 
 ### Historical Cyphers
