@@ -148,7 +148,7 @@ class IntegerHandler():
 
         if add_spacing !=None:
             hex_length = len(hex_string)
-            for i in range(1, hex_length//add_spacing):
+            for i in range(1, hex_length//add_spacing+1):
                 position = i * add_spacing + i - 1
                 hex_string = hex_string[:position]+" "+hex_string[position:]
         return hex_string
