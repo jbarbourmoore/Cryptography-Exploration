@@ -1,4 +1,6 @@
 from HelperFunctions.IntegerHandler import IntegerHandler
+little_endian = False
+bit_length = 2048
 
 class RSA_PrimeData():
     def __init__(self, prime_factor:IntegerHandler, crt_exponent:IntegerHandler, crt_coefficient:IntegerHandler):
@@ -88,7 +90,7 @@ class RSA():
         This method provides modular exponent for the rsa implementation
 
         '''
-        return pow(base.getValue(), exponent.getValue(), modulus.getValue())
+        return IntegerHandler(pow(base.getValue(), exponent.getValue(), modulus.getValue()), little_endian, bit_length)
 
     @staticmethod
     def RSA_EncryptionPrimitive(public_key:RSA_PublicKey, message_representative:IntegerHandler):
@@ -96,9 +98,15 @@ class RSA():
         This method implements the RSA Encription Primitive
 
         As laid out in section 5.1.1. "RSAEP" of IETF RFC 8017 https://datatracker.ietf.org/doc/html/rfc8017
+
+        Parameters :
+            public_key : RSA_PublicKey
+                The RSA public key being used to encrypt the data
+            message_representative : Integer_Handler
+                The portion of the message currently bring encrypted as an integer smaller than the RSA modulus
         '''
         assert message_representative.value < public_key.n.value, "The message representative must be a smaller integer than the RSA modulus"
-        return IntegerHandler(RSA.modularExponent(base=message_representative, exponent=public_key.e, modulus=public_key.n))
+        return RSA.modularExponent(base=message_representative, exponent=public_key.e, modulus=public_key.n)
     
     @staticmethod
     def RSA_DecryptionPrimitive(private_key:RSA_PrivateKey | RSA_PrivateKey_QuintupleForm, cipher_text_representative:IntegerHandler):
@@ -136,12 +144,44 @@ class RSA():
                 R = R * private_key.additional_prime_data[i - 2].r_i.getValue()
                 h = ( m_i[i] - m ) * private_key.additional_prime_data[i - 1].t_i.getValue() % private_key.additional_prime_data[i - 1].r_i.getValue()
                 m = m + R * h
-        return IntegerHandler(m, False, private_key.p.bit_length)
+        return IntegerHandler(m, little_endian, bit_length)
 
 
 
-handler = IntegerHandler.fromHexString("01FF",True,16)
+handler = IntegerHandler.fromHexString("01FF",little_endian,16)
 print(handler.getValue())
+ct = "5662E1AF1E949E5F17A917FD586F7F50F4490632358F4801AA75E5AC8D9CD37ED69806EC1988DEEA48002044089068A86C09E5817BE4195D4FFB38FD7FE66038EE208EC017EB59DACA82164EEC98FCE3726493EDD4C19E64581DD77262A86C5E4E0DDD0573DA0CFFF7BA431A48727A276D9AA5EC45AF46CB25029A24EA51940D9C5FC067BF6A7E1750D89D1A8CC466F341C2C3F7B509BE0F759C6FF2F25DD794D5CFDEAF65BCE931925BF503BEBB6794F48D81C2E569DD7A0E2623A99C107346DC5CD6F4585B80C384A9619383CC3598450C0265A4B4F0ABC4370AE67F6DDBF3EE79D0F454ADA1F7F22676D615A1B2190DA316770361BFAD502AA1FA5273E9FC"
+pt = "5E74D2E3598F0286DDCD79AC41A82F8477D91FE56542EC16F00633306FA5D65DCBE3E6C4AF76D7CABA4661982F3DDEEFA642BBE58290DFA2C0B6AB8E3153B7EB203E7F3A5EFFC4D0C4B842C138FD80443EFEAD6B1536FBFE509FE09F9AA67476B2CED84D9797ADC1CEAA15B2F69667533A9111A9BEDD0B2FE81FB13A14EF6B0907AE91B9252A6E7D61BCECF156FB0388ECE7363BC18F5C0735D129B8D08218654B25FDD67C91287172513CA23F6C71A72C65433884C352204FC8158A8931E5554206AE3BD954EF68227D1A829074ADEDA63D51FF0B9C2A5DF293BC77FC5A238822A41BEC6464AF283D166E7797E9039FCC22BA2B70D45169BDCB3AB70B585B45"
+dmp1 = ""
+dmq1 = ""
+iqmp = ""
+p = "BA90B7396D2D1E28A2ACB086FD05BEB308469F74D47879512DDB4A68C085FFD933DDCD1340A83FBF2CB321EDE49F8BD0B93E42029B96C488A4F8E2ADEC4ADCC49A942589D577F14B493B0A98001D4A108936B39D499A6E5966A38B32F489FB374C220B2EB015076CDB8C9C0AEF2A2B2F2BD636E78128E6A6C3D69EDDE4CDD7E7"
+q =  "FB6E6185BF10B5981F76D2403190BB653049B86661B58774D2EAD2356FB843A8FBBC9729C2D1172C2B9803297CFF3853C2520B7BF725BA92982357D73CE03023A04E4069E37EB83BC4AF8B1B481F9729C10F16A0DBE3F73B267AA87B0DDCDCB7B44C491429F962D9F2E65FEE61E10D409F64B41898E56FE96269634557AB2225"
+d = "153430AAC32B36E85584B0AFE9BDA8108043318A179D720E98042B245E9835B0F799D85D45EA46E9D179DA9F3DFB05D162B0DDF1F1CC75B388C7FAEED5A318B0BDFB583349FDEF88DB3B548DDF56C83AEBAACE65AA55119F0646BE765177BE148434A797C61F87570F9E9242248C5A1460D4F25FB6D83736DB0D695CCFB4AAD360CE844852468CEFC2E2952ABC86F879765B1E55034BF7861D8E75F6623B4DFEFF0ED1BB10BAC318D0FBEB51ED40A519BF49241391556392B7F14626318FB7CD18E9E8F65B9FE7839CD94B2FA933D4AFE115CE226334762A1544510386AACD4EFF9AA22BC53297C3907E9FDD93EA03BAEA8280EFB06DDC42810753DE6D35C7A5"
+n = "B73C54E656923F3F184546C1FB00BC7E2C9DF9A95E4EDE9DA559F2BE1773C8B52159BD54A25B8142839FAF6D0E2F70130B9961C875D1EB2D99F36A1DFB72E05F46C9B83456BCEFA33A0A14DCD6CB34F32666B516F148858498CD52BE9804F5E7D5D3714629AB27F4102B7DC419A9A1BAA9B2A0990C15A368C028EC678FFF266D9F19FC61DFEBFE500AC3C5701B1291DDA1BE47F330BB11C1DD14BE6EE2C098EB934DB695A097449AE269D3878554026245325A872DE759F6ECAE043E80479E1A7EE6FF52F77FF5441BB7C09B03E01C62F1AD2530FC5D0AA02B9222080BF6242987D23267B7F7A486CBA254648D5B3DBF5D475BFE83FA2D1397D0BE9720B9E263"
+e = "02DE387DD9"
+expected_cipher = IntegerHandler.fromHexString(ct, little_endian, bit_length)
+expected_plain = IntegerHandler.fromHexString(pt, little_endian, bit_length)
+given_p = IntegerHandler.fromHexString(p, little_endian, bit_length)
+given_q = IntegerHandler.fromHexString(q, little_endian, bit_length)
+given_n = IntegerHandler.fromHexString(n, little_endian, bit_length)
+given_e = IntegerHandler.fromHexString(e, little_endian, bit_length)
+given_d = IntegerHandler.fromHexString(d, little_endian, bit_length)
+
+public_key = RSA_PublicKey(given_n, given_e)
+private_key = RSA_PrivateKey(given_n, given_d)
+calculated_cipher = RSA.RSA_EncryptionPrimitive(public_key, expected_plain)
+print(f"Expected Cipher : {expected_cipher.getHexString()}")
+print()
+print(f"Calculated Cipher : {calculated_cipher.getHexString()}")
+
+assert expected_cipher.getHexString() == calculated_cipher.getHexString()
+
+calculated_plain = RSA.RSA_DecryptionPrimitive(private_key, calculated_cipher)
+print()
+print(f"Expected Plain : {expected_plain.getHexString()}")
+print()
+print(f"Calculated Cipher : {calculated_plain.getHexString()}")
 
 # from HelperFunctions.EuclidsAlgorithms import extendedEuclidAlgorithm
 # from HelperFunctions.EncodeStringAsNumberList import EncodeStringAsNumbersList
