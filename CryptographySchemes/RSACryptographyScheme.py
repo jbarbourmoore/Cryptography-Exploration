@@ -2,6 +2,9 @@ from HelperFunctions.IntegerHandler import IntegerHandler
 little_endian = False
 bit_length = 2048
 from secrets import randbits
+from math import ceil, floor
+from HashingAlgorithms.SecureHashAlgorithm3 import shake_256
+from HelperFunctions.EuclidsAlgorithms import euclidsAlgorithm
 '''
     Security Strength - RSA k
     <80 - 1024
@@ -11,6 +14,8 @@ from secrets import randbits
     256 - 15360
 '''
 
+hash_alg = shake_256
+hash_length = 512
 class RSA_PrimeData():
     def __init__(self, prime_factor:IntegerHandler, crt_exponent:IntegerHandler, crt_coefficient:IntegerHandler):
         '''
@@ -186,8 +191,96 @@ class RSA():
         
         seed = randbits(security_strength * 2)
         return True, IntegerHandler(seed, little_endian, security_strength * 2)
+    
+    @staticmethod
+    def constructionOfProvablePrimes(nlen:int, e:IntegerHandler, seed:IntegerHandler):
+        '''
         
+        From NIST FIPS 186-5 Section A.1.2.2 "Construction of the Provable Primes p and q"
+        https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.186-5.pdf
 
+        
+        '''
+        if e.getValue() <= 2**16 or e.getValue() >= 2**256 or (e.getValue() % 2) == 0:
+            return False, IntegerHandler(0, little_endian, 0), IntegerHandler(0, little_endian, 0)
+        if nlen == 2048:
+            security_strength = 112
+        elif nlen == 3072:
+            security_strength = 128
+        elif nlen == 7680:
+            security_strength = 192
+        elif nlen == 15360:
+            security_strength = 256
+        else:
+            return False, IntegerHandler(0, little_endian, 0), IntegerHandler(0, little_endian, 0)
+        if seed.getBitLength() < 2 * security_strength:
+            return False, IntegerHandler(0, little_endian, 0), IntegerHandler(0, little_endian, 0)
+        
+        working_seed = seed
+        L = nlen // 2
+        N_1 = 1
+        N_2 = 1
+
+        p = RSA.provablePrimeConstruction()
+
+
+    @staticmethod
+    def provablePrimeConstruction(L:int, N_1:int, N_2:int, first_seed:IntegerHandler, e: IntegerHandler):
+        if N_1 == 1:
+            p_1 = 1
+            p_2seed = first_seed
+        else:
+            p_1, p_2seed = RSA.randomPrimeGeneration()
+            if p_1 == False:
+                return False, 0, 0, 0, 0
+        if N_2 == 1:
+            p_2 = 1
+            p_0seed = p_2seed
+        else:
+            p_2, p_0seed = RSA.randomPrimeGeneration()
+            if p_2 == False:
+                return False, 0, 0, 0, 0
+        length = ceil(L / 2) + 1
+        p_0, pseed = RSA.randomPrimeGeneration()
+        if p_0 == False:
+                return False, 0, 0, 0, 0
+        
+        iterations = ceil(L/hash_length) - 1
+        pgen_counter = 0
+        x = 0
+        for i in range(0, iterations):
+            pseedihex = IntegerHandler(pseed.getValue() + i, little_endian, pseed.bit_length).getHexString()
+            hash_hex = hash_alg.hashHex(pseedihex, hash_length).getHexString()
+            hash_value = IntegerHandler.fromHexString(hash_hex,False, hash_length).getValue()
+            x = x + hash_value * 2 ** (i * hash_length)
+        pseed = IntegerHandler(pseed.getValue()+iterations+1,little_endian,pseed.bit_length)
+        sq2_2toL = floor(2**(.5) * (2**(L - 1)))
+        x = sq2_2toL + x % (2**L - sq2_2toL)
+        y = calculateModuloInverse(p_0.getValue()*p_1.getValue(),p_2.getValue())
+        t = ceil((2*y*p_0*p_1+x)/(2*p_0*p_1*p_2))
+        while pgen_counter <= 5:
+            if  (2 * (t * p_2 - y) * p_0 * p_1 + 1) > 2**L:
+                t = ceil((2*y*p_0*p_1+sq2_2toL)/(2*p_0*p_1*p_2))
+
+            p = 2* (t*p_2 - y)* p_0 * p_1 + 1
+            pgen_counter += 1
+            if euclidsAlgorithm((p-1),e.getValue()) == 1:
+                a = 0
+                for i in range(0, iterations):
+                    pseedihex = IntegerHandler(pseed.getValue() + i, little_endian, pseed.bit_length).getHexString()
+                    hash_hex = hash_alg.hashHex(pseedihex, hash_length).getHexString()
+                    hash_value = IntegerHandler.fromHexString(hash_hex,False, hash_length).getValue()
+                    x = x + hash_value * 2 ** (i * hash_length)
+                pseed = IntegerHandler(pseed.getValue()+iterations+1,little_endian,pseed.bit_length)
+                a = 2 + a % (p-3)
+                z = a ** (2*(t*p_2-y)*p_1) % p
+                if 1 == euclidsAlgorithm(z-1,p):
+                    return True, p, p_1, p_2, pseed
+        return False, 0, 0, 0, 0
+
+    def  randomPrimeGeneration():
+        
+        pass
 
 
 handler = IntegerHandler.fromHexString("01FF",little_endian,16)
