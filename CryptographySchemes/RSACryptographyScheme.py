@@ -131,7 +131,7 @@ class RSA():
         m_i:list[IntegerHandler] = []
         m_i.append(RSA.modularExponent( base=cipher_text_representative, exponent=private_key.dP, modulus=private_key.p))
         m_i.append(RSA.modularExponent( base=cipher_text_representative, exponent=private_key.dQ, modulus=private_key.q))
-        for i in range(0, private_key.u - 1):
+        for i in range(0, private_key.u - 2):
             m_i.append(RSA.modularExponent(base=cipher_text_representative, exponent=private_key.additional_prime_data[i].d_i, modulus=private_key.additional_prime_data[i].r_i))
 
         h = (m_i[0].getValue() - m_i[1].getValue()) * private_key.qInv.getValue() % private_key.p.getValue()
@@ -160,6 +160,8 @@ q =  "FB6E6185BF10B5981F76D2403190BB653049B86661B58774D2EAD2356FB843A8FBBC9729C2
 d = "153430AAC32B36E85584B0AFE9BDA8108043318A179D720E98042B245E9835B0F799D85D45EA46E9D179DA9F3DFB05D162B0DDF1F1CC75B388C7FAEED5A318B0BDFB583349FDEF88DB3B548DDF56C83AEBAACE65AA55119F0646BE765177BE148434A797C61F87570F9E9242248C5A1460D4F25FB6D83736DB0D695CCFB4AAD360CE844852468CEFC2E2952ABC86F879765B1E55034BF7861D8E75F6623B4DFEFF0ED1BB10BAC318D0FBEB51ED40A519BF49241391556392B7F14626318FB7CD18E9E8F65B9FE7839CD94B2FA933D4AFE115CE226334762A1544510386AACD4EFF9AA22BC53297C3907E9FDD93EA03BAEA8280EFB06DDC42810753DE6D35C7A5"
 n = "B73C54E656923F3F184546C1FB00BC7E2C9DF9A95E4EDE9DA559F2BE1773C8B52159BD54A25B8142839FAF6D0E2F70130B9961C875D1EB2D99F36A1DFB72E05F46C9B83456BCEFA33A0A14DCD6CB34F32666B516F148858498CD52BE9804F5E7D5D3714629AB27F4102B7DC419A9A1BAA9B2A0990C15A368C028EC678FFF266D9F19FC61DFEBFE500AC3C5701B1291DDA1BE47F330BB11C1DD14BE6EE2C098EB934DB695A097449AE269D3878554026245325A872DE759F6ECAE043E80479E1A7EE6FF52F77FF5441BB7C09B03E01C62F1AD2530FC5D0AA02B9222080BF6242987D23267B7F7A486CBA254648D5B3DBF5D475BFE83FA2D1397D0BE9720B9E263"
 e = "02DE387DD9"
+
+
 expected_cipher = IntegerHandler.fromHexString(ct, little_endian, bit_length)
 expected_plain = IntegerHandler.fromHexString(pt, little_endian, bit_length)
 given_p = IntegerHandler.fromHexString(p, little_endian, bit_length)
@@ -167,9 +169,18 @@ given_q = IntegerHandler.fromHexString(q, little_endian, bit_length)
 given_n = IntegerHandler.fromHexString(n, little_endian, bit_length)
 given_e = IntegerHandler.fromHexString(e, little_endian, bit_length)
 given_d = IntegerHandler.fromHexString(d, little_endian, bit_length)
+from HelperFunctions.PrimeNumbers import calculateModuloInverse
+dP = given_d.getValue() % (given_p.getValue() - 1)
+dQ = given_d.getValue() % (given_q.getValue() - 1)
+qInv = calculateModuloInverse(given_q.getValue(), given_p.getValue())
+calc_dP = IntegerHandler(dP,little_endian,bit_length)
+calc_dQ = IntegerHandler(dQ,little_endian,bit_length)
+calc_qInv = IntegerHandler(qInv,little_endian,bit_length)
 
 public_key = RSA_PublicKey(given_n, given_e)
 private_key = RSA_PrivateKey(given_n, given_d)
+private_key_quint = RSA_PrivateKey_QuintupleForm(given_p,given_q,calc_dP,calc_dQ,calc_qInv,[])
+
 calculated_cipher = RSA.RSA_EncryptionPrimitive(public_key, expected_plain)
 print(f"Expected Cipher : {expected_cipher.getHexString()}")
 print()
@@ -181,7 +192,66 @@ calculated_plain = RSA.RSA_DecryptionPrimitive(private_key, calculated_cipher)
 print()
 print(f"Expected Plain : {expected_plain.getHexString()}")
 print()
-print(f"Calculated Cipher : {calculated_plain.getHexString()}")
+print(f"Calculated Plain : {calculated_plain.getHexString()}")
+
+calculated_plain_quint = RSA.RSA_DecryptionPrimitive(private_key_quint, calculated_cipher)
+print()
+print(f"Calculated Plain Quint : {calculated_plain_quint.getHexString()}")
+print()
+
+
+assert expected_plain.getHexString() == calculated_plain.getHexString()
+assert expected_plain.getHexString() == calculated_plain_quint.getHexString()
+
+
+ct = "742D529EE4A41CE7BAD178E358F51DCF872FCC12A304EBFABB12030AE6AB06A738010B59BA0C339C8C48435B16164DF7521D29CCC206027F860DAA1840A930FD2D8EFAA6ED70ECB0FB8F18A5847207662A44B416A9333632A7F8C9A7BD2F2BA5EEC7CE1E7C783B0633D2FFF938AA7850B468476C4F1EC5FBAC761E28772083FB88514FFCC3BBCE72B003356F2FE3A8C62140C7412AB4F63DC491D94BEAEC0A68422FDCE07099917BA97120465B8A8D86C109148189C52A6432C096543777E4D14A91F9BC6969D036C25106551929FD5AE511C2CFBD54F93BEC464A41CF53CDB0C63A6F59E5739884D8D2D6830117AB7D0165A70428AB0BB9EADE2F02EEA9089A"
+pt = "0D3E74F20C249E1058D4787C22F95819066FA8927A95AB004A240073FE20CBCB149545694B0EE318557759FCC4D2CA0E3D55307D1D3A4CD1F3B031CE0DF356A5DEDCC25729C4302FABA4CB885C9FA3C2F57A4D1308451C300D2378E90F4F83DCEDCDCF5217BC3840A796FCDAF73483A3D199C389BDB50CFE95D9C02E5F4FC1917FA4606CF6AB7559253202698D7EABE7561137271CE1A524E5956D25C379AF4F121877355F2495DC154A0EB33CF2F3B6990F60FCC0CCE199EF1E76E11585895EE1C619FB6D140266006AB41D56CE3E6C68571902568CD4520F1F9E5E284B4B9DFCC3782D05CDF826895450E314FBC654032A775F47088F18D3B4000AC23BD107"
+dmp1 = ""
+dmq1 = ""
+iqmp = ""
+p = "EB48E387997710CB6D83CC6A2CCFD327B3064638ABEEE8708F7F25EE89AC8975BB062EC227129E923586F190F1A5C2E2E8DA988286E09F190A0B99380A45525E14BD10EEB2BB024B88CD184A08F27B29B72F33DB0A9D33CCF5E07D2A5D27604ED0F9836CCF7A121CB6A220BAAC94FA8835F75F6A942257972ADF69C4D8B8EEA9"
+q =  "BA09FCB64170DEDFBE8E7A37A088EAB99BD73A8CA78B83B63E666449A83A43B6B631CF7BAE9255305EBFA5B3831EC70C89ADB34DE0F5D48A85AB4897A13D9E6441FE55679574664E241A827C15086187FE0686479F84B40C9964EF14E07A4BE03BBBBCE4A5C6120FF452D295026EEE74BF2912ED1DDA20FEE3FB2DA7835AA1F7"
+d = "42B7EAE4BFC8E11D33536136EF3C2B26A516C5D480FA7D55E31CF6CA68E070D9B1E8C18351354B01294CAB22F0D3676821F0462A410989160D060F3A11331103E09D68D8B9FB1E922E538B4AB23C2D0CD033868BE59B746A42BBE638F379154E729B04739C7504ECA3585C65AB57FC31F5D871C195A30E04D27A5FCAA3C45CFB2D3BB0D5D694EE648C1DA6584B75DA110482C24159576E729D7E3DAA0096DB623AD9F6DE63181B4C539BCA9B502C4E33AB455728AC2E358503E90D258FE1BED937CFC355A8C3B54C3F8B3031D5612F7E63C307F899DB3F391F1A83E248580CC145887E25614D59B32892834BBDC75D55FE39CFD797CAB80E2506C5A8E684426F"
+n = "AAFC2323C735635B862201C4920D397EA283F11A1E76C56BA8C5573314D7D1DBE70C1DF2ACE3C7E71D549F7ED8D1E82DF3F8148B81A479C7BED674DB4A8B9F8F95F07ED1F3DF1809E0AD53AFE8F589AD8431F24F8CFBF7F0BAFCF77C9487B037AD16C8564A9EED11C1E8BAD2063307627CD6971E99F88FC7524F05D89F1A609FA328EFEEB3DBF511C9EFFA7CD2734F3BF1C2A5FC2FC3548EEFB8B6EE1E4D8C0859E1A993BDCF8ED744E9BB32444C7FEF86FDD96D596CC99B701B0201D95D6DAC931FBE3A6E38DBF589E43330DE8425A474E1D28003D7C9D70BA14F9D9EA633B4BF921F54DBDEEB130A05DE2CEC30F15F1B1B793FB00BF89D8679119CCAF08E0F"
+e = "8792D8C9AF"
+expected_cipher = IntegerHandler.fromHexString(ct, little_endian, bit_length)
+expected_plain = IntegerHandler.fromHexString(pt, little_endian, bit_length)
+given_p = IntegerHandler.fromHexString(p, little_endian, bit_length)
+given_q = IntegerHandler.fromHexString(q, little_endian, bit_length)
+given_n = IntegerHandler.fromHexString(n, little_endian, bit_length)
+given_e = IntegerHandler.fromHexString(e, little_endian, bit_length)
+given_d = IntegerHandler.fromHexString(d, little_endian, bit_length)
+dP = given_d.getValue() % (given_p.getValue() - 1)
+dQ = given_d.getValue() % (given_q.getValue() - 1)
+qInv = calculateModuloInverse(given_q.getValue(), given_p.getValue())
+calc_dP = IntegerHandler(dP,little_endian,bit_length)
+calc_dQ = IntegerHandler(dQ,little_endian,bit_length)
+calc_qInv = IntegerHandler(qInv,little_endian,bit_length)
+
+public_key = RSA_PublicKey(given_n, given_e)
+private_key = RSA_PrivateKey(given_n, given_d)
+private_key_quint = RSA_PrivateKey_QuintupleForm(given_p,given_q,calc_dP,calc_dQ,calc_qInv,[])
+calculated_cipher = RSA.RSA_EncryptionPrimitive(public_key, expected_plain)
+print(f"Expected Cipher : {expected_cipher.getHexString()}")
+print()
+print(f"Calculated Cipher : {calculated_cipher.getHexString()}")
+
+assert expected_cipher.getHexString() == calculated_cipher.getHexString()
+
+calculated_plain = RSA.RSA_DecryptionPrimitive(private_key, calculated_cipher)
+print()
+print(f"Expected Plain : {expected_plain.getHexString()}")
+print()
+print(f"Calculated Plain : {calculated_plain.getHexString()}")
+
+calculated_plain_quint = RSA.RSA_DecryptionPrimitive(private_key_quint, calculated_cipher)
+print()
+print(f"Calculated Plain Quint : {calculated_plain_quint.getHexString()}")
+print()
+
+
+assert expected_plain.getHexString() == calculated_plain.getHexString()
+assert expected_plain.getHexString() == calculated_plain_quint.getHexString()
 
 # from HelperFunctions.EuclidsAlgorithms import extendedEuclidAlgorithm
 # from HelperFunctions.EncodeStringAsNumberList import EncodeStringAsNumbersList
