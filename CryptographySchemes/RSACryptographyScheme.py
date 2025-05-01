@@ -1,6 +1,15 @@
 from HelperFunctions.IntegerHandler import IntegerHandler
 little_endian = False
 bit_length = 2048
+from secrets import randbits
+'''
+    Security Strength - RSA k
+    <80 - 1024
+    112 - 2048
+    128 - 3072
+    192 - 7680
+    256 - 15360
+'''
 
 class RSA_PrimeData():
     def __init__(self, prime_factor:IntegerHandler, crt_exponent:IntegerHandler, crt_coefficient:IntegerHandler):
@@ -145,6 +154,39 @@ class RSA():
                 h = ( m_i[i] - m ) * private_key.additional_prime_data[i - 1].t_i.getValue() % private_key.additional_prime_data[i - 1].r_i.getValue()
                 m = m + R * h
         return IntegerHandler(m, little_endian, bit_length)
+    
+    @staticmethod
+    def RSA_SeedGeneration(nlen:int):
+        '''
+        This method returns a random seed with twice the number of bits as the security strength indicated by nlen
+
+        From NIST FIPS 186-5 Section A.1.2.1 "Get the Seed" 
+        https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.186-5.pdf
+
+        Parameters :
+            nlen : int
+                The desired length of the n modulus
+        
+        Returns :
+            success_or_failure : bool
+                True, if successful creating the seed value
+            seed : IntegerHandler 
+                The seed value as an IntegerHandler with 2 * the security strength bits
+        '''
+        if nlen == 2048:
+            security_strength = 112
+        elif nlen == 3072:
+            security_strength = 128
+        elif nlen == 7680:
+            security_strength = 192
+        elif nlen == 15360:
+            security_strength = 256
+        else:
+            return False, IntegerHandler(0, little_endian, 0)
+        
+        seed = randbits(security_strength * 2)
+        return True, IntegerHandler(seed, little_endian, security_strength * 2)
+        
 
 
 
