@@ -321,14 +321,26 @@ class RSA():
         prime_seed = IntegerHandler(prime_seed.getValue()+iterations+1,little_endian,prime_seed.bit_length)
         x = 2**(length - 1) + x % ( 2**(length - 1))
         t = ceil(x / (2 * c_0))
-        if 2 * t * c_0 + 1 > 2 **length:
-            t = ceil(2**(length - 1) / (2 * c_0))
-        c = 2 * t * c_0 + 1
-        prime_gen_counter = prime_gen_counter + 1
-            
-    @staticmethod
-    def testPrime(c:int):
-        pass
+        while True:
+            if 2 * t * c_0 + 1 > 2 **length:
+                t = ceil(2**(length - 1) / (2 * c_0))
+            c = 2 * t * c_0 + 1
+            prime_gen_counter = prime_gen_counter + 1
+
+            a = 0
+            for i in range (0, iterations):
+                prime_seed_inc = IntegerHandler(prime_seed.getValue()+i, False, prime_seed.bit_length)
+                a = a + RSA.getHashValue(prime_seed_inc) * 2 ** (i * hash_length)
+            prime_seed = IntegerHandler(prime_seed.getValue()+iterations+1,little_endian,prime_seed.bit_length)
+            a = 2 + (a % (c - 3))
+            z = a**(2*t) % c
+            if 1 == euclidsAlgorithm(z-1, c) and 1 == z**c_0 % c:
+                return True, c, prime_seed, prime_gen_counter
+            elif  (prime_gen_counter >= ((4 * length) + old_counter)):
+                return False, 0, 0, 0
+            t = t + 1
+
+        
 
 handler = IntegerHandler.fromHexString("01FF",little_endian,16)
 print(handler.getValue())
