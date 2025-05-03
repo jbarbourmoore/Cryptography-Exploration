@@ -5,6 +5,8 @@ from secrets import randbits
 from math import ceil, floor
 from HashingAlgorithms.SecureHashAlgorithm3 import shake_256
 from HelperFunctions.EuclidsAlgorithms import euclidsAlgorithm
+from HelperFunctions.PrimeNumbers import getPrimeNumbers_SieveOfEratosthenes
+
 '''
     Security Strength - RSA k
     <80 - 1024
@@ -221,7 +223,22 @@ class RSA():
         N_1 = 1
         N_2 = 1
 
-        p = RSA.provablePrimeConstruction()
+        success, p, p_1, p_2, pseed = RSA.provablePrimeConstruction(L,N_1,N_2,working_seed,e)
+        if not success:
+            print("p failed")
+            return False, IntegerHandler(0, little_endian, 0), IntegerHandler(0, little_endian, 0)
+        working_seed = pseed
+        q_not_determined = True
+        while q_not_determined:
+            success, q, q_1, q_2, qseed= RSA.provablePrimeConstruction(L,N_1,N_2,working_seed,e)
+            if not success:
+                print("q failed")
+                return False, IntegerHandler(0, little_endian, 0), IntegerHandler(0, little_endian, 0)
+            if abs(p.getValue() - q.getValue()) > 2 **( nlen//2 -100):
+                q_not_determined = False
+        pseed,qseed,working_seed =0,0,0
+        return True, p, q
+
 
 
     @staticmethod
@@ -232,6 +249,7 @@ class RSA():
         else:
             p_1, p_2seed = RSA.randomPrimeGeneration_ShaweTaylor()
             if p_1 == False:
+                print("p1 failed")
                 return False, 0, 0, 0, 0
         if N_2 == 1:
             p_2 = 1
@@ -239,10 +257,12 @@ class RSA():
         else:
             p_2, p_0seed = RSA.randomPrimeGeneration_ShaweTaylor()
             if p_2 == False:
+                print("p2 failed")
                 return False, 0, 0, 0, 0
         length = ceil(L / 2) + 1
-        p_0, pseed = RSA.randomPrimeGeneration_ShaweTaylor()
-        if p_0 == False:
+        success, p_0, pseed, prime_gen_counter = RSA.randomPrimeGeneration_ShaweTaylor(length, p_0seed)
+        if success == False:
+                print("p0 failed")
                 return False, 0, 0, 0, 0
         
         iterations = ceil(L/hash_length) - 1
@@ -276,7 +296,9 @@ class RSA():
                 if 1 == euclidsAlgorithm(z-1,p):
                     return True, p, p_1, p_2, pseed
             t = t + 1
+        print("p1 failed")
         return False, 0, 0, 0, 0
+    
     
     @staticmethod
     def getHashValue(handler_to_hash: IntegerHandler):
@@ -307,7 +329,7 @@ class RSA():
                 return True, c, prime_seed, prime_gen_counter
             elif prime_gen_counter > 4 * length:
                 return False, 0, 0, 0
-        status, c_0, prime_seed, prime_gen_counter = RSA.randomPrimeGeneration_ShaweTaylor(ceil(length / 2) + 1)
+        status, c_0, prime_seed, prime_gen_counter = RSA.randomPrimeGeneration_ShaweTaylor(ceil(length / 2) + 1,prime_seed)
         if status == False:
             return False, 0, 0, 0
         iterations = ceil(length / hash_length) - 1
@@ -326,19 +348,30 @@ class RSA():
                 t = ceil(2**(length - 1) / (2 * c_0))
             c = 2 * t * c_0 + 1
             prime_gen_counter = prime_gen_counter + 1
-
+            print(c)
+            print(RSA.testPrime(c))
             a = 0
             for i in range (0, iterations):
                 prime_seed_inc = IntegerHandler(prime_seed.getValue()+i, False, prime_seed.bit_length)
                 a = a + RSA.getHashValue(prime_seed_inc) * 2 ** (i * hash_length)
             prime_seed = IntegerHandler(prime_seed.getValue()+iterations+1,little_endian,prime_seed.bit_length)
             a = 2 + (a % (c - 3))
-            z = a**(2*t) % c
-            if 1 == euclidsAlgorithm(z-1, c) and 1 == z**c_0 % c:
+            z = pow(a, 2**t, c)
+            if 1 == euclidsAlgorithm(z-1, c) and 1 == pow(z, c_0, c):
                 return True, c, prime_seed, prime_gen_counter
             elif  (prime_gen_counter >= ((4 * length) + old_counter)):
                 return False, 0, 0, 0
             t = t + 1
+            print(prime_gen_counter)
+
+    @staticmethod
+    def testPrime(c:int):
+        sqrt_c = c ** .5
+        primes_under_c = getPrimeNumbers_SieveOfEratosthenes(2,int(sqrt_c))
+        for prime in primes_under_c:
+            if c % prime == 0:
+                return False
+        return True
 
         
 
@@ -446,6 +479,13 @@ print()
 
 assert expected_plain.getHexString() == calculated_plain.getHexString()
 assert expected_plain.getHexString() == calculated_plain_quint.getHexString()
+success, seed = RSA.RSA_SeedGeneration(2048)
+success, p, q = RSA.constructionOfProvablePrimes(2048,given_e,seed)
+print(seed.getHexString())
+print(p.getHexString())
+print(q.getHexString())
+print(success)
+
 
 # from HelperFunctions.EuclidsAlgorithms import extendedEuclidAlgorithm
 # from HelperFunctions.EncodeStringAsNumberList import EncodeStringAsNumbersList
