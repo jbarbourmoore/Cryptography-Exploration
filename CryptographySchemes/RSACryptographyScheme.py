@@ -1,11 +1,12 @@
 from HelperFunctions.IntegerHandler import IntegerHandler, bitwiseXor
 little_endian = False
 bit_length = 2048
-from secrets import randbits
-from math import ceil, floor
+from secrets import randbits, randbelow
+from math import ceil, floor, sqrt
 from HashingAlgorithms.SecureHashAlgorithm3 import shake_256
-from HelperFunctions.EuclidsAlgorithms import euclidsAlgorithm
+from HelperFunctions.EuclidsAlgorithms import euclidsAlgorithm, extendedEuclidAlgorithm
 from HelperFunctions.PrimeNumbers import getPrimeNumbers_SieveOfEratosthenes
+from HelperFunctions.PrimeNumbers import calculateModuloSquareRoot
 
 '''
     Security Strength - RSA k
@@ -121,7 +122,9 @@ class RSA():
             message_representative : Integer_Handler
                 The portion of the message currently bring encrypted as an integer smaller than the RSA modulus
         '''
-        assert message_representative.value < public_key.n.value, "The message representative must be a smaller integer than the RSA modulus"
+        assert message_representative.value < public_key.n.value, f"The message representative {message_representative.value} must be a smaller integer than the RSA modulus {public_key.n.value}"
+        # print(public_key.e.getValue())
+        # print(public_key.n.getValue())
         return RSA.modularExponent(base=message_representative, exponent=public_key.e, modulus=public_key.n)
     
     @staticmethod
@@ -142,6 +145,8 @@ class RSA():
                 The message representative as an IntegerHandler
         '''
         if type(private_key) == RSA_PrivateKey:
+            # print(private_key.d.getValue())
+            # print(private_key.n.getValue())
             return RSA.modularExponent(base=cipher_text_representative, exponent=private_key.d, modulus=private_key.n)
         
         m_i:list[IntegerHandler] = []
@@ -233,8 +238,8 @@ class RSA():
         
         working_seed = seed
         L = nlen // 2
-        N_1 = 1
-        N_2 = 1
+        N_1 = 141
+        N_2 = 141
 
         success, p, p_1, p_2, pseed = RSA.provablePrimeConstruction(L,N_1,N_2,working_seed,e)
         if not success:
@@ -286,16 +291,16 @@ class RSA():
             p_1 = 1
             p_2seed = first_seed
         else: #3
-            p_1, p_2seed = RSA.randomPrimeGeneration_ShaweTaylor()
-            if p_1 == False:
+            success, p_1, p_2seed, p_counter = RSA.randomPrimeGeneration_ShaweTaylor(N_1, first_seed)
+            if success == False:
                 print("p1 failed")
                 return False, 0, 0, 0, IntegerHandler(0,little_endian,0)
         if N_2 == 1: #4
             p_2 = 1
             p_0seed = p_2seed
         else: #5
-            p_2, p_0seed = RSA.randomPrimeGeneration_ShaweTaylor()
-            if p_2 == False:
+            success, p_2, p_0seed, p_counter = RSA.randomPrimeGeneration_ShaweTaylor(N_2, p_2seed)
+            if success == False:
                 print("p2 failed")
                 return False, 0, 0, 0, IntegerHandler(0,little_endian,0)
         length = ceil(L / 2) + 1
@@ -306,35 +311,59 @@ class RSA():
         if euclidsAlgorithm(p_0*p_1, p_2) != 1:
             return False, 0, 0, 0, IntegerHandler(0,little_endian,0)
         iterations = ceil(L/hash_length) - 1
+        print(f"iterations : {iterations} L = {L}")
         pgen_counter = 0
         x = 0
-        for i in range(0, iterations):
+        for i in range(0, iterations+1):
             pseed_i_handler = IntegerHandler(prime_seed.getValue() + i, little_endian, prime_seed.bit_length)
             hash_value = RSA.getHashValue(pseed_i_handler)
             x = x + hash_value * 2 ** (i * hash_length)
         prime_seed = IntegerHandler(prime_seed.getValue()+iterations+1,little_endian,prime_seed.bit_length)
-        sq2_2toL = floor(2**(.5) * (2**(L - 1)))
-        x = sq2_2toL + x % (2**L - sq2_2toL)
-        # print(f"p_0:{p_0}, p_1:{p_1}, p_2:{p_2}, p_0*p_1%p_2={p_0*p_1%p_2}")
-        y = RSA.calculateInverseModA(p_0 * p_1, p_2)
-        t = ceil((2*y*p_0*p_1+x)/(2*p_0*p_1*p_2))
-        while pgen_counter <= 5:
-            if  (2 * (t * p_2 - y) * p_0 * p_1 + 1) > 2**L:
-                t = ceil((2*y*p_0*p_1+sq2_2toL)/(2*p_0*p_1*p_2))
+        sq2 = sqrt(2)
+        sq2_2toL = floor(sq2 * (pow(2,L-1)))
+        # print(sq2)
+        # print(sq2_2toL)
+        assert sq2_2toL > pow(2,L-1)
+        assert sq2_2toL < pow(2,L)
 
+        x = sq2_2toL + (x % (pow(2,L) - sq2_2toL))
+        # print(f"x: {x} in range {sq2_2toL} to {pow(2,L)-1}")
+        assert x >= sq2_2toL
+        assert x <= pow(2,L)-1
+        # print(f"p_0:{p_0}, p_1:{p_1}, p_2:{p_2}, p_0*p_1%p_2={p_0*p_1%p_2}")
+        p0p1 = p_0 * p_1
+       # print(f"p0p1 = {p0p1} p2 = {p_2}")
+        y = RSA.new_inv_mod(p0p1, p_2)
+        #y = 1
+        # print(f"p0p1 = {p0p1} y = {y} p0p1y - 1 = {(p0p1 * y -1) % p_2}")
+        assert (p0p1 * y) % p_2 == 1
+        t = ceil(( 2 * y * p_0 * p_1 + x)/(2 * p_0 * p_1 * p_2))
+        #print(f"t: {t}")
+        # while True:
+        while pgen_counter <= 5 * L:
+            if  (2 * (t * p_2 - y) * p_0 * p_1 + 1) > pow(2,L):
+                #print("in hte if")
+                t = ceil((2*y*p_0*p_1+sq2_2toL)/(2*p_0*p_1*p_2))
+            #print(f"t: {t}")
             p = 2 * (t * p_2 - y) * p_0 * p_1 + 1
+            #print(f"p : {p} = ( p-1) % (2p0 p1) {(p-1)%(2*p_0*p_1)} = ( p+1) mod p2. {(p+1)%p_2}")
+            #print(f"Miller Rabin : {RSA.isMillerRabinPassed(p)}")
             pgen_counter += 1
             if euclidsAlgorithm((p-1),e.getValue()) == 1:
                 a = 0
-                for i in range(0, iterations):
+                for i in range(0, iterations+1):
                     pseed_i_handler = IntegerHandler(prime_seed.getValue() + i, little_endian, prime_seed.bit_length)
                     hash_value = RSA.getHashValue(pseed_i_handler)
-                    x = x + hash_value * 2 ** (i * hash_length)
+                    a = a + hash_value * 2 ** (i * hash_length)
                 prime_seed = IntegerHandler(prime_seed.getValue()+iterations+1,little_endian,prime_seed.bit_length)
                 a = 2 + a % (p-3)
-                exp = 2*(t*p_2-y)*p_1
-                z = pow(a,exp,p)
-                if 1 == euclidsAlgorithm(z-1,p):
+                # print(f"a : {a} in range 2 to p-2 {p-2}")
+                assert a <= p-2
+                exp = 2 * (t * p_2 - y) * p_1
+                z = pow(a, exp, p)
+                # print(f"z ** p_0 % p = {pow(z,p_0,p)}")
+                if 1 == euclidsAlgorithm(z-1, p) and 1 == pow(z,p_0,p):
+                    assert RSA.isMillerRabinPassed(p)
                     return True, p, p_1, p_2, prime_seed
             t = t + 1
         print(f"provable prime construction failed, pgen_counter:{pgen_counter}")
@@ -360,12 +389,13 @@ class RSA():
         '''
         if z >= a:
             z = z % a
+        print(f"z is {z} a is {a}")
         i = a
         j = z
         y_1 = 1
         y_2 = 0
         while j > 0:
-            quotient = floor(i/j)
+            quotient = i // j
             remainder = i - (j * quotient)
             y = y_2 - (y_1 * quotient)
             i = j
@@ -456,9 +486,8 @@ class RSA():
         old_counter = prime_gen_counter
         x = 0
         for i in range(0, iterations):
-            pseedihex = IntegerHandler(prime_seed.getValue() + i, little_endian, prime_seed.bit_length).getHexString()
-            hash_hex = hash_alg.hashHex(pseedihex, hash_length).getHexString()
-            hash_value = IntegerHandler.fromHexString(hash_hex,False, hash_length).getValue()
+            pseed_i_handler = IntegerHandler(prime_seed.getValue() + i, little_endian, prime_seed.bit_length)
+            hash_value = RSA.getHashValue(pseed_i_handler)
             x = x + hash_value * 2 ** (i * hash_length)  
         prime_seed = IntegerHandler(prime_seed.getValue()+iterations+1,little_endian,prime_seed.bit_length)
         x = 2**(length - 1) + x % ( 2**(length - 1))
@@ -469,7 +498,7 @@ class RSA():
             c = 2 * t * c_0 + 1
             prime_gen_counter = prime_gen_counter + 1 #25
             # print(c)
-            # print(RSA.testPrime(c))
+            # print(RSA.isMillerRabinPassed(c))
             a = 0
             for i in range (0, iterations):
                 prime_seed_inc = IntegerHandler(prime_seed.getValue()+i, False, prime_seed.bit_length)
@@ -480,7 +509,9 @@ class RSA():
             # print(f"gcd = {euclidsAlgorithm(z-1, c)} pow = {pow(z, c_0, c)}")
             # if 1 == euclidsAlgorithm(z-1, c) :
             if 1 == euclidsAlgorithm(z-1, c) and 1 == pow(z, c_0, c):
-                return True, c, prime_seed, prime_gen_counter
+                # print(f"prime is {c}: {RSA.isMillerRabinPassed(c)}")
+                prime = c
+                return True, prime, prime_seed, prime_gen_counter
             elif  (prime_gen_counter >= ((4 * length) + old_counter)):
                 return False, 0, IntegerHandler(0), 0
             t = t + 1
@@ -508,6 +539,139 @@ class RSA():
             if potential_prime % prime == 0:
                 return False
         return True
+    
+    @staticmethod
+    def generateRSAKeyPair(security_strength: int = 112)-> tuple[RSA_PublicKey, RSA_PrivateKey]:
+        '''
+        This method generates an RSA key pair of the requented security strength
+        '''
+
+        if security_strength == 112:
+            nlen = 2048
+        elif security_strength == 128:
+            nlen = 3072
+        elif security_strength == 192:
+            nlen = 7680
+        elif security_strength == 256:
+            nlen = 15360
+        else:
+            print("Desired security strength must be 112, 128, 192 or 256")
+            return None, None
+        
+        
+        gcd_e_phi_1 = False
+        while not gcd_e_phi_1:
+            e = 0
+            while e % 2 == 0 or e < 2**16 or e > 2 ** 256:
+                e = randbelow(2**256)
+        
+            e = IntegerHandler(e, little_endian)
+            print(f"e : {e.getHexString()}")
+            success, seed = RSA.RSA_SeedGeneration(nlen)
+            if success: 
+                success, p, q = RSA.constructionOfProvablePrimes(nlen, e, seed)
+                if success:
+                    p_prob_prime = RSA.isMillerRabinPassed(p.getValue())
+                    q_prob_prime = RSA.isMillerRabinPassed(q.getValue())
+                    print(f"p : {p_prob_prime} : {p.getValue()}")
+                    print(f"q : {q_prob_prime} : {q.getValue()}")
+                if success and p_prob_prime and q_prob_prime: 
+                    n = IntegerHandler((p.getValue()) * (q.getValue()),little_endian)
+                    p_1 = p.getValue() - 1
+                    q_1 = q.getValue() - 1
+                    gcd_p1_q1 = euclidsAlgorithm(p_1, q_1)
+                    phi = p_1 * q_1 // gcd_p1_q1
+                    # phi_handler = IntegerHandler(phi,little_endian)
+                    # print(f"phi : {phi_handler.getHexString()} gcd: {euclidsAlgorithm(phi,e.getValue())}")
+                    public_key = RSA_PublicKey(n, e)
+
+                    if euclidsAlgorithm(phi,e.getValue()) == 1:
+                        gcd_e_phi_1 = True
+
+        d = RSA.calculateD(e, p, q)
+        # print(f"e:{e.getValue()} * d:{d} % phi:{phi} = {(d * e.getValue()) % phi}")
+
+        private_key = RSA_PrivateKey(n, IntegerHandler(d,little_endian))
+        return public_key, private_key
+
+    @staticmethod
+    def calculateD(e:IntegerHandler, p:IntegerHandler, q:IntegerHandler) -> int:
+        '''
+        This method calculates the value for d given e, p and q
+
+        Parameters :
+            e : IntegerHandler
+                The public exponent
+            p, q : IntegerHandler
+                The primes that make up the RSA
+        
+        Returns :
+            d : int
+                The private exponent value 
+        '''
+        phi = (p.getValue() - 1) * (q.getValue() - 1)
+        p_1 = p.getValue() - 1
+        q_1 = q.getValue() - 1
+        gcd_p1_q1 = euclidsAlgorithm(p_1, q_1)
+        phi = p_1 * q_1 // gcd_p1_q1
+        d = RSA.new_inv_mod(e.getValue(), phi)
+        return d
+    
+    @staticmethod
+    def new_inv_mod(value,modulus):
+        '''
+        This method uses the extended form of euclids algorithm to find the inverse modulo
+        '''
+        i, _, t = extendedEuclidAlgorithm(modulus,value)
+        if i == 1:
+            if t < 0:
+                d = modulus + t
+            else:
+                d = t
+        # print(f"d is {d} :inv {value} in {modulus}")
+        return d
+    
+    @staticmethod
+    def isMillerRabinPassed(w:int, iterations:int=44) -> bool: 
+        '''
+        This method performs the miller rabin primality test on a given potential prime number
+
+        iteration counts should be taken from Nist FIPS 186-5 Table B.1. "Minimum number of rounds of M-R testing when generating primes for use in RSA Digital Signatures (see Appendix C)"
+
+        As laid out in NIST FIPS 186-5 Section 
+        https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.186-5.pdf
+
+        Parameters:
+            w : int
+                The candidate prime number being tested
+            iterations : int, optional
+                The number of iterations being performed of the miller rabin test, default is 44
+
+        Returns :
+            is_likely_prime : bool
+                Whether the candidate is likely prime or not
+        '''
+    
+        a = 0
+        m = w-1
+    
+        while m % 2 == 0: 
+            m //= 2
+            a += 1
+    
+        for i in range(0, iterations): 
+            b = 0
+            while b <= 1 or b > w - 1:
+                b = randbelow(w) 
+            z = pow(b, m, w)
+            if z == 1 or z == (w - 1):
+                continue
+            for j in range (1, a-1):
+                z = pow(z, 2, w)
+                if z == 1:
+                    print(j)
+                    return False
+        return True
 
         
 if __name__ == '__main__':
@@ -524,15 +688,21 @@ if __name__ == '__main__':
     n = "B73C54E656923F3F184546C1FB00BC7E2C9DF9A95E4EDE9DA559F2BE1773C8B52159BD54A25B8142839FAF6D0E2F70130B9961C875D1EB2D99F36A1DFB72E05F46C9B83456BCEFA33A0A14DCD6CB34F32666B516F148858498CD52BE9804F5E7D5D3714629AB27F4102B7DC419A9A1BAA9B2A0990C15A368C028EC678FFF266D9F19FC61DFEBFE500AC3C5701B1291DDA1BE47F330BB11C1DD14BE6EE2C098EB934DB695A097449AE269D3878554026245325A872DE759F6ECAE043E80479E1A7EE6FF52F77FF5441BB7C09B03E01C62F1AD2530FC5D0AA02B9222080BF6242987D23267B7F7A486CBA254648D5B3DBF5D475BFE83FA2D1397D0BE9720B9E263"
     e = "02DE387DD9"
 
+    from HelperFunctions.PrimeNumbers import calculateModuloInverse
 
     expected_cipher = IntegerHandler.fromHexString(ct, little_endian, bit_length)
     expected_plain = IntegerHandler.fromHexString(pt, little_endian, bit_length)
     given_p = IntegerHandler.fromHexString(p, little_endian, bit_length)
+    # print(f"p is prime : {RSA.testPrime(given_p.getValue())}")
     given_q = IntegerHandler.fromHexString(q, little_endian, bit_length)
     given_n = IntegerHandler.fromHexString(n, little_endian, bit_length)
     given_e = IntegerHandler.fromHexString(e, little_endian, bit_length)
     given_d = IntegerHandler.fromHexString(d, little_endian, bit_length)
-    from HelperFunctions.PrimeNumbers import calculateModuloInverse
+    calc_d = RSA.calculateD(given_e,given_p,given_q)
+    print(f"given d : {given_d.getValue()}, calc d : {calc_d}")
+    assert given_d.getValue() == calc_d
+    print(f"given n : {given_n.getValue()} calc n : {given_p.getValue() * given_q.getValue()}")
+    print(RSA.isMillerRabinPassed(given_p.getValue()))
     dP = given_d.getValue() % (given_p.getValue() - 1)
     dQ = given_d.getValue() % (given_q.getValue() - 1)
     qInv = calculateModuloInverse(given_q.getValue(), given_p.getValue())
@@ -561,7 +731,6 @@ if __name__ == '__main__':
     print()
     print(f"Calculated Plain Quint : {calculated_plain_quint.getHexString()}")
     print()
-
 
     assert expected_plain.getHexString() == calculated_plain.getHexString()
     assert expected_plain.getHexString() == calculated_plain_quint.getHexString()
@@ -584,6 +753,10 @@ if __name__ == '__main__':
     given_n = IntegerHandler.fromHexString(n, little_endian, bit_length)
     given_e = IntegerHandler.fromHexString(e, little_endian, bit_length)
     given_d = IntegerHandler.fromHexString(d, little_endian, bit_length)
+    calc_d = RSA.calculateD(given_e,given_p,given_q)
+    print(f"given d : {given_d.getValue()}, calc d : {calc_d}")
+    print(f"given n : {given_n.getValue()} calc n : {given_p.getValue() * given_q.getValue()}")
+    print(RSA.isMillerRabinPassed(given_p.getValue()))
     dP = given_d.getValue() % (given_p.getValue() - 1)
     dQ = given_d.getValue() % (given_q.getValue() - 1)
     qInv = calculateModuloInverse(given_q.getValue(), given_p.getValue())
@@ -615,14 +788,30 @@ if __name__ == '__main__':
 
     assert expected_plain.getHexString() == calculated_plain.getHexString()
     assert expected_plain.getHexString() == calculated_plain_quint.getHexString()
-    success, seed = RSA.RSA_SeedGeneration(2048)
-    print(success)
-    success, p, q = RSA.constructionOfProvablePrimes(2048,given_e,seed)
-    print(seed.getHexString())
-    print(p.getHexString())
-    print(q.getHexString())
-    print(success)
 
+
+    # success, seed = RSA.RSA_SeedGeneration(2048)
+    # print(success)
+    # success, p, q = RSA.constructionOfProvablePrimes(2048,given_e,seed)
+    # # print(RSA.testPrime(p.getValue()))
+    # print(seed.getHexString())
+    # print(p.getHexString())
+    # print(q.getHexString())
+    # print(success)
+
+    public_key_gen, private_key_gen = RSA.generateRSAKeyPair(112)
+    assert public_key_gen.n.getValue() == private_key_gen.n.getValue()
+
+    pt = "0D3E74F20C249E1058D4787C22F95819066FA8927A95AB004A240073FE20CBCB149545694B0EE318557759FCC4D2CA0E3D55307D1D3A4CD1F3B031CE0DF356A5DEDCC25729C4302FABA4CB885C9FA3C2F57A4D1308451C300D2378E90F4F83DCEDCDCF5217BC3840A796FCDAF73483A3D199C389BDB50CFE95D9C02E5F4FC1917FA4606CF6AB7559253202698D7EABE7561137271CE1A524E5956D25C379AF4F121877355F2495DC154A0EB33CF2F3B6990F60FCC0CCE199EF1E76E11585895EE1C619FB6D140266006AB41D56CE3E6C68571902568CD4520F1F9E5E284B4B9DFCC3782D05CDF826895450E314FBC654032A775F47088F18D3B4000AC23BD107"
+    plain = IntegerHandler.fromHexString(pt, little_endian, bit_length)
+
+    encrypted = RSA.RSA_EncryptionPrimitive(public_key_gen, plain)
+    decrypted = RSA.RSA_DecryptionPrimitive(private_key_gen, encrypted)
+    print(f"Plain     : {plain.getHexString()}")
+    print(f"Cypher    : {encrypted.getHexString()}")
+    print(f"Decrypted : {decrypted.getHexString()}")
+    # prime = RSA.testPrime(127116100615364639010256937550831707969208387141260619989777447873645445889899929839203471805942190702877908254965483716796817853052193462285527620795136107649447143045737373311928356102422924657957255708019790721625264381657719643105135945793382749235692927871674862868132816599181341818327476764309361668743)
+    # print(prime)
 
 # from HelperFunctions.EuclidsAlgorithms import extendedEuclidAlgorithm
 # from HelperFunctions.EncodeStringAsNumberList import EncodeStringAsNumbersList
