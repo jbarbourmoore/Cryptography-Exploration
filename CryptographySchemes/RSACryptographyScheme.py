@@ -1,4 +1,4 @@
-from HelperFunctions.IntegerHandler import IntegerHandler
+from HelperFunctions.IntegerHandler import IntegerHandler, bitwiseXor
 little_endian = False
 bit_length = 2048
 from secrets import randbits
@@ -230,18 +230,18 @@ class RSA():
             p_1 = 1
             p_2seed = first_seed
         else:
-            p_1, p_2seed = RSA.randomPrimeGeneration()
+            p_1, p_2seed = RSA.randomPrimeGeneration_ShaweTaylor()
             if p_1 == False:
                 return False, 0, 0, 0, 0
         if N_2 == 1:
             p_2 = 1
             p_0seed = p_2seed
         else:
-            p_2, p_0seed = RSA.randomPrimeGeneration()
+            p_2, p_0seed = RSA.randomPrimeGeneration_ShaweTaylor()
             if p_2 == False:
                 return False, 0, 0, 0, 0
         length = ceil(L / 2) + 1
-        p_0, pseed = RSA.randomPrimeGeneration()
+        p_0, pseed = RSA.randomPrimeGeneration_ShaweTaylor()
         if p_0 == False:
                 return False, 0, 0, 0, 0
         
@@ -267,21 +267,68 @@ class RSA():
             if euclidsAlgorithm((p-1),e.getValue()) == 1:
                 a = 0
                 for i in range(0, iterations):
-                    pseedihex = IntegerHandler(pseed.getValue() + i, little_endian, pseed.bit_length).getHexString()
-                    hash_hex = hash_alg.hashHex(pseedihex, hash_length).getHexString()
-                    hash_value = IntegerHandler.fromHexString(hash_hex,False, hash_length).getValue()
+                    pseed_i_handler = IntegerHandler(pseed.getValue() + i, little_endian, pseed.bit_length)
+                    hash_value = RSA.getHashValue(pseed_i_handler)
                     x = x + hash_value * 2 ** (i * hash_length)
                 pseed = IntegerHandler(pseed.getValue()+iterations+1,little_endian,pseed.bit_length)
                 a = 2 + a % (p-3)
                 z = a ** (2*(t*p_2-y)*p_1) % p
                 if 1 == euclidsAlgorithm(z-1,p):
                     return True, p, p_1, p_2, pseed
+            t = t + 1
         return False, 0, 0, 0, 0
+    
+    @staticmethod
+    def getHashValue(handler_to_hash: IntegerHandler):
+        hash_hex = hash_alg.hashHex(handler_to_hash.getHexString(), hash_length).getHexString()
+        hash_handler = IntegerHandler.fromHexString(hash_hex, False, hash_length)
+        return hash_handler.getValue()
+    
+    @staticmethod
+    def getHashHandler(handler_to_hash: IntegerHandler):
+        hash_hex = hash_alg.hashHex(handler_to_hash.getHexString(), hash_length).getHexString()
+        hash_handler = IntegerHandler.fromHexString(hash_hex, False, hash_length)
+        return hash_handler
 
-    def  randomPrimeGeneration():
-        
+    @staticmethod
+    def  randomPrimeGeneration_ShaweTaylor(length:int, input_seed:IntegerHandler):
+        if length < 2:
+            return False, 0, 0, 0
+        prime_gen_counter = 0
+        prime_seed = input_seed
+        while length < 33 and prime_gen_counter <= 4 * length:
+            prime_seed_inc = IntegerHandler(prime_seed.getValue()+1, False, prime_seed.bit_length)
+            c = bitwiseXor([RSA.getHashHandler(prime_seed), RSA.getHashHandler(prime_seed_inc)],little_endian,hash_length)
+            c = 2 ** (length - 1) + (c.getValue() % (2 ** (length - 1)))
+            c = (2 * floor(c / 2)) + 1
+            prime_gen_counter = prime_gen_counter + 1
+            prime_seed = IntegerHandler(prime_seed.getValue() + 2, little_endian, prime_seed.bit_length)
+            if RSA.testPrime(c):
+                return True, c, prime_seed, prime_gen_counter
+            elif prime_gen_counter > 4 * length:
+                return False, 0, 0, 0
+        status, c_0, prime_seed, prime_gen_counter = RSA.randomPrimeGeneration_ShaweTaylor(ceil(length / 2) + 1)
+        if status == False:
+            return False, 0, 0, 0
+        iterations = ceil(length / hash_length) - 1
+        old_counter = prime_gen_counter
+        x = 0
+        for i in range(0, iterations):
+            pseedihex = IntegerHandler(prime_seed.getValue() + i, little_endian, prime_seed.bit_length).getHexString()
+            hash_hex = hash_alg.hashHex(pseedihex, hash_length).getHexString()
+            hash_value = IntegerHandler.fromHexString(hash_hex,False, hash_length).getValue()
+            x = x + hash_value * 2 ** (i * hash_length)  
+        prime_seed = IntegerHandler(prime_seed.getValue()+iterations+1,little_endian,prime_seed.bit_length)
+        x = 2**(length - 1) + x % ( 2**(length - 1))
+        t = ceil(x / (2 * c_0))
+        if 2 * t * c_0 + 1 > 2 **length:
+            t = ceil(2**(length - 1) / (2 * c_0))
+        c = 2 * t * c_0 + 1
+        prime_gen_counter = prime_gen_counter + 1
+            
+    @staticmethod
+    def testPrime(c:int):
         pass
-
 
 handler = IntegerHandler.fromHexString("01FF",little_endian,16)
 print(handler.getValue())
