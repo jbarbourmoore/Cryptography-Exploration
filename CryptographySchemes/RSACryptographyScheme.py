@@ -102,15 +102,14 @@ class RSA_PrivateKey_QuintupleForm():
 class RSA():
 
     @staticmethod
-    def modularExponent(base:IntegerHandler, exponent:IntegerHandler, modulus:IntegerHandler):
+    def modularExponent(base:IntegerHandler, exponent:IntegerHandler, modulus:IntegerHandler, bit_length:int = 2048):
         '''
         This method provides modular exponent for the rsa implementation
-
         '''
         return IntegerHandler(pow(base.getValue(), exponent.getValue(), modulus.getValue()), little_endian, bit_length)
 
     @staticmethod
-    def RSA_EncryptionPrimitive(public_key:RSA_PublicKey, message_representative:IntegerHandler):
+    def RSA_EncryptionPrimitive(public_key:RSA_PublicKey, message_representative:IntegerHandler, bit_length:int = 2048):
         '''
         This method implements the RSA Encription Primitive
 
@@ -125,9 +124,9 @@ class RSA():
         assert message_representative.value < public_key.n.value, f"The message representative {message_representative.value} must be a smaller integer than the RSA modulus {public_key.n.value}"
         # print(public_key.e.getValue())
         # print(public_key.n.getValue())
-        return RSA.modularExponent(base=message_representative, exponent=public_key.e, modulus=public_key.n)
+        return RSA.modularExponent(base=message_representative, exponent=public_key.e, modulus=public_key.n, bit_length=bit_length)
     
-    def RSA_SignaturePrimitive(private_key:RSA_PrivateKey | RSA_PrivateKey_QuintupleForm, message_text_representative:IntegerHandler):
+    def RSA_SignaturePrimitive(private_key:RSA_PrivateKey | RSA_PrivateKey_QuintupleForm, message_text_representative:IntegerHandler, bit_length:int = 2048):
         '''
         This method implements the RSA Signature Primitive
 
@@ -146,13 +145,13 @@ class RSA():
         if type(private_key) == RSA_PrivateKey:
             # print(private_key.d.getValue())
             # print(private_key.n.getValue())
-            return RSA.modularExponent(base=message_text_representative, exponent=private_key.d, modulus=private_key.n)
+            return RSA.modularExponent(base=message_text_representative, exponent=private_key.d, modulus=private_key.n, bit_length=bit_length)
         
         s_i:list[IntegerHandler] = []
-        s_i.append(RSA.modularExponent( base=message_text_representative, exponent=private_key.dP, modulus=private_key.p))
-        s_i.append(RSA.modularExponent( base=message_text_representative, exponent=private_key.dQ, modulus=private_key.q))
+        s_i.append(RSA.modularExponent( base=message_text_representative, exponent=private_key.dP, modulus=private_key.p, bit_length=bit_length))
+        s_i.append(RSA.modularExponent( base=message_text_representative, exponent=private_key.dQ, modulus=private_key.q, bit_length=bit_length))
         for i in range(0, private_key.u - 2):
-            s_i.append(RSA.modularExponent(base=message_text_representative, exponent=private_key.additional_prime_data[i].d_i, modulus=private_key.additional_prime_data[i].r_i))
+            s_i.append(RSA.modularExponent(base=message_text_representative, exponent=private_key.additional_prime_data[i].d_i, modulus=private_key.additional_prime_data[i].r_i, bit_length=bit_length))
 
         h = (s_i[0].getValue() - s_i[1].getValue()) * private_key.qInv.getValue() % private_key.p.getValue()
         s = s_i[1].getValue() + private_key.q.getValue() * h
@@ -167,7 +166,7 @@ class RSA():
         return IntegerHandler(s, little_endian, bit_length)
     
     @staticmethod
-    def RSA_VerificationPrimitive(public_key:RSA_PublicKey, signature_representative:IntegerHandler):
+    def RSA_VerificationPrimitive(public_key:RSA_PublicKey, signature_representative:IntegerHandler, bit_length:int = 2048):
         '''
         This method implements the RSA Verification Primitive
 
@@ -182,9 +181,9 @@ class RSA():
         assert signature_representative.value < public_key.n.value, f"The signature representative {signature_representative.value} must be a smaller integer than the RSA modulus {public_key.n.value}"
         # print(public_key.e.getValue())
         # print(public_key.n.getValue())
-        return RSA.modularExponent(base=signature_representative, exponent=public_key.e, modulus=public_key.n)
+        return RSA.modularExponent(base=signature_representative, exponent=public_key.e, modulus=public_key.n, bit_length=bit_length)
     @staticmethod
-    def RSA_DecryptionPrimitive(private_key:RSA_PrivateKey | RSA_PrivateKey_QuintupleForm, cipher_text_representative:IntegerHandler) -> IntegerHandler:
+    def RSA_DecryptionPrimitive(private_key:RSA_PrivateKey | RSA_PrivateKey_QuintupleForm, cipher_text_representative:IntegerHandler, bit_length:int = 2048) -> IntegerHandler:
         '''
         This method implements the RSA Encription Primitive
 
@@ -203,13 +202,13 @@ class RSA():
         if type(private_key) == RSA_PrivateKey:
             # print(private_key.d.getValue())
             # print(private_key.n.getValue())
-            return RSA.modularExponent(base=cipher_text_representative, exponent=private_key.d, modulus=private_key.n)
+            return RSA.modularExponent(base=cipher_text_representative, exponent=private_key.d, modulus=private_key.n, bit_length=bit_length)
         
         m_i:list[IntegerHandler] = []
-        m_i.append(RSA.modularExponent( base=cipher_text_representative, exponent=private_key.dP, modulus=private_key.p))
-        m_i.append(RSA.modularExponent( base=cipher_text_representative, exponent=private_key.dQ, modulus=private_key.q))
+        m_i.append(RSA.modularExponent( base=cipher_text_representative, exponent=private_key.dP, modulus=private_key.p, bit_length=bit_length))
+        m_i.append(RSA.modularExponent( base=cipher_text_representative, exponent=private_key.dQ, modulus=private_key.q, bit_length=bit_length))
         for i in range(0, private_key.u - 2):
-            m_i.append(RSA.modularExponent(base=cipher_text_representative, exponent=private_key.additional_prime_data[i].d_i, modulus=private_key.additional_prime_data[i].r_i))
+            m_i.append(RSA.modularExponent(base=cipher_text_representative, exponent=private_key.additional_prime_data[i].d_i, modulus=private_key.additional_prime_data[i].r_i, bit_length=bit_length))
 
         h = (m_i[0].getValue() - m_i[1].getValue()) * private_key.qInv.getValue() % private_key.p.getValue()
         m = m_i[1].getValue() + private_key.q.getValue() * h
