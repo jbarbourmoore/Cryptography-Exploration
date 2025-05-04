@@ -3,7 +3,9 @@ little_endian = False
 bit_length = 2048
 from secrets import randbits, randbelow
 from math import ceil, floor, sqrt
-from CryptographySchemes.HashingAlgorithms.SecureHashAlgorithm3 import shake_256
+from CryptographySchemes.HashingAlgorithms.SecureHashAlgorithm3 import *
+from CryptographySchemes.HashingAlgorithms.SecureHashAlgorithm2 import *
+from CryptographySchemes.HashingAlgorithms.ApprovedHashFunctions import *
 from HelperFunctions.EuclidsAlgorithms import euclidsAlgorithm, extendedEuclidAlgorithm
 from HelperFunctions.PrimeNumbers import getPrimeNumbers_SieveOfEratosthenes
 from HelperFunctions.PrimeNumbers import calculateModuloSquareRoot
@@ -17,8 +19,8 @@ from HelperFunctions.PrimeNumbers import calculateModuloSquareRoot
     256 - 15360
 '''
 
-hash_alg = shake_256
-hash_length = 512
+# hash_alg = sha3_512
+# hash_length = 512
 class RSA_PrimeData():
     def __init__(self, prime_factor:IntegerHandler, crt_exponent:IntegerHandler, crt_coefficient:IntegerHandler):
         '''
@@ -255,7 +257,7 @@ class RSA():
         return True, IntegerHandler(seed, little_endian, security_strength * 2)
     
     @staticmethod
-    def constructionOfProvablePrimes(nlen:int, e:IntegerHandler, seed:IntegerHandler) -> tuple[bool, IntegerHandler, IntegerHandler]:
+    def constructionOfProvablePrimes(nlen:int, e:IntegerHandler, seed:IntegerHandler, hash_function:ApprovedHashFunction = ApprovedHashFunctions.SHA_512_Hash.value) -> tuple[bool, IntegerHandler, IntegerHandler]:
         '''
         This method constructs two provable primes, p and q, for use in an RSA scheme
         
@@ -296,14 +298,14 @@ class RSA():
         N_1 = 200
         N_2 = 200
 
-        success, p, p_1, p_2, pseed = RSA.provablePrimeConstruction(L,N_1,N_2,working_seed,e)
+        success, p, p_1, p_2, pseed = RSA.provablePrimeConstruction(L,N_1,N_2,working_seed,e,hash_function)
         if not success:
             print("p failed")
             return False, IntegerHandler(0, little_endian, 0), IntegerHandler(0, little_endian, 0)
         working_seed = pseed
         q_not_determined = True
         while q_not_determined:
-            success, q, q_1, q_2, qseed= RSA.provablePrimeConstruction(L,N_1,N_2,working_seed,e)
+            success, q, q_1, q_2, qseed= RSA.provablePrimeConstruction(L,N_1,N_2,working_seed,e,hash_function)
             if not success:
                 print("q failed")
                 return False, IntegerHandler(0, little_endian, 0), IntegerHandler(0, little_endian, 0)
@@ -313,7 +315,7 @@ class RSA():
         return True, IntegerHandler(p, little_endian, L), IntegerHandler(q, little_endian, L)
 
     @staticmethod
-    def provablePrimeConstruction(L:int, N_1:int, N_2:int, first_seed:IntegerHandler, e: IntegerHandler) -> tuple[bool, int, int, int, IntegerHandler]:
+    def provablePrimeConstruction(L:int, N_1:int, N_2:int, first_seed:IntegerHandler, e: IntegerHandler, hash_function:ApprovedHashFunction = ApprovedHashFunctions.SHA_512_Hash.value) -> tuple[bool, int, int, int, IntegerHandler]:
         '''
         This method constructs a provable primes, potentially with conditions
         
@@ -342,6 +344,7 @@ class RSA():
             prime_seed : IntegerHandler
                 The incremented seed value to be used in subsequent generations
         '''
+        hash_length = hash_function.digest_length
         if N_1 == 1: #2
             p_1 = 1
             p_2seed = first_seed
@@ -371,7 +374,7 @@ class RSA():
         x = 0
         for i in range(0, iterations+1):
             pseed_i_handler = IntegerHandler(prime_seed.getValue() + i, little_endian, prime_seed.bit_length)
-            hash_value = RSA.getHashValue(pseed_i_handler)
+            hash_value = RSA.getHashValue(pseed_i_handler,hash_function)
             x = x + hash_value * 2 ** (i * hash_length)
         prime_seed = IntegerHandler(prime_seed.getValue()+iterations+1,little_endian,prime_seed.bit_length)
         sq2 = sqrt(2)
@@ -408,7 +411,7 @@ class RSA():
                 a = 0
                 for i in range(0, iterations+1):
                     pseed_i_handler = IntegerHandler(prime_seed.getValue() + i, little_endian, prime_seed.bit_length)
-                    hash_value = RSA.getHashValue(pseed_i_handler)
+                    hash_value = RSA.getHashValue(pseed_i_handler, hash_function)
                     a = a + hash_value * 2 ** (i * hash_length)
                 prime_seed = IntegerHandler(prime_seed.getValue()+iterations+1,little_endian,prime_seed.bit_length)
                 a = 2 + a % (p-3)
@@ -460,7 +463,7 @@ class RSA():
         return y_2 % a
 
     @staticmethod
-    def getHashValue(handler_to_hash: IntegerHandler) -> int:
+    def getHashValue(handler_to_hash: IntegerHandler, hash_function:ApprovedHashFunction = ApprovedHashFunctions.SHA_512_Hash.value) -> int:
         ''' 
         This method returns the value for the hash of a given IntegerHandler
 
@@ -472,12 +475,11 @@ class RSA():
             hash_value : int
                 The value of the hash as an int
         '''
-        hash_hex = hash_alg.hashHex(handler_to_hash.getHexString(), hash_length).getHexString()
-        hash_handler = IntegerHandler.fromHexString(hash_hex, False, hash_length)
+        hash_handler = RSA.getHashHandler(handler_to_hash, hash_function)
         return hash_handler.getValue()
     
     @staticmethod
-    def getHashHandler(handler_to_hash: IntegerHandler) -> IntegerHandler:
+    def getHashHandler(handler_to_hash: IntegerHandler, hash_function:ApprovedHashFunction = ApprovedHashFunctions.SHA_512_Hash.value) -> IntegerHandler:
         ''' 
         This method returns the result for the hash of a given IntegerHandler as an IntegerHandler
 
@@ -489,13 +491,11 @@ class RSA():
             hash_handler : IntegerHandler
                 The result of the hash as an IntegerHandler
         '''
-
-        hash_hex = hash_alg.hashHex(handler_to_hash.getHexString(), hash_length).getHexString()
-        hash_handler = IntegerHandler.fromHexString(hash_hex, False, hash_length)
+        hash_handler = hash_function.hashIntegerHandler(handler_to_hash)
         return hash_handler
 
     @staticmethod
-    def  randomPrimeGeneration_ShaweTaylor(length:int, input_seed:IntegerHandler)-> tuple[bool, int, IntegerHandler, int]:
+    def  randomPrimeGeneration_ShaweTaylor(length:int, input_seed:IntegerHandler, hash_function:ApprovedHashFunction = ApprovedHashFunctions.SHA_512_Hash.value)-> tuple[bool, int, IntegerHandler, int]:
         '''
         This method generates a pseudo random prime of a given length using a given seed
 
@@ -520,11 +520,12 @@ class RSA():
         '''
         if length < 2:
             return False, 0, IntegerHandler(0), 0
+        hash_length = hash_function.digest_length
         prime_gen_counter = 0
         prime_seed = input_seed
         while length < 33 and prime_gen_counter <= 4 * length:
             prime_seed_inc = IntegerHandler(prime_seed.getValue()+1, False, prime_seed.bit_length)
-            c = bitwiseXor([RSA.getHashHandler(prime_seed), RSA.getHashHandler(prime_seed_inc)],little_endian,hash_length)
+            c = bitwiseXor([RSA.getHashHandler(prime_seed,hash_function), RSA.getHashHandler(prime_seed_inc,hash_function)],little_endian,hash_length)
             c = 2 ** (length - 1) + (c.getValue() % (2 ** (length - 1)))
             c = (2 * floor(c / 2)) + 1
             prime_gen_counter = prime_gen_counter + 1
@@ -541,7 +542,7 @@ class RSA():
         x = 0
         for i in range(0, iterations):
             pseed_i_handler = IntegerHandler(prime_seed.getValue() + i, little_endian, prime_seed.bit_length)
-            hash_value = RSA.getHashValue(pseed_i_handler)
+            hash_value = RSA.getHashValue(pseed_i_handler,hash_function)
             x = x + hash_value * 2 ** (i * hash_length)  
         prime_seed = IntegerHandler(prime_seed.getValue()+iterations+1,little_endian,prime_seed.bit_length)
         x = 2**(length - 1) + x % ( 2**(length - 1))
@@ -556,7 +557,7 @@ class RSA():
             a = 0
             for i in range (0, iterations):
                 prime_seed_inc = IntegerHandler(prime_seed.getValue()+i, False, prime_seed.bit_length)
-                a = a + RSA.getHashValue(prime_seed_inc) * 2 ** (i * hash_length) #27
+                a = a + RSA.getHashValue(prime_seed_inc,hash_function) * 2 ** (i * hash_length) #27
             prime_seed = IntegerHandler(prime_seed.getValue()+iterations+1,little_endian,prime_seed.bit_length)
             a = 2 + (a % (c - 3))
             z = pow(a, 2*t, c)
@@ -595,7 +596,7 @@ class RSA():
         return True
     
     @staticmethod
-    def generateRSAKeyPair(security_strength: int = 112)-> tuple[RSA_PublicKey, RSA_PrivateKey]:
+    def generateRSAKeyPair(security_strength: int = 112, hash_function:ApprovedHashFunction = ApprovedHashFunctions.SHA_512_Hash.value)-> tuple[RSA_PublicKey, RSA_PrivateKey]:
         '''
         This method generates an RSA key pair of the requented security strength
         '''
@@ -612,7 +613,6 @@ class RSA():
             print("Desired security strength must be 112, 128, 192 or 256")
             return None, None
         
-        
         gcd_e_phi_1 = False
         while not gcd_e_phi_1:
             e = 0
@@ -623,7 +623,7 @@ class RSA():
             print(f"e : {e.getHexString()}")
             success, seed = RSA.RSA_SeedGeneration(nlen)
             if success: 
-                success, p, q = RSA.constructionOfProvablePrimes(nlen, e, seed)
+                success, p, q = RSA.constructionOfProvablePrimes(nlen, e, seed,hash_function)
                 if success:
                     p_prob_prime = RSA.isMillerRabinPassed(p.getValue())
                     q_prob_prime = RSA.isMillerRabinPassed(q.getValue())
@@ -853,7 +853,7 @@ if __name__ == '__main__':
     # print(q.getHexString())
     # print(success)
 
-    public_key_gen, private_key_gen = RSA.generateRSAKeyPair(112)
+    public_key_gen, private_key_gen = RSA.generateRSAKeyPair(112, ApprovedHashFunctions.SHA3_512_Hash.value)
     assert public_key_gen.n.getValue() == private_key_gen.n.getValue()
 
     pt = "0D3E74F20C249E1058D4787C22F95819066FA8927A95AB004A240073FE20CBCB149545694B0EE318557759FCC4D2CA0E3D55307D1D3A4CD1F3B031CE0DF356A5DEDCC25729C4302FABA4CB885C9FA3C2F57A4D1308451C300D2378E90F4F83DCEDCDCF5217BC3840A796FCDAF73483A3D199C389BDB50CFE95D9C02E5F4FC1917FA4606CF6AB7559253202698D7EABE7561137271CE1A524E5956D25C379AF4F121877355F2495DC154A0EB33CF2F3B6990F60FCC0CCE199EF1E76E11585895EE1C619FB6D140266006AB41D56CE3E6C68571902568CD4520F1F9E5E284B4B9DFCC3782D05CDF826895450E314FBC654032A775F47088F18D3B4000AC23BD107"
