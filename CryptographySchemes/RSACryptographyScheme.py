@@ -184,7 +184,7 @@ class RSA():
         # print(public_key.n.getValue())
         return RSA.modularExponent(base=signature_representative, exponent=public_key.e, modulus=public_key.n)
     @staticmethod
-    def RSA_DecryptionPrimitive(private_key:RSA_PrivateKey | RSA_PrivateKey_QuintupleForm, cipher_text_representative:IntegerHandler):
+    def RSA_DecryptionPrimitive(private_key:RSA_PrivateKey | RSA_PrivateKey_QuintupleForm, cipher_text_representative:IntegerHandler) -> IntegerHandler:
         '''
         This method implements the RSA Encription Primitive
 
