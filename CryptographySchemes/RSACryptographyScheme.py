@@ -3,7 +3,7 @@ little_endian = False
 bit_length = 2048
 from secrets import randbits, randbelow
 from math import ceil, floor, sqrt
-from HashingAlgorithms.SecureHashAlgorithm3 import shake_256
+from CryptographySchemes.HashingAlgorithms.SecureHashAlgorithm3 import shake_256
 from HelperFunctions.EuclidsAlgorithms import euclidsAlgorithm, extendedEuclidAlgorithm
 from HelperFunctions.PrimeNumbers import getPrimeNumbers_SieveOfEratosthenes
 from HelperFunctions.PrimeNumbers import calculateModuloSquareRoot
