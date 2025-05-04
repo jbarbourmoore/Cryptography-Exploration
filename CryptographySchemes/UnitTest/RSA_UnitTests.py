@@ -75,6 +75,7 @@ class RSA_TestCase_Details():
         return RSA_PublicKey(self.n, self.e)
 
 encryption_primitive_test_cases:list[RSA_TestCase_Details] = []
+signature_generation_test_cases:list[RSA_TestCase_Details] = []
 
 class RSA_UnitTest(unittest.TestCase):
     '''
@@ -215,6 +216,50 @@ class RSA_UnitTest(unittest.TestCase):
 
                 self.assertEqual(test_details.pt.getHexString(), calculated_plain.getHexString())
 
+    def test_signature_generation(self):
+        '''
+        This method tests the signature generation primitive with the private key as laid out in NIST FIPS 186-5
+
+        Test vectors from RSA signature generation test data provided by NIST
+        '''
+        print("Test Signature Generation Primitive With Private Key")
+        for i in range(0, len(encryption_primitive_test_cases)):
+            with self.subTest(f"Signature Generation Primitive With Private Key Test Case {i}"):
+                print("- - - - - - - - - - - -")
+                test_details = signature_generation_test_cases[i]  
+                print(f"Signature Generation Primitive With Private Key Test Case {i+1} With Key Length {test_details.bit_length} Bits")   
+                private_key = test_details.get_private()
+                
+                calculated_signature:IntegerHandler = RSA.RSA_SignaturePrimitive(private_key, test_details.pt, test_details.bit_length)
+                print(f"Expected Signature   : {test_details.ct.getHexString()}")
+                print(f"Calculated Signature : {calculated_signature.getHexString()}")
+
+                self.assertEqual(test_details.ct.getHexString(), calculated_signature.getHexString())
+
+    def test_signature_validation(self):
+        '''
+        This method tests the signature validation primitive with the public key as laid out in NIST FIPS 186-5
+
+        Test vectors from RSA signature generation test data provided by NIST
+        '''
+        print("Test Signature Verification Primitive With Public Key")
+        for i in range(0, len(encryption_primitive_test_cases)):
+            with self.subTest(f"Signature Verification Primitive With Public Key Test Case {i}"):
+                print("- - - - - - - - - - - -")
+                test_details = signature_generation_test_cases[i]  
+                print(f"Signature Verification Primitive With Public Key Test Case {i+1} With Key Length {test_details.bit_length} Bits")   
+                public_key = test_details.get_public()
+                
+                calculated_message:IntegerHandler = RSA.RSA_VerificationPrimitive(public_key, test_details.ct, test_details.bit_length)
+                if calculated_message.getValue() == test_details.pt.getValue():
+                    verified = True
+                else:
+                    verified = False
+                print(f"Signature : {test_details.ct.getHexString()}")
+                print(f"Verified  : {verified}")
+
+                self.assertEqual(test_details.pt.getHexString(), calculated_message.getHexString())
+
 # def setup_encryption_primitives():
 #         '''
 #         This method creates the test data for the RSA Encryotion and Decryption primitives
@@ -241,7 +286,7 @@ class RSA_UnitTest(unittest.TestCase):
 #         test_case_details = RSA_TestCase_Details(ct,pt,p,q,d,n,e)
 #         encryption_primitive_test_cases.append(test_case_details)
 
-def read_test_data():
+def read_test_encryption_primitive_data():
     '''
     This method reads in the test vectors from ACVP-Server json files provided by NIST on their github
     '''
@@ -259,7 +304,26 @@ def read_test_data():
                 test_case_details = RSA_TestCase_Details(testcase['ct'],testcase['pt'],testcase['p'],testcase['q'],testcase['d'],testcase['n'],testcase['e'],bit_length)
                 encryption_primitive_test_cases.append(test_case_details)
 
+def read_test_signature_primitive_data():
+    '''
+    This method reads in the test vectors from ACVP-Server json files provided by NIST on their github
+    '''
+    path = "..\\ACVP-Server\\gen-val\\json-files\\RSA-SignaturePrimitive-2.0\\internalProjection.json"
+
+    with open(path) as test_json_file:
+        test_json = json.load(test_json_file)
+    for tag_group in range(0, 3):
+        bit_length = test_json['testGroups'][tag_group]['modulo']
+        test_list_json = test_json['testGroups'][tag_group]['tests']
+        number_tests = len(test_list_json)
+        for i in range(0, number_tests):
+            testcase = test_list_json[i]
+            if testcase['testPassed'] and testcase['dmp1'] == '' and testcase['dmq1'] == '' and testcase['iqmp'] == '':
+                test_case_details = RSA_TestCase_Details(testcase['signature'],testcase['message'],testcase['p'],testcase['q'],testcase['d'],testcase['n'],testcase['e'],bit_length)
+                signature_generation_test_cases.append(test_case_details)
+
 if __name__ == '__main__':
-    read_test_data()
+    read_test_encryption_primitive_data()
+    read_test_signature_primitive_data()
     # setup_encryption_primitives()
     unittest.main()
