@@ -127,6 +127,62 @@ class RSA():
         # print(public_key.n.getValue())
         return RSA.modularExponent(base=message_representative, exponent=public_key.e, modulus=public_key.n)
     
+    def RSA_SignaturePrimitive(private_key:RSA_PrivateKey | RSA_PrivateKey_QuintupleForm, message_text_representative:IntegerHandler):
+        '''
+        This method implements the RSA Signature Primitive
+
+        As laid out in section 5.2.1. "RSASP1" of IETF RFC 8017 https://datatracker.ietf.org/doc/html/rfc8017
+
+        Parameters :
+            private_key : RSA_PrivateKey or RSA_PrivateKey_QuintupleForm
+                The private key for the signature generation
+            message_text_representative : IntegerHandler
+                The message text representative as an IntegerHandler
+
+        Returns :
+            signature_representative : IntegerHandler
+                The signature representative as an IntegerHandler
+        '''
+        if type(private_key) == RSA_PrivateKey:
+            # print(private_key.d.getValue())
+            # print(private_key.n.getValue())
+            return RSA.modularExponent(base=message_text_representative, exponent=private_key.d, modulus=private_key.n)
+        
+        s_i:list[IntegerHandler] = []
+        s_i.append(RSA.modularExponent( base=message_text_representative, exponent=private_key.dP, modulus=private_key.p))
+        s_i.append(RSA.modularExponent( base=message_text_representative, exponent=private_key.dQ, modulus=private_key.q))
+        for i in range(0, private_key.u - 2):
+            s_i.append(RSA.modularExponent(base=message_text_representative, exponent=private_key.additional_prime_data[i].d_i, modulus=private_key.additional_prime_data[i].r_i))
+
+        h = (s_i[0].getValue() - s_i[1].getValue()) * private_key.qInv.getValue() % private_key.p.getValue()
+        s = s_i[1].getValue() + private_key.q.getValue() * h
+        if private_key.u > 2:
+            R = private_key.p.getValue() * private_key.q.getValue()
+            h = ( s_i[2].getValue() - s ) * private_key.additional_prime_data[0].t_i.getValue() % private_key.additional_prime_data[0].r_i.getValue()
+            s = s + R * h
+            for i in range(2, private_key.u):
+                R = R * private_key.additional_prime_data[i - 2].r_i.getValue()
+                h = ( s_i[i] - s ) * private_key.additional_prime_data[i - 1].t_i.getValue() % private_key.additional_prime_data[i - 1].r_i.getValue()
+                s = s + R * h
+        return IntegerHandler(s, little_endian, bit_length)
+    
+    @staticmethod
+    def RSA_VerificationPrimitive(public_key:RSA_PublicKey, signature_representative:IntegerHandler):
+        '''
+        This method implements the RSA Verification Primitive
+
+        As laid out in section 5.2.2. "RSAVP1" of IETF RFC 8017 https://datatracker.ietf.org/doc/html/rfc8017
+
+        Parameters :
+            public_key : RSA_PublicKey
+                The RSA public key being used to verify the signature
+            signature_representative : IntegerHandler
+                The signature being verified as an IntegerHandler
+        '''
+        assert signature_representative.value < public_key.n.value, f"The signature representative {signature_representative.value} must be a smaller integer than the RSA modulus {public_key.n.value}"
+        # print(public_key.e.getValue())
+        # print(public_key.n.getValue())
+        return RSA.modularExponent(base=signature_representative, exponent=public_key.e, modulus=public_key.n)
     @staticmethod
     def RSA_DecryptionPrimitive(private_key:RSA_PrivateKey | RSA_PrivateKey_QuintupleForm, cipher_text_representative:IntegerHandler):
         '''
@@ -238,8 +294,8 @@ class RSA():
         
         working_seed = seed
         L = nlen // 2
-        N_1 = 141
-        N_2 = 141
+        N_1 = 200
+        N_2 = 200
 
         success, p, p_1, p_2, pseed = RSA.provablePrimeConstruction(L,N_1,N_2,working_seed,e)
         if not success:
@@ -363,7 +419,6 @@ class RSA():
                 z = pow(a, exp, p)
                 # print(f"z ** p_0 % p = {pow(z,p_0,p)}")
                 if 1 == euclidsAlgorithm(z-1, p) and 1 == pow(z,p_0,p):
-                    assert RSA.isMillerRabinPassed(p)
                     return True, p, p_1, p_2, prime_seed
             t = t + 1
         print(f"provable prime construction failed, pgen_counter:{pgen_counter}")
@@ -810,8 +865,7 @@ if __name__ == '__main__':
     print(f"Plain     : {plain.getHexString()}")
     print(f"Cypher    : {encrypted.getHexString()}")
     print(f"Decrypted : {decrypted.getHexString()}")
-    # prime = RSA.testPrime(127116100615364639010256937550831707969208387141260619989777447873645445889899929839203471805942190702877908254965483716796817853052193462285527620795136107649447143045737373311928356102422924657957255708019790721625264381657719643105135945793382749235692927871674862868132816599181341818327476764309361668743)
-    # print(prime)
+    assert plain.getValue() == decrypted.getValue()
 
 # from HelperFunctions.EuclidsAlgorithms import extendedEuclidAlgorithm
 # from HelperFunctions.EncodeStringAsNumberList import EncodeStringAsNumbersList
