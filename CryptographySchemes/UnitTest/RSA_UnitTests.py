@@ -131,11 +131,11 @@ class RSA_UnitTest(unittest.TestCase):
                 print("- - - - - - - - - - - -")
                 test_details = encryption_primitive_test_cases[i]  
                 print(f"Test 'p' Primality Test Case {i+1} With Key Length {test_details.bit_length} Bits") 
-                miller_rabin_result_p = RSA.isMillerRabinPassed(test_details.p.getValue(), 24)
+                miller_rabin_result_p = RSA.runMillerRabinPrimalityTest(test_details.p.getValue(), 44)
                 print(f"Value of 'p'   : {test_details.p.getValue()}")
                 print(f"Probably Prime : {miller_rabin_result_p}")
                 self.assertTrue(miller_rabin_result_p)
-
+    
     def test_encryption_primitive_prime_q(self):
         '''
         This method tests primality of 'q' with Miller Rabin as laid out in NIST FIPS 186-5
@@ -149,10 +149,26 @@ class RSA_UnitTest(unittest.TestCase):
                 test_details = encryption_primitive_test_cases[i]  
                 print(f"Test 'q' Primality Test Case {i+1} With Key Length {test_details.bit_length} Bits")   
                 
-                miller_rabin_result_q = RSA.isMillerRabinPassed(test_details.q.getValue(), 24)
+                miller_rabin_result_q = RSA.runMillerRabinPrimalityTest(test_details.q.getValue(), 44)
                 print(f"Value of 'q'   : {test_details.q.getValue()}")
                 print(f"Probably Prime : {miller_rabin_result_q}")
-                # self.assertTrue(miller_rabin_result_q)
+                self.assertTrue(miller_rabin_result_q)
+
+    def test_miller_rabin_implementation(self):
+        print("Test Miller Rabin Primality Implementation")
+        wrong_answer_count = 0
+        right_answer_count = 0
+        max_test_int = 1000000
+        for i in range(0, max_test_int):                
+            miller_rabin_result = RSA.runMillerRabinPrimalityTest(i)
+            from sympy import isprime
+            is_prime_result = isprime(i)
+            if miller_rabin_result != is_prime_result:
+                wrong_answer_count +=1
+            else: 
+                right_answer_count += 1
+        print(f"Miller Rabin Implementation was wrong {wrong_answer_count} times and correct {right_answer_count} times")
+        self.assertLess(wrong_answer_count / max_test_int, .01)
 
     def test_encryption_primitive_decryption_quintform(self):
         '''

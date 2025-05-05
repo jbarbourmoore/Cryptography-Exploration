@@ -625,8 +625,8 @@ class RSA():
             if success: 
                 success, p, q = RSA.constructionOfProvablePrimes(nlen, e, seed,hash_function)
                 if success:
-                    p_prob_prime = RSA.isMillerRabinPassed(p.getValue())
-                    q_prob_prime = RSA.isMillerRabinPassed(q.getValue())
+                    p_prob_prime = RSA.runMillerRabinPrimalityTest(p.getValue())
+                    q_prob_prime = RSA.runMillerRabinPrimalityTest(q.getValue())
                     print(f"p : {p_prob_prime} : {p.getValue()}")
                     print(f"q : {q_prob_prime} : {q.getValue()}")
                 if success and p_prob_prime and q_prob_prime: 
@@ -686,7 +686,7 @@ class RSA():
         return d
     
     @staticmethod
-    def isMillerRabinPassed(w:int, iterations:int=44) -> bool: 
+    def runMillerRabinPrimalityTest(w:int, iterations:int=44) -> bool: 
         '''
         This method performs the miller rabin primality test on a given potential prime number
 
@@ -705,30 +705,47 @@ class RSA():
             is_likely_prime : bool
                 Whether the candidate is likely prime or not
         '''
-    
+        basic_primes = (2,3,5,7)
+        basic_not_primes = (0,1,4,6,8,9)
+        if w in basic_primes: return True
+        if w in basic_not_primes: return False
         a = 0
         m = w-1
     
         while m % 2 == 0: 
             m //= 2
             a += 1
+
+        assert m == ((w-1)//(pow(2,a)))
+        if a == 0:
+            return False
+        
+        def trial_composite(b):
+            z = pow(b, m, w)
+            if z == 1:
+                return False
+            for i in range(0, a):
+                z = pow(b, 2**i * m, w)
+                if z == w-1:
+                    return False
+            return True  
     
         for i in range(0, iterations): 
             b = 0
             while b <= 1 or b > w - 1:
                 b = randbelow(w) 
-            z = pow(b, m, w)
-            if z == 1 or z == (w - 1):
-                continue
-            for j in range (1, a-1):
-                z = pow(z, 2, w)
-                if z == 1:
-                    print(j)
-                    return False
-        return True
 
-        
+            if trial_composite(b):
+                return False
+            
+        return True
+   
 if __name__ == '__main__':
+    for i in range(3,50):
+        rabin = RSA.runMillerRabinPrimalityTest(i)
+        print(f"{i} : {rabin}")
+        from sympy import isprime
+        assert rabin == isprime(i), f"{i} should be classified as {isprime(i)}, not {rabin}"
     handler = IntegerHandler.fromHexString("01FF",little_endian,16)
     print(handler.getValue())
     ct = "5662E1AF1E949E5F17A917FD586F7F50F4490632358F4801AA75E5AC8D9CD37ED69806EC1988DEEA48002044089068A86C09E5817BE4195D4FFB38FD7FE66038EE208EC017EB59DACA82164EEC98FCE3726493EDD4C19E64581DD77262A86C5E4E0DDD0573DA0CFFF7BA431A48727A276D9AA5EC45AF46CB25029A24EA51940D9C5FC067BF6A7E1750D89D1A8CC466F341C2C3F7B509BE0F759C6FF2F25DD794D5CFDEAF65BCE931925BF503BEBB6794F48D81C2E569DD7A0E2623A99C107346DC5CD6F4585B80C384A9619383CC3598450C0265A4B4F0ABC4370AE67F6DDBF3EE79D0F454ADA1F7F22676D615A1B2190DA316770361BFAD502AA1FA5273E9FC"
@@ -756,7 +773,7 @@ if __name__ == '__main__':
     print(f"given d : {given_d.getValue()}, calc d : {calc_d}")
     assert given_d.getValue() == calc_d
     print(f"given n : {given_n.getValue()} calc n : {given_p.getValue() * given_q.getValue()}")
-    print(RSA.isMillerRabinPassed(given_p.getValue()))
+    print(RSA.runMillerRabinPrimalityTest(given_p.getValue()))
     dP = given_d.getValue() % (given_p.getValue() - 1)
     dQ = given_d.getValue() % (given_q.getValue() - 1)
     qInv = calculateModuloInverse(given_q.getValue(), given_p.getValue())
@@ -810,7 +827,7 @@ if __name__ == '__main__':
     calc_d = RSA.calculateD(given_e,given_p,given_q)
     print(f"given d : {given_d.getValue()}, calc d : {calc_d}")
     print(f"given n : {given_n.getValue()} calc n : {given_p.getValue() * given_q.getValue()}")
-    print(RSA.isMillerRabinPassed(given_p.getValue()))
+    print(RSA.runMillerRabinPrimalityTest(given_p.getValue()))
     dP = given_d.getValue() % (given_p.getValue() - 1)
     dQ = given_d.getValue() % (given_q.getValue() - 1)
     qInv = calculateModuloInverse(given_q.getValue(), given_p.getValue())
@@ -866,148 +883,148 @@ if __name__ == '__main__':
     print(f"Decrypted : {decrypted.getHexString()}")
     assert plain.getValue() == decrypted.getValue()
 
-# from HelperFunctions.EuclidsAlgorithms import extendedEuclidAlgorithm
-# from HelperFunctions.EncodeStringAsNumberList import EncodeStringAsNumbersList
+from HelperFunctions.EuclidsAlgorithms import extendedEuclidAlgorithm
+from HelperFunctions.EncodeStringAsNumberList import EncodeStringAsNumbersList
 
-# class RSACryptographyScheme():
-#     '''
-#     This class contains an implementation along the lines of the RSA Cryptography Scheme
+class Simple_RSACryptographyScheme():
+    '''
+    This class contains an implementation along the lines of the RSA Cryptography Scheme
 
-#     Given two large prime numbers it generates 3 numbers => n, e and d
+    Given two large prime numbers it generates 3 numbers => n, e and d
     
-#     The public key consists of n and e 
-#     While the private key consists of n and d
+    The public key consists of n and e 
+    While the private key consists of n and d
 
-#     Messages must first be converted into a list of numbers
-#     Then each number can be encrypted using the public key
-#     This can then be decrypted using the private key
-#     And converted back to a string
+    Messages must first be converted into a list of numbers
+    Then each number can be encrypted using the public key
+    This can then be decrypted using the private key
+    And converted back to a string
 
-#     encrypt => (M, (e, n)) = M**e % n
-#     decrypt => (M, (d, n)) = M**d % n
-#     '''
+    encrypt => (M, (e, n)) = M**e % n
+    decrypt => (M, (d, n)) = M**d % n
+    '''
 
-#     def __init__(self, smaller_large_prime, larger_prime, number_system_base = 214, block_size = 5):
-#         '''
-#         This method initializes the RSACryptographyScheme
+    def __init__(self, smaller_large_prime, larger_prime, number_system_base = 214, block_size = 5):
+        '''
+        This method initializes the RSACryptographyScheme
 
-#         Parameters :
-#             smaller_large_prime : int
-#                 The smaller of the two large primes to generate the rsa keys
-#             larger_prime : int
-#                 The larger of the two large primes to generate the rsa keys
-#             number_system_base : int, optional
-#                 The number system base to use when converting the message to a list of numbers (default is 214)
-#             block_size : int, optional
-#                 The number of characters in each block when encoded (default is five)
-#         '''
+        Parameters :
+            smaller_large_prime : int
+                The smaller of the two large primes to generate the rsa keys
+            larger_prime : int
+                The larger of the two large primes to generate the rsa keys
+            number_system_base : int, optional
+                The number system base to use when converting the message to a list of numbers (default is 214)
+            block_size : int, optional
+                The number of characters in each block when encoded (default is five)
+        '''
 
-#         self.smaller_large_prime = smaller_large_prime
-#         self.larger_prime = larger_prime
-#         self.string_to_numbers_encoder = EncodeStringAsNumbersList(number_system_base=number_system_base, block_size=block_size)
-#         self.number_system_base = number_system_base
-#         self.block_size = block_size
+        self.smaller_large_prime = smaller_large_prime
+        self.larger_prime = larger_prime
+        self.string_to_numbers_encoder = EncodeStringAsNumbersList(number_system_base=number_system_base, block_size=block_size)
+        self.number_system_base = number_system_base
+        self.block_size = block_size
 
-#         self.generateRSAKeys()
+        self.generateRSAKeys()
 
-#     def generateRSAKeys(self):
-#         '''
-#         This method generates the RSA keys using the extended form of euclid's algorithm
-#         '''
+    def generateRSAKeys(self):
+        '''
+        This method generates the RSA keys using the extended form of euclid's algorithm
+        '''
 
-#         n = self.smaller_large_prime * self.larger_prime
-#         phi = ( self.smaller_large_prime - 1 ) * ( self.larger_prime - 1 )
-#         e = None
-#         d = None
-#         for e in range( self.smaller_large_prime//3, self.smaller_large_prime ):
-#             i, _, t = extendedEuclidAlgorithm(phi, e)
-#             if i == 1:
-#                 if t < 0:
-#                     d = phi + t
-#                 else:
-#                     d = t
-#                 break
-#         self.n = n
-#         self.d = d
-#         self.e = e
+        n = self.smaller_large_prime * self.larger_prime
+        phi = ( self.smaller_large_prime - 1 ) * ( self.larger_prime - 1 )
+        e = None
+        d = None
+        for e in range( self.smaller_large_prime//3, self.smaller_large_prime ):
+            i, _, t = extendedEuclidAlgorithm(phi, e)
+            if i == 1:
+                if t < 0:
+                    d = phi + t
+                else:
+                    d = t
+                break
+        self.n = n
+        self.d = d
+        self.e = e
 
-#     def getPublicKey(self):
-#         '''
-#         This method returns the public key components as a tuple
-#         '''
+    def getPublicKey(self):
+        '''
+        This method returns the public key components as a tuple
+        '''
 
-#         return (self.e,self.n)
+        return (self.e,self.n)
     
-#     def getPrivateKey(self):
-#         '''
-#         This method returns the private key components as a tuple
-#         '''
+    def getPrivateKey(self):
+        '''
+        This method returns the private key components as a tuple
+        '''
         
-#         return (self.d,self.n)
+        return (self.d,self.n)
 
-#     def rsaEncoding(self, message):
-#         '''
-#         This method encodes the message using the public key
+    def rsaEncoding(self, message):
+        '''
+        This method encodes the message using the public key
 
-#         Parameters :
-#             message : str
-#                 The message to be encrypted
+        Parameters :
+            message : str
+                The message to be encrypted
 
-#         Returns :
-#             list_message_rsa_encoded : [int]
-#                 The list of numbers that are the encoded message
-#         '''
+        Returns :
+            list_message_rsa_encoded : [int]
+                The list of numbers that are the encoded message
+        '''
 
-#         list_message_numbers, status = self.string_to_numbers_encoder.convertStringMessageToNumberList(message)
-#         if status != "Success":
-#             return status
-#         list_message_rsa_encoded = [self.modular_exp(M, is_encoding=True) for M in list_message_numbers]
-#         return list_message_rsa_encoded
+        list_message_numbers, status = self.string_to_numbers_encoder.convertStringMessageToNumberList(message)
+        if status != "Success":
+            return status
+        list_message_rsa_encoded = [self.modular_exp(M, is_encoding=True) for M in list_message_numbers]
+        return list_message_rsa_encoded
     
-#     def rsaDecoding(self, list_message_rsa_encoded):
-#         '''
-#         This method decodes the message using the private key
+    def rsaDecoding(self, list_message_rsa_encoded):
+        '''
+        This method decodes the message using the private key
 
-#         Parameters :
-#             list_message_rsa_encoded : [int]
-#                 The list of numbers that are the encoded message
+        Parameters :
+            list_message_rsa_encoded : [int]
+                The list of numbers that are the encoded message
 
-#         Returns :
-#             message : str
-#                 The message that has been decrypted
-#         '''
+        Returns :
+            message : str
+                The message that has been decrypted
+        '''
 
-#         list_message_numbers = [self.modular_exp(M, is_encoding = False) for M in list_message_rsa_encoded]
-#         decoded_message, status = self.string_to_numbers_encoder.convertNumberListToStringMessage(list_message_numbers)
-#         if status != "Success":
-#             return status
-#         return decoded_message
+        list_message_numbers = [self.modular_exp(M, is_encoding = False) for M in list_message_rsa_encoded]
+        decoded_message, status = self.string_to_numbers_encoder.convertNumberListToStringMessage(list_message_numbers)
+        if status != "Success":
+            return status
+        return decoded_message
 
-#     def modular_exp(self, message_number_block, is_encoding = True):
-#         '''
-#         This function uses the rsa keys with a modular expression to encrypt and decrypt a message block
+    def modular_exp(self, message_number_block, is_encoding = True):
+        '''
+        This function uses the rsa keys with a modular expression to encrypt and decrypt a message block
 
-#         Parameters : 
-#             message_number_block : int
-#                 A block of the message to be encrypted or decrypted
-#             is_encoding : Boolean, optional
-#                 Whether the message is being encrypted of decrypted (Default is True, of Encrypting)
-#         '''
+        Parameters : 
+            message_number_block : int
+                A block of the message to be encrypted or decrypted
+            is_encoding : Boolean, optional
+                Whether the message is being encrypted of decrypted (Default is True, of Encrypting)
+        '''
 
-#         if is_encoding:
-#             key_number = self.e
-#         else:
-#             key_number = self.d
+        if is_encoding:
+            key_number = self.e
+        else:
+            key_number = self.d
 
-#         result = 1
-#         exp = message_number_block
-#         while key_number > 0:
-#             least_significant_bit = key_number % 2
-#             if least_significant_bit == 1:
-#                 result = (result * exp) % self.n
-#             exp = (exp * exp) % self.n
-#             key_number = key_number // 2
-#         return result
+        result = 1
+        exp = message_number_block
+        while key_number > 0:
+            least_significant_bit = key_number % 2
+            if least_significant_bit == 1:
+                result = (result * exp) % self.n
+            exp = (exp * exp) % self.n
+            key_number = key_number // 2
+        return result
 # if __name__ == '__main__':
 
 #     smaller_initial_prime = 1096341613
