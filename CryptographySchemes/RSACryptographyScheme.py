@@ -397,14 +397,18 @@ class RSA():
         y = RSA.new_inv_mod(p0p1, p_2)
         # print(f"p0p1 = {p0p1} y = {y} p0p1y - 1 = {(p0p1 * y -1) % p_2}")
         # assert (p0p1 * y) % p_2 == 1
-        t = ceil(( 2 * y * p_0 * p_1 + x)/(2 * p_0 * p_1 * p_2))
-        #print(f"t: {t}")
+        denominator = Decimal.from_float(2 * p_0 * p_1 * p_2)
+        numerator = Decimal.from_float(2 * y * p_0 * p_1 + x)
+        #t = ceil(( 2 * y * p_0 * p_1 + x)/(2 * p_0 * p_1 * p_2))
+        t = ceil(numerator / denominator)
+        print(f"t: {t}")
         # while True:
         while pgen_counter <= 5 * L:
             if  (2 * (t * p_2 - y) * p_0 * p_1 + 1) > pow(2,L):
-                #print("in hte if")
-                t = ceil((2 * y * p_0 * p_1 + sq2_2toL)/(2 * p_0 * p_1 * p_2))
-            #print(f"t: {t}")
+                denominator = Decimal.from_float(2 * p_0 * p_1 * p_2)
+                numerator = Decimal.from_float(2 * y * p_0 * p_1 + sq2_2toL)
+                t = ceil(numerator / denominator)
+            print(f"t: {t}")
             p = 2 * (t * p_2 - y) * p_0 * p_1 + 1
             #print(f"p : {p} = ( p-1) % (2p0 p1) {(p-1)%(2*p_0*p_1)} = ( p+1) mod p2. {(p+1)%p_2}")
             #print(f"Miller Rabin : {RSA.isMillerRabinPassed(p)}")
@@ -871,7 +875,7 @@ if __name__ == '__main__':
     # print(p.getHexString())
     # print(q.getHexString())
     # print(success)
-    strength = SecurityStrength.s128.value
+    strength = SecurityStrength.s256.value
     rsa_bit_length_for_strength = strength.integer_factorization_cryptography
     public_key_gen, private_key_gen = RSA.generateRSAKeyPair(strength.security_strength, ApprovedHashFunctions.SHA3_512_Hash.value)
     
