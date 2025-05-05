@@ -9,6 +9,7 @@ from CryptographySchemes.HashingAlgorithms.ApprovedHashFunctions import *
 from HelperFunctions.EuclidsAlgorithms import euclidsAlgorithm, extendedEuclidAlgorithm
 from HelperFunctions.PrimeNumbers import getPrimeNumbers_SieveOfEratosthenes
 from HelperFunctions.PrimeNumbers import calculateModuloSquareRoot
+from CryptographySchemes.SecurityStrength import SecurityStrength
 
 '''
     Security Strength - RSA k
@@ -295,8 +296,8 @@ class RSA():
         
         working_seed = seed
         L = nlen // 2
-        N_1 = 200
-        N_2 = 200
+        N_1 = 1
+        N_2 = 1
 
         success, p, p_1, p_2, pseed = RSA.provablePrimeConstruction(L,N_1,N_2,working_seed,e,hash_function)
         if not success:
@@ -368,59 +369,60 @@ class RSA():
                 return False, 0, 0, 0, IntegerHandler(0,little_endian,0)
         if euclidsAlgorithm(p_0*p_1, p_2) != 1:
             return False, 0, 0, 0, IntegerHandler(0,little_endian,0)
-        iterations = ceil(L/hash_length) - 1
+        iterations = ceil(L / hash_length) - 1
         print(f"iterations : {iterations} L = {L}")
         pgen_counter = 0
         x = 0
-        for i in range(0, iterations+1):
+        for i in range(0, iterations + 1):
             pseed_i_handler = IntegerHandler(prime_seed.getValue() + i, little_endian, prime_seed.bit_length)
             hash_value = RSA.getHashValue(pseed_i_handler,hash_function)
             x = x + hash_value * 2 ** (i * hash_length)
         prime_seed = IntegerHandler(prime_seed.getValue()+iterations+1,little_endian,prime_seed.bit_length)
-        sq2 = sqrt(2)
-        sq2_2toL = floor(sq2 * (pow(2,L-1)))
+        from decimal import Decimal
+        sq2 = Decimal.from_float(sqrt(2))
+
+        sq2_2toL = floor(sq2 * (pow(2, L - 1)))
         # print(sq2)
         # print(sq2_2toL)
-        assert sq2_2toL > pow(2,L-1)
-        assert sq2_2toL < pow(2,L)
+        assert sq2_2toL > pow(2, L - 1)
+        assert sq2_2toL < pow(2, L)
 
-        x = sq2_2toL + (x % (pow(2,L) - sq2_2toL))
+        x = sq2_2toL + (x % (pow(2, L) - sq2_2toL))
         # print(f"x: {x} in range {sq2_2toL} to {pow(2,L)-1}")
         assert x >= sq2_2toL
         assert x <= pow(2,L)-1
         # print(f"p_0:{p_0}, p_1:{p_1}, p_2:{p_2}, p_0*p_1%p_2={p_0*p_1%p_2}")
         p0p1 = p_0 * p_1
-       # print(f"p0p1 = {p0p1} p2 = {p_2}")
+        # print(f"p0p1 = {p0p1} p2 = {p_2}")
         y = RSA.new_inv_mod(p0p1, p_2)
-        #y = 1
         # print(f"p0p1 = {p0p1} y = {y} p0p1y - 1 = {(p0p1 * y -1) % p_2}")
-        assert (p0p1 * y) % p_2 == 1
+        # assert (p0p1 * y) % p_2 == 1
         t = ceil(( 2 * y * p_0 * p_1 + x)/(2 * p_0 * p_1 * p_2))
         #print(f"t: {t}")
         # while True:
         while pgen_counter <= 5 * L:
             if  (2 * (t * p_2 - y) * p_0 * p_1 + 1) > pow(2,L):
                 #print("in hte if")
-                t = ceil((2*y*p_0*p_1+sq2_2toL)/(2*p_0*p_1*p_2))
+                t = ceil((2 * y * p_0 * p_1 + sq2_2toL)/(2 * p_0 * p_1 * p_2))
             #print(f"t: {t}")
             p = 2 * (t * p_2 - y) * p_0 * p_1 + 1
             #print(f"p : {p} = ( p-1) % (2p0 p1) {(p-1)%(2*p_0*p_1)} = ( p+1) mod p2. {(p+1)%p_2}")
             #print(f"Miller Rabin : {RSA.isMillerRabinPassed(p)}")
             pgen_counter += 1
-            if euclidsAlgorithm((p-1),e.getValue()) == 1:
+            if euclidsAlgorithm((p - 1), e.getValue()) == 1:
                 a = 0
                 for i in range(0, iterations+1):
                     pseed_i_handler = IntegerHandler(prime_seed.getValue() + i, little_endian, prime_seed.bit_length)
                     hash_value = RSA.getHashValue(pseed_i_handler, hash_function)
                     a = a + hash_value * 2 ** (i * hash_length)
-                prime_seed = IntegerHandler(prime_seed.getValue()+iterations+1,little_endian,prime_seed.bit_length)
-                a = 2 + a % (p-3)
+                prime_seed = IntegerHandler(prime_seed.getValue() + iterations + 1, little_endian, prime_seed.bit_length)
+                a = 2 + a % (p - 3)
                 # print(f"a : {a} in range 2 to p-2 {p-2}")
-                assert a <= p-2
+                assert a <= p - 2
                 exp = 2 * (t * p_2 - y) * p_1
                 z = pow(a, exp, p)
                 # print(f"z ** p_0 % p = {pow(z,p_0,p)}")
-                if 1 == euclidsAlgorithm(z-1, p) and 1 == pow(z,p_0,p):
+                if 1 == euclidsAlgorithm(z - 1, p) and 1 == pow(z, p_0, p):
                     return True, p, p_1, p_2, prime_seed
             t = t + 1
         print(f"provable prime construction failed, pgen_counter:{pgen_counter}")
@@ -869,15 +871,24 @@ if __name__ == '__main__':
     # print(p.getHexString())
     # print(q.getHexString())
     # print(success)
-
-    public_key_gen, private_key_gen = RSA.generateRSAKeyPair(112, ApprovedHashFunctions.SHA3_512_Hash.value)
+    strength = SecurityStrength.s128.value
+    rsa_bit_length_for_strength = strength.integer_factorization_cryptography
+    public_key_gen, private_key_gen = RSA.generateRSAKeyPair(strength.security_strength, ApprovedHashFunctions.SHA3_512_Hash.value)
+    
     assert public_key_gen.n.getValue() == private_key_gen.n.getValue()
 
     pt = "0D3E74F20C249E1058D4787C22F95819066FA8927A95AB004A240073FE20CBCB149545694B0EE318557759FCC4D2CA0E3D55307D1D3A4CD1F3B031CE0DF356A5DEDCC25729C4302FABA4CB885C9FA3C2F57A4D1308451C300D2378E90F4F83DCEDCDCF5217BC3840A796FCDAF73483A3D199C389BDB50CFE95D9C02E5F4FC1917FA4606CF6AB7559253202698D7EABE7561137271CE1A524E5956D25C379AF4F121877355F2495DC154A0EB33CF2F3B6990F60FCC0CCE199EF1E76E11585895EE1C619FB6D140266006AB41D56CE3E6C68571902568CD4520F1F9E5E284B4B9DFCC3782D05CDF826895450E314FBC654032A775F47088F18D3B4000AC23BD107"
-    plain = IntegerHandler.fromHexString(pt, little_endian, bit_length)
-
-    encrypted = RSA.RSA_EncryptionPrimitive(public_key_gen, plain)
-    decrypted = RSA.RSA_DecryptionPrimitive(private_key_gen, encrypted)
+    plain = IntegerHandler.fromHexString(pt, little_endian)
+    '''
+        Security Strength - RSA k
+        <80 - 1024
+        112 - 2048
+        128 - 3072
+        192 - 7680
+        256 - 15360
+    '''
+    encrypted = RSA.RSA_EncryptionPrimitive(public_key_gen, plain, bit_length=rsa_bit_length_for_strength)
+    decrypted = RSA.RSA_DecryptionPrimitive(private_key_gen, encrypted, bit_length=rsa_bit_length_for_strength)
     print(f"Plain     : {plain.getHexString()}")
     print(f"Cypher    : {encrypted.getHexString()}")
     print(f"Decrypted : {decrypted.getHexString()}")
