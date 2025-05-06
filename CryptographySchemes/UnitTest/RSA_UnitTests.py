@@ -131,7 +131,7 @@ class RSA_UnitTest(unittest.TestCase):
                 print("- - - - - - - - - - - -")
                 test_details = encryption_primitive_test_cases[i]  
                 print(f"Test 'p' Primality Test Case {i+1} With Key Length {test_details.bit_length} Bits") 
-                miller_rabin_result_p = RSA.runMillerRabinPrimalityTest(test_details.p.getValue(), 44)
+                miller_rabin_result_p = RSA.runMillerRabinPrimalityTest(test_details.p.getValue(), 25)
                 print(f"Value of 'p'   : {test_details.p.getValue()}")
                 print(f"Probably Prime : {miller_rabin_result_p}")
                 self.assertTrue(miller_rabin_result_p)
@@ -149,12 +149,15 @@ class RSA_UnitTest(unittest.TestCase):
                 test_details = encryption_primitive_test_cases[i]  
                 print(f"Test 'q' Primality Test Case {i+1} With Key Length {test_details.bit_length} Bits")   
                 
-                miller_rabin_result_q = RSA.runMillerRabinPrimalityTest(test_details.q.getValue(), 44)
+                miller_rabin_result_q = RSA.runMillerRabinPrimalityTest(test_details.q.getValue(), 25)
                 print(f"Value of 'q'   : {test_details.q.getValue()}")
                 print(f"Probably Prime : {miller_rabin_result_q}")
                 self.assertTrue(miller_rabin_result_q)
 
     def test_miller_rabin_implementation(self):
+        '''
+        This method runs the miller rabin primality test against all integers below 1000000 in order to determine if the error rate is apropriately low
+        '''
         print("Test Miller Rabin Primality Implementation")
         wrong_answer_count = 0
         right_answer_count = 0
@@ -239,12 +242,32 @@ class RSA_UnitTest(unittest.TestCase):
         Test vectors from RSA signature generation test data provided by NIST
         '''
         print("Test Signature Generation Primitive With Private Key")
-        for i in range(0, len(encryption_primitive_test_cases)):
+        for i in range(0, len(signature_generation_test_cases)):
             with self.subTest(f"Signature Generation Primitive With Private Key Test Case {i}"):
                 print("- - - - - - - - - - - -")
                 test_details = signature_generation_test_cases[i]  
                 print(f"Signature Generation Primitive With Private Key Test Case {i+1} With Key Length {test_details.bit_length} Bits")   
                 private_key = test_details.get_private()
+                
+                calculated_signature:IntegerHandler = RSA.RSA_SignaturePrimitive(private_key, test_details.pt, test_details.bit_length)
+                print(f"Expected Signature   : {test_details.ct.getHexString()}")
+                print(f"Calculated Signature : {calculated_signature.getHexString()}")
+
+                self.assertEqual(test_details.ct.getHexString(), calculated_signature.getHexString())
+
+    def test_signature_generation_quint_form(self):
+        '''
+        This method tests the signature generation primitive with the private key in quint form as laid out in NIST FIPS 186-5
+
+        Test vectors from RSA signature generation test data provided by NIST
+        '''
+        print("Test Signature Generation Primitive With Private Key In Quint Form")
+        for i in range(0, len(signature_generation_test_cases)):
+            with self.subTest(f"Signature Generation Primitive With Private Key In Quint Form Test Case {i}"):
+                print("- - - - - - - - - - - -")
+                test_details = signature_generation_test_cases[i]  
+                print(f"Signature Generation Primitive With Private Key In Quint Form Test Case {i+1} With Key Length {test_details.bit_length} Bits")   
+                private_key = test_details.get_private_quint_form()
                 
                 calculated_signature:IntegerHandler = RSA.RSA_SignaturePrimitive(private_key, test_details.pt, test_details.bit_length)
                 print(f"Expected Signature   : {test_details.ct.getHexString()}")
@@ -259,7 +282,7 @@ class RSA_UnitTest(unittest.TestCase):
         Test vectors from RSA signature generation test data provided by NIST
         '''
         print("Test Signature Verification Primitive With Public Key")
-        for i in range(0, len(encryption_primitive_test_cases)):
+        for i in range(0, len(signature_generation_test_cases)):
             with self.subTest(f"Signature Verification Primitive With Public Key Test Case {i}"):
                 print("- - - - - - - - - - - -")
                 test_details = signature_generation_test_cases[i]  
@@ -275,6 +298,80 @@ class RSA_UnitTest(unittest.TestCase):
                 print(f"Verified  : {verified}")
 
                 self.assertEqual(test_details.pt.getHexString(), calculated_message.getHexString())
+
+    def test_key_gen_provably_prime(self):
+        # strengths = [SecurityStrength.s112.value, SecurityStrength.s128.value, SecurityStrength.s192.value, SecurityStrength.s256.value]
+        strengths = [SecurityStrength.s112.value, SecurityStrength.s128.value]
+        number_of_iterations = 3
+        for i in range(0, len(strengths)):
+            for j in range(0, number_of_iterations):
+                with self.subTest(f"Key Gen Provably Prime Test Case {i*number_of_iterations+j} With Security Strength {strengths[i].security_strength}"):
+                    print("- - - - - - - - - - - -")
+                    print(f"Key Gen Provably Prime Test Case {i*number_of_iterations+j} With Security Strength {strengths[i].security_strength}")
+                    rsa_bit_length_for_strength = strengths[i].integer_factorization_cryptography
+                    public_key_gen, private_key_gen = RSA.generateRSAKeyPair(strengths[i].security_strength, ApprovedHashFunctions.SHA_512_Hash.value)
+                    
+                    assert public_key_gen.n.getValue() == private_key_gen.n.getValue()
+
+                    pt = "0D3E74F20C249E1058D4787C22F95819066FA8927A95AB004A240073FE20CBCB149545694B0EE318557759FCC4D2CA0E3D55307D1D3A4CD1F3B031CE0DF356A5DEDCC25729C4302FABA4CB885C9FA3C2F57A4D1308451C300D2378E90F4F83DCEDCDCF5217BC3840A796FCDAF73483A3D199C389BDB50CFE95D9C02E5F4FC1917FA4606CF6AB7559253202698D7EABE7561137271CE1A524E5956D25C379AF4F121877355F2495DC154A0EB33CF2F3B6990F60FCC0CCE199EF1E76E11585895EE1C619FB6D140266006AB41D56CE3E6C68571902568CD4520F1F9E5E284B4B9DFCC3782D05CDF826895450E314FBC654032A775F47088F18D3B4000AC23BD107"
+                    plain = IntegerHandler.fromHexString(pt, little_endian)
+                    encrypted = RSA.RSA_EncryptionPrimitive(public_key_gen, plain, bit_length=rsa_bit_length_for_strength)
+                    decrypted = RSA.RSA_DecryptionPrimitive(private_key_gen, encrypted, bit_length=rsa_bit_length_for_strength)
+                    print(f"Plain     : {plain.getHexString()}")
+                    print(f"Cypher    : {encrypted.getHexString()}")
+                    print(f"Decrypted : {decrypted.getHexString()}")
+                    assert plain.getValue() == decrypted.getValue()
+
+    def test_key_gen_probably_prime(self):
+        # strengths = [SecurityStrength.s112.value, SecurityStrength.s128.value, SecurityStrength.s192.value, SecurityStrength.s256.value]
+        strengths = [SecurityStrength.s112.value, SecurityStrength.s128.value]
+        number_of_iterations = 3
+        for i in range(0, len(strengths)):
+            for j in range(0, number_of_iterations):
+                with self.subTest(f"Key Gen Probably Prime Test Case {i*number_of_iterations+j} With Security Strength {strengths[i].security_strength}"):
+                    print("- - - - - - - - - - - -")
+                    print(f"Key Gen Probably Prime Test Case {i*number_of_iterations+j} With Security Strength {strengths[i].security_strength}")
+                    rsa_bit_length_for_strength = strengths[i].integer_factorization_cryptography
+                    public_key_gen, private_key_gen = RSA.generateRSAKeyPair_probablePrimes(strengths[i].security_strength)
+                    
+                    assert public_key_gen.n.getValue() == private_key_gen.n.getValue()
+
+                    pt = "0D3E74F20C249E1058D4787C22F95819066FA8927A95AB004A240073FE20CBCB149545694B0EE318557759FCC4D2CA0E3D55307D1D3A4CD1F3B031CE0DF356A5DEDCC25729C4302FABA4CB885C9FA3C2F57A4D1308451C300D2378E90F4F83DCEDCDCF5217BC3840A796FCDAF73483A3D199C389BDB50CFE95D9C02E5F4FC1917FA4606CF6AB7559253202698D7EABE7561137271CE1A524E5956D25C379AF4F121877355F2495DC154A0EB33CF2F3B6990F60FCC0CCE199EF1E76E11585895EE1C619FB6D140266006AB41D56CE3E6C68571902568CD4520F1F9E5E284B4B9DFCC3782D05CDF826895450E314FBC654032A775F47088F18D3B4000AC23BD107"
+                    plain = IntegerHandler.fromHexString(pt, little_endian)
+                    encrypted = RSA.RSA_EncryptionPrimitive(public_key_gen, plain, bit_length=rsa_bit_length_for_strength)
+                    decrypted = RSA.RSA_DecryptionPrimitive(private_key_gen, encrypted, bit_length=rsa_bit_length_for_strength)
+                    print(f"Plain     : {plain.getHexString()}")
+                    print(f"Cypher    : {encrypted.getHexString()}")
+                    print(f"Decrypted : {decrypted.getHexString()}")
+                    assert plain.getValue() == decrypted.getValue()
+
+    # def test_construction_prov_primes_2048_sha224(self):
+    #     seeds = ["EBF082A76D00ABCBE84E6CFCC131418E74B205342A6EDAE5D9D366F2",
+    #              "A702E4BB7FE8E41240707B9838E736579B651092C90728179913F3D4",
+    #              "C1EADECC0A1F18A68B931861C5CED338068C8C7AE3E489214A5DCFC3"]
+    #     es = ["9426CCC94A43","0F1574A1D1F3","77BC7503"]
+    #     bitlens_list = [[246, 178, 186, 223],
+    #                     [270, 162, 174, 269],
+    #                     [237, 178, 190, 177]]
+    #     hash_function = ApprovedHashFunctions.SHA_224_Hash.value
+    #     nlen = 2048
+
+    #     expected_ps = ["BF811DA1B09FFA4C6BFA293D8C24B017B652B2E480366AA126C7F7F3A40B3F4DB338807080FA3FD8753E591F4D5AA603947E1D8EEB6ED19E91742F07ABAF15610743347D85940D2FACE5E2AD128C9CCA1A74533D57FA3F2159FD8554320B03E2C0D062034C7E85E436F1A2696A83A1155DD0B6BE10507048F1891FDBAC1D89EF",
+    #                    "EC350DD4F81F6F66CFD8DB7F12DE24C957E18AA361ADD5349DEB48B4537AD96AFCF1350787E39BF979F066DAC97A6D384D34D91B217234987F8F339A0472F5826595F7AE59E1DE14843F816857DF1DC0B53D2722560A4CE7F4E281A31FE99E3EE3B7D2CC88D8E9CDE0FC8702F803435DFDB212208CB2C2ED3505C2D741B79721",
+    #                    "C65495AF60D75EA1AEDBA897D9A4A74B171779D0C12A2EF53F218B9CD0B8783E5E93504F122E4F6F1167EFB671294B33569A11232CC3E1C2D069430E372EF1EA63488DC557D96A6BEA7B9EBE3359942A4C31C2449487CBF485A134E0A88F02881433A7D10F9E07EC83D20500EBBAD5B7C3B03D678F418D9CDCB23433B01BEB5D"]
+    #     expected_qs = ["D22C2420B168C3A638FB5385125FBE9290AD3BDECD07E059881CE6E5AD1162CB6D963C2C2FD4EFF3B88858996C56B16E189B258B7F0F251667C2E66CAED71EE244D7D331413A87FAE817C9D9CB6C445ADCC2B7545FF3C246A71DE9FADEC48C78A10045BB67434309D0FDA0402780B83BEBA5BA71E19EEFFC0B8B78F4027C82DF",
+    #                    "E991BA125525B7405B61658C60F44144E0D845BD112D77CD901EBE8B9E481D835C3255E909C2C30FBBF92429189EB8FBF43150CE19642B046ADBD7BC39B89F78DEF2D632B6B8063BBA20E916D14D663632DDE381ED8ED4F2CC44C3D1AADE153F196BF42BDD9F1123DB0A9323FFFE33AC7AAF08905017DB64FA383033E142FE79",
+    #                    "BF4311B50DC8F7EE1ACFDD34AA2BCD614A7C879B9FC9682A3045BF72025C46A79F1BD41E4777D8536A51DF2E41AE6FE7B6F8970CD53154DDF32BC7F27FC60E70D5AA1C216CB98E1BF7C92958AC080374D483C8C74E76464DB6189B0F199F893F082EF943E632DC8427024AAA0C4677E052F0CD669DF306B8A41134025CEEB9BF"]
+
+    #     print("Test Construction Of Provable Primes 2048 SHA224")
+    #     for i in range(0, len(seeds)):
+    #         with self.subTest(f"Construction Of Provable Primes 2048 SHA224 Test Case {i}"):
+    #             print("- - - - - - - - - - - -")
+    #             success, p, q = RSA.constructionOfProvablePrimes(nlen, IntegerHandler.fromHexString(es[i], False, len(es[i])*4), IntegerHandler.fromHexString(seeds[i], False, len(seeds[i])*4), hash_function, bitlens_list[i])
+
+    #             self.assertTrue(success)
+    #             self.assertEqual(p.getHexString(), expected_ps[i])
+    #             self.assertEqual(q.getHexString(), expected_qs[i])
 
 # def setup_encryption_primitives():
 #         '''
@@ -310,13 +407,14 @@ def read_test_encryption_primitive_data():
 
     with open(path) as test_json_file:
         test_json = json.load(test_json_file)
-    for tag_group in range(0, 3):
+    number_groups = len(test_json['testGroups'])
+    for tag_group in range(0, number_groups):
         bit_length = test_json['testGroups'][tag_group]['modulo']
         test_list_json = test_json['testGroups'][tag_group]['tests']
         number_tests = len(test_list_json)
         for i in range(0, number_tests):
             testcase = test_list_json[i]
-            if testcase['testPassed'] and testcase['dmp1'] == '' and testcase['dmq1'] == '' and testcase['iqmp'] == '':
+            if testcase['testPassed']:
                 test_case_details = RSA_TestCase_Details(testcase['ct'],testcase['pt'],testcase['p'],testcase['q'],testcase['d'],testcase['n'],testcase['e'],bit_length)
                 encryption_primitive_test_cases.append(test_case_details)
 
@@ -328,13 +426,14 @@ def read_test_signature_primitive_data():
 
     with open(path) as test_json_file:
         test_json = json.load(test_json_file)
-    for tag_group in range(0, 3):
+    number_groups = len(test_json['testGroups'])
+    for tag_group in range(0, number_groups):
         bit_length = test_json['testGroups'][tag_group]['modulo']
         test_list_json = test_json['testGroups'][tag_group]['tests']
         number_tests = len(test_list_json)
         for i in range(0, number_tests):
             testcase = test_list_json[i]
-            if testcase['testPassed'] and testcase['dmp1'] == '' and testcase['dmq1'] == '' and testcase['iqmp'] == '':
+            if testcase['testPassed']:
                 test_case_details = RSA_TestCase_Details(testcase['signature'],testcase['message'],testcase['p'],testcase['q'],testcase['d'],testcase['n'],testcase['e'],bit_length)
                 signature_generation_test_cases.append(test_case_details)
 

@@ -22,7 +22,7 @@ class IntegerHandler():
         self.bit_length = bit_length
 
         if bit_length != None:
-            self.value = value % (2**bit_length)
+            self.value = value % (pow(2, bit_length))
 
     def truncateLeft(self, bit_length:int):
         '''
@@ -41,7 +41,7 @@ class IntegerHandler():
         '''
 
         if self.bit_length != None:
-            return self.value % (2**self.bit_length)
+            return self.value % (pow(2, self.bit_length))
         return self.value
     
     def setValue(self,newValue:int):
@@ -123,7 +123,7 @@ class IntegerHandler():
         if self.bit_length == None:
             int_value = self.value
         else:
-            int_value = self.value % (2**self.bit_length)
+            int_value = self.value % (pow(2, self.bit_length))
         
         if not self.is_little_endian:
             hex_string = ""
@@ -151,7 +151,7 @@ class IntegerHandler():
             for i in range(1, hex_length//add_spacing+1):
                 position = i * add_spacing + i - 1
                 hex_string = hex_string[:position]+" "+hex_string[position:]
-        return hex_string
+        return hex_string.strip()
     
     def splitBits(self):
         '''
@@ -315,7 +315,7 @@ class IntegerHandler():
                 The result of the not operation
         '''
 
-        max_value = 2**self.getBitLength() - 1
+        max_value = pow(2, self.getBitLength()) - 1
         not_result = max_value - self.value
 
         return IntegerHandler(not_result,little_endian=self.is_little_endian, bit_length=self.bit_length)
@@ -396,7 +396,7 @@ class IntegerHandler():
 
         bit_length = self.getBitLength()
         rotation_amount = rotation_amount % bit_length
-        modulus = 2**bit_length
+        modulus = pow(2, bit_length)
         if self.is_little_endian:
             rotate_result = (self.value << rotation_amount)|(self.value >> (bit_length - rotation_amount))
 
@@ -429,7 +429,7 @@ class IntegerHandler():
         integer_value = 0
         length = len(octet_list)
         for i in range(0, length):
-            integer_value += octet_list[i]*(256**(i))
+            integer_value += octet_list[i]*(pow(256, i))
         return IntegerHandler(integer_value,little_endian,bit_length)
 
     @staticmethod
@@ -472,10 +472,10 @@ class IntegerHandler():
         int_value:int = 0
         if little_endian:
             for i in range(0,len(bit_array)):
-                int_value += bit_array[i] * 2**i
+                int_value += bit_array[i] * pow(2, i)
         else:
             for i in range(0,len(bit_array)):
-                int_value += bit_array[i] * 2**(len(bit_array) - 1 - i)
+                int_value += bit_array[i] * pow(2, len(bit_array) - 1 - i)
         return IntegerHandler(value=int_value, little_endian=little_endian, bit_length=bit_length)
     
     @staticmethod
@@ -499,10 +499,10 @@ class IntegerHandler():
         int_value:int = 0
         if little_endian:
             for i in range(0,len(bit_string)):
-                int_value += int(bit_string[i],2) * 2**i
+                int_value += int(bit_string[i],2) * pow(2, i)
         else:
             for i in range(0,len(bit_string)):
-                int_value += int(bit_string[i],2) * 2**(len(bit_string) - 1 - i)
+                int_value += int(bit_string[i],2) * pow(2, len(bit_string) - 1 - i)
         return IntegerHandler(value=int_value, little_endian=little_endian, bit_length=bit_length)
     
     @staticmethod
@@ -654,7 +654,7 @@ def bitwiseAnd(list_of_handlers:list[IntegerHandler], little_endian: bool = Fals
                 bit_length_set = handler_length
     else:
         bit_length_set=bit_length
-    initial_value = 2**bit_length_set-1
+    initial_value = pow(2, bit_length_set) - 1
     for handler in list_of_handlers:
         initial_value = initial_value & handler.value
 
