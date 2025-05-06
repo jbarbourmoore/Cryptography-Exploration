@@ -872,7 +872,7 @@ class RSA():
         return True
     
     @staticmethod
-    def runLucasPrimalityTest(candidate_prime: int):
+    def runLucasPrimalityTest(candidate_prime: int) -> bool:
         '''
         This method checks whether a value is probably prime
 
@@ -886,11 +886,108 @@ class RSA():
             probably_prime : bool
                 Whether the value is probably prime
         '''
+        basic_primes = (2,3,5,7,11,13,17)
+        basic_not_primes = (0,1,4,6,8,9)
+        if candidate_prime in basic_primes: return True
+        if candidate_prime in basic_not_primes: return False
+
+        if candidate_prime % 2 == 0:
+            return False
 
         if RSA.checkForAPerfectSquare(candidate_prime):
             return False
         
-        raise NotImplementedError
+        D, jacobi_dc, gcd_dc = -3, 0, 0
+        while jacobi_dc != 1 or gcd_dc != 1:
+            if D < 0:
+                D = -D + 2
+            else:
+                D = -D - 2
+            jacobi_dc = RSA.jacobiSymbol(D, candidate_prime)
+            gcd_dc = euclidsAlgorithm(candidate_prime, (1-D) // 4)
+            # print(f"D : {D}, Jacobi: {jacobi_dc}, GCD = {gcd_dc}")
+            if jacobi_dc == 0:
+                return False
+        
+        K = IntegerHandler(candidate_prime+1,False).getBitArray()
+        # print(K)
+        inv_2 = RSA.new_inv_mod(2,candidate_prime)
+        U, V = 1, 1
+        for i in range(1,len(K)):
+            # print(f"{i}: U:{U}, V:{V}, K_i:{K[i]} r:{len(K)-i}")
+            U_temp = U * V % candidate_prime
+            V_temp = ((V * V) + (D * U * U)) % candidate_prime
+            V_temp *= inv_2
+            V_temp %= candidate_prime
+            # V_temp_2 = ((V * V) + (D * U * U)) * (candidate_prime + 1) // 2 % candidate_prime
+            # print(f"temp: {V_temp}, temp_2:{V_temp_2}")
+            if K[i] == 1:
+                U = (U_temp + V_temp) % candidate_prime * inv_2 % candidate_prime
+                U_2 = (U_temp + V_temp) * (candidate_prime + 1) // 2 % candidate_prime
+                V = (V_temp + D * U_temp) % candidate_prime * inv_2 % candidate_prime
+                V_2 = (V_temp + D * U_temp) * (candidate_prime + 1) // 2 % candidate_prime
+                # print(f"k[i]:{K[i]} = U:{U}, U_2:{U_2}, V:{V}, V_2{V_2}")
+            else :
+                U = U_temp
+                V = V_temp
+                # print(f"k[i]:{K[i]} = U:{U}, V:{V}")
+        if U == 1: return True
+        else: return False
+
+    
+    def jacobiSymbol(a:int, n:int, is_debug = False):
+        '''
+        This method computes the jacobi symbol a/n
+
+        As according to NIST FIPS 186-5 Section B.5 "Jacobi Symbol Algorithm"
+
+        Parameters :
+            a : int
+                The value above the line in the jacobi symbol
+            b : int
+                The value below the line in the jacobi symbol
+            is_debug : bool, optional
+                Whether the method is being debugged, default is false
+
+        Returns : 
+            result : int
+                The calculated jacobi symbol value
+        '''
+        
+        a = a % n
+        if is_debug:
+            print(f"starting jacobi with a:{a}, n:{n}")
+        if a == 1 or n == 1 :
+            if is_debug:
+                print(f"Result jacobi(a/n) a:{a}, n:{n} = {1}")
+            return 1
+        if a == 0:
+            if is_debug:
+                print(f"Result jacobi(a/n) a:{a}, n:{n} = {0}")
+            return 0
+        
+        e = 0
+        a_1 = a
+        while a_1 % 2 == 0:
+            a_1 //= 2
+            e += 1
+        #print(f"e : {e}")
+        if e % 2 == 0:
+            s = 1
+        elif n % 8 == 1 or n % 8 == 7:
+            s = 1
+        elif n % 8 == 3 or n % 8 == 5:
+            s = -1
+        #print(f"Initial s : {s}")
+        if n % 4 == 3 and a_1 % 4 == 3:
+            s = -s
+        #print(f"Final s : {s}")
+        n_1 = n % a_1
+        #print(f"a_1 = {a_1}, n_1 = {n_1}")
+        result = s * RSA.jacobiSymbol(n_1, a_1, is_debug)
+        if is_debug:
+            print(f"Result jacobi(a/n) a:{a}, n:{n}, s:{s} = {result}")
+        return result
         
     
     @staticmethod
@@ -928,11 +1025,13 @@ class RSA():
         return False
    
 if __name__ == '__main__':
-    for i in range(3,50):
+    for i in range(1,10000):
         rabin = RSA.runMillerRabinPrimalityTest(i)
-        print(f"{i} : {rabin}")
+        lucas = RSA.runLucasPrimalityTest(i)
+        print(f"{i} : rabin:{rabin} lucas:{lucas}")
         from sympy import isprime
         assert rabin == isprime(i), f"{i} should be classified as {isprime(i)}, not {rabin}"
+        assert lucas == isprime(i), f" {i} should be classified as {isprime(i)}, not {lucas}"
     handler = IntegerHandler.fromHexString("01FF",little_endian,16)
     print(handler.getValue())
     ct = "5662E1AF1E949E5F17A917FD586F7F50F4490632358F4801AA75E5AC8D9CD37ED69806EC1988DEEA48002044089068A86C09E5817BE4195D4FFB38FD7FE66038EE208EC017EB59DACA82164EEC98FCE3726493EDD4C19E64581DD77262A86C5E4E0DDD0573DA0CFFF7BA431A48727A276D9AA5EC45AF46CB25029A24EA51940D9C5FC067BF6A7E1750D89D1A8CC466F341C2C3F7B509BE0F759C6FF2F25DD794D5CFDEAF65BCE931925BF503BEBB6794F48D81C2E569DD7A0E2623A99C107346DC5CD6F4585B80C384A9619383CC3598450C0265A4B4F0ABC4370AE67F6DDBF3EE79D0F454ADA1F7F22676D615A1B2190DA316770361BFAD502AA1FA5273E9FC"
@@ -1113,6 +1212,8 @@ if __name__ == '__main__':
     for not_square in not_perfect_square:
         is_square = RSA.checkForAPerfectSquare(not_square)
         assert is_square == False
+
+    RSA.jacobiSymbol(5, 3439601197, True)
 from HelperFunctions.EuclidsAlgorithms import extendedEuclidAlgorithm
 from HelperFunctions.EncodeStringAsNumberList import EncodeStringAsNumbersList
 
