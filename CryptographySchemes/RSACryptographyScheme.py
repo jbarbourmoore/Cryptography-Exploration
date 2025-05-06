@@ -870,6 +870,62 @@ class RSA():
                 return False
             
         return True
+    
+    @staticmethod
+    def runLucasPrimalityTest(candidate_prime: int):
+        '''
+        This method checks whether a value is probably prime
+
+        As according to NIST FIPS 186-5 Section B.3.3 "(General) Lucas Probabilistic Primality Test"
+
+        Parameters :
+            candidate_prime : int
+                The value being checked to see if it is probably prime
+
+        Returns : 
+            probably_prime : bool
+                Whether the value is probably prime
+        '''
+
+        if RSA.checkForAPerfectSquare(candidate_prime):
+            return False
+        
+        raise NotImplementedError
+        
+    
+    @staticmethod
+    def checkForAPerfectSquare(C:int) -> bool:
+        '''
+        This method checks whether a value is a perfect square
+
+        As according to NIST FIPS 186-5 Section B.4 "Checking for a Perfect Square"
+
+        Parameters :
+            C : int
+                The value being checked to see if it is a perfect square
+
+        Returns : 
+            is_perfect_square : bool
+                Whether the value is a perfect square
+        '''
+        # print(f"C = {C}")
+        n = 0
+        while pow(2, n) <= C:
+            n += 1
+        m = ceil(Decimal.from_float(n)/Decimal.from_float(2))
+        i = 0
+        X = pow(2, m)
+        max_limit = pow(2, m) + C
+        while X * X >= max_limit:
+            i = i + 1
+            X = (X * X + C) // (2 * X)
+            # print(f"{i} : X:{X} C:{C} X^2:{X*X} max_limit:{max_limit}")
+            
+        if C == floor(X * X):
+            # print(True)
+            return True
+        # print(f"False and C = {C} flor(x^2) = {floor(X * X)}")
+        return False
    
 if __name__ == '__main__':
     for i in range(3,50):
@@ -1027,29 +1083,36 @@ if __name__ == '__main__':
     # print(f"Decrypted : {decrypted.getHexString()}")
     # assert plain.getValue() == decrypted.getValue()
 
-    strength = SecurityStrength.s192.value
-    rsa_bit_length_for_strength = strength.integer_factorization_cryptography
-    public_key_gen, private_key_gen = RSA.generateRSAKeyPair_probablePrimes(strength.security_strength)
+    # strength = SecurityStrength.s192.value
+    # rsa_bit_length_for_strength = strength.integer_factorization_cryptography
+    # public_key_gen, private_key_gen = RSA.generateRSAKeyPair_probablePrimes(strength.security_strength)
     
-    assert public_key_gen.n.getValue() == private_key_gen.n.getValue()
+    # assert public_key_gen.n.getValue() == private_key_gen.n.getValue()
 
-    pt = "0D3E74F20C249E1058D4787C22F95819066FA8927A95AB004A240073FE20CBCB149545694B0EE318557759FCC4D2CA0E3D55307D1D3A4CD1F3B031CE0DF356A5DEDCC25729C4302FABA4CB885C9FA3C2F57A4D1308451C300D2378E90F4F83DCEDCDCF5217BC3840A796FCDAF73483A3D199C389BDB50CFE95D9C02E5F4FC1917FA4606CF6AB7559253202698D7EABE7561137271CE1A524E5956D25C379AF4F121877355F2495DC154A0EB33CF2F3B6990F60FCC0CCE199EF1E76E11585895EE1C619FB6D140266006AB41D56CE3E6C68571902568CD4520F1F9E5E284B4B9DFCC3782D05CDF826895450E314FBC654032A775F47088F18D3B4000AC23BD107"
-    plain = IntegerHandler.fromHexString(pt, little_endian)
-    '''
-        Security Strength - RSA k
-        <80 - 1024
-        112 - 2048
-        128 - 3072
-        192 - 7680
-        256 - 15360
-    '''
-    encrypted = RSA.RSA_EncryptionPrimitive(public_key_gen, plain, bit_length=rsa_bit_length_for_strength)
-    decrypted = RSA.RSA_DecryptionPrimitive(private_key_gen, encrypted, bit_length=rsa_bit_length_for_strength)
-    print(f"Plain     : {plain.getHexString()}")
-    print(f"Cypher    : {encrypted.getHexString()}")
-    print(f"Decrypted : {decrypted.getHexString()}")
-    assert plain.getValue() == decrypted.getValue()
-
+    # pt = "0D3E74F20C249E1058D4787C22F95819066FA8927A95AB004A240073FE20CBCB149545694B0EE318557759FCC4D2CA0E3D55307D1D3A4CD1F3B031CE0DF356A5DEDCC25729C4302FABA4CB885C9FA3C2F57A4D1308451C300D2378E90F4F83DCEDCDCF5217BC3840A796FCDAF73483A3D199C389BDB50CFE95D9C02E5F4FC1917FA4606CF6AB7559253202698D7EABE7561137271CE1A524E5956D25C379AF4F121877355F2495DC154A0EB33CF2F3B6990F60FCC0CCE199EF1E76E11585895EE1C619FB6D140266006AB41D56CE3E6C68571902568CD4520F1F9E5E284B4B9DFCC3782D05CDF826895450E314FBC654032A775F47088F18D3B4000AC23BD107"
+    # plain = IntegerHandler.fromHexString(pt, little_endian)
+    # '''
+    #     Security Strength - RSA k
+    #     <80 - 1024
+    #     112 - 2048
+    #     128 - 3072
+    #     192 - 7680
+    #     256 - 15360
+    # '''
+    # encrypted = RSA.RSA_EncryptionPrimitive(public_key_gen, plain, bit_length=rsa_bit_length_for_strength)
+    # decrypted = RSA.RSA_DecryptionPrimitive(private_key_gen, encrypted, bit_length=rsa_bit_length_for_strength)
+    # print(f"Plain     : {plain.getHexString()}")
+    # print(f"Cypher    : {encrypted.getHexString()}")
+    # print(f"Decrypted : {decrypted.getHexString()}")
+    # assert plain.getValue() == decrypted.getValue()
+    perfect_square = [4,16,49,81,144,10000]
+    for square in perfect_square:
+        is_square = RSA.checkForAPerfectSquare(square)
+        assert is_square == True
+    not_perfect_square = [5,19,52,88,150,10001]
+    for not_square in not_perfect_square:
+        is_square = RSA.checkForAPerfectSquare(not_square)
+        assert is_square == False
 from HelperFunctions.EuclidsAlgorithms import extendedEuclidAlgorithm
 from HelperFunctions.EncodeStringAsNumberList import EncodeStringAsNumbersList
 
