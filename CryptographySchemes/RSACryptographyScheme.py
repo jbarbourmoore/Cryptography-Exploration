@@ -335,6 +335,142 @@ class RSA():
             q = 0
             if i > 5 * nlen:
                 return False, IntegerHandler(0, little_endian, 0), IntegerHandler(0, little_endian, 0)
+    
+    @staticmethod
+    def generationOfProbablePrimes_BasedOnAuxillaryProvablePrimes(nlen:int, e:IntegerHandler, seed: IntegerHandler, bitlens:list[int], a:int = None, b:int = None, hash_function = ApprovedHashFunctions.SHA_512_Hash.value) -> tuple[bool, IntegerHandler, IntegerHandler]:
+        '''
+        This method generates 2 probable primes for use in an RSA scheme based
+        
+        From NIST FIPS 186-5 Section A.1.5 "Generation of Probable Primes with Conditions Based on Auxiliary Provable Primes"
+        https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.186-5.pdf
+
+        Parameters :
+            nlen : int
+                The desired bit length for the n value in the implementation (at least 2048)
+            e : IntegerHandler
+                The e public exponent for the rsa key pair as an IntegerHandler
+            seed : IntegerHandler
+                The seed to be used in calculating the auxillary provable primes
+            bitlens : [int]
+                The list of 4 bit lengths for p_1, p_2, q_1 and q_2
+            a : int, optional
+                The desired mod 8 value for p, default is none
+            b : int, optional
+                The desired mod 8 value for q, default is none
+
+        Returns : 
+            is_success : bool
+                Whether the prime generation was successful
+            p, q : IntegerHandlers
+                The generated primes as IntegerHandlers
+        '''
+        
+        if nlen < 2048:
+            return False, IntegerHandler(0, little_endian, 0), IntegerHandler(0, little_endian, 0)
+        elif e.getValue() <= pow(2, 16) or e.getValue() >= pow(2, 256) or (e.getValue() % 2) == 0:
+            return False, IntegerHandler(0, little_endian, 0), IntegerHandler(0, little_endian, 0)
+        if nlen == 2048:
+            security_strength = 112
+        elif nlen == 3072:
+            security_strength = 128
+        elif nlen == 7680:
+            security_strength = 192
+        elif nlen == 15360:
+            security_strength = 256
+        else:
+            return False, IntegerHandler(0, little_endian, 0), IntegerHandler(0, little_endian, 0)
+        if seed.getBitLength() < 2 * security_strength:
+            return False, IntegerHandler(0, little_endian, 0), IntegerHandler(0, little_endian, 0)
+        
+        # generate p
+        success, p_1, prime_seed, counter = RSA.randomPrimeGeneration_ShaweTaylor(bitlens[0], seed, hash_function)
+        if not success: return False, IntegerHandler(0), IntegerHandler(0)
+        success, p_2, prime_seed, counter = RSA.randomPrimeGeneration_ShaweTaylor(bitlens[1], prime_seed, hash_function)
+        if not success: return False, IntegerHandler(0), IntegerHandler(0)
+        success, p, X_p = RSA.generationOfProbablePrime_BasedOnAuxilaryPrimes(p_1, p_2, nlen, e, a)
+        if not success: return False, IntegerHandler(0), IntegerHandler(0)
+
+        minimum_difference = pow(2, nlen // 2 - 100)
+        pq_diff, x_pq_diff = 0, 0
+        # generate q
+        while pq_diff < minimum_difference or x_pq_diff < minimum_difference:
+            success, q_1, prime_seed, counter = RSA.randomPrimeGeneration_ShaweTaylor(bitlens[2], prime_seed, hash_function)
+            if not success: return False, IntegerHandler(0), IntegerHandler(0)
+            success, q_2, prime_seed, counter = RSA.randomPrimeGeneration_ShaweTaylor(bitlens[3], prime_seed, hash_function)
+            if not success: return False, IntegerHandler(0), IntegerHandler(0)
+            success, q, X_q = RSA.generationOfProbablePrime_BasedOnAuxilaryPrimes(q_1, q_2, nlen, e, b)
+            if not success: return False, IntegerHandler(0), IntegerHandler(0)
+            pq_diff = abs(p - q)
+            x_pq_diff = abs(X_p - X_q)
+        
+        X_p, X_q, prime_seed, p_1, p_2, q_1, q_2 = 0, 0, 0, 0, 0, 0, 0
+        return True, IntegerHandler(p, False, nlen // 2), IntegerHandler(q, False, nlen // 2)
+    
+    @staticmethod
+    def generationOfProbablePrimes_BasedOnAuxillaryProbablePrimes(nlen:int, e:IntegerHandler, bitlens:list[int], a:int = None, b:int = None) -> tuple[bool, IntegerHandler, IntegerHandler]:
+        '''
+        This method generates 2 probable primes for use in an RSA scheme based
+        
+        From NIST FIPS 186-5 Section A.1.6 "Generation of Probable Primes with Conditions Based on Auxiliary Probable Primes"
+        https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.186-5.pdf
+
+        Parameters :
+            nlen : int
+                The desired bit length for the n value in the implementation (at least 2048)
+            e : IntegerHandler
+                The e public exponent for the rsa key pair as an IntegerHandler
+            bitlens : [int]
+                The list of 4 bit lengths for p_1, p_2, q_1 and q_2
+            a : int, optional
+                The desired mod 8 value for p, default is none
+            b : int, optional
+                The desired mod 8 value for q, default is none
+
+        Returns : 
+            is_success : bool
+                Whether the prime generation was successful
+            p, q : IntegerHandlers
+                The generated primes as IntegerHandlers
+        '''
+        
+        if nlen < 2048:
+            return False, IntegerHandler(0, little_endian, 0), IntegerHandler(0, little_endian, 0)
+        elif e.getValue() <= pow(2, 16) or e.getValue() >= pow(2, 256) or (e.getValue() % 2) == 0:
+            return False, IntegerHandler(0, little_endian, 0), IntegerHandler(0, little_endian, 0)
+        
+        # generate p
+        p_1 = RSA.generateRandomProbablePrime(bitlens[0], e)
+        p_2 = RSA.generateRandomProbablePrime(bitlens[1], e)
+        success, p, X_p = RSA.generationOfProbablePrime_BasedOnAuxilaryPrimes(p_1, p_2, nlen, e, a)
+        if not success: return False, IntegerHandler(0), IntegerHandler(0)
+
+        minimum_difference = pow(2, nlen // 2 - 100)
+        pq_diff, x_pq_diff = 0, 0
+        # generate q
+        while pq_diff < minimum_difference or x_pq_diff < minimum_difference:
+            
+            q_1 = RSA.generateRandomProbablePrime(bitlens[2], e)
+            q_2 = RSA.generateRandomProbablePrime(bitlens[3], e)
+            success, q, X_q = RSA.generationOfProbablePrime_BasedOnAuxilaryPrimes(q_1, q_2, nlen, e, b)
+            if not success: return False, IntegerHandler(0), IntegerHandler(0)
+            pq_diff = abs(p - q)
+            x_pq_diff = abs(X_p - X_q)
+        
+        X_p, X_q, p_1, p_2, q_1, q_2 = 0, 0, 0, 0, 0, 0
+        return True, IntegerHandler(p, False, nlen // 2), IntegerHandler(q, False, nlen // 2)
+    
+    @staticmethod
+    def generateRandomProbablePrime(bitlen, e: IntegerHandler):
+        potential_prime = 0
+        while True:
+            while potential_prime % 2 == 0:
+                potential_prime = randbits(bitlen)
+
+            while potential_prime < pow(2, bitlen):
+                if euclidsAlgorithm(potential_prime + 1, e.getValue()) == 1:
+                    if RSA.runMillerRabinPrimalityTest(potential_prime):
+                        return potential_prime
+                potential_prime += 2
 
     @staticmethod
     def generationOfProbablePrime_BasedOnAuxilaryPrimes(r_1:int, r_2:int, nlen:int, e:IntegerHandler, c:int = None) -> tuple[bool, int, int]:
@@ -1314,6 +1450,16 @@ if __name__ == '__main__':
     print(f"r_2 is {r_2}")
     success, prime_candidate, random_num = RSA.generationOfProbablePrime_BasedOnAuxilaryPrimes(r_1,r_2,2048,public_key_gen.e)
     print(prime_candidate)
+
+    success, p, q = RSA.generationOfProbablePrimes_BasedOnAuxillaryProvablePrimes(strength.integer_factorization_cryptography, public_key_gen.e,seed,bitlens=[141,141,141,141])
+    print(p.getHexString())
+    print(q.getHexString())
+    success, p, q = RSA.generationOfProbablePrimes_BasedOnAuxillaryProbablePrimes(strength.integer_factorization_cryptography, public_key_gen.e,bitlens=[141,141,141,141],a=3,b=5)
+    print(p.getHexString())
+    print(q.getHexString())
+
+
+
 from HelperFunctions.EuclidsAlgorithms import extendedEuclidAlgorithm
 from HelperFunctions.EncodeStringAsNumberList import EncodeStringAsNumbersList
 
