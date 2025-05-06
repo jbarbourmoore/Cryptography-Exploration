@@ -261,6 +261,29 @@ class RSA():
 
     @staticmethod
     def generationOfProbablePrimes(nlen:int, e:IntegerHandler, a:int = None, b:int = None) -> tuple[bool, IntegerHandler, IntegerHandler]:
+        '''
+        This method generates 2 probable primes for use in an RSA scheme based
+        
+        From NIST FIPS 186-5 Section A.1.3 "Generation of Random Primes that are Probably Prime"
+        https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.186-5.pdf
+
+        Parameters :
+            nlen : int
+                The desired bit length for the n value in the implementation (at least 2048)
+            e : IntegerHandler
+                The e public exponent for the rsa key pair as an IntegerHandler
+            a : int, optional
+                The desired mod 8 value for p, default is none
+            b : int, optional
+                The desired mod 8 value for q, default is none
+
+        Returns : 
+            is_success : bool
+                Whether the prime generation was successful
+            p, q : IntegerHandlers
+                The generated primes as IntegerHandlers
+        '''
+        
         if nlen < 2048:
             return False, IntegerHandler(0, little_endian, 0), IntegerHandler(0, little_endian, 0)
         elif e.getValue() <= pow(2, 16) or e.getValue() >= pow(2, 256) or (e.getValue() % 2) == 0:
@@ -281,7 +304,7 @@ class RSA():
                     p = p + 1
 
             if euclidsAlgorithm(p-1, e.getValue()) == 1:
-                p_probably_prime = RSA.runMillerRabinPrimalityTest(p, p_q_test_iterations)
+                p_probably_prime = RSA.runMillerRabinPrimalityTest(p, p_q_test_iterations) and RSA.runLucasPrimalityTest(p)
                 if p_probably_prime:
                     print(p)
                     break
@@ -304,7 +327,7 @@ class RSA():
                     q = q + 1
 
             if euclidsAlgorithm(q-1, e.getValue()) == 1:
-                q_probably_prime = RSA.runMillerRabinPrimalityTest(q, p_q_test_iterations)
+                q_probably_prime = RSA.runMillerRabinPrimalityTest(q, p_q_test_iterations) and RSA.runLucasPrimalityTest(q)
                 if q_probably_prime and p_probably_prime:
                     print(q)
                     return True, IntegerHandler(p, little_endian, nlen // 2), IntegerHandler(q, little_endian, nlen // 2)
@@ -313,6 +336,76 @@ class RSA():
             if i > 5 * nlen:
                 return False, IntegerHandler(0, little_endian, 0), IntegerHandler(0, little_endian, 0)
 
+    @staticmethod
+    def generationOfProbablePrime_BasedOnAuxilaryPrimes(r_1:int, r_2:int, nlen:int, e:IntegerHandler, c:int = None) -> tuple[bool, int, int]:
+        '''
+        This method constructs a probable prime for use in an RSA scheme based on two auxillary primes
+        
+        From NIST FIPS 186-5 Section B.9 "Compute a Probable Prime Factor Based on Auxiliary Primes"
+        https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.186-5.pdf
+
+        Parameters :
+            r_1 : int
+                The first auxillary prime value
+            r_2 : int
+                The second auxillary prime value
+            nlen : int
+                The desired bit length for the n value in the implementation (at least 2048)
+            e : IntegerHandler
+                The e public exponent for the rsa key pair as an IntegerHandler
+            c : int, optional
+                The desired mod 8 value, default is none
+
+        Returns : 
+            is_success : bool
+                Whether the prime generation was successful
+            probable_prime_factor : int
+                The generated prime
+            X : int
+                The random value used in generating the prime
+        '''
+        if nlen < 2048:
+            return False, 0, 0
+        elif e.getValue() <= pow(2, 16) or e.getValue() >= pow(2, 256) or (e.getValue() % 2) == 0:
+            return False, 0, 0
+        elif euclidsAlgorithm(2*r_1, r_2) != 1:
+            return False, 0, 0
+        
+        inv_r2_mod2r1 = RSA.new_inv_mod(r_2, 2 * r_1)
+        inv_2r1_modr2 = RSA.new_inv_mod(r_1 *2, r_2)
+        R = inv_r2_mod2r1 * r_2 - (inv_2r1_modr2 * 2 * r_1)
+        max_value = pow(2, nlen // 2) - 1
+        Y = -1
+        i = 0 
+        while i < 10 * nlen:
+            while Y == -1 or Y >= max_value:
+                min_X = Decimal.from_float(sqrt(2)) * Decimal.from_float(pow(2, (nlen - 1) // 2))
+                X = 0
+                while X < min_X or X > max_value:
+                    X = randbits(nlen // 2)
+                Y = X + ((R - X) % (2 * r_1 * r_2))
+                if c != None:
+                    if Y % 8 == c:
+                        pass
+                    elif (Y + 2 * r_1 * r_2) % 8 == c:
+                        Y = Y + 2 * r_1 * r_2
+                    elif (Y + 4 * r_1 * r_2) % 8 == c:
+                        Y = Y + 4 * r_1 * r_2
+                    elif (Y + 6 * r_1 * r_2) % 8 == c:
+                        Y = Y + 6 * r_1 * r_2
+            while Y < max_value:
+                if euclidsAlgorithm(Y+1,e.getValue()) == 1:
+                    probably_prime = RSA.runMillerRabinPrimalityTest(Y, 44) and RSA.runLucasPrimalityTest(Y)
+                    if probably_prime:
+                        private_prime_factor = Y
+                        return True, private_prime_factor, X
+                i = i + 1
+                if i >= 10 * nlen:
+                    return False, 0, 0
+                if c != None:
+                    Y = Y * (8 * r_1 * r_2)
+                else:
+                    Y = Y * (2 * r_1 * r_2)
 
     
     @staticmethod
@@ -1147,7 +1240,7 @@ if __name__ == '__main__':
     assert expected_plain.getHexString() == calculated_plain_quint.getHexString()
 
 
-    # success, seed = RSA.RSA_SeedGeneration(2048)
+    success, seed = RSA.RSA_SeedGeneration(2048)
     # print(success)
     # success, p, q = RSA.constructionOfProvablePrimes(2048,given_e,seed)
     # # print(RSA.testPrime(p.getValue()))
@@ -1182,28 +1275,28 @@ if __name__ == '__main__':
     # print(f"Decrypted : {decrypted.getHexString()}")
     # assert plain.getValue() == decrypted.getValue()
 
-    # strength = SecurityStrength.s192.value
-    # rsa_bit_length_for_strength = strength.integer_factorization_cryptography
-    # public_key_gen, private_key_gen = RSA.generateRSAKeyPair_probablePrimes(strength.security_strength)
+    strength = SecurityStrength.s112.value
+    rsa_bit_length_for_strength = strength.integer_factorization_cryptography
+    public_key_gen, private_key_gen = RSA.generateRSAKeyPair_probablePrimes(strength.security_strength)
     
-    # assert public_key_gen.n.getValue() == private_key_gen.n.getValue()
+    assert public_key_gen.n.getValue() == private_key_gen.n.getValue()
 
-    # pt = "0D3E74F20C249E1058D4787C22F95819066FA8927A95AB004A240073FE20CBCB149545694B0EE318557759FCC4D2CA0E3D55307D1D3A4CD1F3B031CE0DF356A5DEDCC25729C4302FABA4CB885C9FA3C2F57A4D1308451C300D2378E90F4F83DCEDCDCF5217BC3840A796FCDAF73483A3D199C389BDB50CFE95D9C02E5F4FC1917FA4606CF6AB7559253202698D7EABE7561137271CE1A524E5956D25C379AF4F121877355F2495DC154A0EB33CF2F3B6990F60FCC0CCE199EF1E76E11585895EE1C619FB6D140266006AB41D56CE3E6C68571902568CD4520F1F9E5E284B4B9DFCC3782D05CDF826895450E314FBC654032A775F47088F18D3B4000AC23BD107"
-    # plain = IntegerHandler.fromHexString(pt, little_endian)
-    # '''
-    #     Security Strength - RSA k
-    #     <80 - 1024
-    #     112 - 2048
-    #     128 - 3072
-    #     192 - 7680
-    #     256 - 15360
-    # '''
-    # encrypted = RSA.RSA_EncryptionPrimitive(public_key_gen, plain, bit_length=rsa_bit_length_for_strength)
-    # decrypted = RSA.RSA_DecryptionPrimitive(private_key_gen, encrypted, bit_length=rsa_bit_length_for_strength)
-    # print(f"Plain     : {plain.getHexString()}")
-    # print(f"Cypher    : {encrypted.getHexString()}")
-    # print(f"Decrypted : {decrypted.getHexString()}")
-    # assert plain.getValue() == decrypted.getValue()
+    pt = "0D3E74F20C249E1058D4787C22F95819066FA8927A95AB004A240073FE20CBCB149545694B0EE318557759FCC4D2CA0E3D55307D1D3A4CD1F3B031CE0DF356A5DEDCC25729C4302FABA4CB885C9FA3C2F57A4D1308451C300D2378E90F4F83DCEDCDCF5217BC3840A796FCDAF73483A3D199C389BDB50CFE95D9C02E5F4FC1917FA4606CF6AB7559253202698D7EABE7561137271CE1A524E5956D25C379AF4F121877355F2495DC154A0EB33CF2F3B6990F60FCC0CCE199EF1E76E11585895EE1C619FB6D140266006AB41D56CE3E6C68571902568CD4520F1F9E5E284B4B9DFCC3782D05CDF826895450E314FBC654032A775F47088F18D3B4000AC23BD107"
+    plain = IntegerHandler.fromHexString(pt, little_endian)
+    '''
+        Security Strength - RSA k
+        <80 - 1024
+        112 - 2048
+        128 - 3072
+        192 - 7680
+        256 - 15360
+    '''
+    encrypted = RSA.RSA_EncryptionPrimitive(public_key_gen, plain, bit_length=rsa_bit_length_for_strength)
+    decrypted = RSA.RSA_DecryptionPrimitive(private_key_gen, encrypted, bit_length=rsa_bit_length_for_strength)
+    print(f"Plain     : {plain.getHexString()}")
+    print(f"Cypher    : {encrypted.getHexString()}")
+    print(f"Decrypted : {decrypted.getHexString()}")
+    assert plain.getValue() == decrypted.getValue()
     perfect_square = [4,16,49,81,144,10000]
     for square in perfect_square:
         is_square = RSA.checkForAPerfectSquare(square)
@@ -1214,6 +1307,13 @@ if __name__ == '__main__':
         assert is_square == False
 
     RSA.jacobiSymbol(5, 3439601197, True)
+
+    success, r_1, r_2_seed, counter = RSA.randomPrimeGeneration_ShaweTaylor(140,seed)
+    print(f"r_1 is {r_1}")
+    success, r_2, r_3_seed, counter = RSA.randomPrimeGeneration_ShaweTaylor(140,r_2_seed)
+    print(f"r_2 is {r_2}")
+    success, prime_candidate, random_num = RSA.generationOfProbablePrime_BasedOnAuxilaryPrimes(r_1,r_2,2048,public_key_gen.e)
+    print(prime_candidate)
 from HelperFunctions.EuclidsAlgorithms import extendedEuclidAlgorithm
 from HelperFunctions.EncodeStringAsNumberList import EncodeStringAsNumbersList
 
