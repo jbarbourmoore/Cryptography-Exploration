@@ -181,5 +181,43 @@ class PrimeNumber_UnitTests(unittest.TestCase):
 
         self.assertListEqual(prime_factors, expected_factors)
 
+    def test_miller_rabin_implementation(self):
+        '''
+        This method runs the miller rabin primality test against all integers below 1000000 in order to determine if the error rate is apropriately low
+        '''
+        print("Test Miller Rabin Primality Implementation")
+        wrong_answer_count = 0
+        right_answer_count = 0
+        max_test_int = 1000000
+        for i in range(0, max_test_int):                
+            miller_rabin_result = runMillerRabinPrimalityTest(i)
+            from sympy import isprime
+            is_prime_result = isprime(i)
+            if miller_rabin_result != is_prime_result:
+                wrong_answer_count +=1
+            else: 
+                right_answer_count += 1
+        print(f"Miller Rabin Implementation was wrong {wrong_answer_count} times and correct {right_answer_count} times")
+        self.assertLess(wrong_answer_count / max_test_int, .01)
+
+    def test_lucas_implementation(self):
+        '''
+        This method runs the lucas primality test against all integers below 1000000 in order to determine if the error rate is apropriately low
+        '''
+        print("Test Lucas Primality Implementation")
+        wrong_answer_count = 0
+        right_answer_count = 0
+        max_test_int = 1000000
+        for i in range(0, max_test_int):                
+            miller_rabin_result = runLucasPrimalityTest(i)
+            from sympy import isprime
+            is_prime_result = isprime(i)
+            if miller_rabin_result != is_prime_result:
+                wrong_answer_count +=1
+            else: 
+                right_answer_count += 1
+        print(f"Lucas Implementation was wrong {wrong_answer_count} times and correct {right_answer_count} times")
+        self.assertLess(wrong_answer_count / max_test_int, .01)
+
 if __name__ == '__main__':
     unittest.main()

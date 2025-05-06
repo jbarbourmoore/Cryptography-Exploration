@@ -173,6 +173,25 @@ class RSA_UnitTest(unittest.TestCase):
         print(f"Miller Rabin Implementation was wrong {wrong_answer_count} times and correct {right_answer_count} times")
         self.assertLess(wrong_answer_count / max_test_int, .01)
 
+    def test_lucas_implementation(self):
+        '''
+        This method runs the lucas primality test against all integers below 1000000 in order to determine if the error rate is apropriately low
+        '''
+        print("Test Lucas Primality Implementation")
+        wrong_answer_count = 0
+        right_answer_count = 0
+        max_test_int = 1000000
+        for i in range(0, max_test_int):                
+            miller_rabin_result = RSA.runLucasPrimalityTest(i)
+            from sympy import isprime
+            is_prime_result = isprime(i)
+            if miller_rabin_result != is_prime_result:
+                wrong_answer_count +=1
+            else: 
+                right_answer_count += 1
+        print(f"Lucas Implementation was wrong {wrong_answer_count} times and correct {right_answer_count} times")
+        self.assertLess(wrong_answer_count / max_test_int, .01)
+
     def test_encryption_primitive_decryption_quintform(self):
         '''
         This method tests the decryption primitive with the pribate key in quintuple form as laid out in NIST FIPS 186-5
@@ -300,6 +319,9 @@ class RSA_UnitTest(unittest.TestCase):
                 self.assertEqual(test_details.pt.getHexString(), calculated_message.getHexString())
 
     def test_key_gen_provably_prime(self):
+        '''
+        This method tests the generation of primes which are provably prime as RSA keys
+        '''
         # strengths = [SecurityStrength.s112.value, SecurityStrength.s128.value, SecurityStrength.s192.value, SecurityStrength.s256.value]
         strengths = [SecurityStrength.s112.value, SecurityStrength.s128.value]
         number_of_iterations = 3
@@ -323,6 +345,9 @@ class RSA_UnitTest(unittest.TestCase):
                     assert plain.getValue() == decrypted.getValue()
 
     def test_key_gen_probably_prime(self):
+        '''
+        This method tests the generation of primes that are probably prime as RSA keys
+        '''
         # strengths = [SecurityStrength.s112.value, SecurityStrength.s128.value, SecurityStrength.s192.value, SecurityStrength.s256.value]
         strengths = [SecurityStrength.s112.value, SecurityStrength.s128.value]
         number_of_iterations = 3

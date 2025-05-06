@@ -942,23 +942,26 @@ class RSA():
                     q_prob_prime = RSA.runMillerRabinPrimalityTest(q.getValue())
                     print(f"q : {q_prob_prime} : {q.getValue()}")
                 if success and p_prob_prime and q_prob_prime: 
-                    n = IntegerHandler((p.getValue()) * (q.getValue()),little_endian)
-                    p_1 = p.getValue() - 1
-                    q_1 = q.getValue() - 1
-                    gcd_p1_q1 = euclidsAlgorithm(p_1, q_1)
-                    phi = p_1 * q_1 // gcd_p1_q1
-                    # phi_handler = IntegerHandler(phi,little_endian)
-                    # print(f"phi : {phi_handler.getHexString()} gcd: {euclidsAlgorithm(phi,e.getValue())}")
-                    public_key = RSA_PublicKey(n, e)
-
-                    if euclidsAlgorithm(phi,e.getValue()) == 1:
-                        gcd_e_phi_1 = True
+                    n, public_key, gcd_e_phi_1 = RSA.calculatePublicKey(e, p, q, gcd_e_phi_1)
 
         d = RSA.calculateD(e, p, q)
         # print(f"e:{e.getValue()} * d:{d} % phi:{phi} = {(d * e.getValue()) % phi}")
 
         private_key = RSA_PrivateKey(n, IntegerHandler(d,little_endian))
         return public_key, private_key
+
+    @staticmethod
+    def calculatePublicKey(e, p, q, gcd_e_phi_1):
+        n = IntegerHandler((p.getValue()) * (q.getValue()),little_endian)
+        p_1 = p.getValue() - 1
+        q_1 = q.getValue() - 1
+        gcd_p1_q1 = euclidsAlgorithm(p_1, q_1)
+        phi = p_1 * q_1 // gcd_p1_q1
+        public_key = RSA_PublicKey(n, e)
+
+        if euclidsAlgorithm(phi,e.getValue()) == 1:
+            gcd_e_phi_1 = True
+        return n, public_key, gcd_e_phi_1
 
     @staticmethod
     def generateRSAKeyPair_probablePrimes(security_strength: int = 112)-> tuple[RSA_PublicKey, RSA_PrivateKey]:
