@@ -261,7 +261,7 @@ class RSA_KeyGeneration_UnitTests(unittest.TestCase):
 
 if __name__ == '__main__':
     
-    number_of_iterations = 2
+    number_of_iterations = 6
     strengths = [SecurityStrength.s112.value, SecurityStrength.s128.value]
     #strengths = [SecurityStrength.s112.value, SecurityStrength.s128.value, SecurityStrength.s192.value]
     little_endian = False
@@ -304,6 +304,12 @@ if __name__ == '__main__':
     sns.set_context("paper")
     sns.set_theme(style="whitegrid", palette=bright_palette, font_scale=.7,)
     sns.scatterplot(data=prime_df, x="Security Strength", y="Key Generation Duration", ax=axes[0][0], hue="Generation Method", palette=bright_palette)
+    sns.regplot(data=provably_prime_df, x="Security Strength", y="Key Generation Duration", ax=axes[0][0], color=bright_palette[3])
+    sns.regplot(data=provably_prime_with_aux_df, x="Security Strength", y="Key Generation Duration", ax=axes[0][0], color=bright_palette[4])
+    sns.regplot(data=probably_prime_df, x="Security Strength", y="Key Generation Duration", ax=axes[0][0], color=bright_palette[0])
+    sns.regplot(data=probably_prime_with_prob_aux_df, x="Security Strength", y="Key Generation Duration", ax=axes[0][0], color=bright_palette[1])
+    sns.regplot(data=probably_prime_with_prov_aux_df, x="Security Strength", y="Key Generation Duration", ax=axes[0][0], color=bright_palette[2])
+
     # hue_regplot(data=prime_df, x="Security Strength", y="Key Generation Duration", ax=axes[0][0], hue="Generation Method", palette=bright_palette)
     axes[0][0].set_title('All Key Generation Methods')
     sns.regplot(data=provably_prime_df, x="Security Strength", y="Key Generation Duration", ax=axes[0][3], color=bright_palette[3])
@@ -316,9 +322,17 @@ if __name__ == '__main__':
     axes[1][2].set_title('Probably Prime w/ Aux Probable Primes')
     sns.regplot(data=probably_prime_with_prov_aux_df, x="Security Strength", y="Key Generation Duration", ax=axes[1][3], color=bright_palette[2])
     axes[1][3].set_title('Probably Prime w/ Aux Provable Primes')
+    
+    encryption_standard_df = encryption_df[encryption_df["Private Key Type"] == "Standard"]
+    encryption_quintuple_df = encryption_df[encryption_df["Private Key Type"] == "Quintuple"]
     sns.scatterplot(data=encryption_df, x="Security Strength", y="Encryption", ax=axes[0][1], hue="Private Key Type", palette=bright_palette[0:2])
+    sns.regplot(data=encryption_standard_df, x="Security Strength", y="Encryption", ax=axes[0][1], color=bright_palette[0])
+    sns.regplot(data=encryption_quintuple_df, x="Security Strength", y="Encryption", ax=axes[0][1], color=bright_palette[1])
     axes[0][1].set_title('All Encryption Durations')
+    
     sns.scatterplot(data=encryption_df, x="Security Strength", y="Decryption", ax=axes[0][2], hue="Private Key Type", palette=bright_palette[0:2])
+    sns.regplot(data=encryption_standard_df, x="Security Strength", y="Decryption", ax=axes[0][2], color=bright_palette[0])
+    sns.regplot(data=encryption_quintuple_df, x="Security Strength", y="Decryption", ax=axes[0][2], color=bright_palette[1])
     axes[0][2].set_title('All Decryption Durations')
 
 
