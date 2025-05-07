@@ -862,7 +862,7 @@ class RSA_KeyGeneration():
         return True, IntegerHandler(p, little_endian, L), IntegerHandler(q, little_endian, L)
 
     @staticmethod
-    def _generatePrime_Provable_AuxillaryPrimeLengths(L:int, N_1:int, N_2:int, first_seed:IntegerHandler, e: IntegerHandler, hash_function:ApprovedHashFunction = ApprovedHashFunctions.SHA_512_Hash.value) -> tuple[bool, int, int, int, IntegerHandler]:
+    def _generatePrime_Provable_AuxillaryPrimeLengths(L:int, N_1:int, N_2:int, first_seed:IntegerHandler, e: IntegerHandler, hash_function:ApprovedHashFunction = ApprovedHashFunctions.SHA_512_Hash.value, is_debug:bool = False) -> tuple[bool, int, int, int, IntegerHandler]:
         '''
         This method constructs a provable primes, potentially with conditions
         
@@ -880,6 +880,10 @@ class RSA_KeyGeneration():
                 The initial seed value for the prime generation as an IntegerHandler
             e : IntegerHandler
                 The public key exponent as an integer value
+            hash_function : ApprovedHashFunction, optional
+                The hash function to be used when generating the prime, default is SHA 512
+            is_debug : bool, optional
+                Whether the method is currently being debugged and should output additional information, default is False
 
         Returns : 
             is_success : bool
@@ -922,7 +926,7 @@ class RSA_KeyGeneration():
         if euclidsAlgorithm(p_0*p_1, p_2) != 1:
             return False, 0, 0, 0, IntegerHandler(0,little_endian,0)
         iterations = ceil(L / hash_length) - 1
-        # print(f"iterations : {iterations} L = {L}")
+        if is_debug: print(f"iterations : {iterations} L = {L}")
         pgen_counter = 0
         x = 0
         for i in range(0, iterations + 1):
@@ -930,40 +934,29 @@ class RSA_KeyGeneration():
             hash_value = RSA_KeyGeneration._getHashValue(pseed_i_handler,hash_function)
             x = x + hash_value * pow(2, (i * hash_length))
         prime_seed = IntegerHandler(prime_seed.getValue() + iterations + 1, little_endian, prime_seed.bit_length)
-        from decimal import Decimal
-        sq2 = Decimal.from_float(sqrt(2))
 
+        sq2 = Decimal.from_float(sqrt(2))
         sq2_2toL = floor(sq2 * (pow(2, L - 1)))
-        # print(sq2)
-        # print(sq2_2toL)
-        assert sq2_2toL > pow(2, L - 1)
-        assert sq2_2toL < pow(2, L)
+        assert sq2_2toL > pow(2, L - 1) and sq2_2toL < pow(2, L)
 
         x = sq2_2toL + (x % (pow(2, L) - sq2_2toL))
-        # print(f"x: {x} in range {sq2_2toL} to {pow(2,L)-1}")
+        if is_debug: print(f"x: {x} in range {sq2_2toL} to {pow(2, L) - 1}")
         assert x >= sq2_2toL
         assert x <= pow(2, L)-1
-        # print(f"p_0:{p_0}, p_1:{p_1}, p_2:{p_2}, p_0*p_1%p_2={p_0*p_1%p_2}")
+        if is_debug: print(f"p_0:{p_0}, p_1:{p_1}, p_2:{p_2}, p_0*p_1%p_2={p_0*p_1%p_2}")
         p0p1 = p_0 * p_1
-        # print(f"p0p1 = {p0p1} p2 = {p_2}")
         y = calculateInverseMod_GCD1_ExtendedEuclidsBased(p0p1, p_2)
-        # print(f"p0p1 = {p0p1} y = {y} p0p1y - 1 = {(p0p1 * y -1) % p_2}")
-        # assert (p0p1 * y) % p_2 == 1
         denominator = Decimal.from_float(2 * p_0 * p_1 * p_2)
         numerator = Decimal.from_float(2 * y * p_0 * p_1 + x)
-        #t = ceil(( 2 * y * p_0 * p_1 + x)/(2 * p_0 * p_1 * p_2))
         t = ceil(numerator / denominator)
-        # print(f"t: {t}")
-        # while True:
+        if is_debug: print(f"t: {t}")
         while pgen_counter <= 5 * L:
             if  (2 * (t * p_2 - y) * p_0 * p_1 + 1) > pow(2,L):
                 denominator = Decimal.from_float(2 * p_0 * p_1 * p_2)
                 numerator = Decimal.from_float(2 * y * p_0 * p_1 + sq2_2toL)
                 t = ceil(numerator / denominator)
-            # print(f"t: {t}")
             p = 2 * (t * p_2 - y) * p_0 * p_1 + 1
-            #print(f"p : {p} = ( p-1) % (2p0 p1) {(p-1)%(2*p_0*p_1)} = ( p+1) mod p2. {(p+1)%p_2}")
-            #print(f"Miller Rabin : {RSA.isMillerRabinPassed(p)}")
+            if is_debug: print(f"Miller Rabin : {runMillerRabinPrimalityTest(p)}")
             pgen_counter += 1
             if euclidsAlgorithm((p - 1), e.getValue()) == 1:
                 a = 0
@@ -973,15 +966,14 @@ class RSA_KeyGeneration():
                     a = a + hash_value * 2 ** (i * hash_length)
                 prime_seed = IntegerHandler(prime_seed.getValue() + iterations + 1, little_endian, prime_seed.bit_length)
                 a = 2 + a % (p - 3)
-                # print(f"a : {a} in range 2 to p-2 {p-2}")
                 assert a <= p - 2
                 exp = 2 * (t * p_2 - y) * p_1
                 z = pow(a, exp, p)
-                # print(f"z ** p_0 % p = {pow(z,p_0,p)}")
+                if is_debug: print(f"gcd(z-1,p) = {euclidsAlgorithm(z - 1, p)}    z ** p_0 % p = {pow(z,p_0,p)}")
                 if 1 == euclidsAlgorithm(z - 1, p) and 1 == pow(z, p_0, p):
                     return True, p, p_1, p_2, prime_seed
             t = t + 1
-        print(f"provable prime construction failed, pgen_counter:{pgen_counter}")
+        print(f"Provable prime construction failed, pgen_counter:{pgen_counter}")
         return False, 0, 0, 0, IntegerHandler(0,little_endian,0)
 
     @staticmethod
@@ -1017,7 +1009,7 @@ class RSA_KeyGeneration():
         return hash_handler
 
     @staticmethod
-    def  _generatePrime_ShaweTaylor(length:int, input_seed:IntegerHandler, hash_function:ApprovedHashFunction = ApprovedHashFunctions.SHA_512_Hash.value)-> tuple[bool, int, IntegerHandler, int]:
+    def  _generatePrime_ShaweTaylor(length:int, input_seed:IntegerHandler, hash_function:ApprovedHashFunction = ApprovedHashFunctions.SHA_512_Hash.value, is_debug:bool = False)-> tuple[bool, int, IntegerHandler, int]:
         '''
         This method generates a pseudo random prime of a given length using a given seed
 
@@ -1029,6 +1021,10 @@ class RSA_KeyGeneration():
                 The bit length of the prime to be generated
             input_seed : IntegerHandler
                 The input seed for the prime generator as an IntegerHandler
+            hash_function : ApprovedHash Function, optional
+                The hash function to be used for the prime generation (My implementations for sha2, sha 3 and shake (xof)), default is SHA 512 
+            is_debug : bool, optional
+                Whether the method is currently being debugged and should output more information, default is False
 
         Returns : 
             is_success : bool
@@ -1060,7 +1056,7 @@ class RSA_KeyGeneration():
         if status == False:
             return False, 0, IntegerHandler(0), 0
         iterations = ceil(length / hash_length) - 1
-        # print(f"iterations : {iterations}")
+        if is_debug:print(f"iterations : {iterations}")
         old_counter = prime_gen_counter
         x = 0
         for i in range(0, iterations):
@@ -1072,7 +1068,7 @@ class RSA_KeyGeneration():
         numerator = Decimal.from_float(x)
         denominator = Decimal.from_float(2 * c_0)
         t = ceil(numerator / denominator) #22
-        # print(f"t : {t}")
+        if is_debug: print(f"t : {t}")
         while (prime_gen_counter <= (4 * length) + old_counter):
             if 2 * t * c_0 + 1 > pow(2, length): #23
                 numerator = Decimal.from_float(pow(2, length-1))
@@ -1080,26 +1076,22 @@ class RSA_KeyGeneration():
                 t = ceil(numerator / denominator)
             c = 2 * t * c_0 + 1
             prime_gen_counter = prime_gen_counter + 1 #25
-            # print(c)
-            # print(RSA.isMillerRabinPassed(c))
+            if is_debug:print(f"C: {c} possible prime:{runMillerRabinPrimalityTest(c,5)}")
             a = 0
             for i in range (0, iterations):
                 prime_seed_inc = IntegerHandler(prime_seed.getValue() + i, False, prime_seed.bit_length)
                 a = a + RSA_KeyGeneration._getHashValue(prime_seed_inc,hash_function) * pow(2, (i * hash_length)) #27
-                # print(f"a : {a}")
             prime_seed = IntegerHandler(prime_seed.getValue() + iterations + 1, little_endian, prime_seed.bit_length)
             a = 2 + (a % (c - 3))
             z = pow(a, 2 * t, c)
-            # print(f"gcd = {euclidsAlgorithm(z-1, c)} pow = {pow(z, c_0, c)}")
-            # if 1 == euclidsAlgorithm(z-1, c) :
-            if 1 == euclidsAlgorithm(z-1, c) and 1 == pow(z, c_0, c):
-                # print(f"prime is {c}: {RSA.isMillerRabinPassed(c)}")
+            if is_debug: print(f"gcd = {euclidsAlgorithm(z-1, c)} pow = {pow(z, c_0, c)}")
+            if 1 == euclidsAlgorithm(z - 1, c) and 1 == pow(z, c_0, c):
+                if is_debug:print(f"prime is {c}: {runMillerRabinPrimalityTest(c, 15)}")
                 prime = c
                 return True, prime, prime_seed, prime_gen_counter
             elif  (prime_gen_counter >= ((4 * length) + old_counter)):
                 return False, 0, IntegerHandler(0), 0
             t = t + 1
-            # print(prime_gen_counter)
     
     
 
@@ -1115,6 +1107,8 @@ class RSA_KeyGeneration():
                 The first prime being used
             q : IntegerHandler 
                 The second prime being used
+            gcd_e_phi_1 : bool
+                Whether the greatest common denominator of the previous e and phi was 1
 
         Returns
             n : IntegerHandler
@@ -1139,7 +1133,7 @@ class RSA_KeyGeneration():
     
 
     @staticmethod
-    def _generateRandomPublicKeyExponent(min_e: int = None, max_e: int = None):
+    def _generateRandomPublicKeyExponent(min_e: int = None, max_e: int = None) -> IntegerHandler:
         '''
         This method generates a random IntegerHandler between 2 ** 16 and 2 ** 256 to use as the public exponent
 
@@ -1163,7 +1157,7 @@ class RSA_KeyGeneration():
         return e
 
     @staticmethod
-    def _getNLength(security_strength):
+    def _getNLength(security_strength:int) -> int:
         '''
         This method determines the appropriate nlen based on a requested security strength
 
@@ -1207,60 +1201,18 @@ class RSA_KeyGeneration():
         d = calculateInverseMod_GCD1_ExtendedEuclidsBased(e.getValue(), phi)
         return IntegerHandler(d, little_endian=little_endian)
     
-   
-    
-    
-   
 if __name__ == '__main__':
-    for i in range(1,10000):
-        rabin = runMillerRabinPrimalityTest(i)
-        lucas = runLucasPrimalityTest(i)
-        print(f"{i} : rabin:{rabin} lucas:{lucas}")
-        from sympy import isprime
-        assert rabin == isprime(i), f"{i} should be classified as {isprime(i)}, not {rabin}"
-        assert lucas == isprime(i), f" {i} should be classified as {isprime(i)}, not {lucas}"
-
     success, seed = RSA_KeyGeneration._generateSeed(2048)
 
-    strength = SecurityStrength.s112.value
+    strength = SecurityStrength.s128.value
     rsa_bit_length_for_strength = strength.integer_factorization_cryptography
-    public_key_gen, private_key_gen = RSA_KeyGeneration.generateRSAKeyPair_ProvablePrimes_AuxillaryPrimes([100,100,100,100], strength.security_strength, RSA_PrivateKey_Type.Quint, is_debug=True)
-    public_key_gen, private_key_gen = RSA_KeyGeneration.generateRSAKeyPair_ProbablePrimes_AuxillaryProvablePrimes(None, strength.security_strength, RSA_PrivateKey_Type.Quint, is_debug=True)
-    public_key_gen, private_key_gen = RSA_KeyGeneration.generateRSAKeyPair_ProbablePrimes_AuxillaryProbablePrimes(None, strength.security_strength, RSA_PrivateKey_Type.Quint, is_debug=True)
-
+    public_key_gen, private_key_gen = RSA_KeyGeneration.generateRSAKeyPair_ProbablePrimes(security_strength=strength.security_strength, private_key_type=RSA_PrivateKey_Type.Standard, is_debug=True)
+    assert public_key_gen.n.getValue() == private_key_gen.n.getValue()    
+    public_key_gen, private_key_gen = RSA_KeyGeneration.generateRSAKeyPair_ProbablePrimes(security_strength=strength.security_strength, private_key_type=RSA_PrivateKey_Type.Quint, is_debug=True)
     assert public_key_gen.n.getValue() == private_key_gen.n.getValue()
-
-    pt = "0D3E74F20C249E1058D4787C22F95819066FA8927A95AB004A240073FE20CBCB149545694B0EE318557759FCC4D2CA0E3D55307D1D3A4CD1F3B031CE0DF356A5DEDCC25729C4302FABA4CB885C9FA3C2F57A4D1308451C300D2378E90F4F83DCEDCDCF5217BC3840A796FCDAF73483A3D199C389BDB50CFE95D9C02E5F4FC1917FA4606CF6AB7559253202698D7EABE7561137271CE1A524E5956D25C379AF4F121877355F2495DC154A0EB33CF2F3B6990F60FCC0CCE199EF1E76E11585895EE1C619FB6D140266006AB41D56CE3E6C68571902568CD4520F1F9E5E284B4B9DFCC3782D05CDF826895450E314FBC654032A775F47088F18D3B4000AC23BD107"
-    plain = IntegerHandler.fromHexString(pt, little_endian)
-    '''
-        Security Strength - RSA k
-        <80 - 1024
-        112 - 2048
-        128 - 3072
-        192 - 7680
-        256 - 15360
-    '''
-    perfect_square = [4,16,49,81,144,10000]
-    for square in perfect_square:
-        is_square = checkForAPerfectSquare(square)
-        assert is_square == True
-    not_perfect_square = [5,19,52,88,150,10001]
-    for not_square in not_perfect_square:
-        is_square = checkForAPerfectSquare(not_square)
-        assert is_square == False
-
-    jacobiSymbol(5, 3439601197, True)
-
-    success, r_1, r_2_seed, counter = RSA_KeyGeneration._generatePrime_ShaweTaylor(140,seed)
-    print(f"r_1 is {r_1}")
-    success, r_2, r_3_seed, counter = RSA_KeyGeneration._generatePrime_ShaweTaylor(140,r_2_seed)
-    print(f"r_2 is {r_2}")
-    success, prime_candidate, random_num = RSA_KeyGeneration._generatePrime_Probable_AuxillaryPrimes(r_1,r_2,2048,public_key_gen.e)
-    print(prime_candidate)
-
-    success, p, q = RSA_KeyGeneration._generatePairOfPrimes_Probable_AuxillaryProvablePrimes(strength.integer_factorization_cryptography, public_key_gen.e,seed,bitlens=[141,141,141,141])
-    print(p.getHexString())
-    print(q.getHexString())
-    success, p, q = RSA_KeyGeneration._generatePairOfPrimes_Probable_AuxillaryProbablePrimes(strength.integer_factorization_cryptography, public_key_gen.e,bitlens=[141,141,141,141],a=3,b=5)
-    print(p.getHexString())
-    print(q.getHexString())
+    public_key_gen, private_key_gen = RSA_KeyGeneration.generateRSAKeyPair_ProvablePrimes_AuxillaryPrimes(bitlens=[175,201,180,190], security_strength=strength.security_strength, private_key_type=RSA_PrivateKey_Type.Quint, is_debug=True)
+    assert public_key_gen.n.getValue() == private_key_gen.n.getValue()
+    public_key_gen, private_key_gen = RSA_KeyGeneration.generateRSAKeyPair_ProbablePrimes_AuxillaryProvablePrimes(None, strength.security_strength, RSA_PrivateKey_Type.Quint, is_debug=True)
+    assert public_key_gen.n.getValue() == private_key_gen.n.getValue()
+    public_key_gen, private_key_gen = RSA_KeyGeneration.generateRSAKeyPair_ProbablePrimes_AuxillaryProbablePrimes(bitlens=None, security_strength=strength.security_strength, private_key_type=RSA_PrivateKey_Type.Standard, hash_function=ApprovedHashFunctions.SHA3_384_Hash.value, a=3,b=5, is_debug=True)
+    assert public_key_gen.n.getValue() == private_key_gen.n.getValue()
