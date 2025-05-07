@@ -155,6 +155,143 @@ class RSA_KeyGeneration():
             RSA_KeyGeneration._outputKeyDetails(private_key_type, p, q, public_key, private_key)
 
         return public_key, private_key
+    
+    @staticmethod
+    def generateRSAKeyPair_ProbablePrimes_AuxillaryProvablePrimes(bitlens:list[int] = None, security_strength: int = SecurityStrength.s112.value.security_strength, private_key_type:int = RSA_PrivateKey_Type.Standard.value, hash_function:ApprovedHashFunction = ApprovedHashFunctions.SHA_512_Hash.value, a:int = None, b:int = None, is_debug:bool = False)-> tuple[RSA_PublicKey, RSA_PrivateKey]:
+        '''
+        This method generates an RSA key pair of the requented security strength
+
+        Parameters : 
+            security_strength : int, optional
+                The requested security strength for the RSA Key Pair, default is security strength 112
+            private_key_type : int, optional
+                The private key type to return, default is Standard
+            is_debug : bool, optional
+                Whether the method is being debugged and should output extra information, default is false
+
+        Returns :
+            public_key : RSA_PublicKey
+                The public key in the key pair
+            private_key : RSA_PrivateKey
+                The private key in the key pair
+        '''
+        
+        nlen = RSA_KeyGeneration._getNLength(security_strength)
+        if nlen == None:
+            print("Desired security strength must be 112, 128, 192 or 256")
+            return None, None
+        
+        if nlen <= 3071:
+            min_bitlens = 140
+            max_bitlens = 1007
+        elif nlen <= 4095:
+            min_bitlens = 170
+            max_bitlens = 1518
+        else:
+            min_bitlens = 200
+            max_bitlens = 2030
+        
+        if bitlens == None:
+            bitlen = (max_bitlens // 2 - min_bitlens) // 2 + min_bitlens
+            bitlens = [bitlen, bitlen, bitlen, bitlen]
+        else:
+            for bitlen in bitlens:
+                if bitlen < min_bitlens:
+                    print(f"Bitlen {bitlen} is below minimum bitlen {min_bitlens}")
+                    return None, None
+            if bitlens[0] + bitlens[1] > max_bitlens or bitlens[2] + bitlens[3] > max_bitlens:
+                print("At least one bitlens pair is above max bitlens")
+                return None, None
+        
+        gcd_e_phi_1 = False
+        while not gcd_e_phi_1:
+            e = RSA_KeyGeneration._generateRandomPublicKeyExponent()
+            success, seed = RSA_KeyGeneration._generateSeed(nlen)
+            if success: 
+                success, p, q = RSA_KeyGeneration._generatePairOfPrimes_Probable_AuxillaryProvablePrimes(nlen, e, seed, bitlens, a, b, hash_function)                   
+                if success: 
+                        n, public_key, gcd_e_phi_1 = RSA_KeyGeneration._calculatePublicKey(e, p, q, gcd_e_phi_1)
+
+        d = RSA_KeyGeneration._calculatePrivateKeyExponent(e, p, q)
+
+        if private_key_type == RSA_PrivateKey_Type.Standard:
+            private_key = RSA_PrivateKey(n, d)
+        else:
+            private_key = RSA_KeyGeneration.generatePrivateKey_QuintForm(n, d, p, q)
+
+        if is_debug: 
+            print("RSA Key Pair Using Probable Primes With Provable Auxillary Primes Has Been Generated")
+            RSA_KeyGeneration._outputKeyDetails(private_key_type, p, q, public_key, private_key)
+
+        return public_key, private_key
+    
+    @staticmethod
+    def generateRSAKeyPair_ProbablePrimes_AuxillaryProbablePrimes(bitlens:list[int] = None, security_strength: int = SecurityStrength.s112.value.security_strength, private_key_type:int = RSA_PrivateKey_Type.Standard.value, hash_function:ApprovedHashFunction = ApprovedHashFunctions.SHA_512_Hash.value, a:int = None, b:int = None, is_debug:bool = False)-> tuple[RSA_PublicKey, RSA_PrivateKey]:
+        '''
+        This method generates an RSA key pair of the requented security strength
+
+        Parameters : 
+            security_strength : int, optional
+                The requested security strength for the RSA Key Pair, default is security strength 112
+            private_key_type : int, optional
+                The private key type to return, default is Standard
+            is_debug : bool, optional
+                Whether the method is being debugged and should output extra information, default is false
+
+        Returns :
+            public_key : RSA_PublicKey
+                The public key in the key pair
+            private_key : RSA_PrivateKey
+                The private key in the key pair
+        '''
+        
+        nlen = RSA_KeyGeneration._getNLength(security_strength)
+        if nlen == None:
+            print("Desired security strength must be 112, 128, 192 or 256")
+            return None, None
+        
+        if nlen <= 3071:
+            min_bitlens = 140
+            max_bitlens = 1007
+        elif nlen <= 4095:
+            min_bitlens = 170
+            max_bitlens = 1518
+        else:
+            min_bitlens = 200
+            max_bitlens = 2030
+        
+        if bitlens == None:
+            bitlen = (max_bitlens // 2 - min_bitlens) // 2 + min_bitlens
+            bitlens = [bitlen, bitlen, bitlen, bitlen]
+        else:
+            for bitlen in bitlens:
+                if bitlen < min_bitlens:
+                    print(f"Bitlen {bitlen} is below minimum bitlen {min_bitlens}")
+                    return None, None
+            if bitlens[0] + bitlens[1] > max_bitlens or bitlens[2] + bitlens[3] > max_bitlens:
+                print("At least one bitlens pair is above max bitlens")
+                return None, None
+        
+        gcd_e_phi_1 = False
+        while not gcd_e_phi_1:
+            e = RSA_KeyGeneration._generateRandomPublicKeyExponent()
+        
+            success, p, q = RSA_KeyGeneration._generatePairOfPrimes_Probable_AuxillaryProbablePrimes(nlen, e, bitlens, a, b)                   
+            if success: 
+                    n, public_key, gcd_e_phi_1 = RSA_KeyGeneration._calculatePublicKey(e, p, q, gcd_e_phi_1)
+
+        d = RSA_KeyGeneration._calculatePrivateKeyExponent(e, p, q)
+
+        if private_key_type == RSA_PrivateKey_Type.Standard:
+            private_key = RSA_PrivateKey(n, d)
+        else:
+            private_key = RSA_KeyGeneration.generatePrivateKey_QuintForm(n, d, p, q)
+
+        if is_debug: 
+            print("RSA Key Pair Using Probable Primes With Probable Auxillary Primes Has Been Generated")
+            RSA_KeyGeneration._outputKeyDetails(private_key_type, p, q, public_key, private_key)
+
+        return public_key, private_key
 
     @staticmethod
     def generateRSAKeyPair_ProvablePrimes(security_strength: int = SecurityStrength.s112.value.security_strength, hash_function:ApprovedHashFunction = ApprovedHashFunctions.SHA_512_Hash.value, private_key_type:int = RSA_PrivateKey_Type.Standard.value, is_debug:bool = False)-> tuple[RSA_PublicKey, RSA_PrivateKey]:
@@ -187,7 +324,6 @@ class RSA_KeyGeneration():
         while not gcd_e_phi_1:
             e = RSA_KeyGeneration._generateRandomPublicKeyExponent()
             success, seed = RSA_KeyGeneration._generateSeed(nlen)
-            print(f"seed : {seed.getHexString()}")
             if success: 
                 success, p, q = RSA_KeyGeneration._generatePairOfPrimes_Provable(nlen, e, seed,hash_function)
                 if success:
@@ -202,6 +338,76 @@ class RSA_KeyGeneration():
 
         if is_debug: 
             print("RSA Key Pair Using Provable Primes Has Been Generated")
+            RSA_KeyGeneration._outputKeyDetails(private_key_type, p, q, public_key, private_key)
+        return public_key, private_key
+    
+    @staticmethod
+    def generateRSAKeyPair_ProvablePrimes_AuxillaryPrimes(bitlens:list[int] = None, security_strength: int = SecurityStrength.s112.value.security_strength, hash_function:ApprovedHashFunction = ApprovedHashFunctions.SHA_512_Hash.value, private_key_type:int = RSA_PrivateKey_Type.Standard.value, is_debug:bool = False)-> tuple[RSA_PublicKey, RSA_PrivateKey]:
+        '''
+        This method generates an RSA key pair of the requented security strength
+
+        Parameters : 
+            security_strength : int, optional
+                The requested security strength for the RSA Key Pair, default is 112
+            hash_function : ApprovedHashFunction, optional
+                The approved hashfunction to be used while generating the key pair, default is SHA 512
+            private_key_type : int, optional
+                The private key type to return, default is Standard
+            is_debug : bool, optional
+                Whether the method is being debugged and should output extra information, default is false
+
+        Returns :
+            public_key : RSA_PublicKey
+                The public key in the key pair
+            private_key : RSA_PrivateKey
+                The private key in the key pair
+        '''
+
+        nlen = RSA_KeyGeneration._getNLength(security_strength)
+        if nlen == None:
+            print("Desired security strength must be 112, 128, 192 or 256")
+            return None, None
+        
+        if nlen <= 3071:
+            min_bitlens = 140
+            max_bitlens = 494
+        elif nlen <= 4095:
+            min_bitlens = 170
+            max_bitlens = 750
+        else:
+            min_bitlens = 200
+            max_bitlens = 1005
+        
+        if bitlens == None:
+            bitlen = (max_bitlens // 2 - min_bitlens) // 2 + min_bitlens
+            bitlens = [bitlen, bitlen, bitlen, bitlen]
+        else:
+            for bitlen in bitlens:
+                if bitlen < min_bitlens:
+                    print(f"Bitlen {bitlen} is below minimum bitlen {min_bitlens}")
+                    return None, None
+            if bitlens[0] + bitlens[1] > max_bitlens or bitlens[2] + bitlens[3] > max_bitlens:
+                print("At least one bitlens pair is above max bitlens")
+                return None, None
+        
+        gcd_e_phi_1 = False
+        while not gcd_e_phi_1:
+            e = RSA_KeyGeneration._generateRandomPublicKeyExponent()
+            success, seed = RSA_KeyGeneration._generateSeed(nlen)
+            if success: 
+                success, p, q = RSA_KeyGeneration._generatePairOfPrimes_Probable_AuxillaryProvablePrimes(nlen, e, seed, bitlens, hash_function)
+                if success:
+                    n, public_key, gcd_e_phi_1 = RSA_KeyGeneration._calculatePublicKey(e, p, q, gcd_e_phi_1)
+
+        d = RSA_KeyGeneration._calculatePrivateKeyExponent(e, p, q)
+
+        if private_key_type == RSA_PrivateKey_Type.Standard:
+            private_key = RSA_PrivateKey(n, d)
+        else:
+            private_key = RSA_KeyGeneration.generatePrivateKey_QuintForm(n, d, p, q)
+
+        if is_debug: 
+            print("RSA Key Pair Using Provable Primes With Auxillary Primes Has Been Generated")
             RSA_KeyGeneration._outputKeyDetails(private_key_type, p, q, public_key, private_key)
         return public_key, private_key
     
@@ -444,7 +650,7 @@ class RSA_KeyGeneration():
             if not success: return False, IntegerHandler(0), IntegerHandler(0)
             pq_diff = abs(p - q)
             x_pq_diff = abs(X_p - X_q)
-        
+        # print(f"p_1:{p_1}, p_2:{p_2}, q_1:{q_1}, q_2:{q_2}")
         X_p, X_q, prime_seed, p_1, p_2, q_1, q_2 = 0, 0, 0, 0, 0, 0, 0
         return True, IntegerHandler(p, False, nlen // 2), IntegerHandler(q, False, nlen // 2)
     
@@ -1018,8 +1224,10 @@ if __name__ == '__main__':
 
     strength = SecurityStrength.s112.value
     rsa_bit_length_for_strength = strength.integer_factorization_cryptography
-    public_key_gen, private_key_gen = RSA_KeyGeneration.generateRSAKeyPair_ProbablePrimes(strength.security_strength)
-    
+    public_key_gen, private_key_gen = RSA_KeyGeneration.generateRSAKeyPair_ProvablePrimes_AuxillaryPrimes([100,100,100,100], strength.security_strength, RSA_PrivateKey_Type.Quint, is_debug=True)
+    public_key_gen, private_key_gen = RSA_KeyGeneration.generateRSAKeyPair_ProbablePrimes_AuxillaryProvablePrimes(None, strength.security_strength, RSA_PrivateKey_Type.Quint, is_debug=True)
+    public_key_gen, private_key_gen = RSA_KeyGeneration.generateRSAKeyPair_ProbablePrimes_AuxillaryProbablePrimes(None, strength.security_strength, RSA_PrivateKey_Type.Quint, is_debug=True)
+
     assert public_key_gen.n.getValue() == private_key_gen.n.getValue()
 
     pt = "0D3E74F20C249E1058D4787C22F95819066FA8927A95AB004A240073FE20CBCB149545694B0EE318557759FCC4D2CA0E3D55307D1D3A4CD1F3B031CE0DF356A5DEDCC25729C4302FABA4CB885C9FA3C2F57A4D1308451C300D2378E90F4F83DCEDCDCF5217BC3840A796FCDAF73483A3D199C389BDB50CFE95D9C02E5F4FC1917FA4606CF6AB7559253202698D7EABE7561137271CE1A524E5956D25C379AF4F121877355F2495DC154A0EB33CF2F3B6990F60FCC0CCE199EF1E76E11585895EE1C619FB6D140266006AB41D56CE3E6C68571902568CD4520F1F9E5E284B4B9DFCC3782D05CDF826895450E314FBC654032A775F47088F18D3B4000AC23BD107"
