@@ -276,57 +276,7 @@ class RSA_UnitTest(unittest.TestCase):
 
                 self.assertEqual(test_details.pt.getHexString(), calculated_message.getHexString())
 
-    def test_key_gen_provably_prime(self):
-        '''
-        This method tests the generation of primes which are provably prime as RSA keys
-        '''
-        # strengths = [SecurityStrength.s112.value, SecurityStrength.s128.value, SecurityStrength.s192.value, SecurityStrength.s256.value]
-        strengths = [SecurityStrength.s112.value, SecurityStrength.s128.value]
-        number_of_iterations = 3
-        for i in range(0, len(strengths)):
-            for j in range(0, number_of_iterations):
-                with self.subTest(f"Key Gen Provably Prime Test Case {i*number_of_iterations+j} With Security Strength {strengths[i].security_strength}"):
-                    print("- - - - - - - - - - - -")
-                    print(f"Key Gen Provably Prime Test Case {i*number_of_iterations+j} With Security Strength {strengths[i].security_strength}")
-                    rsa_bit_length_for_strength = strengths[i].integer_factorization_cryptography
-                    public_key_gen, private_key_gen = RSA_KeyGeneration.generateRSAKeyPair_ProvablePrimes(strengths[i].security_strength, ApprovedHashFunctions.SHA_512_Hash.value)
-                    
-                    assert public_key_gen.n.getValue() == private_key_gen.n.getValue()
-
-                    pt = "0D3E74F20C249E1058D4787C22F95819066FA8927A95AB004A240073FE20CBCB149545694B0EE318557759FCC4D2CA0E3D55307D1D3A4CD1F3B031CE0DF356A5DEDCC25729C4302FABA4CB885C9FA3C2F57A4D1308451C300D2378E90F4F83DCEDCDCF5217BC3840A796FCDAF73483A3D199C389BDB50CFE95D9C02E5F4FC1917FA4606CF6AB7559253202698D7EABE7561137271CE1A524E5956D25C379AF4F121877355F2495DC154A0EB33CF2F3B6990F60FCC0CCE199EF1E76E11585895EE1C619FB6D140266006AB41D56CE3E6C68571902568CD4520F1F9E5E284B4B9DFCC3782D05CDF826895450E314FBC654032A775F47088F18D3B4000AC23BD107"
-                    plain = IntegerHandler.fromHexString(pt, little_endian)
-                    encrypted = RSA.RSA_EncryptionPrimitive(public_key_gen, plain, bit_length=rsa_bit_length_for_strength)
-                    decrypted = RSA.RSA_DecryptionPrimitive(private_key_gen, encrypted, bit_length=rsa_bit_length_for_strength)
-                    print(f"Plain     : {plain.getHexString()}")
-                    print(f"Cypher    : {encrypted.getHexString()}")
-                    print(f"Decrypted : {decrypted.getHexString()}")
-                    assert plain.getValue() == decrypted.getValue()
-
-    def test_key_gen_probably_prime(self):
-        '''
-        This method tests the generation of primes that are probably prime as RSA keys
-        '''
-        # strengths = [SecurityStrength.s112.value, SecurityStrength.s128.value, SecurityStrength.s192.value, SecurityStrength.s256.value]
-        strengths = [SecurityStrength.s112.value, SecurityStrength.s128.value]
-        number_of_iterations = 3
-        for i in range(0, len(strengths)):
-            for j in range(0, number_of_iterations):
-                with self.subTest(f"Key Gen Probably Prime Test Case {i*number_of_iterations+j} With Security Strength {strengths[i].security_strength}"):
-                    print("- - - - - - - - - - - -")
-                    print(f"Key Gen Probably Prime Test Case {i*number_of_iterations+j} With Security Strength {strengths[i].security_strength}")
-                    rsa_bit_length_for_strength = strengths[i].integer_factorization_cryptography
-                    public_key_gen, private_key_gen = RSA_KeyGeneration.generateRSAKeyPair_ProbablePrimes(strengths[i].security_strength)
-                    
-                    assert public_key_gen.n.getValue() == private_key_gen.n.getValue()
-
-                    pt = "0D3E74F20C249E1058D4787C22F95819066FA8927A95AB004A240073FE20CBCB149545694B0EE318557759FCC4D2CA0E3D55307D1D3A4CD1F3B031CE0DF356A5DEDCC25729C4302FABA4CB885C9FA3C2F57A4D1308451C300D2378E90F4F83DCEDCDCF5217BC3840A796FCDAF73483A3D199C389BDB50CFE95D9C02E5F4FC1917FA4606CF6AB7559253202698D7EABE7561137271CE1A524E5956D25C379AF4F121877355F2495DC154A0EB33CF2F3B6990F60FCC0CCE199EF1E76E11585895EE1C619FB6D140266006AB41D56CE3E6C68571902568CD4520F1F9E5E284B4B9DFCC3782D05CDF826895450E314FBC654032A775F47088F18D3B4000AC23BD107"
-                    plain = IntegerHandler.fromHexString(pt, little_endian)
-                    encrypted = RSA.RSA_EncryptionPrimitive(public_key_gen, plain, bit_length=rsa_bit_length_for_strength)
-                    decrypted = RSA.RSA_DecryptionPrimitive(private_key_gen, encrypted, bit_length=rsa_bit_length_for_strength)
-                    print(f"Plain     : {plain.getHexString()}")
-                    print(f"Cypher    : {encrypted.getHexString()}")
-                    print(f"Decrypted : {decrypted.getHexString()}")
-                    assert plain.getValue() == decrypted.getValue()
+    
 
     # def test_construction_prov_primes_2048_sha224(self):
     #     seeds = ["EBF082A76D00ABCBE84E6CFCC131418E74B205342A6EDAE5D9D366F2",

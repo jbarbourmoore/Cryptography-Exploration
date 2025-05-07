@@ -470,7 +470,7 @@ class RSA_KeyGeneration():
         return RSA_PrivateKey_QuintupleForm(n,d,p,q,dP,dQ,qInv,[])
     
     @staticmethod
-    def _generateSeed(nlen:int):
+    def _generateSeed(nlen:int) -> tuple[bool, IntegerHandler]:
         '''
         This method returns a random seed with twice the number of bits as the security strength indicated by nlen
 
@@ -496,7 +496,7 @@ class RSA_KeyGeneration():
         return True, IntegerHandler(seed, little_endian, security_strength * 2)
 
     @staticmethod
-    def _getSecurityStrength(nlen):
+    def _getSecurityStrength(nlen:int) -> int:
         '''
         This method gets the security strength that corresponds to a given nlen
 
@@ -561,7 +561,7 @@ class RSA_KeyGeneration():
             if euclidsAlgorithm(p-1, e.getValue()) == 1:
                 p_probably_prime = runMillerRabinPrimalityTest(p, p_q_test_iterations) and runLucasPrimalityTest(p)
                 if p_probably_prime:
-                    print(p)
+                    # print(p)
                     break
             i = i + i
             p = 0
@@ -584,7 +584,7 @@ class RSA_KeyGeneration():
             if euclidsAlgorithm(q-1, e.getValue()) == 1:
                 q_probably_prime = runMillerRabinPrimalityTest(q, p_q_test_iterations) and runLucasPrimalityTest(q)
                 if q_probably_prime and p_probably_prime:
-                    print(q)
+                    # print(q)
                     return True, IntegerHandler(p, little_endian, nlen // 2), IntegerHandler(q, little_endian, nlen // 2)
             i = i + i
             q = 0
@@ -612,6 +612,8 @@ class RSA_KeyGeneration():
                 The desired mod 8 value for p, default is none
             b : int, optional
                 The desired mod 8 value for q, default is none
+            hash_function : ApprovedHashFunction, optional
+                The approved hash function to be used when generating the provable primes, default is SHA 512
 
         Returns : 
             is_success : bool
@@ -692,8 +694,10 @@ class RSA_KeyGeneration():
         success, p, X_p = RSA_KeyGeneration._generatePrime_Probable_AuxillaryPrimes(p_1, p_2, nlen, e, a)
         if not success: return False, IntegerHandler(0), IntegerHandler(0)
 
+        # both pairs p,q and X_p,X_q need to be at least 2^(nlen//2)-100 bits apart or they will be vulnerable
         minimum_difference = pow(2, nlen // 2 - 100)
         pq_diff, x_pq_diff = 0, 0
+
         # generate q
         while pq_diff < minimum_difference or x_pq_diff < minimum_difference:
             
@@ -806,7 +810,7 @@ class RSA_KeyGeneration():
 
     
     @staticmethod
-    def _generatePairOfPrimes_Provable(nlen:int, e:IntegerHandler, seed:IntegerHandler, hash_function:ApprovedHashFunction = ApprovedHashFunctions.SHA_512_Hash.value, bitlens:list[int]=None) -> tuple[bool, IntegerHandler, IntegerHandler]:
+    def _generatePairOfPrimes_Provable(nlen:int, e:IntegerHandler, seed:IntegerHandler, hash_function:ApprovedHashFunction = ApprovedHashFunctions.SHA_512_Hash.value, bitlens:list[int] = None, is_debug:bool = False) -> tuple[bool, IntegerHandler, IntegerHandler]:
         '''
         This method constructs two provable primes, p and q, for use in an RSA scheme
         
@@ -844,7 +848,7 @@ class RSA_KeyGeneration():
 
 
         success, p, p_1, p_2, pseed = RSA_KeyGeneration._generatePrime_Provable_AuxillaryPrimeLengths(L,p_N_1,p_N_2,working_seed,e,hash_function)
-        print(f"p has been determined as {p}")
+        if is_debug: print(f"p has been determined as {p}")
         if not success:
             print("p failed")
             return False, IntegerHandler(0, little_endian, 0), IntegerHandler(0, little_endian, 0)
@@ -857,7 +861,7 @@ class RSA_KeyGeneration():
                 return False, IntegerHandler(0, little_endian, 0), IntegerHandler(0, little_endian, 0)
             if abs(p - q) > pow(2, ( nlen // 2 - 100 )):
                 q_not_determined = False
-        print(f"q has been determined as {q}")
+        if is_debug: print(f"q has been determined as {q}")
         pseed,qseed,working_seed =0,0,0
         return True, IntegerHandler(p, little_endian, L), IntegerHandler(q, little_endian, L)
 
@@ -905,7 +909,7 @@ class RSA_KeyGeneration():
                 print("p1 failed")
                 return False, 0, 0, 0, IntegerHandler(0,little_endian,0)
             else:
-                print(f"small prime_1 is {p_1}")
+                if is_debug: print(f"small prime_1 is {p_1}")
         if N_2 == 1: #4
             p_2 = 1
             p_0seed = p_2seed
@@ -915,14 +919,14 @@ class RSA_KeyGeneration():
                 print("p2 failed")
                 return False, 0, 0, 0, IntegerHandler(0,little_endian,0)
             else:
-                print(f"small prime_2 is {p_1}")
+                if is_debug: print(f"small prime_2 is {p_1}")
         length = ceil(L / 2) + 1
         success, p_0, prime_seed, prime_gen_counter = RSA_KeyGeneration._generatePrime_ShaweTaylor(length, p_0seed) #6
         if success == False:
                 print("p0 failed")
                 return False, 0, 0, 0, IntegerHandler(0,little_endian,0)
         else:
-            print(f"p_0 is {p_0}")
+            if is_debug: print(f"p_0 is {p_0}")
         if euclidsAlgorithm(p_0*p_1, p_2) != 1:
             return False, 0, 0, 0, IntegerHandler(0,little_endian,0)
         iterations = ceil(L / hash_length) - 1
