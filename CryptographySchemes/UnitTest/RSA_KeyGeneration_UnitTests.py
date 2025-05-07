@@ -6,11 +6,18 @@ from CryptographySchemes.RSA.RSA_Primitives import RSA
 from CryptographySchemes.HashingAlgorithms.ApprovedHashFunctions import ApprovedHashFunction, ApprovedHashFunctions
 import time
 import pandas as pd
+from matplotlib import pyplot as plt
+import seaborn as sns
 
 provably_prime_durations={
     "Security Strength":[],
-    "Key Generation": [],
+    "Key Generation Duration": [],
     "Private Key Type":[]
+}
+prime_durations={
+    "Security Strength":[],
+    "Key Generation Duration": [],
+    "Generation Method":[]
 }
 encryption_durations = {
     "Security Strength":[],
@@ -20,13 +27,22 @@ encryption_durations = {
 }
 provably_prime_with_aux_durations={
     "Security Strength":[],
-    "Key Generation": [],
+    "Key Generation Duration": [],
     "Private Key Type":[]
 }
-
 probably_prime_durations={
     "Security Strength":[],
-    "Key Generation": [],
+    "Key Generation Duration": [],
+    "Private Key Type":[]
+}
+probably_prime_with_prob_aux_durations={
+    "Security Strength":[],
+    "Key Generation Duration": [],
+    "Private Key Type":[]
+}
+probably_prime_with_prov_aux_durations={
+    "Security Strength":[],
+    "Key Generation Duration": [],
     "Private Key Type":[]
 }
 class RSA_KeyGeneration_UnitTests(unittest.TestCase):
@@ -53,12 +69,15 @@ class RSA_KeyGeneration_UnitTests(unittest.TestCase):
 
                     if successful_generation and successful_encryption and successful_decryption:
                         provably_prime_durations["Security Strength"].append(strengths[i].security_strength)
-                        provably_prime_durations["Key Generation"].append(generation_duration)
+                        provably_prime_durations["Key Generation Duration"].append(generation_duration)
                         encryption_durations["Encryption"].append(encryption_duration)
                         encryption_durations["Decryption"].append(decryption_duration)
-                        provably_prime_durations["Private Key Type"].append(private_key_type)
-                        encryption_durations["Private Key Type"].append(private_key_type)
+                        provably_prime_durations["Private Key Type"].append("Standard" if private_key_type==0 else "Quintuple")
+                        encryption_durations["Private Key Type"].append("Standard" if private_key_type==0 else "Quintuple")
                         encryption_durations["Security Strength"].append(strengths[i].security_strength)
+                        prime_durations["Generation Method"].append("Prov Prime")
+                        prime_durations["Key Generation Duration"].append(generation_duration)
+                        prime_durations["Security Strength"].append(strengths[i].security_strength)
 
     def test_provably_prime_with_auxillary_primes(self):
         '''
@@ -85,12 +104,15 @@ class RSA_KeyGeneration_UnitTests(unittest.TestCase):
 
                     if successful_generation and successful_encryption and successful_decryption:
                         provably_prime_with_aux_durations["Security Strength"].append(strengths[i].security_strength)
-                        provably_prime_with_aux_durations["Key Generation"].append(generation_duration)
+                        provably_prime_with_aux_durations["Key Generation Duration"].append(generation_duration)
                         encryption_durations["Encryption"].append(encryption_duration)
                         encryption_durations["Decryption"].append(decryption_duration)
-                        provably_prime_with_aux_durations["Private Key Type"].append(private_key_type)
-                        encryption_durations["Private Key Type"].append(private_key_type)
+                        provably_prime_with_aux_durations["Private Key Type"].append("Standard" if private_key_type==0 else "Quintuple")
+                        encryption_durations["Private Key Type"].append("Standard" if private_key_type==0 else "Quintuple")
                         encryption_durations["Security Strength"].append(strengths[i].security_strength)
+                        prime_durations["Generation Method"].append("Prov Prime w/ Aux")
+                        prime_durations["Key Generation Duration"].append(generation_duration)
+                        prime_durations["Security Strength"].append(strengths[i].security_strength)
 
     def test_probably_prime(self):
         '''
@@ -115,12 +137,83 @@ class RSA_KeyGeneration_UnitTests(unittest.TestCase):
 
                     if successful_generation and successful_encryption and successful_decryption:
                         probably_prime_durations["Security Strength"].append(strengths[i].security_strength)
-                        probably_prime_durations["Key Generation"].append(generation_duration)
+                        probably_prime_durations["Key Generation Duration"].append(generation_duration)
                         encryption_durations["Encryption"].append(encryption_duration)
                         encryption_durations["Decryption"].append(decryption_duration)
-                        probably_prime_durations["Private Key Type"].append(private_key_type)
-                        encryption_durations["Private Key Type"].append(private_key_type)
+                        probably_prime_durations["Private Key Type"].append("Standard" if private_key_type==0 else "Quintuple")
+                        encryption_durations["Private Key Type"].append("Standard" if private_key_type==0 else "Quintuple")
                         encryption_durations["Security Strength"].append(strengths[i].security_strength)
+                        prime_durations["Generation Method"].append("Prob Prime")
+                        prime_durations["Key Generation Duration"].append(generation_duration)
+                        prime_durations["Security Strength"].append(strengths[i].security_strength)
+
+    def test_probably_prime_with_prob_aux(self):
+        '''
+        This method tests the generation of primes which are probably prime as RSA keys
+        '''
+
+        for i in range(0, len(strengths)):
+            rsa_bit_length_for_strength = strengths[i].integer_factorization_cryptography
+            for j in range(0, number_of_iterations):
+                test_case_number = i * number_of_iterations + j + 1
+                with self.subTest(f"Probably Prime With Probably Prime Auxillary Primes Key Generation : Test Case {test_case_number} With Security Strength {strengths[i].security_strength}"):
+                    print("- - - - - - - - - - - -")
+                    print(f"Probably Prime With Probably Prime Auxillary Primes Key Generation : Test Case {test_case_number} With Security Strength {strengths[i].security_strength}")
+                    if j % 2 == 0: private_key_type = RSA_PrivateKey_Type.Standard
+                    else : private_key_type = RSA_PrivateKey_Type.Quint
+                    bitlens = None
+                    start_time = time.time()
+                    public_key, private_key = RSA_KeyGeneration.generateRSAKeyPair_ProbablePrimes_AuxillaryProbablePrimes(bitlens=bitlens, security_strength=strengths[i].security_strength, private_key_type=private_key_type, is_debug=False)
+                    generation_duration = time.time() - start_time
+                    successful_generation = self.verifyKeyGeneration(strengths, i, public_key, private_key, generation_duration)
+
+                    encryption_duration, decryption_duration, successful_encryption, successful_decryption = self.verifyEncryptionDecryption(little_endian, strengths, i, rsa_bit_length_for_strength, public_key, private_key)
+
+                    if successful_generation and successful_encryption and successful_decryption:
+                        probably_prime_with_prob_aux_durations["Security Strength"].append(strengths[i].security_strength)
+                        probably_prime_with_prob_aux_durations["Key Generation Duration"].append(generation_duration)
+                        encryption_durations["Encryption"].append(encryption_duration)
+                        encryption_durations["Decryption"].append(decryption_duration)
+                        probably_prime_with_prob_aux_durations["Private Key Type"].append("Standard" if private_key_type==0 else "Quintuple")
+                        encryption_durations["Private Key Type"].append("Standard" if private_key_type==0 else "Quintuple")
+                        encryption_durations["Security Strength"].append(strengths[i].security_strength)
+                        prime_durations["Generation Method"].append("Prob Prime w/ Prob Aux")
+                        prime_durations["Key Generation Duration"].append(generation_duration)
+                        prime_durations["Security Strength"].append(strengths[i].security_strength)
+    
+    def test_probably_prime_with_prov_aux(self):
+        '''
+        This method tests the generation of primes which are probably prime as RSA keys
+        '''
+
+        for i in range(0, len(strengths)):
+            rsa_bit_length_for_strength = strengths[i].integer_factorization_cryptography
+            for j in range(0, number_of_iterations):
+                test_case_number = i * number_of_iterations + j + 1
+                with self.subTest(f"Probably Prime With Provably Prime Auxillary Primes Key Generation : Test Case {test_case_number} With Security Strength {strengths[i].security_strength}"):
+                    print("- - - - - - - - - - - -")
+                    print(f"Probably Prime With Provably Prime Auxillary Primes Key Generation : Test Case {test_case_number} With Security Strength {strengths[i].security_strength}")
+                    if j % 2 == 0: private_key_type = RSA_PrivateKey_Type.Standard
+                    else : private_key_type = RSA_PrivateKey_Type.Quint
+                    bitlens = None
+                    start_time = time.time()
+                    public_key, private_key = RSA_KeyGeneration.generateRSAKeyPair_ProbablePrimes_AuxillaryProvablePrimes(bitlens=bitlens, security_strength=strengths[i].security_strength, private_key_type=private_key_type, is_debug=False)
+                    generation_duration = time.time() - start_time
+                    successful_generation = self.verifyKeyGeneration(strengths, i, public_key, private_key, generation_duration)
+
+                    encryption_duration, decryption_duration, successful_encryption, successful_decryption = self.verifyEncryptionDecryption(little_endian, strengths, i, rsa_bit_length_for_strength, public_key, private_key)
+
+                    if successful_generation and successful_encryption and successful_decryption:
+                        probably_prime_with_prov_aux_durations["Security Strength"].append(strengths[i].security_strength)
+                        probably_prime_with_prov_aux_durations["Key Generation Duration"].append(generation_duration)
+                        encryption_durations["Encryption"].append(encryption_duration)
+                        encryption_durations["Decryption"].append(decryption_duration)
+                        probably_prime_with_prov_aux_durations["Private Key Type"].append("Standard" if private_key_type==0 else "Quintuple")
+                        encryption_durations["Private Key Type"].append("Standard" if private_key_type==0 else "Quintuple")
+                        encryption_durations["Security Strength"].append(strengths[i].security_strength)
+                        prime_durations["Generation Method"].append("Prob Prime w/ Prov Aux")
+                        prime_durations["Key Generation Duration"].append(generation_duration)
+                        prime_durations["Security Strength"].append(strengths[i].security_strength)
 
     def verifyEncryptionDecryption(self, little_endian:bool, strengths:list[SecurityStrengthDetails], i:int, rsa_bit_length_for_strength:int, public_key:RSA_PublicKey, private_key:RSA_PrivateKey):
         '''
@@ -168,13 +261,16 @@ class RSA_KeyGeneration_UnitTests(unittest.TestCase):
 
 if __name__ == '__main__':
     
-    number_of_iterations = 4
+    number_of_iterations = 2
     strengths = [SecurityStrength.s112.value, SecurityStrength.s128.value]
+    #strengths = [SecurityStrength.s112.value, SecurityStrength.s128.value, SecurityStrength.s192.value]
     little_endian = False
     unittest.main(exit=False)
-    
+    prime_df = pd.DataFrame.from_dict(prime_durations)
     provably_prime_df = pd.DataFrame.from_dict(provably_prime_durations)
     probably_prime_df = pd.DataFrame.from_dict(probably_prime_durations)
+    probably_prime_with_prob_aux_df = pd.DataFrame.from_dict(probably_prime_with_prob_aux_durations)
+    probably_prime_with_prov_aux_df = pd.DataFrame.from_dict(probably_prime_with_prov_aux_durations)
     provably_prime_with_aux_df = pd.DataFrame.from_dict(provably_prime_with_aux_durations)
     encryption_df = pd.DataFrame.from_dict(encryption_durations)
     print("Provably Prime Key Generation Duration Data")
@@ -186,5 +282,47 @@ if __name__ == '__main__':
     print("Probably Prime Key Generation Duration Data")
     print(probably_prime_df)
     print()
+    print("Probably Prime Key Generation With Probably Prime Auxillary Primes Duration Data")
+    print(probably_prime_with_prob_aux_df)
+    print()
+    print("Probably Prime Key Generation With Provably Prime Auxillary Primes  Duration Data")
+    print(probably_prime_with_prov_aux_df)
+    print()
     print("Ecryption And Decryption Durations")
     print(encryption_df)
+    
+    fig, axes = plt.subplots(nrows=2, ncols=4, sharey=False)
+    fig.set_figwidth(16)
+    fig.set_figheight(8)
+
+    bright_palette = sns.hls_palette(h=.5)
+
+    # plt.legend(
+    # fontsize=4,
+    # title_fontsize=6)
+    # plt.rcParams['font.size'] = 12
+    sns.set_context("paper")
+    sns.set_theme(style="whitegrid", palette=bright_palette, font_scale=.7,)
+    sns.scatterplot(data=prime_df, x="Security Strength", y="Key Generation Duration", ax=axes[0][0], hue="Generation Method", palette=bright_palette)
+    # hue_regplot(data=prime_df, x="Security Strength", y="Key Generation Duration", ax=axes[0][0], hue="Generation Method", palette=bright_palette)
+    axes[0][0].set_title('All Key Generation Methods')
+    sns.regplot(data=provably_prime_df, x="Security Strength", y="Key Generation Duration", ax=axes[0][3], color=bright_palette[3])
+    axes[0][3].set_title('Provably Prime')
+    sns.regplot(data=provably_prime_with_aux_df, x="Security Strength", y="Key Generation Duration", ax=axes[1][0], color=bright_palette[4])
+    axes[1][0].set_title('Provably Prime w/ Aux Primes')
+    sns.regplot(data=probably_prime_df, x="Security Strength", y="Key Generation Duration", ax=axes[1][1], color=bright_palette[0])
+    axes[1][1].set_title('Probably Prime')
+    sns.regplot(data=probably_prime_with_prob_aux_df, x="Security Strength", y="Key Generation Duration", ax=axes[1][2], color=bright_palette[1])
+    axes[1][2].set_title('Probably Prime w/ Aux Probable Primes')
+    sns.regplot(data=probably_prime_with_prov_aux_df, x="Security Strength", y="Key Generation Duration", ax=axes[1][3], color=bright_palette[2])
+    axes[1][3].set_title('Probably Prime w/ Aux Provable Primes')
+    sns.scatterplot(data=encryption_df, x="Security Strength", y="Encryption", ax=axes[0][1], hue="Private Key Type", palette=bright_palette[0:2])
+    axes[0][1].set_title('All Encryption Durations')
+    sns.scatterplot(data=encryption_df, x="Security Strength", y="Decryption", ax=axes[0][2], hue="Private Key Type", palette=bright_palette[0:2])
+    axes[0][2].set_title('All Decryption Durations')
+
+
+    # fig.canvas.manager.set_window_title(title=title)
+
+    plt.tight_layout()
+    plt.show()
