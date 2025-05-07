@@ -112,7 +112,7 @@ class RSA_PrivateKey_QuintupleForm(RSA_PrivateKey):
 class RSA_KeyGeneration():
 
     @staticmethod
-    def generateRSAKeyPair_probablePrimes(security_strength: int = SecurityStrength.s112.value.security_strength, private_key_type:int = RSA_PrivateKey_Type.Standard.value, is_debug:bool = False)-> tuple[RSA_PublicKey, RSA_PrivateKey]:
+    def generateRSAKeyPair_ProbablePrimes(security_strength: int = SecurityStrength.s112.value.security_strength, private_key_type:int = RSA_PrivateKey_Type.Standard.value, is_debug:bool = False)-> tuple[RSA_PublicKey, RSA_PrivateKey]:
         '''
         This method generates an RSA key pair of the requented security strength
 
@@ -143,7 +143,7 @@ class RSA_KeyGeneration():
             if success: 
                     n, public_key, gcd_e_phi_1 = RSA_KeyGeneration._calculatePublicKey(e, p, q, gcd_e_phi_1)
 
-        d = IntegerHandler(RSA_KeyGeneration._calculatePrivateKeyExponent(e, p, q),little_endian)
+        d = RSA_KeyGeneration._calculatePrivateKeyExponent(e, p, q)
 
         if private_key_type == RSA_PrivateKey_Type.Standard:
             private_key = RSA_PrivateKey(n, d)
@@ -979,7 +979,7 @@ class RSA_KeyGeneration():
         return nlen
     
     @staticmethod
-    def _calculatePrivateKeyExponent(e:IntegerHandler, p:IntegerHandler, q:IntegerHandler) -> int:
+    def _calculatePrivateKeyExponent(e:IntegerHandler, p:IntegerHandler, q:IntegerHandler) -> IntegerHandler:
         '''
         This method calculates the value for d given e, p and q
 
@@ -990,7 +990,7 @@ class RSA_KeyGeneration():
                 The primes that make up the RSA
         
         Returns :
-            d : int
+            d : IntegerHandler
                 The private exponent value 
         '''
         phi = (p.getValue() - 1) * (q.getValue() - 1)
@@ -999,7 +999,7 @@ class RSA_KeyGeneration():
         gcd_p1_q1 = euclidsAlgorithm(p_1, q_1)
         phi = p_1 * q_1 // gcd_p1_q1
         d = calculateInverseMod_GCD1_ExtendedEuclidsBased(e.getValue(), phi)
-        return d
+        return IntegerHandler(d, little_endian=little_endian)
     
    
     
@@ -1018,7 +1018,7 @@ if __name__ == '__main__':
 
     strength = SecurityStrength.s112.value
     rsa_bit_length_for_strength = strength.integer_factorization_cryptography
-    public_key_gen, private_key_gen = RSA_KeyGeneration.generateRSAKeyPair_probablePrimes(strength.security_strength)
+    public_key_gen, private_key_gen = RSA_KeyGeneration.generateRSAKeyPair_ProbablePrimes(strength.security_strength)
     
     assert public_key_gen.n.getValue() == private_key_gen.n.getValue()
 

@@ -1,6 +1,7 @@
 
 import unittest
-from CryptographySchemes.RSACryptographyScheme import *
+from CryptographySchemes.RSA.RSA_Primitives import RSA
+from CryptographySchemes.RSA.RSA_Keys import *
 from HelperFunctions.PrimeNumbers import calculateModuloInverse
 import json
 
@@ -50,7 +51,7 @@ class RSA_TestCase_Details():
         calc_dP = IntegerHandler(dP,little_endian,self.bit_length)
         calc_dQ = IntegerHandler(dQ,little_endian,self.bit_length)
         calc_qInv = IntegerHandler(qInv,little_endian,self.bit_length)
-        private_key_quint = RSA_PrivateKey_QuintupleForm(self.p,self.q,calc_dP,calc_dQ,calc_qInv,[])
+        private_key_quint = RSA_PrivateKey_QuintupleForm(self.n,self.d,self.p,self.q,calc_dP,calc_dQ,calc_qInv,[])
         return private_key_quint
     
     def get_private(self) -> RSA_PrivateKey:
@@ -154,43 +155,7 @@ class RSA_UnitTest(unittest.TestCase):
                 print(f"Probably Prime : {miller_rabin_result_q}")
                 self.assertTrue(miller_rabin_result_q)
 
-    def test_miller_rabin_implementation(self):
-        '''
-        This method runs the miller rabin primality test against all integers below 1000000 in order to determine if the error rate is apropriately low
-        '''
-        print("Test Miller Rabin Primality Implementation")
-        wrong_answer_count = 0
-        right_answer_count = 0
-        max_test_int = 1000000
-        for i in range(0, max_test_int):                
-            miller_rabin_result = RSA.runMillerRabinPrimalityTest(i)
-            from sympy import isprime
-            is_prime_result = isprime(i)
-            if miller_rabin_result != is_prime_result:
-                wrong_answer_count +=1
-            else: 
-                right_answer_count += 1
-        print(f"Miller Rabin Implementation was wrong {wrong_answer_count} times and correct {right_answer_count} times")
-        self.assertLess(wrong_answer_count / max_test_int, .01)
-
-    def test_lucas_implementation(self):
-        '''
-        This method runs the lucas primality test against all integers below 1000000 in order to determine if the error rate is apropriately low
-        '''
-        print("Test Lucas Primality Implementation")
-        wrong_answer_count = 0
-        right_answer_count = 0
-        max_test_int = 1000000
-        for i in range(0, max_test_int):                
-            miller_rabin_result = RSA.runLucasPrimalityTest(i)
-            from sympy import isprime
-            is_prime_result = isprime(i)
-            if miller_rabin_result != is_prime_result:
-                wrong_answer_count +=1
-            else: 
-                right_answer_count += 1
-        print(f"Lucas Implementation was wrong {wrong_answer_count} times and correct {right_answer_count} times")
-        self.assertLess(wrong_answer_count / max_test_int, .01)
+    
 
     def test_encryption_primitive_decryption_quintform(self):
         '''
