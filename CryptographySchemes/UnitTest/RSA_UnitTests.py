@@ -44,14 +44,7 @@ class RSA_TestCase_Details():
             private_key_quint : RSA_PrivateKey_QuintupleForm
                 The private key in quintuple form
         '''
-
-        dP = self.d.getValue() % (self.p.getValue() - 1)
-        dQ = self.d.getValue() % (self.q.getValue() - 1)
-        qInv = calculateModuloInverse(self.q.getValue(), self.p.getValue())
-        calc_dP = IntegerHandler(dP,little_endian,self.bit_length)
-        calc_dQ = IntegerHandler(dQ,little_endian,self.bit_length)
-        calc_qInv = IntegerHandler(qInv,little_endian,self.bit_length)
-        private_key_quint = RSA_PrivateKey_QuintupleForm(self.n,self.d,self.p,self.q,calc_dP,calc_dQ,calc_qInv,[])
+        private_key_quint = RSA_KeyGeneration.generatePrivateKey_QuintForm(self.n,self.d,self.p,self.q)
         return private_key_quint
     
     def get_private(self) -> RSA_PrivateKey:
@@ -98,10 +91,10 @@ class RSA_UnitTest(unittest.TestCase):
                 print("- - - - - - - - - - - -")
                 test_details = encryption_primitive_test_cases[i]  
                 print(f"Test Calculating 'd' Test Case {i+1} With Key Length {test_details.bit_length} Bits") 
-                calc_d = RSA.calculateD(test_details.e, test_details.p, test_details.q)
+                calc_d = RSA_KeyGeneration._calculatePrivateKeyExponent(test_details.e, test_details.p, test_details.q)
                 print(f"Expected 'd'   : {test_details.d.getValue()}")
-                print(f"Calculated 'd' : {calc_d}")
-                self.assertEqual(test_details.d.getValue(), calc_d, f"The value calculated for 'd' (in test {i+1}) : ({calc_d}) is not the expected value : ({test_details.d.getValue()})")
+                print(f"Calculated 'd' : {calc_d.getValue()}")
+                self.assertEqual(test_details.d.getValue(), calc_d.getValue(), f"The value calculated for 'd' (in test {i+1}) : ({calc_d}) is not the expected value : ({test_details.d.getValue()})")
 
     def test_encryption_primitive_calculate_n(self):
         '''
@@ -132,7 +125,7 @@ class RSA_UnitTest(unittest.TestCase):
                 print("- - - - - - - - - - - -")
                 test_details = encryption_primitive_test_cases[i]  
                 print(f"Test 'p' Primality Test Case {i+1} With Key Length {test_details.bit_length} Bits") 
-                miller_rabin_result_p = RSA.runMillerRabinPrimalityTest(test_details.p.getValue(), 25)
+                miller_rabin_result_p = runMillerRabinPrimalityTest(test_details.p.getValue(), 25)
                 print(f"Value of 'p'   : {test_details.p.getValue()}")
                 print(f"Probably Prime : {miller_rabin_result_p}")
                 self.assertTrue(miller_rabin_result_p)
@@ -150,7 +143,7 @@ class RSA_UnitTest(unittest.TestCase):
                 test_details = encryption_primitive_test_cases[i]  
                 print(f"Test 'q' Primality Test Case {i+1} With Key Length {test_details.bit_length} Bits")   
                 
-                miller_rabin_result_q = RSA.runMillerRabinPrimalityTest(test_details.q.getValue(), 25)
+                miller_rabin_result_q = runMillerRabinPrimalityTest(test_details.q.getValue(), 25)
                 print(f"Value of 'q'   : {test_details.q.getValue()}")
                 print(f"Probably Prime : {miller_rabin_result_q}")
                 self.assertTrue(miller_rabin_result_q)
@@ -296,7 +289,7 @@ class RSA_UnitTest(unittest.TestCase):
                     print("- - - - - - - - - - - -")
                     print(f"Key Gen Provably Prime Test Case {i*number_of_iterations+j} With Security Strength {strengths[i].security_strength}")
                     rsa_bit_length_for_strength = strengths[i].integer_factorization_cryptography
-                    public_key_gen, private_key_gen = RSA.generateRSAKeyPair(strengths[i].security_strength, ApprovedHashFunctions.SHA_512_Hash.value)
+                    public_key_gen, private_key_gen = RSA_KeyGeneration.generateRSAKeyPair_ProvablePrimes(strengths[i].security_strength, ApprovedHashFunctions.SHA_512_Hash.value)
                     
                     assert public_key_gen.n.getValue() == private_key_gen.n.getValue()
 
@@ -322,7 +315,7 @@ class RSA_UnitTest(unittest.TestCase):
                     print("- - - - - - - - - - - -")
                     print(f"Key Gen Probably Prime Test Case {i*number_of_iterations+j} With Security Strength {strengths[i].security_strength}")
                     rsa_bit_length_for_strength = strengths[i].integer_factorization_cryptography
-                    public_key_gen, private_key_gen = RSA.generateRSAKeyPair_probablePrimes(strengths[i].security_strength)
+                    public_key_gen, private_key_gen = RSA_KeyGeneration.generateRSAKeyPair_ProbablePrimes(strengths[i].security_strength)
                     
                     assert public_key_gen.n.getValue() == private_key_gen.n.getValue()
 
