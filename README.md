@@ -92,6 +92,24 @@ I implemented a version of the RSA Cryptography scheme. RSA was named after R.L.
     alt="This is a sequence diagram for a simple message and reply using the RSA Cryptography scheme">
 </img>
 
+#### RSA Key Generation
+
+RSA Cryptography relies on pairs of public and private keys that are created using two large prime numbers. NIST FIPS 186-5 ["Digital Signature Standard (DSS)"](https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.186-5.pdf) lays out multiple methods by which these prime numbers may be generated. The include Appendix A.1.2 "Generation of Random Primes that are Provably Prime", Appendix A.1.3 "Generation of Random Primes that are Probably Prime", Appendix A.1.4 "Generation of Provable Primes with Conditions Based on Auxiliary Provable Primes", A.1.5 "Generation of Probable Primes with Conditions Based on Auxiliary Provable Primes" and Appendix A.1.6 "Generation of Probable Primes with Conditions Based on Auxiliary Probable Primes". The bit lengths for the keys are also specified in NIST SP 800-57 Part 1 ["Recommendation for Key Management: Part 1 – General"](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-57pt1r5.pdf) Table 2: "Comparable security strengths of symmetric block cipher and asymmetric-key algorithms". RSA or other integer factorization algorithms are listed by "k", the bit length of the "n" value, or the two primes multiplied together. For a security strength of 112 (equivalent to TDES), "k" must be 2048, for a security strength of 128 (equivalent to AES 128) "k" must be 3072, for a security strength of 192 (equivalent to AES 192) "k" must be 7680, and for a security strength of 256 (equivalent to AES 256) "k" must be 15360. Generating these extremely large primes does cause my computer to take a long time, though I admit freely that none of my implementations are designed for efficiency. I still think it is interesting to view the comparisons of the running times for each prime generation method depending on key length.
+
+<img 
+    style="display: block; margin-left: auto; margin-right: auto; width: 100%;"
+    src="https://github.com/jbarbourmoore/Cryptography-Exploration/blob/96ad9d8b0275e555663e7e5dd0810d7aa6eb6d63/CryptographySchemes/OutputImages/RSA_KeyGeneration_DurationGraphs.png" 
+    alt="This shows the key generation duration for each prime generation methodology over the various key lengths.">
+</img>
+
+As mentioned in NIST FIPS 186-5 ["Digital Signature Standard (DSS)"](https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.186-5.pdf) and IETF 8017 "PKCS #1: RSA Cryptography Specifications Version 2.2", there are actually two ways to store the private key. The first way is simply the "n" value or the multiple of the two large prime numbers, and the private exponent, "d". The second way uses a quintuple form and can increase the efficiency when decrypting data. The quintuple consists of both large prime numbers ("p" and "q"), the private exponent mod "p" and "q" ("dP" and "dQ"), as well as "qInv", or the inverse of "q" mod "p". The following graphs show the difference in time for both the standard and quintuple forms for decryption, though it does really not effect encrytion or key generation times.
+
+<img 
+    style="display: block; margin-left: auto; margin-right: auto; width: 100%;"
+    src="https://github.com/jbarbourmoore/Cryptography-Exploration/blob/a1f8183668a6593c428bd7e7b2e82c5736f45c4f/CryptographySchemes/OutputImages/RSA_KeyGeneration_DurationGraphs_Simple.png" 
+    alt="This shows the comparison between standard and quintuple private key forms on both encryption and decryption.">
+</img>
+
 ### Diffie Hellman Key Exchange   
 
 I implemented a version of the Diffie Helman key exchange. The Diffie Hellman key exchange is a method by which two parties can establish a shared secret, without needing to transmit it directly. The scheme was originally published by Whitfield Diffie and Martin E. Hellman in their paper ["New Directions in Cryptography"](https://ee.stanford.edu/%7Ehellman/publications/24.pdf) from 1976. To begin the Diffie Hellman key exchange both parties must agree on both a prime number and a generator value. The generator value should be a prime root for the prime number that was agreed upon. Then both participants select their private keys. These private keys are then used with the agreed upon prime and generator in order to calculate the public keys. These public keys are then exchanged and each participant can use their own private key and the other participant's public key in order to calculate a shared secret value. As anyone intercepting messages would not have access to either participant's private keys, it would be computationally difficult to generate the same shared secret. 
