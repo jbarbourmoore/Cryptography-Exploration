@@ -102,6 +102,8 @@ RSA Cryptography relies on pairs of public and private keys that are created usi
     alt="This shows the key generation duration for each prime generation methodology over the various key lengths.">
 </img>
 
+#### RSA Private Key Forms
+
 As mentioned in NIST FIPS 186-5 ["Digital Signature Standard (DSS)"](https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.186-5.pdf) and IETF 8017 "PKCS #1: RSA Cryptography Specifications Version 2.2", there are actually two ways to store the private key. The first way is simply the "n" value or the multiple of the two large prime numbers, and the private exponent, "d". The second way uses a quintuple form and can increase the efficiency when decrypting data. The quintuple consists of both large prime numbers ("p" and "q"), the private exponent mod "p" and "q" ("dP" and "dQ"), as well as "qInv", or the inverse of "q" mod "p". The following graphs show the difference in time for both the standard and quintuple forms for decryption, though it does really not effect encrytion or key generation times.
 
 <img 
