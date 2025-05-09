@@ -10,6 +10,7 @@ from matplotlib import pyplot as plt
 import seaborn as sns
 import numpy as np
 from enum import StrEnum
+from multiprocessing import Manager, Pool, Lock
 
 class GenerationMethods(StrEnum):
     '''
@@ -21,6 +22,15 @@ class GenerationMethods(StrEnum):
     provably_prime = "Provably Prime"
     provably_prime_aux = "Provably Prime, Aux Primes"
 
+class RSA_KeyGeneration_IterationDetails():
+
+    def __init__(self, file_lock, strength:SecurityStrengthDetails, private_key_type:int, generation_method:str, hash_function:ApprovedHashFunction = ApprovedHashFunctions.SHA_512_Hash.value, bitlens:list[int]=None):
+        self.file_lock = file_lock
+        self.strength = strength
+        self.private_key_type = private_key_type
+        self.generation_method = generation_method
+        self.hash_function = hash_function
+        self.bitlens = bitlens
 def get_empty_dictionary():
     '''
     This method returns an empty dictionary with the categories that are to be saved to the csv 
@@ -32,7 +42,7 @@ def get_empty_dictionary():
             "Decryption":[],
             "Private Key Type":[]}
 
-def time_key_generation(strength:SecurityStrengthDetails, private_key_type:int, generation_method:str):
+def time_key_generation(details:RSA_KeyGeneration_IterationDetails):
     '''
     This method tests the generation of RSA keys and tracks the time it takes to generate them
 
@@ -47,15 +57,19 @@ def time_key_generation(strength:SecurityStrengthDetails, private_key_type:int, 
 
 
     # set basic parameters
-    nlen = strength.integer_factorization_cryptography
-    hash_function = ApprovedHashFunctions.SHA_512_Hash.value
-    bitlens = None
-    security_strength = strength.security_strength
-    private_key_string = "Standard" if private_key_type==0 else "Quintuple"
+    file_lock = details.file_lock
+    nlen = details.strength.integer_factorization_cryptography
+    hash_function = details.hash_function
+    bitlens = details.bitlens
+    security_strength = details.strength.security_strength
+    generation_method = details.generation_method
+    private_key_type = details.private_key_type
+    private_key_string = "Standard" if details.private_key_type==0 else "Quintuple"
+    little_endian = False
 
     # output the basic parameters to the command line
-    print("- - - - - - - - - - - -")
-    print(f"{generation_method} Key Generation With Security Strength {security_strength} And {private_key_string} Private Key")
+    # print("- - - - - - - - - - - -")
+    # print(f"{generation_method} Key Generation With Security Strength {security_strength} And {private_key_string} Private Key")
     
     # generate the keys and time the duration
     start_time = time.time()
@@ -77,11 +91,13 @@ def time_key_generation(strength:SecurityStrengthDetails, private_key_type:int, 
 
     # export the generated data to the csv for later analysis
     if successful_generation and successful_encryption and successful_decryption:
-        saveIterationData(security_strength, private_key_string, generation_duration, encryption_duration, decryption_duration, generation_method)
+        prime_durations = saveIterationData(file_lock, security_strength, private_key_string, generation_duration, encryption_duration, decryption_duration, generation_method)
     else:
         print("Something Went Wrong")
+        prime_durations={"error":"Something Went Wrong"}
+    return prime_durations
 
-def saveIterationData(security_strength:int, private_key_string:str, generation_duration:float, encryption_duration:float, decryption_duration:float, generation_method:str):
+def saveIterationData(file_lock,security_strength:int, private_key_string:str, generation_duration:float, encryption_duration:float, decryption_duration:float, generation_method:str):
     '''
     This method saves the data of the iteration to the CSV file for further analysis
 
@@ -98,8 +114,7 @@ def saveIterationData(security_strength:int, private_key_string:str, generation_
             How long it took to use the generated keys to decrypt the data
         generation_method : str
             What generation method was used to generate the RSA keys
-    '''
-    
+    '''    
     prime_durations = get_empty_dictionary()
     prime_durations["Encryption"].append(encryption_duration)
     prime_durations["Decryption"].append(decryption_duration)
@@ -107,9 +122,14 @@ def saveIterationData(security_strength:int, private_key_string:str, generation_
     prime_durations["Generation Method"].append(generation_method)
     prime_durations["Key Generation Duration"].append(generation_duration)
     prime_durations["Security Strength"].append(security_strength)
-
     prime_df = pd.DataFrame.from_dict(prime_durations)
-    prime_df.to_csv('RSA_KeyGeneration_DurationsDataLocal.csv', mode='a', index=False, header=False)
+
+    file_lock.acquire()
+    try:
+        prime_df.to_csv('RSA_KeyGeneration_DurationsDataLocal.csv', mode='a', index=False, header=False)
+    finally:
+        file_lock.release()
+    return prime_durations
 
 
 def verifyEncryptionDecryption(little_endian:bool, security_strength:int, nlen:int, public_key:RSA_PublicKey, private_key:RSA_PrivateKey):
@@ -153,9 +173,9 @@ def verifyEncryptionDecryption(little_endian:bool, security_strength:int, nlen:i
         successful_encryption = plain.getValue() != encrypted.getValue()
         successful_decryption = plain.getValue() == decrypted.getValue()
         if successful_encryption:
-            print(f"The encryption was successful in {encryption_duration:.4f} seconds")
+            print(f"The encryption for {security_strength} was successful in {encryption_duration:.4f} seconds")
         if successful_decryption:
-            print(f"The decryption was successful in {decryption_duration:.4f} seconds")
+            print(f"The decryption for {security_strength} was successful in {decryption_duration:.4f} seconds")
 
         return encryption_duration,decryption_duration,successful_encryption,successful_decryption
 
@@ -209,47 +229,67 @@ def prepare_dataframe_from_csv():
     return prime_df
 
 if __name__ == '__main__':
-    
+    file_lock = Lock()
     number_of_iterations = 1
     # strengths_lists = [[SecurityStrength.s112.value],[SecurityStrength.s128.value],[SecurityStrength.s192.value],[SecurityStrength.s256.value]]
-    strengths_lists = [[SecurityStrength.s112.value]]
+    strengths_lists = [[SecurityStrength.s112.value],[SecurityStrength.s128.value]]
     little_endian = False
     beginning_execution = time.time()
+    m = Manager()
+    file_lock = m.Lock()
+
+    iterations_details:list[RSA_KeyGeneration_IterationDetails] = []
     for j in range (0, number_of_iterations):
         for i in range(0, len(strengths_lists)):
             for generation_method in GenerationMethods:
                 strengths = strengths_lists[i]
                 for strength in strengths:
                     for private_key_type in RSA_PrivateKey_Type:
-                        time_key_generation(strength=strength,private_key_type=private_key_type.value,generation_method=generation_method)
-                        print(f"Total Time Elapsed During This Run : {time.time() - beginning_execution:.4f}")
+                        iterations_details.append(RSA_KeyGeneration_IterationDetails(file_lock=file_lock, strength=strength,private_key_type=private_key_type.value,generation_method=generation_method))
+
+    with Pool(processes=5) as pool:
+        pool.map(time_key_generation,iterations_details)
+    print(iterations_details)
+    # time_key_generation(strength=strength,private_key_type=private_key_type.value,generation_method=generation_method)
+    print(f"Total Time Elapsed During This Run : {time.time() - beginning_execution:.4f}")
             
-    nlens = []
-    prime_df = prepare_dataframe_from_csv()
+    # nlens = []
+    # prime_df = prepare_dataframe_from_csv()
 
-    standard_priv_df = prime_df[prime_df["Private Key Type"] == "Standard"]
-    quintuple_priv_df = prime_df[prime_df["Private Key Type"] != "Standard"]
-    fig, axes = plt.subplots(nrows=1, ncols=3, sharey=False)
-    fig.set_figwidth(14)
-    fig.set_figheight(5)
+    # standard_priv_df = prime_df[prime_df["Private Key Type"] == "Standard"]
+    # quintuple_priv_df = prime_df[prime_df["Private Key Type"] != "Standard"]
 
-    bright_palette = sns.hls_palette(h=.5)
-    sns.set_context("paper")
-    sns.set_theme(style="whitegrid", palette=bright_palette, font_scale=.7)
-
-    axes[0].set_title('Key Length Vs. Key Generation Duration')
-    sns.regplot(data=prime_df, x="Key Lengths", y="Key Generation Duration", x_estimator=np.mean, ax=axes[0], order=2, color=bright_palette[2])
-
-    axes[1].set_title('Key Length Vs. Encryption Duration')
-    sns.scatterplot(data=prime_df, x="Key Lengths", y="Encryption Duration", hue="Private Key Type", style="Private Key Type", ax=axes[1], palette=bright_palette, markers=["o", "s"], alpha = .5)
-    sns.regplot(data=standard_priv_df, x="Key Lengths", y="Encryption Duration", scatter=False, ax=axes[1], order=2, color=bright_palette[0])
-    sns.regplot(data=quintuple_priv_df, x="Key Lengths", y="Encryption Duration", scatter=False, ax=axes[1], order=2, color=bright_palette[1])
-
-    axes[2].set_title('Key Length Vs. Decryption Duration')
-    sns.scatterplot(data=prime_df, x="Key Lengths", y="Decryption Duration", hue="Private Key Type", style="Private Key Type", ax=axes[2], palette=bright_palette, markers=["o", "s"], alpha = .5)
-    sns.regplot(data=standard_priv_df, x="Key Lengths", y="Decryption Duration", scatter=False, ax=axes[2], order=2, color=bright_palette[0])
-    sns.regplot(data=quintuple_priv_df, x="Key Lengths", y="Decryption Duration", scatter=False, ax=axes[2], order=2, color=bright_palette[1])
+    # bright_palette = sns.hls_palette(h=.5)
+    # sns.set_context("paper")
+    # sns.set_theme(style="ticks", palette=bright_palette, font_scale=.7)
     
-    sns.lmplot(x="Key Lengths", y="Key Generation Duration", hue="Method", col="Method", data=prime_df,order=2, height=4, x_estimator=np.mean, legend_out=True, legend=False)
-    plt.tight_layout()
-    plt.show()
+    # fig, axes = plt.subplots(nrows=1, ncols=3, sharey=False)
+    # fig.set_figwidth(13)
+    # fig.set_figheight(5)
+
+
+    # axes[0].set_title('Key Length Vs. Key Generation Duration')
+    # # sns.regplot(data=prime_df, x="Key Lengths", y="Key Generation Duration", x_estimator=np.mean, ax=axes[0], order=2, color=bright_palette[2])
+    # sns.regplot(data=standard_priv_df, x="Key Lengths", y="Key Generation Duration", x_estimator=np.mean, ax=axes[0], order=2, color=bright_palette[0], label = "Standard")
+    # sns.regplot(data=quintuple_priv_df, x="Key Lengths", y="Key Generation Duration", x_estimator=np.mean, ax=axes[0], order=2, color=bright_palette[1], label = "Quintuple")
+    # # plt.legend(loc="upper left",shadow=True,title = "Private Key Type")
+
+    # axes[1].set_title('Key Length Vs. Encryption Duration')
+    # # sns.scatterplot(data=prime_df, x="Key Lengths", y="Encryption Duration", hue="Private Key Type", style="Private Key Type", ax=axes[1], palette=bright_palette, markers=["o", "s"], alpha = .5)
+    # sns.regplot(data=standard_priv_df, x="Key Lengths", y="Encryption Duration", x_estimator=np.mean, ax=axes[1], order=2, color=bright_palette[0], label = "Standard")
+    # sns.regplot(data=quintuple_priv_df, x="Key Lengths", y="Encryption Duration", x_estimator=np.mean, ax=axes[1], order=2, color=bright_palette[1], label = "Quintuple")
+    # # plt.legend(loc="upper left",shadow=True,title = "Private Key Type")
+
+    # axes[2].set_title('Key Length Vs. Decryption Duration')
+    # # sns.scatterplot(data=prime_df, x="Key Lengths", y="Decryption Duration", hue="Private Key Type", style="Private Key Type", ax=axes[2], palette=bright_palette, markers=["o", "s"], alpha = .5)
+    # sns.regplot(data=standard_priv_df, x="Key Lengths", y="Decryption Duration", x_estimator=np.mean, ax=axes[2], order=2, color=bright_palette[0], label = "Standard")
+    # sns.regplot(data=quintuple_priv_df, x="Key Lengths", y="Decryption Duration", x_estimator=np.mean, ax=axes[2], order=2, color=bright_palette[1], label = "Quintuple")
+    # plt.legend(loc="upper left",shadow=True,title = "Private Key Type",bbox_to_anchor=(1.05, 1))
+    # plt.tight_layout()
+    # plt.show()
+
+    # abreviated_df = prime_df[prime_df["Key Lengths"] != SecurityStrength.s256.value.integer_factorization_cryptography]
+    # sns.lmplot(x="Key Lengths", y="Key Generation Duration", hue="Method", col="Method", data=abreviated_df,order=2, height=4, x_estimator=np.mean, legend_out=True, legend=True)
+    # # plt.legend(loc="upper left",shadow=True,title = "Prime Generation Method",bbox_to_anchor=(1.05, 1)) 
+    # plt.tight_layout()
+    # plt.show()
