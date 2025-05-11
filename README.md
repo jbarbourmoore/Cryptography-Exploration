@@ -98,7 +98,7 @@ RSA Cryptography relies on pairs of public and private keys that are created usi
 
 <img 
     style="display: block; margin-left: auto; margin-right: auto; width: 100%;"
-    src="https://github.com/jbarbourmoore/Cryptography-Exploration/blob/56002c78d1694b8a4e21394c3be2028ec2b8ccf1/CryptographySchemes/OutputImages/RSA_KeyGeneration_DurationGraphs.png" 
+    src="https://github.com/jbarbourmoore/Cryptography-Exploration/blob/f72678c06aeacaf69ca0f76224ee13000f4598b2/CryptographySchemes/OutputImages/RSA_KeyGeneration_DurationGraphs.png" 
     alt="This shows the key generation duration for each prime generation methodology over the various key lengths.">
 </img>
 
@@ -108,7 +108,7 @@ As mentioned in NIST FIPS 186-5 ["Digital Signature Standard (DSS)"](https://nvl
 
 <img 
     style="display: block; margin-left: auto; margin-right: auto; width: 100%;"
-    src="https://github.com/jbarbourmoore/Cryptography-Exploration/blob/56002c78d1694b8a4e21394c3be2028ec2b8ccf1/CryptographySchemes/OutputImages/RSA_KeyGeneration_DurationGraphs_Simple.png" 
+    src="https://github.com/jbarbourmoore/Cryptography-Exploration/blob/f72678c06aeacaf69ca0f76224ee13000f4598b2/CryptographySchemes/OutputImages/RSA_KeyGeneration_DurationGraphs_Simple.png" 
     alt="This shows the comparison between standard and quintuple private key forms on both encryption and decryption.">
 </img>
 
