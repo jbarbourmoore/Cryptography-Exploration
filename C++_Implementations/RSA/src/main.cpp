@@ -9,6 +9,7 @@
 #include <string.h>
 #include "RSAPublicKey.hpp"
 #include "RSAPrivateKey.hpp"
+#include "RSAKeyGeneration.hpp"
 
 int main(int argc, char const *argv[])
 {
@@ -71,6 +72,14 @@ int main(int argc, char const *argv[])
     my_public_key.freeKey();
     my_quint_private_key.freeKey();
     my_private_key.freeKey();
+
+    RSAKeyGeneration my_key_gen {};
+
+    int security_strength = my_key_gen.getSecurityStrength();
+
+    printf("My RSA Key Generation Security Strength Is %d\n",security_strength);
+
+
 
     return 0;
 }

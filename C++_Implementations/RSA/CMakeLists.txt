@@ -10,6 +10,7 @@ target_sources(RSA_app
         src/RSAPrivateKey.cpp
         src/RSAPublicKey.cpp
         src/main.cpp
+        src/RSAKeyGeneration.cpp
 )
 
 target_link_libraries(RSA_app
