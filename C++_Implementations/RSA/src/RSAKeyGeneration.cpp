@@ -8,6 +8,53 @@ RSAKeyGeneration::RSAKeyGeneration(int keylength){
     setMinPrimeValue();
 }
 
+void RSAKeyGeneration::generateRSAKeysUsingProvablePrimes(){
+    // generate a random public exponent
+    generateRandomE();
+    char *hex_e = BN_bn2hex(e_);
+    printf("The value of e is %s\n", hex_e);
+    OPENSSL_free(hex_e);
+
+    // generate a random seed
+    generateRandomSeed();
+    char *hex_seed = BN_bn2hex(seed_);
+    printf("The value of e is %s\n", hex_seed);
+    OPENSSL_free(hex_seed);
+
+    constructTheProvablePrimes();
+}
+
+void RSAKeyGeneration::generateRandomE(){
+    int security_strength = getSecurityStrength();
+
+    BIGNUM *range = BN_new();
+    BIGNUM *random = BN_new();
+
+    // calculate the range between e_min and e_max
+    BN_usub(range, e_max_, e_min_);
+
+    // generate the random value in the range
+    int success = BN_priv_rand_range_ex(random,range,security_strength,context_);
+    assert(success == 1);
+
+    // add the random value to e_min
+    BN_add(e_, random, e_min_);
+
+    BN_free(range);
+    BN_free(random);
+}
+
+void RSAKeyGeneration::constructTheProvablePrimes(){
+
+}
+
+void RSAKeyGeneration::generateRandomSeed(){
+    int security_strength = getSecurityStrength();
+    int length = 2 * security_strength + 1;
+    int success = BN_rand_ex(seed_, length, BN_RAND_TOP_ANY,BN_RAND_BOTTOM_ANY,security_strength,context_);
+    assert(success == 1);
+}
+
 void RSAKeyGeneration::setEParameters(){
     // the max and min values for e as a hexadecimal string
     const char *hex_e_min = "010000";

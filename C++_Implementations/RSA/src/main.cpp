@@ -81,6 +81,6 @@ int main(int argc, char const *argv[])
     printf("My RSA Key Generation Security Strength Is %d\n",security_strength);
     printf("My RSA Prime Length Is %d\n",prime_length);
 
-
+    my_key_gen.generateRSAKeysUsingProvablePrimes();
     return 0;
 }
