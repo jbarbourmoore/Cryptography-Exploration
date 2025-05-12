@@ -73,12 +73,13 @@ int main(int argc, char const *argv[])
     my_quint_private_key.freeKey();
     my_private_key.freeKey();
 
-    RSAKeyGeneration my_key_gen {};
+    RSAKeyGeneration my_key_gen = RSAKeyGeneration(15360);
 
     int security_strength = my_key_gen.getSecurityStrength();
+    int prime_length = my_key_gen.getPrimeLength();
 
     printf("My RSA Key Generation Security Strength Is %d\n",security_strength);
-
+    printf("My RSA Prime Length Is %d\n",prime_length);
 
 
     return 0;
