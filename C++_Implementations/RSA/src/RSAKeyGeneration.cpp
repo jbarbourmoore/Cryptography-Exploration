@@ -18,7 +18,7 @@ void RSAKeyGeneration::generateRSAKeysUsingProvablePrimes(){
     // generate a random seed
     generateRandomSeed();
     char *hex_seed = BN_bn2hex(seed_);
-    printf("The value of e is %s\n", hex_seed);
+    printf("The value of seed is %s\n", hex_seed);
     OPENSSL_free(hex_seed);
 
     constructTheProvablePrimes();
@@ -27,26 +27,123 @@ void RSAKeyGeneration::generateRSAKeysUsingProvablePrimes(){
 void RSAKeyGeneration::generateRandomE(){
     int security_strength = getSecurityStrength();
 
-    BIGNUM *range = BN_new();
     BIGNUM *random = BN_new();
 
-    // calculate the range between e_min and e_max
-    BN_usub(range, e_max_, e_min_);
+    int bits = 256 - 16;
 
     // generate the random value in the range
-    int success = BN_priv_rand_range_ex(random,range,security_strength,context_);
+    int success = BN_rand_ex(random, bits, BN_RAND_TOP_ANY, BN_RAND_BOTTOM_ODD, security_strength, context_);
+
     assert(success == 1);
 
     // add the random value to e_min
     BN_add(e_, random, e_min_);
 
-    BN_free(range);
     BN_free(random);
 }
 
-void RSAKeyGeneration::constructTheProvablePrimes(){
+bool RSAKeyGeneration::constructTheProvablePrimes(){
 
-}
+    char* hex_first_seed = BN_bn2hex(seed_);
+
+    ProvablePrimeGenerationResult result = constructAProvablePrimePotentiallyWithConditions(getPrimeLength(), 1, 1, hex_first_seed);
+
+    if (result.success != true) {
+        printf("Failed to construct provable prime 'p'\n");
+        return false;
+    }else {
+        printf("prime hex : %s\n", result.prime);
+    }
+    
+    return false;
+};
+
+ProvablePrimeGenerationResult RSAKeyGeneration::constructAProvablePrimePotentiallyWithConditions(int L, int N1, int N2, char* first_seed_char){
+    ProvablePrimeGenerationResult result = ProvablePrimeGenerationResult{};
+
+    BIGNUM *first_seed = BN_new();
+    BN_hex2bn(&first_seed, first_seed_char);
+
+    // generate an auxillary prime of length N1
+    int p1 = 0;
+    BIGNUM *p2_seed = BN_new();
+    if (N1 == 1){
+        p1 = 1;
+        BN_copy(p2_seed, first_seed);
+    } else {
+        assert(N1 == 1);
+    }
+
+    // generate an auxillary prime of length N2
+    int p2 = 0;
+    BIGNUM *p0_seed = BN_new();
+    if (N2 == 1){
+        p2 = 1;
+        BN_copy(p0_seed, p2_seed);
+    } else {
+        assert(N2 == 1);
+    }
+
+    int length = L/2;
+    if (L % 2 != 0) {
+        length += 1;
+    }
+
+    ShaweTaylorRandomPrimeResult shawe_taylor_result = generateRandomPrimeWithShaweTaylor(length, p0_seed);
+
+
+    return result;
+};
+
+BIGNUM* RSAKeyGeneration::hashBigNum(BIGNUM* bignum_to_hash){
+    BIGNUM *hash_result = BN_new();
+
+    size_t size = BN_num_bytes(bignum_to_hash);
+    unsigned char *value_to_hash = new unsigned char[size]();
+    
+    BN_bn2bin(bignum_to_hash, value_to_hash);
+
+    EVP_MD_CTX *hash_context = EVP_MD_CTX_new();
+    EVP_DigestInit_ex(hash_context, EVP_sha512(), NULL);
+
+    EVP_DigestUpdate(hash_context, value_to_hash, size);
+
+    unsigned hash_length_bytes = hash_length_/8;
+    unsigned char hash_result_bytes[hash_length_/8];
+
+    EVP_DigestFinal_ex(hash_context, hash_result_bytes, &hash_length_bytes);
+    EVP_MD_CTX_free(hash_context);
+
+    BN_bin2bn(hash_result_bytes, hash_length_bytes, hash_result);
+
+    char *hash_result_hex = BN_bn2hex(hash_result);
+    printf("hash : %s\n", hash_result_hex);
+
+    return hash_result;
+};
+
+ShaweTaylorRandomPrimeResult RSAKeyGeneration::generateRandomPrimeWithShaweTaylor(int length, BIGNUM* input_seed){
+    ShaweTaylorRandomPrimeResult result {};
+    BIGNUM *prime_seed = input_seed;
+    BIGNUM *number_one = BN_new();
+    const char *hex_one = "1";
+    BIGNUM *number_two = BN_new();
+    const char *hex_two = "2";
+
+    BN_hex2bn(&number_one,hex_one);
+    printf("starting shawe taylor\n");
+    BIGNUM *hash_prime_seed = hashBigNum(prime_seed);
+    BIGNUM *inc_seed = BN_new();
+    BN_add(inc_seed, prime_seed, number_one);
+    BIGNUM *hash_inc_seed = hashBigNum(inc_seed);
+
+    BIGNUM *c = BN_new();
+    int length_minus_1 = length - 1;
+    // BN_exp(c, number_two, )
+
+    return result;
+};
+
 
 void RSAKeyGeneration::generateRandomSeed(){
     int security_strength = getSecurityStrength();

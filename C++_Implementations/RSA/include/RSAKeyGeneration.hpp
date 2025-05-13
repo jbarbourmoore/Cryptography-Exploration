@@ -4,6 +4,24 @@
 #include <openssl/bn.h>
 #include <string.h>
 #include <cassert>
+#include <openssl/evp.h>
+
+/// @brief This structure holds the data from construction of a provable prime (success:bool, prime:char*, prime_1:char*, prime_2:char*, seed:char*)
+struct ProvablePrimeGenerationResult{
+    bool success {false};
+    const char* prime {"0"};
+    const char* prime_1 {"0"};
+    const char* prime_2 {"0"};
+    const char* seed {"0"};
+};
+
+/// @brief This structure holds the data from shawe taylor random prime generation (success:bool, prime:char*, prime_seed:char*, prime_gen_counter:int)
+struct ShaweTaylorRandomPrimeResult{
+    bool success {false};
+    const char* prime {"0"};
+    const char* prime_seed {"0"};
+    int prime_gen_counter {0};
+};
 
 /// @brief This class contains the variables and methods for an RSA Private Key
 class RSAKeyGeneration{
@@ -36,6 +54,9 @@ class RSAKeyGeneration{
         /// @brief the key length in bits
         int keylength_ {2048};
 
+        /// @brief The hash length being used when generating primes
+        int hash_length_ {512};
+
         /// @brief The BN CTX to be used in the calculations for this rsa key generation
         BN_CTX *context_ = BN_CTX_new();
 
@@ -57,7 +78,30 @@ class RSAKeyGeneration{
 
         /// @brief This method generates the provable primes 'p' and 'q' to be used in the RSA keys
         /// Based on Nist Fips 186-5 Appendix A.1.2.2 "Construction of the Provable Primes p and q"
-        void constructTheProvablePrimes();
+        bool constructTheProvablePrimes();
+
+        /// @brief The method constructs a provable prime that may or may not have additional conditions.
+        /// Based on NIST FIPS 186-5 Appendix B.10 "Construct a Provable Prime (Possibly with Conditions) Based on
+        /// Contemporaneously Constructed Auxiliary Provable Primes"
+        /// @param L The length of the prime
+        /// @param N1 The length of the first condition
+        /// @param N2 The length of the second condition
+        /// @param first_seed_char The first seed as a character array
+        /// @return A struct containing a boolean as to whether the method succeeded, a character array of the prime
+        /// a character array of the first conditional prime, a character array of the second conditional prime
+        /// and a character array of the final seed value for the next prime construction
+        ProvablePrimeGenerationResult constructAProvablePrimePotentiallyWithConditions(int L, int N1, int N2, char* first_seed_char);
+
+        /// @brief This method generates a random prime number using the Shawe Taylor methodology.
+        /// @param length The bit length for the prime being created
+        /// @param input_seed The input seed for the prime being created
+        /// @return The result of the prime generation as a struct.
+        ShaweTaylorRandomPrimeResult generateRandomPrimeWithShaweTaylor(int length, BIGNUM* input_seed);
+
+        /// @brief This method hashed the big number using SHA 512
+        /// @param bignum_to_hash The big number to be hashed
+        /// @return The result of the hash as a bignum
+        BIGNUM* hashBigNum(BIGNUM* bignum_to_hash);
 
     public:
 
