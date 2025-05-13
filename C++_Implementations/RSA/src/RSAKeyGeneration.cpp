@@ -226,8 +226,8 @@ ProvablePrimeGenerationResult RSAKeyGeneration::constructAProvablePrimePotential
                 BN_add_word(t, 1);
             }
         }
-        const char *p_start_hex = BN_bn2hex(p);
-        printf("p start : %s\n",p_start_hex);
+        // const char *p_start_hex = BN_bn2hex(p);
+        // printf("p start : %s\n",p_start_hex);
         // Step 18
         pgen_counter += 1;
 
@@ -261,13 +261,15 @@ ProvablePrimeGenerationResult RSAKeyGeneration::constructAProvablePrimePotential
             BN_sub_word(p_min_3, 3);
             BN_mod(a, a, p_min_3, context_);
             BN_add_word(a, 2);
+            // const char *a_hex = BN_bn2hex(a);
+            // printf("a : %s\n", a_hex);
 
             // temporary variable for z (z = a ** (2(t p2 − y) p1) mod p)
             BIGNUM *z = BN_new();
-            BN_mul(z, t, p0, context_);
+            BN_mul(z, t, p2, context_);
             BN_sub(z, z, y);
             BN_mul_word(z, 2);
-            BN_mul(z,z,p1,context_);
+            BN_mul(z, z, p1, context_);
             BN_mod_exp(z, a, z, p, context_);
 
             BIGNUM *z_minus_1 = BN_new();
@@ -276,29 +278,12 @@ ProvablePrimeGenerationResult RSAKeyGeneration::constructAProvablePrimePotential
             // const char *gcd_result_hex = BN_bn2hex(gcd_result);
             // printf("gcd : %s\n",gcd_result_hex);
             if(BN_is_one(gcd_result) == 1){
-                const char *p_hex = BN_bn2hex(p);
-                printf("p end   : %s\n",p_hex);
+                // const char *p_hex = BN_bn2hex(p);
+                // printf("p end   : %s\n",p_hex);
                 BN_GENCB *gencb = BN_GENCB_new();
                 BIGNUM *z_p0_modp = BN_new();
                 BN_mod_exp(z_p0_modp, z, p0, p, context_);
                 
-                if(BN_check_prime(p,context_,gencb) == 1){
-                    // const char *p_hex = BN_bn2hex(p);
-                    // printf("p end   : %s\n",p_hex);
-                    // printf("counter: %d, gcd result is 1 ? %d\n",prime_gen_counter, BN_is_one(gcd_result));
-                    
-                    // const char *p0_hex = BN_bn2hex(p0);
-                    // printf("p0_hex : %s\n",p0_hex);
-                    const char *z_p0_modp_hex = BN_bn2hex(z_p0_modp);
-                    printf("z_p0_modp : %s\n",z_p0_modp_hex);
-                    const char *z_hex = BN_bn2hex(z);
-                    printf("z_hex : %s\n",z_hex);
-                    const char *p0_hex = BN_bn2hex(p0);
-                    printf("p0_hex : %s\n",p0_hex);
-                    ProvablePrimeGenerationResult final_result {true, p, p1, p2, pseed};
-                    printf("final result length %d : %b\n", L, final_result.success_);  
-                    return final_result;
-                }
                 if(BN_is_one(z_p0_modp) == 1){
                     const char *hex_c = BN_bn2hex(p);
                     printf("p : %s\n",hex_c);    
