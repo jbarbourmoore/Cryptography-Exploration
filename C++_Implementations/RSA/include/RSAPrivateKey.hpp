@@ -40,6 +40,23 @@ class RSAPrivateKey{
         BN_CTX *context_ = BN_CTX_new();
 
     public:
+        /// @brief The initializer for an RSA public key with standard form
+        /// @param n The private key 'n' value as a BIGNUM
+        /// @param d The private key 'd' value as a BIGNUM
+        /// @param key_length optional - the key length in bits, default is 2048
+        RSAPrivateKey(BIGNUM *n, BIGNUM *d, int key_length = 2048);
+
+        /// @brief The initializer for an RSA public key with quint form
+        /// @param n The private key 'n' value as a BIGNUM
+        /// @param d The private key 'd' value as a BIGNUM
+        /// @param p The private key 'p' value as a BIGNUM
+        /// @param q The private key 'q' value as a BIGNUM
+        /// @param key_length optional - the key length in bits, default is 2048
+        RSAPrivateKey(BIGNUM *n, BIGNUM *d, BIGNUM *p, BIGNUM *q, int key_length = 2048);
+
+        /// @brief The initializer for an empty private key
+        /// @param key_length optional - the key length in bits, default is 2048
+        RSAPrivateKey(int key_length = 2048);
 
         /// @brief This method creates the RSA Private key from character arrays in decimal form
         /// @param charArrayN The character array for 'n' in decimal form

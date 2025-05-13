@@ -15,7 +15,7 @@ RSAKeyGeneration::RSAKeyGeneration(int keylength){
     setMinPrimeValue();
 }
 
-void RSAKeyGeneration::generateRSAKeysUsingProvablePrimes(){
+RSAKeyGenerationResult RSAKeyGeneration::generateRSAKeysUsingProvablePrimes(){
     // generate a random public exponent
     generateRandomE();
     char *hex_e = BN_bn2hex(e_);
@@ -29,6 +29,43 @@ void RSAKeyGeneration::generateRSAKeysUsingProvablePrimes(){
     OPENSSL_free(hex_seed);
 
     constructTheProvablePrimes();
+    BIGNUM *d = generatePrivateExponent(e_,p_,q_);
+
+    const char *hex_d = BN_bn2hex(d);
+    printf("The value of d is %s\n", hex_d);
+
+    return RSAKeyGenerationResult{};
+}
+
+BIGNUM* RSAKeyGeneration::generatePrivateExponent(BIGNUM *e, BIGNUM *p, BIGNUM *q){
+    // phi = (p.getValue() - 1) * (q.getValue() - 1)
+    BIGNUM *phi = BN_new();
+    // p_1 = p.getValue() - 1
+    BIGNUM *p_min_1 = BN_new();
+    BN_copy(p_min_1, p);
+    BN_sub_word(p_min_1, 1);
+
+    // const char *hex_p1 = BN_bn2hex(p_min_1);
+    // printf("The value of p_min_1 is %s\n", hex_p1);
+
+    // q_1 = q.getValue() - 1
+    BIGNUM *q_min_1 = BN_new();
+    BN_copy(q_min_1, q);
+    BN_sub_word(q_min_1, 1);
+
+    BN_mul(phi, q_min_1, p_min_1, context_);
+
+    // gcd_p1_q1 = euclidsAlgorithm(p_1, q_1)
+    BIGNUM *gcd_p1_q1 = BN_new();
+    BN_gcd(gcd_p1_q1, p_min_1, q_min_1, context_);
+
+    // phi = p_1 * q_1 // gcd_p1_q1
+    BN_div(phi, NULL, phi, gcd_p1_q1, context_);
+    // d = calculateInverseMod_GCD1_ExtendedEuclidsBased(e.getValue(), phi)
+    BIGNUM *d = BN_new();
+    BN_mod_inverse(d, phi, e, context_);
+
+    return d;
 }
 
 void RSAKeyGeneration::generateRandomE(){
@@ -52,19 +89,36 @@ void RSAKeyGeneration::generateRandomE(){
 bool RSAKeyGeneration::constructTheProvablePrimes(){
 
     char* hex_first_seed = BN_bn2hex(seed_);
-
+    
     ProvablePrimeGenerationResult result = constructAProvablePrimePotentiallyWithConditions(getPrimeLength(), 1, 1, hex_first_seed);
-
+    const char *prime_hex = NULL;
     printf("result success : %b\n",result.success_);
     if (result.success_ != true) {
         printf("Failed to construct provable prime 'p'\n");
         return false;
     }else {
-        const char *prime_hex = BN_bn2hex(result.prime_);
-        printf("prime hex : %s\n", prime_hex);
+        prime_hex = BN_bn2hex(result.prime_);
+        printf("p : %s\n", prime_hex);
     }
+
+    p_ = result.prime_;
+    BIGNUM *working_seed = result.prime_seed_;
+    char* hex_working_seed = BN_bn2hex(working_seed);
+
+    result = constructAProvablePrimePotentiallyWithConditions(getPrimeLength(), 1, 1, hex_working_seed);
+    printf("result success : %b\n",result.success_);
+    if (result.success_ != true) {
+        printf("Failed to construct provable prime 'q'\n");
+        return false;
+    }else {
+        printf("p : %s\n", prime_hex);
+        prime_hex = BN_bn2hex(result.prime_);
+        printf("q : %s\n", prime_hex);
+    }
+    q_ = result.prime_;
+    seed_ = result.prime_seed_;
     
-    return false;
+    return true;
 };
 
 ProvablePrimeGenerationResult RSAKeyGeneration::constructAProvablePrimePotentiallyWithConditions(int L, int N1, int N2, char* first_seed_char){
@@ -635,4 +689,12 @@ ProvablePrimeGenerationResult::ProvablePrimeGenerationResult(bool success, BIGNU
     prime_1_ = prime_1;
     prime_2_ = prime_2;
     prime_seed_ = prime_seed;
+}
+
+
+RSAKeyGenerationResult::RSAKeyGenerationResult(bool success, RSAPrivateKey private_key, RSAPublicKey public_key, int key_length){
+    success_ = success;
+    private_key_ = private_key;
+    public_key_ = public_key;
+    key_length_ = key_length;
 }

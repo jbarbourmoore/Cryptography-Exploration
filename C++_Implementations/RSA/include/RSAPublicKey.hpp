@@ -21,6 +21,15 @@ class RSAPublicKey
         BN_CTX *context_ = BN_CTX_new();
 
     public: 
+        /// @brief The initializer for an RSA public key 
+        /// @param n The 'n' value for the public key as a BIGNUM
+        /// @param d The 'd' value for the public key as a BIGNUM
+        /// @param keylength optional - The key length in bits, default is 2048
+        RSAPublicKey(BIGNUM* n, BIGNUM* d, int keylength = 2048);
+
+        /// @brief The initializer for an empty RSA public key 
+        /// @param keylength optional - The key length in bits, default is 2048
+        RSAPublicKey(int keylength = 2048);
 
         /// @brief This method creates the RSA Public Key from character arrays in decimal form
         /// @param charArrayN The character array for 'n' in decimal form

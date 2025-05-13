@@ -5,7 +5,21 @@
 #include <string.h>
 #include <cassert>
 #include "BigNumHelpers.hpp"
+#include "RSAPrivateKey.hpp"
+#include "RSAPublicKey.hpp"
 
+struct RSAKeyGenerationResult{
+    bool success_ {};
+    RSAPrivateKey private_key_ {};
+    RSAPublicKey public_key_ {};
+    int key_length_ {};
+    /// @brief Initializes a key generation result
+    /// @param success optional - Whether the key generation was successful, default is false
+    /// @param private_key optional - The private key that was generated, default is new
+    /// @param public_key optional - The public key that was generated, default is new
+    /// @param key_length optional - the length of the key in bits, default is 2048
+    RSAKeyGenerationResult(bool success = false, RSAPrivateKey private_key = RSAPrivateKey(), RSAPublicKey public_key = RSAPublicKey(), int key_length = 2048);
+};
 
 /// @brief This structure holds the data from construction of a provable prime (success:bool, prime:char*, prime_1:char*, prime_2:char*, seed:char*)
 struct ProvablePrimeGenerationResult{
@@ -14,6 +28,12 @@ struct ProvablePrimeGenerationResult{
     BIGNUM *prime_1_ {};
     BIGNUM *prime_2_ {};
     BIGNUM *prime_seed_ {};
+    /// @brief Initializes a provable prime generation result
+    /// @param success optional - Whether the provable prime generation was successful, default is false
+    /// @param prime optional - The prime that was generated, default is new
+    /// @param prime_1 optional - The first auxillary prime, default is new
+    /// @param prime_2 optional - The second auxillary prime, default is new
+    /// @param prime_seed optional - The next prime seed, default is new
     ProvablePrimeGenerationResult(bool success = false, BIGNUM *prime = BN_new(), BIGNUM *prime_1 = BN_new(), BIGNUM *prime_2 = BN_new(), BIGNUM *prime_seed = BN_new());
 };
 
@@ -24,10 +44,10 @@ struct ShaweTaylorRandomPrimeResult{
     BIGNUM *prime_seed_ {};
     int prime_gen_counter_ {};
     /// @brief Initializes a shawe taylor random prime result
-    /// @param success Whether the shawe generation was successfull
-    /// @param prime The prime that was generated
-    /// @param prime_seed The next prime seed
-    /// @param prime_gen_counter The prime generation counter value after the completion
+    /// @param success optional - Whether the shawe generation was successful, default is false
+    /// @param prime optional - The prime that was generated, default is new
+    /// @param prime_seed optional - The next prime seed, default is new
+    /// @param prime_gen_counter optional - The prime generation counter value after the completion, default is new
     ShaweTaylorRandomPrimeResult(bool success = false, BIGNUM* prime = BN_new(), BIGNUM* prime_seed = BN_new(), int prime_gen_counter = 0);
 };
 
@@ -106,6 +126,14 @@ class RSAKeyGeneration{
         /// @return The result of the prime generation as a struct.
         ShaweTaylorRandomPrimeResult generateRandomPrimeWithShaweTaylor(int length, BIGNUM* input_seed);
 
+        /// @brief This method calculated the private exponent 'd'
+        /// @param e The public exponent 'e'
+        /// @param p The first prime 'p'
+        /// @param q The second prime 'q'
+        /// @return 'd' The private exponent for the RSA keys
+        BIGNUM* generatePrivateExponent(BIGNUM *e, BIGNUM *p, BIGNUM *q);
+
+
     public:
 
         /// @brief Instantiates RSAKeyGeneration with a given keylength in bits
@@ -114,7 +142,7 @@ class RSAKeyGeneration{
 
         /// @brief This method generates RSA keys based on provable primes.
         /// Based on Nist Fips 186-5 Appendix A.1.2 "Generation of Random Primes that are Provably Prime"
-        void generateRSAKeysUsingProvablePrimes();
+        RSAKeyGenerationResult generateRSAKeysUsingProvablePrimes();
 
         /// @brief This method returns the security strength for the RSA Key Generation basec on the key length
         /// @return The security strength

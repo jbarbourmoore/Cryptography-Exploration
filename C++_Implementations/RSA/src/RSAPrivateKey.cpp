@@ -9,6 +9,27 @@
 #include <string.h>
 #include "RSAPrivateKey.hpp"
 
+RSAPrivateKey::RSAPrivateKey(BIGNUM *n, BIGNUM *d, int key_length){
+    keylength_ = key_length;
+    n_ = n;
+    d_ = d;
+    quint_form_ = false;
+}
+
+RSAPrivateKey::RSAPrivateKey(BIGNUM *n, BIGNUM *d, BIGNUM *p, BIGNUM *q, int key_length){
+    keylength_ = key_length;
+    n_ = n;
+    d_ = d;
+    p_ = p;
+    q_ = q;
+    quint_form_ = true;
+    populateQuintForm();
+}
+
+RSAPrivateKey::RSAPrivateKey(int key_length){
+    keylength_ = key_length;
+}
+
 void RSAPrivateKey::fromDecCharArray(const char *charArrayN, const char *charArrayD, int keylength){
     BN_dec2bn(&n_, charArrayN);
     BN_dec2bn(&d_, charArrayD);

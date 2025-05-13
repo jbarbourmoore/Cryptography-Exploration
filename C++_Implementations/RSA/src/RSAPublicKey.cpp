@@ -7,6 +7,14 @@
 
 #include "RSAPublicKey.hpp"
 
+RSAPublicKey::RSAPublicKey(BIGNUM *n, BIGNUM *e, int keylength){
+    n_ = n;
+    e_ = e;
+    keylength_ = keylength;
+}
+RSAPublicKey::RSAPublicKey(int keylength){
+    keylength_ = keylength;
+}
 void RSAPublicKey::fromDecCharArray(const char *charArrayN, const char *charArrayE, int keylength){
     BN_dec2bn(&n_, charArrayN);
     BN_dec2bn(&e_, charArrayE);
