@@ -9,11 +9,12 @@
 
 /// @brief This structure holds the data from construction of a provable prime (success:bool, prime:char*, prime_1:char*, prime_2:char*, seed:char*)
 struct ProvablePrimeGenerationResult{
-    bool success {false};
-    const char* prime {"0"};
-    const char* prime_1 {"0"};
-    const char* prime_2 {"0"};
-    const char* seed {"0"};
+    bool success_ {};
+    BIGNUM *prime_ {};
+    BIGNUM *prime_1_ {};
+    BIGNUM *prime_2_ {};
+    BIGNUM *prime_seed_ {};
+    ProvablePrimeGenerationResult(bool success = false, BIGNUM *prime = BN_new(), BIGNUM *prime_1 = BN_new(), BIGNUM *prime_2 = BN_new(), BIGNUM *prime_seed = BN_new());
 };
 
 /// @brief This structure holds the data from shawe taylor random prime generation (success:bool, prime:char*, prime_seed:char*, prime_gen_counter:int)
@@ -104,11 +105,6 @@ class RSAKeyGeneration{
         /// @param input_seed The input seed for the prime being created
         /// @return The result of the prime generation as a struct.
         ShaweTaylorRandomPrimeResult generateRandomPrimeWithShaweTaylor(int length, BIGNUM* input_seed);
-
-        /// @brief This method hashed the big number using SHA 512
-        /// @param bignum_to_hash The big number to be hashed
-        /// @return The result of the hash as a bignum
-        // BIGNUM* hashBigNum(BIGNUM* bignum_to_hash);
 
     public:
 

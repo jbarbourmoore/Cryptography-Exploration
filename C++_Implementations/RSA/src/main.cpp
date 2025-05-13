@@ -74,7 +74,7 @@ int main(int argc, char const *argv[])
     my_quint_private_key.freeKey();
     my_private_key.freeKey();
 
-    RSAKeyGeneration my_key_gen = RSAKeyGeneration(15360);
+    RSAKeyGeneration my_key_gen = RSAKeyGeneration(2048);
 
     int security_strength = my_key_gen.getSecurityStrength();
     int prime_length = my_key_gen.getPrimeLength();
