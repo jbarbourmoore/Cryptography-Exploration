@@ -13,3 +13,4 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 find_package(OpenSSL REQUIRED)
 
 add_subdirectory(RSA)
+add_subdirectory(HelperFunctions)

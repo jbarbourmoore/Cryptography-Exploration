@@ -1,3 +1,10 @@
+/// This file handles generation of RSA Keys in C++
+///
+/// Libaries Used : OpenSSL BIGNUM for dealing with extremely large integers
+/// Author        : Jamie Barbour-Moore
+/// Created       : 05/12/25
+/// Updated       : 05/13/25
+
 #include "RSAKeyGeneration.hpp"
 
 RSAKeyGeneration::RSAKeyGeneration(int keylength){
@@ -137,9 +144,9 @@ ShaweTaylorRandomPrimeResult RSAKeyGeneration::generateRandomPrimeWithShaweTaylo
     BN_add(inc_seed, prime_seed, number_one);
     BIGNUM *hash_inc_seed = hashBigNum(inc_seed);
 
-    BIGNUM *c = BN_new();
+    BIGNUM *c = BigNumHelpers::xorBigNums(hash_prime_seed, hash_inc_seed);
+    
     int length_minus_1 = length - 1;
-    // BN_exp(c, number_two, )
 
     return result;
 };

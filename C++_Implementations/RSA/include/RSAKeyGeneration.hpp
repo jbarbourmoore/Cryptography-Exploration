@@ -5,6 +5,8 @@
 #include <string.h>
 #include <cassert>
 #include <openssl/evp.h>
+#include "BigNumHelpers.hpp"
+
 
 /// @brief This structure holds the data from construction of a provable prime (success:bool, prime:char*, prime_1:char*, prime_2:char*, seed:char*)
 struct ProvablePrimeGenerationResult{

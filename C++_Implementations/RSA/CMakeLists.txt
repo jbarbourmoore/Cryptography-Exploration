@@ -16,3 +16,5 @@ target_sources(RSA_app
 target_link_libraries(RSA_app
         OpenSSL::SSL)
 
+target_link_libraries(RSA_app
+        BigNumHelpers_lib)

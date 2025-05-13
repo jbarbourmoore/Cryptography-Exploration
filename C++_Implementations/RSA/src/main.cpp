@@ -3,13 +3,14 @@
 /// Libaries Used : OpenSSL BIGNUM for dealing with extremely large integers
 /// Author        : Jamie Barbour-Moore
 /// Created       : 05/11/25
-/// Updated       : 05/12/25
+/// Updated       : 05/13/25
 
 #include <openssl/bn.h>
 #include <string.h>
 #include "RSAPublicKey.hpp"
 #include "RSAPrivateKey.hpp"
 #include "RSAKeyGeneration.hpp"
+#include "BigNumHelpers.hpp"
 
 int main(int argc, char const *argv[])
 {
@@ -82,5 +83,16 @@ int main(int argc, char const *argv[])
     printf("My RSA Prime Length Is %d\n",prime_length);
 
     my_key_gen.generateRSAKeysUsingProvablePrimes();
+
+    BIGNUM *first_num = BN_new();
+    BIGNUM *second_num = BN_new();
+    BN_hex2bn(&first_num, "FFF");
+    BN_hex2bn(&second_num, "11");
+    BIGNUM *xor_result = BigNumHelpers::xorBigNums(first_num, second_num);
+
+    char *xor_result_char = BN_bn2hex(xor_result);
+    printf("XOR result = %s\n",xor_result_char);
+    OPENSSL_free(xor_result_char);
+
     return 0;
 }
