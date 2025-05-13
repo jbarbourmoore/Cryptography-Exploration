@@ -124,31 +124,121 @@ BIGNUM* RSAKeyGeneration::hashBigNum(BIGNUM* bignum_to_hash){
     BN_bin2bn(hash_result_bytes, hash_length_bytes, hash_result);
 
     char *hash_result_hex = BN_bn2hex(hash_result);
-    printf("hash : %s\n", hash_result_hex);
+    // printf("hash : %s\n", hash_result_hex);
 
     return hash_result;
 };
 
 ShaweTaylorRandomPrimeResult RSAKeyGeneration::generateRandomPrimeWithShaweTaylor(int length, BIGNUM* input_seed){
-    ShaweTaylorRandomPrimeResult result {};
+    ShaweTaylorRandomPrimeResult false_result {};
+    BN_GENCB *gencb = BN_GENCB_new();
     BIGNUM *prime_seed = input_seed;
     BIGNUM *number_one = BN_new();
-    const char *hex_one = "1";
+    BN_set_word(number_one, 1);
     BIGNUM *number_two = BN_new();
-    const char *hex_two = "2";
+    BN_set_word(number_two, 2);
+    int prime_gen_counter = 0;
+    // printf("starting shawe taylor\n");
+    if (length < 33) {
+        int max_counter = length * 4;
+        while (prime_gen_counter < max_counter){
+            // step 5 : XOR(hash(pseed),hash(pseed+1))
+            BIGNUM *hash_prime_seed = hashBigNum(prime_seed);
+            BIGNUM *inc_seed = BN_new();
+            BN_add(inc_seed, prime_seed, number_one);
+            BIGNUM *hash_inc_seed = hashBigNum(inc_seed);
+            BIGNUM *c = BigNumHelpers::xorBigNums(hash_prime_seed, hash_inc_seed);
 
-    BN_hex2bn(&number_one,hex_one);
-    printf("starting shawe taylor\n");
-    BIGNUM *hash_prime_seed = hashBigNum(prime_seed);
-    BIGNUM *inc_seed = BN_new();
-    BN_add(inc_seed, prime_seed, number_one);
-    BIGNUM *hash_inc_seed = hashBigNum(inc_seed);
+            // step 6
+            BIGNUM *c_base = BN_new();
+            int length_minus_1 = length - 1;
+            BIGNUM *length_1_bn = BN_new();
+            BN_set_word(length_1_bn,length_minus_1);
+            BN_exp(c_base, number_two, length_1_bn, context_);
+            BN_mod(c, c_base, c, context_);
+            BN_add(c, c, c_base);
 
-    BIGNUM *c = BigNumHelpers::xorBigNums(hash_prime_seed, hash_inc_seed);
+            // step 7 : make sure c is odd
+            if(BN_is_odd(c) == 0){
+                BN_add(c, c, number_one);
+            }
+
+            // step 8 : inc prime gen counter by one
+            prime_gen_counter += 1;
+
+            // step 9 : inc prime seed by two
+            BN_add(prime_seed, prime_seed, number_two);
+            
+            // step 10 & 11 : return prime if it is in fact prime
+            if (BN_check_prime(c,context_, gencb)==1){
+                ShaweTaylorRandomPrimeResult final_result {true, c, prime_seed, prime_gen_counter};
+                return final_result;
+            }
+
+            // step 12
+            if (prime_gen_counter > max_counter){
+                return false_result;
+            }
+        }
+    }
+
+    // step 14
+    ShaweTaylorRandomPrimeResult iterative_result = generateRandomPrimeWithShaweTaylor(length/2, input_seed);
     
-    int length_minus_1 = length - 1;
+    // step 15
+    if (iterative_result.success_ == false) {
+        return false_result;
+    }
 
-    return result;
+    // step 16
+    int iteration = length / hash_length_;
+    if (length % hash_length_ == 0){
+        iteration -= 1;
+    }
+
+    BIGNUM *c0 = iterative_result.prime_;
+    prime_seed = iterative_result.prime_seed_;
+
+    // step 18
+    BIGNUM *x = BN_new();
+    BN_set_word(x, 0);
+
+    // step 19
+    BIGNUM *hash_for_x;
+    BIGNUM *two_to_ihashlen = BN_new();
+    BIGNUM *prime_seed_inc_i = BN_new();
+    for (int i = 0; i ++; i <= iteration){
+        BN_set_word(two_to_ihashlen, i * hash_length_);
+        BN_exp(two_to_ihashlen, number_two, two_to_ihashlen, context_);
+        BN_set_word(prime_seed_inc_i, i);
+        BN_add(prime_seed_inc_i,prime_seed_inc_i,prime_seed);
+        prime_seed_inc_i = hashBigNum(prime_seed_inc_i);
+        BN_mul(prime_seed_inc_i,prime_seed_inc_i,two_to_ihashlen,context_);
+    }
+
+    // step 20
+    BN_add_word(prime_seed, iteration + 1);
+
+    // step 21
+    BIGNUM *two_length_1_bn = BN_new();
+    BN_set_word(two_length_1_bn, length - 1);
+    BN_mod(x, two_length_1_bn, x, context_);
+    BN_add(x, x, two_length_1_bn);
+
+    // step 22
+    BIGNUM *two_c0 = BN_new();
+    BN_mul(two_c0, c0, number_two, context_);
+    BIGNUM *t = BN_new();
+    BIGNUM *t_rem = BN_new();
+    BN_div(t, t_rem, x, two_c0, context_);
+    if (BN_is_zero(t_rem) != 1){
+        BN_add_word(t, 1);
+    }
+
+    
+
+
+    return false_result;
 };
 
 
@@ -218,3 +308,10 @@ int RSAKeyGeneration::getKeyLength(){
 int RSAKeyGeneration::getPrimeLength(){
     return keylength_ / 2;
 };
+
+ShaweTaylorRandomPrimeResult::ShaweTaylorRandomPrimeResult(bool success, BIGNUM* prime, BIGNUM* prime_seed, int prime_gen_counter){
+    success_ = success;
+    prime_ = prime;
+    prime_seed_ = prime_seed;
+    prime_gen_counter_ = prime_gen_counter;
+}

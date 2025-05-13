@@ -19,10 +19,16 @@ struct ProvablePrimeGenerationResult{
 
 /// @brief This structure holds the data from shawe taylor random prime generation (success:bool, prime:char*, prime_seed:char*, prime_gen_counter:int)
 struct ShaweTaylorRandomPrimeResult{
-    bool success {false};
-    const char* prime {"0"};
-    const char* prime_seed {"0"};
-    int prime_gen_counter {0};
+    bool success_ {};
+    BIGNUM *prime_ {};
+    BIGNUM *prime_seed_ {};
+    int prime_gen_counter_ {};
+    /// @brief Initializes a shawe taylor random prime result
+    /// @param success Whether the shawe generation was successfull
+    /// @param prime The prime that was generated
+    /// @param prime_seed The next prime seed
+    /// @param prime_gen_counter The prime generation counter value after the completion
+    ShaweTaylorRandomPrimeResult(bool success = false, BIGNUM* prime = BN_new(), BIGNUM* prime_seed = BN_new(), int prime_gen_counter = 0);
 };
 
 /// @brief This class contains the variables and methods for an RSA Private Key
