@@ -4,7 +4,6 @@
 #include <openssl/bn.h>
 #include <string.h>
 #include <cassert>
-#include <openssl/evp.h>
 #include "BigNumHelpers.hpp"
 
 
@@ -109,7 +108,7 @@ class RSAKeyGeneration{
         /// @brief This method hashed the big number using SHA 512
         /// @param bignum_to_hash The big number to be hashed
         /// @return The result of the hash as a bignum
-        BIGNUM* hashBigNum(BIGNUM* bignum_to_hash);
+        // BIGNUM* hashBigNum(BIGNUM* bignum_to_hash);
 
     public:
 

@@ -102,32 +102,32 @@ ProvablePrimeGenerationResult RSAKeyGeneration::constructAProvablePrimePotential
     return result;
 };
 
-BIGNUM* RSAKeyGeneration::hashBigNum(BIGNUM* bignum_to_hash){
-    BIGNUM *hash_result = BN_new();
+// BIGNUM* RSAKeyGeneration::hashBigNum(BIGNUM* bignum_to_hash){
+//     BIGNUM *hash_result = BN_new();
 
-    size_t size = BN_num_bytes(bignum_to_hash);
-    unsigned char *value_to_hash = new unsigned char[size]();
+//     size_t size = BN_num_bytes(bignum_to_hash);
+//     unsigned char *value_to_hash = new unsigned char[size]();
     
-    BN_bn2bin(bignum_to_hash, value_to_hash);
+//     BN_bn2bin(bignum_to_hash, value_to_hash);
 
-    EVP_MD_CTX *hash_context = EVP_MD_CTX_new();
-    EVP_DigestInit_ex(hash_context, EVP_sha512(), NULL);
+//     EVP_MD_CTX *hash_context = EVP_MD_CTX_new();
+//     EVP_DigestInit_ex(hash_context, EVP_sha512(), NULL);
 
-    EVP_DigestUpdate(hash_context, value_to_hash, size);
+//     EVP_DigestUpdate(hash_context, value_to_hash, size);
 
-    unsigned hash_length_bytes = hash_length_/8;
-    unsigned char hash_result_bytes[hash_length_/8];
+//     unsigned hash_length_bytes = hash_length_/8;
+//     unsigned char hash_result_bytes[hash_length_/8];
 
-    EVP_DigestFinal_ex(hash_context, hash_result_bytes, &hash_length_bytes);
-    EVP_MD_CTX_free(hash_context);
+//     EVP_DigestFinal_ex(hash_context, hash_result_bytes, &hash_length_bytes);
+//     EVP_MD_CTX_free(hash_context);
 
-    BN_bin2bn(hash_result_bytes, hash_length_bytes, hash_result);
+//     BN_bin2bn(hash_result_bytes, hash_length_bytes, hash_result);
 
-    char *hash_result_hex = BN_bn2hex(hash_result);
-    // printf("hash : %s\n", hash_result_hex);
+//     char *hash_result_hex = BN_bn2hex(hash_result);
+//     // printf("hash : %s\n", hash_result_hex);
 
-    return hash_result;
-};
+//     return hash_result;
+// };
 
 ShaweTaylorRandomPrimeResult RSAKeyGeneration::generateRandomPrimeWithShaweTaylor(int length, BIGNUM* input_seed){
     ShaweTaylorRandomPrimeResult false_result {};
@@ -143,10 +143,10 @@ ShaweTaylorRandomPrimeResult RSAKeyGeneration::generateRandomPrimeWithShaweTaylo
         int max_counter = length * 4;
         while (prime_gen_counter < max_counter){
             // step 5 : XOR(hash(pseed),hash(pseed+1))
-            BIGNUM *hash_prime_seed = hashBigNum(prime_seed);
+            BIGNUM *hash_prime_seed = BigNumHelpers::sha512BigNum(prime_seed);
             BIGNUM *inc_seed = BN_new();
             BN_add(inc_seed, prime_seed, number_one);
-            BIGNUM *hash_inc_seed = hashBigNum(inc_seed);
+            BIGNUM *hash_inc_seed = BigNumHelpers::sha512BigNum(inc_seed);
             BIGNUM *c = BigNumHelpers::xorBigNums(hash_prime_seed, hash_inc_seed);
 
             // step 6
@@ -212,7 +212,7 @@ ShaweTaylorRandomPrimeResult RSAKeyGeneration::generateRandomPrimeWithShaweTaylo
         BN_exp(two_to_ihashlen, number_two, two_to_ihashlen, context_);
         BN_set_word(prime_seed_inc_i, i);
         BN_add(prime_seed_inc_i,prime_seed_inc_i,prime_seed);
-        prime_seed_inc_i = hashBigNum(prime_seed_inc_i);
+        prime_seed_inc_i = BigNumHelpers::sha512BigNum(prime_seed_inc_i);
         BN_mul(prime_seed_inc_i,prime_seed_inc_i,two_to_ihashlen,context_);
     }
 
@@ -235,8 +235,32 @@ ShaweTaylorRandomPrimeResult RSAKeyGeneration::generateRandomPrimeWithShaweTaylo
         BN_add_word(t, 1);
     }
 
-    
+    // step 23
+    BIGNUM *t2c0 = BN_new();
+    BN_mul(t2c0, t, two_c0, context_);
+    BIGNUM *two_to_length = BN_new();
+    BIGNUM *length_bn = BN_new();
+    BN_set_word(length_bn, length);
+    BN_exp(two_to_length, number_two, length_bn, context_);
+    int cmp_t2c0_2toL = BN_cmp(t2c0, two_to_length);
+    if(cmp_t2c0_2toL == 0 or cmp_t2c0_2toL == 1){
+        BIGNUM *t = BN_new();
+        BIGNUM *t_rem = BN_new();
+        BN_div(t, t_rem, two_length_1_bn, two_c0, context_);
+        if (BN_is_zero(t_rem) != 1){
+            BN_add_word(t, 1);
+        }
+    }
 
+    // step 24
+    BIGNUM *c = BN_new();
+    BN_mul(c, two_c0, t, context_);
+    BN_add_word(c, 1);
+
+    //step 25
+    prime_gen_counter += 1;
+
+    
 
     return false_result;
 };
