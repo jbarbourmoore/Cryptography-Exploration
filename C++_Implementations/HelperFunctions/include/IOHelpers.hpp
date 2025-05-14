@@ -26,6 +26,8 @@ class CSVWriter{
         /// @param file_path optional - The file path to be written to (default is "out.csv")
         CSVWriter(vector<string> column_headers, string file_path = "out.csv");
 
+        CSVWriter();
+
         /// @brief This method writes content as a line in a csv
         /// @param content The vector of string content to be written
         void writeContent(vector<string> content);

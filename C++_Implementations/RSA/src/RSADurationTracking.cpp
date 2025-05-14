@@ -76,7 +76,7 @@ vector<string> RSADurationDatapoint::getContents(){
         security_strength = 128;
     } else if (key_length_ == 7680){
         security_strength = 192;
-    } else if (key_length_ == 10360){
+    } else if (key_length_ == 15360){
         security_strength = 256;
     } 
     string security_strength_string = to_string(security_strength);
@@ -92,16 +92,56 @@ vector<string> RSADurationDatapoint::getContents(){
 
 void RSADurationDatapoint::printToTerminal(){
     vector<string> content_strings = getContents();
-    printf("Duration Data For %s Security Strength %s With %s Private Key\n",content_strings[2], content_strings[0],content_strings[5]);
-    printf("Generation Duration : %s, Encryption Duration %s, Decryption Duration %s\n",content_strings[1], content_strings[3],content_strings[4]);
+    printf("Duration Data For %s Security Strength %s With %s Private Key\n",content_strings[2].c_str(), content_strings[0].c_str(),content_strings[5].c_str());
+    printf("Generation Duration : %s, Encryption Duration %s, Decryption Duration %s\n",content_strings[1].c_str(), content_strings[3].c_str(),content_strings[4].c_str());
 };
 
-RSADurationDatapoint generateProvableKeys(int keylength = 2048){
+RSADurationTracking::RSADurationTracking(){
+    vector<string> headers {"Security Strength","Key Generation Duration","Generation Method","Encryption","Decryption","Private Key Type"};
+    csv_writer_ = CSVWriter(headers, "RSA_Durations_C++.csv");
+    csv_writer_.writeHeaders();
+};
+
+void RSADurationTracking::runDatapointGeneration(){
+    int iteration_count = 2;
+    vector<RSAGenerationTypes> generation_types = {RSAGenerationTypes::provable};
+    vector<RSAPrivateKeyTypes> private_key_types = {RSAPrivateKeyTypes::quintuple};
+    vector<int> key_lengths = {2048, 3072, 7680, 15360};
+    vector<RSADurationDatapoint> datapoint_list = {};
+
+    for (int i = 0; i < iteration_count; i++){
+        for (int gt = 0; gt < generation_types.size(); gt++){
+            RSAGenerationTypes gen_type = generation_types[gt];
+            for (int pk = 0; pk < private_key_types.size(); pk++){
+                RSAPrivateKeyTypes key_type = private_key_types[pk];
+                for (int kl = 0; kl < key_lengths.size(); kl++){
+                    int key_length = key_lengths[kl];
+                    RSADurationDatapoint datapoint = generateDatapoint(key_length,gen_type, key_type);
+                    datapoint.writeToCSV(csv_writer_);
+                    datapoint_list.push_back(datapoint);
+                }
+
+            }
+        }
+    }
+
+    for (int dp = 0; dp < datapoint_list.size(); dp ++){
+        datapoint_list[dp].printToTerminal();
+    }
+};
+
+RSADurationDatapoint RSADurationTracking::generateDatapoint(int keylength, RSAGenerationTypes generation_type, RSAPrivateKeyTypes private_key_type){
+
     const char *input_message = "9BCD6D0F92B6495814E2F5701E051FD8EEEEB98C444CE784662CF27DBD8FFD22EBA7AF50E11FDD737203D6242C812899566E1954825B9F2B2F4EBD475A38DDE51E93D9422E0645D917CE19375CC2997C2CF6AFD1FC64522B95B270AAC53CFF674CF00257DB33496B310F0AEB4E6263B45C1F9465525CCE75FEB093B3CA345AB46593782421517248B4A1BB86378D99D1304FFBB664735908E166381E95CE7CF18041A8841F05A62A7D4F3CCA94A55032995EF19D404F25692D42A198491A8984477E937A25098B2C11AEB3FCE325C984FD6A3CEF91EB46E5DFDA9BE34877662F938A32D490D8CAFCD030927D5DFB70BB7632392D343C7EB7D403CE850B864C5C";
     RSAKeyGeneration my_key_gen = RSAKeyGeneration(keylength);
+    RSAKeyGenerationResult gen_res;
 
     auto start = std::chrono::high_resolution_clock::now();
-    RSAKeyGenerationResult gen_res = my_key_gen.generateRSAKeysUsingProvablePrimes();
+    if( generation_type == RSAGenerationTypes::provable and private_key_type == RSAPrivateKeyTypes::quintuple){
+        gen_res = my_key_gen.generateRSAKeysUsingProvablePrimes();
+    } else {
+        throw exception();
+    }
     auto stop = std::chrono::high_resolution_clock::now();
 
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);

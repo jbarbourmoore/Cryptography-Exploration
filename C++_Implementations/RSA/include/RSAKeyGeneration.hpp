@@ -8,11 +8,21 @@
 #include "RSAPrivateKey.hpp"
 #include "RSAPublicKey.hpp"
 
+/// @brief This structure holds the result from generating RSA public and private keys
 struct RSAKeyGenerationResult{
+
+    /// @brief Whether the key generation was a success
     bool success_ {};
+
+    /// @brief The private key that was generated
     RSAPrivateKey private_key_ {};
+
+    /// @brief The public key that was generated
     RSAPublicKey public_key_ {};
+
+    /// @brief The length of the key in bits ('nlen')
     int key_length_ {};
+
     /// @brief Initializes a key generation result
     /// @param success optional - Whether the key generation was successful, default is false
     /// @param private_key optional - The private key that was generated, default is new
@@ -23,11 +33,22 @@ struct RSAKeyGenerationResult{
 
 /// @brief This structure holds the data from construction of a provable prime (success:bool, prime:char*, prime_1:char*, prime_2:char*, seed:char*)
 struct ProvablePrimeGenerationResult{
+
+    /// @brief Whether the provable prime generation was a success
     bool success_ {};
+
+    /// @brief The generated prime
     BIGNUM *prime_ {};
+
+    /// @brief The first auxillary prime
     BIGNUM *prime_1_ {};
+
+    /// @brief The second auxillary prime
     BIGNUM *prime_2_ {};
+
+    /// @brief The next prime seed
     BIGNUM *prime_seed_ {};
+
     /// @brief Initializes a provable prime generation result
     /// @param success optional - Whether the provable prime generation was successful, default is false
     /// @param prime optional - The prime that was generated, default is new
@@ -39,9 +60,17 @@ struct ProvablePrimeGenerationResult{
 
 /// @brief This structure holds the data from shawe taylor random prime generation (success:bool, prime:char*, prime_seed:char*, prime_gen_counter:int)
 struct ShaweTaylorRandomPrimeResult{
+
+    /// @brief Whether the random prime generation was successful
     bool success_ {};
+
+    /// @brief The generated prime
     BIGNUM *prime_ {};
+
+    /// @brief  The next prime seed value
     BIGNUM *prime_seed_ {};
+
+    /// @brief The current count of prime gen counter
     int prime_gen_counter_ {};
     /// @brief Initializes a shawe taylor random prime result
     /// @param success optional - Whether the shawe generation was successful, default is false

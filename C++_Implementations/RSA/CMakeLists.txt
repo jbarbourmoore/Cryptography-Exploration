@@ -11,6 +11,7 @@ target_sources(RSA_app
         src/RSAPublicKey.cpp
         src/main.cpp
         src/RSAKeyGeneration.cpp
+        src/RSADurationTracking.cpp
 )
 
 target_link_libraries(RSA_app
@@ -18,3 +19,5 @@ target_link_libraries(RSA_app
 
 target_link_libraries(RSA_app
         BigNumHelpers_lib)
+target_link_libraries(RSA_app
+        IOHelpers_lib)

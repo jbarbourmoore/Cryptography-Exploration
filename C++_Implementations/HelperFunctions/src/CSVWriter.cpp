@@ -1,9 +1,20 @@
+/// This file contains the functions to allow writing to CSVs
+///
+/// Author        : Jamie Barbour-Moore
+/// Created       : 05/14/25
+/// Updated       : 05/14/25
+
 #include "IOHelpers.hpp"
 
 CSVWriter::CSVWriter(vector<string> column_headers, string file_path){
     column_headers_ = column_headers;
     file_path_ = file_path;
     number_of_columns_ = column_headers.size();
+}
+CSVWriter::CSVWriter(){
+    column_headers_ = vector<string>{"Basic Header"};
+    file_path_ = "out.csv";
+    number_of_columns_ = 1;
 }
 
 void CSVWriter::writeContent(vector<string> content){
