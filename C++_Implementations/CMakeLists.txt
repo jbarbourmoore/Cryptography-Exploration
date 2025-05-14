@@ -7,10 +7,13 @@ project(CyptographyExporation VERSION 1.0
 message("C++ Compiler ${CMAKE_CXX_COMPILER}")
 message("C++ Compiler Version ${CMAKE_CXX_COMPILER_VERSION}")
 
-set (CMAKE_CXX_STANDARD 11)
-set(CMAKE_CXX_STANDARD_REQUIRED True)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(OpenSSL REQUIRED)
 
 add_subdirectory(RSA)
 add_subdirectory(HelperFunctions)
+add_subdirectory(Tests)
+
+include(CTest)

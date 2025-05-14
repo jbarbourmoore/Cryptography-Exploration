@@ -19,5 +19,30 @@ target_link_libraries(RSA_app
 
 target_link_libraries(RSA_app
         BigNumHelpers_lib)
+
 target_link_libraries(RSA_app
+        IOHelpers_lib)
+
+add_library(RSA_lib)
+
+target_include_directories(RSA_lib
+    PUBLIC
+        include/
+)
+
+target_sources(RSA_lib
+    PRIVATE
+        src/RSAPrivateKey.cpp
+        src/RSAPublicKey.cpp
+        src/RSAKeyGeneration.cpp
+        src/RSADurationTracking.cpp
+)
+
+target_link_libraries(RSA_lib
+        OpenSSL::SSL)
+
+target_link_libraries(RSA_lib
+        BigNumHelpers_lib)
+        
+target_link_libraries(RSA_lib
         IOHelpers_lib)
