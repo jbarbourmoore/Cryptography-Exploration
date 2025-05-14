@@ -1,3 +1,6 @@
+#ifndef RSADurationTracking_HPP
+#define RSADurationTracking_HPP
+
 #include <string.h>
 #include <vector>
 #include <chrono>
@@ -59,7 +62,7 @@ class RSADurationDatapoint{
         string getPrivateKeyTypeString();
 
         /// @brief This method writes the data point to the CSV
-        void writeToCSV();
+        void writeToCSV(CSVWriter csv_writer);
 
         /// @brief This method prints the data point to the terminal
         void printToTerminal();
@@ -68,4 +71,23 @@ class RSADurationDatapoint{
         /// @return The headers for the datapoint
         vector<string> getHeaders();
 
+        /// @brief This method gets the contents for the data point as a vector of strings
+        /// @return The contents for the datapoint
+        vector<string> getContents();
+
 };
+
+class RSADurationTracking{
+
+    private :
+        CSVWriter csv_writer_ ;
+
+        vector<RSADurationDatapoint> datapoints {};
+
+    public :
+        RSADurationTracking();
+
+        RSADurationDatapoint generateDatapoint(int keylength = 2048, RSAGenerationTypes generation_type = RSAGenerationTypes::provable, RSAPrivateKeyTypes private_key_type = RSAPrivateKeyTypes::quintuple);
+};
+
+#endif
