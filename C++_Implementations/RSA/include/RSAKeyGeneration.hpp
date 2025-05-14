@@ -147,7 +147,7 @@ class RSAKeyGeneration{
         /// @return A struct containing a boolean as to whether the method succeeded, a character array of the prime
         /// a character array of the first conditional prime, a character array of the second conditional prime
         /// and a character array of the final seed value for the next prime construction
-        ProvablePrimeGenerationResult constructAProvablePrimePotentiallyWithConditions(int L, int N1, int N2, char* first_seed_char);
+        ProvablePrimeGenerationResult constructAProvablePrimePotentiallyWithConditions(int L, int N1, int N2, BIGNUM *first_seed);
 
         /// @brief This method generates a random prime number using the Shawe Taylor methodology.
         /// @param length The bit length for the prime being created

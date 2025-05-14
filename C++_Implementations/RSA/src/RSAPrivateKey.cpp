@@ -3,7 +3,7 @@
 /// Libaries Used : OpenSSL BIGNUM for dealing with extremely large integers
 /// Author        : Jamie Barbour-Moore
 /// Created       : 05/11/25
-/// Updated       : 05/12/25
+/// Updated       : 05/14/25
 
 #include <openssl/bn.h>
 #include <string.h>
@@ -19,8 +19,6 @@ RSAPrivateKey::RSAPrivateKey(BIGNUM *n, BIGNUM *d, int key_length){
 RSAPrivateKey::RSAPrivateKey(BIGNUM *n, BIGNUM *d, BIGNUM *p, BIGNUM *q, int key_length){
     keylength_ = key_length;
     n_ = n;
-    const char* hex_n = BN_bn2hex(n_);
-    printf("priv n = %s\n",hex_n);
     d_ = d;
     p_ = p;
     q_ = q;
