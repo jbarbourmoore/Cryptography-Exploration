@@ -22,35 +22,48 @@ RSAKeyGenerationResult RSAKeyGeneration::generateRSAKeysUsingProvablePrimes(){
     printf("The value of e is %s\n", hex_e);
     OPENSSL_free(hex_e);
 
-    // generate a random seed
-    generateRandomSeed();
-    char *hex_seed = BN_bn2hex(seed_);
-    printf("The value of seed is %s\n", hex_seed);
-    OPENSSL_free(hex_seed);
+    int d_is_0 = 1;
 
-    constructTheProvablePrimes();
-    BIGNUM *d = generatePrivateExponent(e_,p_,q_);
+    BIGNUM *n = BN_new();
+    BIGNUM *d;
 
-    const char *hex_d = BN_bn2hex(d);
-    printf("The value of d is %s\n", hex_d);
+    while(d_is_0){
 
-    return RSAKeyGenerationResult{};
+        // generate a random seed
+        generateRandomSeed();
+        char *hex_seed = BN_bn2hex(seed_);
+        printf("The value of seed is %s\n", hex_seed);
+        OPENSSL_free(hex_seed);
+
+        constructTheProvablePrimes();
+        d = generatePrivateExponent(e_,p_,q_);
+
+        BN_mul(n, p_, q_, context_);
+        const char *hex_d = BN_bn2hex(d);
+        printf("The value of d is %s\n", hex_d);
+        const char *hex_n = BN_bn2hex(n);
+        printf("The value of n is %s\n", hex_n);
+        d_is_0 = BN_is_zero(d);
+    }
+
+    RSAPrivateKey private_key = RSAPrivateKey(n, d, p_, q_, keylength_);
+    RSAPublicKey public_key = RSAPublicKey(n, e_, keylength_);
+    RSAKeyGenerationResult key_generation_result = RSAKeyGenerationResult(true,private_key,public_key,keylength_);
+    return key_generation_result;
 }
 
 BIGNUM* RSAKeyGeneration::generatePrivateExponent(BIGNUM *e, BIGNUM *p, BIGNUM *q){
     // phi = (p.getValue() - 1) * (q.getValue() - 1)
     BIGNUM *phi = BN_new();
     // p_1 = p.getValue() - 1
-    BIGNUM *p_min_1 = BN_new();
-    BN_copy(p_min_1, p);
+    BIGNUM *p_min_1 = BN_dup(p);
     BN_sub_word(p_min_1, 1);
 
     // const char *hex_p1 = BN_bn2hex(p_min_1);
     // printf("The value of p_min_1 is %s\n", hex_p1);
 
     // q_1 = q.getValue() - 1
-    BIGNUM *q_min_1 = BN_new();
-    BN_copy(q_min_1, q);
+    BIGNUM *q_min_1 = BN_dup(q);
     BN_sub_word(q_min_1, 1);
 
     BN_mul(phi, q_min_1, p_min_1, context_);
@@ -63,7 +76,7 @@ BIGNUM* RSAKeyGeneration::generatePrivateExponent(BIGNUM *e, BIGNUM *p, BIGNUM *
     BN_div(phi, NULL, phi, gcd_p1_q1, context_);
     // d = calculateInverseMod_GCD1_ExtendedEuclidsBased(e.getValue(), phi)
     BIGNUM *d = BN_new();
-    BN_mod_inverse(d, phi, e, context_);
+    BN_mod_inverse(d, e, phi, context_);
 
     return d;
 }
@@ -92,13 +105,13 @@ bool RSAKeyGeneration::constructTheProvablePrimes(){
     
     ProvablePrimeGenerationResult result = constructAProvablePrimePotentiallyWithConditions(getPrimeLength(), 1, 1, hex_first_seed);
     const char *prime_hex = NULL;
-    printf("result success : %b\n",result.success_);
+    // printf("result success : %b\n",result.success_);
     if (result.success_ != true) {
         printf("Failed to construct provable prime 'p'\n");
         return false;
     }else {
         prime_hex = BN_bn2hex(result.prime_);
-        printf("p : %s\n", prime_hex);
+        // printf("p : %s\n", prime_hex);
     }
 
     p_ = result.prime_;
@@ -106,7 +119,7 @@ bool RSAKeyGeneration::constructTheProvablePrimes(){
     char* hex_working_seed = BN_bn2hex(working_seed);
 
     result = constructAProvablePrimePotentiallyWithConditions(getPrimeLength(), 1, 1, hex_working_seed);
-    printf("result success : %b\n",result.success_);
+    // printf("result success : %b\n",result.success_);
     if (result.success_ != true) {
         printf("Failed to construct provable prime 'q'\n");
         return false;
@@ -215,8 +228,8 @@ ProvablePrimeGenerationResult RSAKeyGeneration::constructAProvablePrimePotential
         BN_add(x, x, prime_seed_inc_i);
     }
 
-    const char *hex_x = BN_bn2hex(x);
-    printf("x : %s\n", hex_x);
+    // const char *hex_x = BN_bn2hex(x);
+    // printf("x : %s\n", hex_x);
     BN_add_word(pseed, iteration + 1);
 
     // step 13
@@ -230,8 +243,8 @@ ProvablePrimeGenerationResult RSAKeyGeneration::constructAProvablePrimePotential
     BN_mod(x, x, x_modulus, context_);
     BN_add(x,x,min_prime_value_);
 
-    hex_x = BN_bn2hex(x);
-    printf("x : %s\n", hex_x);
+    // hex_x = BN_bn2hex(x);
+    // printf("x : %s\n", hex_x);
 
     // Step 14
     // The inverse of p0p1 in the modulus p2
@@ -339,10 +352,10 @@ ProvablePrimeGenerationResult RSAKeyGeneration::constructAProvablePrimePotential
                 BN_mod_exp(z_p0_modp, z, p0, p, context_);
                 
                 if(BN_is_one(z_p0_modp) == 1){
-                    const char *hex_c = BN_bn2hex(p);
-                    printf("p : %s\n",hex_c);    
+                    // const char *hex_c = BN_bn2hex(p);
+                    // printf("p : %s\n",hex_c);    
                     ProvablePrimeGenerationResult final_result {true, p, p1, p2, pseed};
-                    printf("final result length %d : %b\n", L, final_result.success_);  
+                    // printf("final result length %d : %b\n", L, final_result.success_);  
                     return final_result;
                 }
             }
@@ -375,7 +388,7 @@ ShaweTaylorRandomPrimeResult RSAKeyGeneration::generateRandomPrimeWithShaweTaylo
     int prime_gen_counter = 0;
     int max_counter = length * 10;
     // printf("starting shawe taylor\n");
-    printf("length : %d\n", length);
+    // printf("length : %d\n", length);
     if (length < 33) {
         while (prime_gen_counter <= max_counter){
             // step 5 : XOR(hash(pseed),hash(pseed+1))
@@ -444,10 +457,10 @@ ShaweTaylorRandomPrimeResult RSAKeyGeneration::generateRandomPrimeWithShaweTaylo
     BIGNUM *c0 = iterative_result.prime_;
     prime_seed = iterative_result.prime_seed_;
     max_counter = length * 4 + iterative_result.prime_gen_counter_;
-    printf("max counter : %d\n",max_counter);
+    // printf("max counter : %d\n",max_counter);
 
-    const char *hex_c0 = BN_bn2hex(c0);
-    printf("c0 : %s\n", hex_c0);
+    // const char *hex_c0 = BN_bn2hex(c0);
+    // printf("c0 : %s\n", hex_c0);
 
     // step 18
     BIGNUM *x = BN_new();
@@ -467,8 +480,8 @@ ShaweTaylorRandomPrimeResult RSAKeyGeneration::generateRandomPrimeWithShaweTaylo
         BN_add(x, x, prime_seed_inc_i);
     }
 
-    const char *hex_x = BN_bn2hex(x);
-    printf("x : %s\n", hex_x);
+    // const char *hex_x = BN_bn2hex(x);
+    // printf("x : %s\n", hex_x);
 
     // step 20
     BN_add_word(prime_seed, iteration + 1);
@@ -479,9 +492,9 @@ ShaweTaylorRandomPrimeResult RSAKeyGeneration::generateRandomPrimeWithShaweTaylo
     BN_exp(two_length_1_bn,number_two, two_length_1_bn, context_);
     BN_mod(x,  x,two_length_1_bn, context_);
     BN_add(x, x, two_length_1_bn);
-    hex_x = BN_bn2hex(x);
-    printf("x : %s\n", hex_x);
-    printf("length : %d\n",length);
+    // hex_x = BN_bn2hex(x);
+    // printf("x : %s\n", hex_x);
+    // printf("length : %d\n",length);
 
     // step 22
     BIGNUM *two_c0 = BN_new();
@@ -493,8 +506,8 @@ ShaweTaylorRandomPrimeResult RSAKeyGeneration::generateRandomPrimeWithShaweTaylo
         BN_add_word(t, 1);
     }
 
-    const char *hex_t = BN_bn2hex(t);
-    printf("t : %s\n", hex_t);
+    // const char *hex_t = BN_bn2hex(t);
+    // printf("t : %s\n", hex_t);
 
     while (prime_gen_counter <= max_counter){
 
@@ -586,10 +599,10 @@ ShaweTaylorRandomPrimeResult RSAKeyGeneration::generateRandomPrimeWithShaweTaylo
             BIGNUM *z_c0_modc = BN_new();
             BN_mod_exp(z_c0_modc, z, c0, c, context_);
             if(BN_is_one(z_c0_modc) == 1){
-                const char *hex_c = BN_bn2hex(c);
-                printf("c : %s\n",hex_c);    
+                // const char *hex_c = BN_bn2hex(c);
+                // printf("c : %s\n",hex_c);    
                 ShaweTaylorRandomPrimeResult final_result {true, c, prime_seed, prime_gen_counter};
-                printf("final result length %d : %b\n", length, final_result.success_);  
+                // printf("final result length %d : %b\n", length, final_result.success_);  
                 return final_result;
             }
         }

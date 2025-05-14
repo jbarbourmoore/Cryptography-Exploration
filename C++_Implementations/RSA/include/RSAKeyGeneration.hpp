@@ -133,7 +133,12 @@ class RSAKeyGeneration{
         /// @return 'd' The private exponent for the RSA keys
         BIGNUM* generatePrivateExponent(BIGNUM *e, BIGNUM *p, BIGNUM *q);
 
-
+        /// @brief This method checks whether the greatest common denominator of phi and e is 1
+        /// @param e The public exponent 'e'
+        /// @param p The first prime 'p'
+        /// @param q The second prime 'q'
+        /// @return a bool that is true if the gcd of phi and e is 1
+        // bool checkGCDPhiE(BIGNUM *e, BIGNUM *p, BIGNUM *q);
     public:
 
         /// @brief Instantiates RSAKeyGeneration with a given keylength in bits

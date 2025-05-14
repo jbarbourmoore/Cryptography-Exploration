@@ -19,6 +19,8 @@ RSAPrivateKey::RSAPrivateKey(BIGNUM *n, BIGNUM *d, int key_length){
 RSAPrivateKey::RSAPrivateKey(BIGNUM *n, BIGNUM *d, BIGNUM *p, BIGNUM *q, int key_length){
     keylength_ = key_length;
     n_ = n;
+    const char* hex_n = BN_bn2hex(n_);
+    printf("priv n = %s\n",hex_n);
     d_ = d;
     p_ = p;
     q_ = q;
