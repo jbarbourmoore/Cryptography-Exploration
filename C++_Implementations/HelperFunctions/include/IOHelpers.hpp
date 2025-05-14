@@ -4,6 +4,7 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <mutex>
 using namespace std;
 
 class CSVWriter{
@@ -12,6 +13,9 @@ class CSVWriter{
 
         /// @brief The path of the file being written to
         string file_path_ {"out.csv"};
+
+        /// @brief A mutex to prevent multiple threads from accessing the file simultaneously
+        mutex * file_guard_ ;
 
         /// @brief The number of columns in the csv (populates based on the headers)
         int number_of_columns_ {1};

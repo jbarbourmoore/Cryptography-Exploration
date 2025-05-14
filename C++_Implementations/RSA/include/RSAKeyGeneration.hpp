@@ -4,6 +4,8 @@
 #include <openssl/bn.h>
 #include <string.h>
 #include <cassert>
+#include <thread>
+#include <mutex>
 #include "BigNumHelpers.hpp"
 #include "RSAPrivateKey.hpp"
 #include "RSAPublicKey.hpp"
@@ -176,7 +178,8 @@ class RSAKeyGeneration{
 
         /// @brief This method generates RSA keys based on provable primes.
         /// Based on Nist Fips 186-5 Appendix A.1.2 "Generation of Random Primes that are Provably Prime"
-        RSAKeyGenerationResult generateRSAKeysUsingProvablePrimes();
+        /// @param use_key_quintuple_form Optional - Whether or not the generated private key should be in quintuple form (default is true)
+        RSAKeyGenerationResult generateRSAKeysUsingProvablePrimes(bool use_key_quintuple_form = true);
 
         /// @brief This method returns the security strength for the RSA Key Generation basec on the key length
         /// @return The security strength

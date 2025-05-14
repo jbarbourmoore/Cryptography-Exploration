@@ -88,6 +88,9 @@ class RSADurationTracking{
         /// @brief the CSVWriter that the rsa duration tracking shall be using for outputs
         CSVWriter csv_writer_ ;
 
+         /// @brief A mutex to prevent multiple threads from accessing the durations simultaneously
+        mutex * duration_guard_ ;
+
         /// @brief the currently generated datapoints as a vector
         vector<RSADurationDatapoint> datapoints {};
 
@@ -104,6 +107,11 @@ class RSADurationTracking{
 
         /// @brief This method runs the datapoint generation for multiple looped types and such to fill in the csv
         void runDatapointGeneration();
+
+        void printDurations();
+
+        void trackSingleGenerationInThread(int key_length, RSAGenerationTypes gen_type, RSAPrivateKeyTypes key_type);
+
 };
 
 #endif

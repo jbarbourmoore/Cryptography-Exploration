@@ -15,7 +15,7 @@ RSAKeyGeneration::RSAKeyGeneration(int keylength){
     setMinPrimeValue();
 }
 
-RSAKeyGenerationResult RSAKeyGeneration::generateRSAKeysUsingProvablePrimes(){
+RSAKeyGenerationResult RSAKeyGeneration::generateRSAKeysUsingProvablePrimes(bool use_key_quintuple_form){
     // generate a random public exponent
     generateRandomE();
     char *hex_e = BN_bn2hex(e_);
@@ -56,8 +56,12 @@ RSAKeyGenerationResult RSAKeyGeneration::generateRSAKeysUsingProvablePrimes(){
             d_is_0 = BN_is_zero(d);
         }
     }
-
-    RSAPrivateKey private_key = RSAPrivateKey(n, d, p_, q_, keylength_);
+    RSAPrivateKey private_key;
+    if (use_key_quintuple_form){
+        private_key = RSAPrivateKey(n, d, p_, q_, keylength_);
+    } else {
+        private_key = RSAPrivateKey(n, d, keylength_);
+    }
     RSAPublicKey public_key = RSAPublicKey(n, e_, keylength_);
     RSAKeyGenerationResult key_generation_result = RSAKeyGenerationResult(true,private_key,public_key,keylength_);
     return key_generation_result;

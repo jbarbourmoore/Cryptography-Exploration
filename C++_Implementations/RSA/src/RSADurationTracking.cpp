@@ -97,38 +97,49 @@ void RSADurationDatapoint::printToTerminal(){
 };
 
 RSADurationTracking::RSADurationTracking(){
+    duration_guard_ = new mutex();
     vector<string> headers {"Security Strength","Key Generation Duration","Generation Method","Encryption","Decryption","Private Key Type"};
     csv_writer_ = CSVWriter(headers, "RSA_Durations_C++.csv");
     csv_writer_.writeHeaders();
 };
 
+void RSADurationTracking::trackSingleGenerationInThread(int key_length, RSAGenerationTypes gen_type, RSAPrivateKeyTypes key_type){
+    RSADurationDatapoint datapoint = generateDatapoint(key_length, gen_type, key_type);
+    datapoint.writeToCSV(csv_writer_);
+    lock_guard<mutex> lock(*duration_guard_);
+    datapoints.push_back(datapoint);
+}
+
 void RSADurationTracking::runDatapointGeneration(){
     int iteration_count = 2;
     vector<RSAGenerationTypes> generation_types = {RSAGenerationTypes::provable};
-    vector<RSAPrivateKeyTypes> private_key_types = {RSAPrivateKeyTypes::quintuple};
-    vector<int> key_lengths = {2048, 3072, 7680, 15360};
-    vector<RSADurationDatapoint> datapoint_list = {};
-
-    for (int i = 0; i < iteration_count; i++){
-        for (int gt = 0; gt < generation_types.size(); gt++){
-            RSAGenerationTypes gen_type = generation_types[gt];
-            for (int pk = 0; pk < private_key_types.size(); pk++){
-                RSAPrivateKeyTypes key_type = private_key_types[pk];
-                for (int kl = 0; kl < key_lengths.size(); kl++){
-                    int key_length = key_lengths[kl];
-                    RSADurationDatapoint datapoint = generateDatapoint(key_length,gen_type, key_type);
-                    datapoint.writeToCSV(csv_writer_);
-                    datapoint_list.push_back(datapoint);
+    vector<RSAPrivateKeyTypes> private_key_types = {RSAPrivateKeyTypes::quintuple, RSAPrivateKeyTypes::standard};
+    vector<int> key_lengths = {2048, 3072, 7680};
+    // vector<int> key_lengths = {2048, 3072, 7680, 15360};
+    
+    for (int kl = 0; kl < key_lengths.size(); kl++){
+        int key_length = key_lengths[kl];
+        for (int i = 0; i < iteration_count; i++){
+            for (int gt = 0; gt < generation_types.size(); gt++){
+                RSAGenerationTypes gen_type = generation_types[gt];
+                for (int pk = 0; pk < private_key_types.size(); pk++){
+                    RSAPrivateKeyTypes key_type = private_key_types[pk];
+                        RSADurationDatapoint datapoint = generateDatapoint(key_length, gen_type, key_type);
+                        datapoint.writeToCSV(csv_writer_);
+                        datapoints.push_back(datapoint);
                 }
-
             }
         }
     }
 
-    for (int dp = 0; dp < datapoint_list.size(); dp ++){
-        datapoint_list[dp].printToTerminal();
-    }
+    printDurations();
 };
+
+void RSADurationTracking::printDurations(){
+    for (int dp = 0; dp < datapoints.size(); dp ++){
+        datapoints[dp].printToTerminal();
+    }
+}
 
 RSADurationDatapoint RSADurationTracking::generateDatapoint(int keylength, RSAGenerationTypes generation_type, RSAPrivateKeyTypes private_key_type){
 
@@ -136,12 +147,18 @@ RSADurationDatapoint RSADurationTracking::generateDatapoint(int keylength, RSAGe
     RSAKeyGeneration my_key_gen = RSAKeyGeneration(keylength);
     RSAKeyGenerationResult gen_res;
 
+    bool use_key_quintuple_form = true;
+    if (private_key_type == RSAPrivateKeyTypes::standard){
+        use_key_quintuple_form = false;
+    }
+
     auto start = std::chrono::high_resolution_clock::now();
-    if( generation_type == RSAGenerationTypes::provable and private_key_type == RSAPrivateKeyTypes::quintuple){
-        gen_res = my_key_gen.generateRSAKeysUsingProvablePrimes();
+    if( generation_type == RSAGenerationTypes::provable){
+        gen_res = my_key_gen.generateRSAKeysUsingProvablePrimes(use_key_quintuple_form);
     } else {
         throw exception();
     }
+
     auto stop = std::chrono::high_resolution_clock::now();
 
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
@@ -172,6 +189,6 @@ RSADurationDatapoint RSADurationTracking::generateDatapoint(int keylength, RSAGe
         printf("The result of the decryption is not the same as the original message.\n");
     }
 
-    RSADurationDatapoint datapoint = RSADurationDatapoint(keylength, RSAGenerationTypes::provable,RSAPrivateKeyTypes::quintuple, seconds, encryption_seconds, decryption_seconds);
+    RSADurationDatapoint datapoint = RSADurationDatapoint(keylength, generation_type, private_key_type, seconds, encryption_seconds, decryption_seconds);
     return datapoint;
 }
