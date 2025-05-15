@@ -33,6 +33,20 @@ struct RSAKeyGenerationResult{
     RSAKeyGenerationResult(bool success = false, RSAPrivateKey private_key = RSAPrivateKey(), RSAPublicKey public_key = RSAPublicKey(), int key_length = 2048);
 };
 
+struct ConstructPandQResult{
+    bool success_ {};
+
+    BIGNUM *p_ {};
+
+    BIGNUM *q_ {};
+
+    /// @brief Initializes a result from generating 'p' and 'q
+    /// @param success optional - Whether the prime construction was successful, default is false
+    /// @param p optional - The prime 'p', default is new
+    /// @param q optional - The prime 'q', default is new
+    ConstructPandQResult(bool success = false, BIGNUM *p = BN_new(), BIGNUM *q = BN_new());
+};
+
 /// @brief This structure holds the data from construction of a provable prime (success:bool, prime:char*, prime_1:char*, prime_2:char*, seed:char*)
 struct ProvablePrimeGenerationResult{
 
@@ -139,6 +153,12 @@ class RSAKeyGeneration{
         /// Based on Nist Fips 186-5 Appendix A.1.2.2 "Construction of the Provable Primes p and q"
         bool constructTheProvablePrimes();
 
+        /// @brief This method generates the provable primes 'p' and 'q' to be used in the RSA keys
+        /// Based on Nist Fips 186-5 Appendix A.1.2.2 "Construction of the Provable Primes p and q"
+        /// @param N1 The length of the first condition
+        /// @param N2 The length of the second condition
+        ConstructPandQResult constructTheProvablePrimesWithAuxillary(int N1, int N2);
+
         /// @brief The method constructs a provable prime that may or may not have additional conditions.
         /// Based on NIST FIPS 186-5 Appendix B.10 "Construct a Provable Prime (Possibly with Conditions) Based on
         /// Contemporaneously Constructed Auxiliary Provable Primes"
@@ -180,6 +200,13 @@ class RSAKeyGeneration{
         /// Based on Nist Fips 186-5 Appendix A.1.2 "Generation of Random Primes that are Provably Prime"
         /// @param use_key_quintuple_form Optional - Whether or not the generated private key should be in quintuple form (default is true)
         RSAKeyGenerationResult generateRSAKeysUsingProvablePrimes(bool use_key_quintuple_form = true);
+
+        /// @brief This method generates RSA keys based on provable primes.
+        /// @param N1 The length of the first auxillary prime in bits
+        /// @param N2 The length of the second auxillary prime in bits 
+        /// @param use_key_quintuple_form Optional - Whether or not the generated private key should be in quintuple form (default is true)
+        /// @return The RSA Key Generation Result with both the public and private keys
+        RSAKeyGenerationResult generateRSAKeysUsingProvablePrimesWithAuxPrimes(int N1, int N2, bool use_key_quintuple_form);
 
         /// @brief This method returns the security strength for the RSA Key Generation basec on the key length
         /// @return The security strength

@@ -49,13 +49,13 @@ string RSADurationDatapoint::getGenerationTypeString(){
         gen_type = "Probably Prime";
         break;
     case RSAGenerationTypes::provable_with_aux:
-        gen_type = "Provably Prime, Aux Primes";
+        gen_type = "\"Provably Prime, Aux Primes\"";
         break;
     case RSAGenerationTypes::probable_with_aux_prov:
-        gen_type = "Probably Prime, Probable Aux Primes";
+        gen_type = "\"Probably Prime, Probable Aux Primes\"";
         break;
     case RSAGenerationTypes::probable_with_auth_prob:
-        gen_type = "Probably Prime, Probable Aux Primes";
+        gen_type = "\"Probably Prime, Probable Aux Primes\"";
         break;
     
     default:
@@ -153,8 +153,10 @@ RSADurationDatapoint RSADurationTracking::generateDatapoint(int keylength, RSAGe
     }
 
     auto start = std::chrono::high_resolution_clock::now();
-    if( generation_type == RSAGenerationTypes::provable){
+    if ( generation_type == RSAGenerationTypes::provable){
         gen_res = my_key_gen.generateRSAKeysUsingProvablePrimes(use_key_quintuple_form);
+    } else if ( generation_type == RSAGenerationTypes::provable_with_aux){
+        gen_res = my_key_gen.generateRSAKeysUsingProvablePrimesWithAuxPrimes(200,200,use_key_quintuple_form);
     } else {
         throw exception();
     }

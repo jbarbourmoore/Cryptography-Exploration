@@ -15,6 +15,60 @@ RSAKeyGeneration::RSAKeyGeneration(int keylength){
     setMinPrimeValue();
 }
 
+RSAKeyGenerationResult RSAKeyGeneration::generateRSAKeysUsingProvablePrimesWithAuxPrimes(int N1, int N2, bool use_key_quintuple_form){
+    // generate a random public exponent
+    generateRandomE();
+    char *hex_e = BN_bn2hex(e_);
+    printf("The value of e is %s\n", hex_e);
+    OPENSSL_free(hex_e);
+
+    int d_is_0 = 1;
+
+    BIGNUM *n = BN_new();
+    BIGNUM *d;
+
+    ConstructPandQResult p_and_q;
+
+    while(d_is_0){
+
+        // generate a random seed
+        generateRandomSeed();
+        char *hex_seed = BN_bn2hex(seed_);
+        printf("The value of seed is %s\n", hex_seed);
+        OPENSSL_free(hex_seed);
+
+        p_and_q =  constructTheProvablePrimesWithAuxillary(N1, N2);
+        d = generatePrivateExponent(e_,p_and_q.p_,p_and_q.q_);
+
+        BN_mul(n, p_and_q.p_, p_and_q.q_, context_);
+        const char *hex_d = BN_bn2hex(d);
+        printf("The value of d is %s\n", hex_d);
+        const char *hex_n = BN_bn2hex(n);
+        printf("The value of n is %s\n", hex_n);
+        d_is_0 = BN_is_zero(d);
+        int e_retry = 0;
+        while( d_is_0 and e_retry < 10){
+            printf("retrying new e\n");
+            generateRandomE();
+            hex_e = BN_bn2hex(e_);
+            printf("The value of e is %s\n", hex_e);
+            d = generatePrivateExponent(e_,p_and_q.p_,p_and_q.q_);
+            hex_d = BN_bn2hex(d);
+            printf("The value of d is %s\n", hex_d);
+            d_is_0 = BN_is_zero(d);
+        }
+    }
+    RSAPrivateKey private_key;
+    if (use_key_quintuple_form){
+        private_key = RSAPrivateKey(n, d, p_and_q.p_, p_and_q.q_, keylength_);
+    } else {
+        private_key = RSAPrivateKey(n, d, keylength_);
+    }
+    RSAPublicKey public_key = RSAPublicKey(n, e_, keylength_);
+    RSAKeyGenerationResult key_generation_result = RSAKeyGenerationResult(true,private_key,public_key,keylength_);
+    return key_generation_result;
+}
+
 RSAKeyGenerationResult RSAKeyGeneration::generateRSAKeysUsingProvablePrimes(bool use_key_quintuple_form){
     // generate a random public exponent
     generateRandomE();
@@ -117,6 +171,26 @@ void RSAKeyGeneration::generateRandomE(){
     BN_free(random);
 }
 
+ConstructPandQResult RSAKeyGeneration::constructTheProvablePrimesWithAuxillary(int N1, int N2){
+
+    ProvablePrimeGenerationResult result = constructAProvablePrimePotentiallyWithConditions(getPrimeLength(), N1, N2, seed_);
+
+    if (result.success_ != true) {
+        printf("Failed to construct provable prime 'p'\n");
+        return ConstructPandQResult();
+    }
+    BIGNUM* p = result.prime_;
+
+    result = constructAProvablePrimePotentiallyWithConditions(getPrimeLength(), N1, N2, result.prime_seed_);
+
+    if (result.success_ != true) {
+        printf("Failed to construct provable prime 'q'\n");
+        return ConstructPandQResult();
+    }
+
+    return ConstructPandQResult(true, p, result.prime_);
+};
+
 bool RSAKeyGeneration::constructTheProvablePrimes(){
 
     
@@ -159,7 +233,9 @@ ProvablePrimeGenerationResult RSAKeyGeneration::constructAProvablePrimePotential
         BN_set_word(p1, 1);
         BN_copy(p2_seed, first_seed);
     } else {
-        assert(N1 == 1);
+        ShaweTaylorRandomPrimeResult random_prime = generateRandomPrimeWithShaweTaylor(N1, first_seed);
+        p1 = random_prime.prime_;
+        p2_seed = random_prime.prime_seed_;
     }
 
     BN_free(first_seed);
@@ -173,7 +249,9 @@ ProvablePrimeGenerationResult RSAKeyGeneration::constructAProvablePrimePotential
         BN_set_word(p2,1);
         BN_copy(p0_seed, p2_seed);
     } else {
-        assert(N2 == 1);
+        ShaweTaylorRandomPrimeResult random_prime = generateRandomPrimeWithShaweTaylor(N2, first_seed);
+        p2 = random_prime.prime_;
+        p0_seed = random_prime.prime_seed_;
     }
 
     BN_free(p2_seed);
@@ -719,4 +797,10 @@ RSAKeyGenerationResult::RSAKeyGenerationResult(bool success, RSAPrivateKey priva
     private_key_ = private_key;
     public_key_ = public_key;
     key_length_ = key_length;
+}
+
+ConstructPandQResult::ConstructPandQResult(bool success, BIGNUM *p, BIGNUM *q){
+    success_ = success;
+    p_ = p;
+    q_ = q;
 }
