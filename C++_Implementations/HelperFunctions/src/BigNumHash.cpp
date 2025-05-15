@@ -90,14 +90,14 @@ BIGNUM* BigNumHelpers::sha512BigNum(BIGNUM* bignum_to_hash){
     unsigned hash_length_bytes = 512/8;
 
     // convert the bignum into a byte array to be hashed
-    size_t size = BN_num_bytes(bignum_to_hash);
-    unsigned char *byte_array_to_hash = new unsigned char[size]();
+    size_t byte_size = BN_num_bytes(bignum_to_hash);
+    unsigned char *byte_array_to_hash = new unsigned char[byte_size]();
     BN_bn2bin(bignum_to_hash, byte_array_to_hash);
 
     // Initialize a digest and add the byte arrat to hash to it
     EVP_MD_CTX *hash_context = EVP_MD_CTX_new();
     EVP_DigestInit_ex(hash_context, EVP_sha512(), NULL);
-    EVP_DigestUpdate(hash_context, byte_array_to_hash, size);
+    EVP_DigestUpdate(hash_context, byte_array_to_hash, byte_size);
 
     // extracted the hash digest as a byte array
     unsigned char hash_result_bytes[hash_length_bytes];

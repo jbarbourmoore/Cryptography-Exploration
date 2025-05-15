@@ -1,4 +1,4 @@
-add_library(BigNumHelpers_lib src/BigNumXOR.cpp)
+add_library(BigNumHelpers_lib)
 
 target_include_directories(BigNumHelpers_lib
     PUBLIC
@@ -9,12 +9,13 @@ target_sources(BigNumHelpers_lib
     PRIVATE
         src/BigNumXOR.cpp
         src/BigNumHash.cpp
+        src/BigNumGDBMin1.cpp
 )
 
 target_link_libraries(BigNumHelpers_lib
         OpenSSL::SSL)
 
-add_library(IOHelpers_lib src/CSVWriter.cpp)
+add_library(IOHelpers_lib)
 
 target_include_directories(IOHelpers_lib
     PUBLIC
@@ -23,6 +24,5 @@ target_include_directories(IOHelpers_lib
 
 target_sources(IOHelpers_lib
     PRIVATE
-        src/BigNumXOR.cpp
-        src/BigNumHash.cpp
+        src/CSVWriter.cpp
 )

@@ -157,6 +157,8 @@ RSADurationDatapoint RSADurationTracking::generateDatapoint(int keylength, RSAGe
         gen_res = my_key_gen.generateRSAKeysUsingProvablePrimes(use_key_quintuple_form);
     } else if ( generation_type == RSAGenerationTypes::provable_with_aux){
         gen_res = my_key_gen.generateRSAKeysUsingProvablePrimesWithAuxPrimes(200,200,use_key_quintuple_form);
+    } else if ( generation_type == RSAGenerationTypes::probable){
+        gen_res = my_key_gen.generateRSAKeysUsingProbablePrimes(-1,-1,use_key_quintuple_form);
     } else {
         throw exception();
     }

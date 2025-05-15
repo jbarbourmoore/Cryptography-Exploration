@@ -25,15 +25,19 @@ void runDatapointGenerationMultiThreaded(){
     for (int kl = 0; kl < key_lengths.size(); kl++){
         int key_length = key_lengths[kl];
         for (int i = 0; i < iteration_count; i++){
-            thread prov_quint (&RSADurationTracking::trackSingleGenerationInThread, duration_tracking, key_length, RSAGenerationTypes::provable,RSAPrivateKeyTypes::quintuple);
-            thread prov_stand (&RSADurationTracking::trackSingleGenerationInThread, duration_tracking, key_length, RSAGenerationTypes::provable,RSAPrivateKeyTypes::standard);
-            thread prov_with_aux_quint (&RSADurationTracking::trackSingleGenerationInThread, duration_tracking, key_length, RSAGenerationTypes::provable_with_aux,RSAPrivateKeyTypes::quintuple);
-            thread prov_with_aux_stand (&RSADurationTracking::trackSingleGenerationInThread, duration_tracking, key_length, RSAGenerationTypes::provable_with_aux,RSAPrivateKeyTypes::standard);
+            // thread prov_quint (&RSADurationTracking::trackSingleGenerationInThread, duration_tracking, key_length, RSAGenerationTypes::provable,RSAPrivateKeyTypes::quintuple);
+            // thread prov_stand (&RSADurationTracking::trackSingleGenerationInThread, duration_tracking, key_length, RSAGenerationTypes::provable,RSAPrivateKeyTypes::standard);
+            // thread prov_with_aux_quint (&RSADurationTracking::trackSingleGenerationInThread, duration_tracking, key_length, RSAGenerationTypes::provable_with_aux,RSAPrivateKeyTypes::quintuple);
+            // thread prov_with_aux_stand (&RSADurationTracking::trackSingleGenerationInThread, duration_tracking, key_length, RSAGenerationTypes::provable_with_aux,RSAPrivateKeyTypes::standard);
+            thread prob_quint (&RSADurationTracking::trackSingleGenerationInThread, duration_tracking, key_length, RSAGenerationTypes::probable,RSAPrivateKeyTypes::quintuple);
+            thread prob_stand (&RSADurationTracking::trackSingleGenerationInThread, duration_tracking, key_length, RSAGenerationTypes::probable,RSAPrivateKeyTypes::standard);
 
-            prov_stand.join();
-            prov_quint.join();
-            prov_with_aux_quint.join();
-            prov_with_aux_stand.join();
+            // prov_stand.join();
+            // prov_quint.join();
+            // prov_with_aux_quint.join();
+            // prov_with_aux_stand.join();
+            prob_quint.join();
+            prob_stand.join();
         }
     }
 
@@ -43,7 +47,13 @@ void runDatapointGenerationMultiThreaded(){
 
 int main(int argc, char const *argv[])
 {
-    runDatapointGenerationMultiThreaded();
+    RSADurationTracking duration_tracking = RSADurationTracking();
+    duration_tracking.runDatapointGeneration();
+    // runDatapointGenerationMultiThreaded();
+
+    // RSAKeyGeneration my_key_gen = RSAKeyGeneration(2048);
+    // my_key_gen.generateRSAKeysUsingProbablePrimes();
+
     // RSADurationTracking duration_tracking = RSADurationTracking();
     // duration_tracking.runDatapointGeneration();
     

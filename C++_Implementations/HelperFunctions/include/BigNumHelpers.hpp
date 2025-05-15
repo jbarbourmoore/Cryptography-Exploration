@@ -33,5 +33,7 @@ class BigNumHelpers{
         /// @param bignum_to_hash This big number to be hashed
         /// @return The resulting SHA512 hash digest as a big number
         static BIGNUM* sha512BigNum(BIGNUM* bignum_to_hash);
+
+        static BIGNUM* gcdValueMinusOneSecondValue(BIGNUM* first_value, BIGNUM* second_value);
 };
 #endif

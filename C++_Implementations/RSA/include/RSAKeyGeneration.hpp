@@ -137,6 +137,14 @@ class RSAKeyGeneration{
         /// @brief This method generates a random public exponenent to be used in the RSA keys
         BIGNUM* generateRandomE();
 
+        
+
+        /// @brief This method generates the provable primes 'p' and 'q' to be used in the RSA keys
+        /// Based on Nist Fips 186-5 A.1.3 "Generation of Random Primes that are Probably Prime"
+        /// @param e The public exponent
+        /// @return A ConstructPandQResult containing, success p and q.
+        ConstructPandQResult constructTheProbablePrimes(int a = -1, int b = -1, BIGNUM *e = BN_new());
+
         /// @brief This method generates the provable primes 'p' and 'q' to be used in the RSA keys
         /// Based on Nist Fips 186-5 Appendix A.1.2.2 "Construction of the Provable Primes p and q"
         ConstructPandQResult constructTheProvablePrimes(BIGNUM *seed, BIGNUM *e);
@@ -188,6 +196,11 @@ class RSAKeyGeneration{
         /// Based on Nist Fips 186-5 Appendix A.1.2 "Generation of Random Primes that are Provably Prime"
         /// @param use_key_quintuple_form Optional - Whether or not the generated private key should be in quintuple form (default is true)
         RSAKeyGenerationResult generateRSAKeysUsingProvablePrimes(bool use_key_quintuple_form = true);
+
+        /// @brief This method generates RSA keys based on provable primes.
+        /// Based on Nist Fips 186-5 A.1.3 "Generation of Random Primes that are Probably Prime"
+        /// @param use_key_quintuple_form Optional - Whether or not the generated private key should be in quintuple form (default is true)
+        RSAKeyGenerationResult generateRSAKeysUsingProbablePrimes(int a = -1, int b = -1, bool use_key_quintuple_form = true);
 
         /// @brief This method generates RSA keys based on provable primes.
         /// @param N1 The length of the first auxillary prime in bits
