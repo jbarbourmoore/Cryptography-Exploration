@@ -25,19 +25,19 @@ void runDatapointGenerationMultiThreaded(){
     for (int kl = 0; kl < key_lengths.size(); kl++){
         int key_length = key_lengths[kl];
         for (int i = 0; i < iteration_count; i++){
-            // thread prov_quint (&RSADurationTracking::trackSingleGenerationInThread, duration_tracking, key_length, RSAGenerationTypes::provable,RSAPrivateKeyTypes::quintuple);
-            // thread prov_stand (&RSADurationTracking::trackSingleGenerationInThread, duration_tracking, key_length, RSAGenerationTypes::provable,RSAPrivateKeyTypes::standard);
-            // thread prov_with_aux_quint (&RSADurationTracking::trackSingleGenerationInThread, duration_tracking, key_length, RSAGenerationTypes::provable_with_aux,RSAPrivateKeyTypes::quintuple);
-            // thread prov_with_aux_stand (&RSADurationTracking::trackSingleGenerationInThread, duration_tracking, key_length, RSAGenerationTypes::provable_with_aux,RSAPrivateKeyTypes::standard);
-            thread prob_quint (&RSADurationTracking::trackSingleGenerationInThread, duration_tracking, key_length, RSAGenerationTypes::probable,RSAPrivateKeyTypes::quintuple);
-            thread prob_stand (&RSADurationTracking::trackSingleGenerationInThread, duration_tracking, key_length, RSAGenerationTypes::probable,RSAPrivateKeyTypes::standard);
+            thread prov_quint (&RSADurationTracking::trackSingleGenerationInThread, duration_tracking, key_length, RSAGenerationTypes::provable,RSAPrivateKeyTypes::quintuple);
+            thread prov_stand (&RSADurationTracking::trackSingleGenerationInThread, duration_tracking, key_length, RSAGenerationTypes::provable,RSAPrivateKeyTypes::standard);
+            thread prov_with_aux_quint (&RSADurationTracking::trackSingleGenerationInThread, duration_tracking, key_length, RSAGenerationTypes::provable_with_aux,RSAPrivateKeyTypes::quintuple);
+            thread prov_with_aux_stand (&RSADurationTracking::trackSingleGenerationInThread, duration_tracking, key_length, RSAGenerationTypes::provable_with_aux,RSAPrivateKeyTypes::standard);
+            // thread prob_quint (&RSADurationTracking::trackSingleGenerationInThread, duration_tracking, key_length, RSAGenerationTypes::probable,RSAPrivateKeyTypes::quintuple);
+            // thread prob_stand (&RSADurationTracking::trackSingleGenerationInThread, duration_tracking, key_length, RSAGenerationTypes::probable,RSAPrivateKeyTypes::standard);
 
-            // prov_stand.join();
-            // prov_quint.join();
-            // prov_with_aux_quint.join();
-            // prov_with_aux_stand.join();
-            prob_quint.join();
-            prob_stand.join();
+            prov_stand.join();
+            prov_quint.join();
+            prov_with_aux_quint.join();
+            prov_with_aux_stand.join();
+            // prob_quint.join();
+            // prob_stand.join();
         }
     }
 
@@ -47,8 +47,18 @@ void runDatapointGenerationMultiThreaded(){
 
 int main(int argc, char const *argv[])
 {
-    RSADurationTracking duration_tracking = RSADurationTracking();
-    duration_tracking.runDatapointGeneration();
+    int max = 50;
+    BIGNUM *max_bn = BN_new();
+    BN_set_word(max_bn, max);
+
+    std::vector<unsigned long long int> primes = BigNumHelpers::primeSieve(max_bn);
+
+    for (int i = 0; i < primes.size(); i ++){
+        printf("%lld, ",primes[i]);
+    }
+    printf("\n");
+    // RSADurationTracking duration_tracking = RSADurationTracking();
+    // duration_tracking.runDatapointGeneration();
     // runDatapointGenerationMultiThreaded();
 
     // RSAKeyGeneration my_key_gen = RSAKeyGeneration(2048);

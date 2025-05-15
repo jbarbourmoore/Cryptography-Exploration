@@ -9,11 +9,14 @@ target_sources(BigNumHelpers_lib
     PRIVATE
         src/BigNumXOR.cpp
         src/BigNumHash.cpp
-        src/BigNumGDBMin1.cpp
+        src/BigNumGCDMin1.cpp
+        src/BigNumToLongLong.cpp
+        src/BigNumPrimeSieve.cpp
 )
 
 target_link_libraries(BigNumHelpers_lib
-        OpenSSL::SSL)
+        OpenSSL::SSL
+        )
 
 add_library(IOHelpers_lib)
 

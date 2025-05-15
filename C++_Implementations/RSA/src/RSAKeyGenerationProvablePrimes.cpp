@@ -31,24 +31,27 @@ RSAKeyGenerationResult RSAKeyGeneration::generateRSAKeysUsingProvablePrimesWithA
         OPENSSL_free(hex_seed);
 
         p_and_q =  constructTheProvablePrimesWithAuxillary(seed, N1, N2, e);
-        d = generatePrivateExponent(e,p_and_q.p_,p_and_q.q_);
-
-        BN_mul(n, p_and_q.p_, p_and_q.q_, context_);
-        const char *hex_d = BN_bn2hex(d);
-        printf("The value of d is %s\n", hex_d);
-        const char *hex_n = BN_bn2hex(n);
-        printf("The value of n is %s\n", hex_n);
-        d_is_0 = BN_is_zero(d);
-        int e_retry = 0;
-        while( d_is_0 and e_retry < 10){
-            printf("retrying new e\n");
-            e = generateRandomE();
-            hex_e = BN_bn2hex(e);
-            printf("The value of e is %s\n", hex_e);
+        if(p_and_q.success_){
             d = generatePrivateExponent(e,p_and_q.p_,p_and_q.q_);
-            hex_d = BN_bn2hex(d);
+
+            BN_mul(n, p_and_q.p_, p_and_q.q_, context_);
+            const char *hex_d = BN_bn2hex(d);
             printf("The value of d is %s\n", hex_d);
+            const char *hex_n = BN_bn2hex(n);
+            printf("The value of n is %s\n", hex_n);
             d_is_0 = BN_is_zero(d);
+            int e_retry = 0;
+            while( d_is_0 and e_retry < 10){
+                printf("retrying new e\n");
+                e = generateRandomE();
+                hex_e = BN_bn2hex(e);
+                printf("The value of e is %s\n", hex_e);
+                d = generatePrivateExponent(e,p_and_q.p_,p_and_q.q_);
+                hex_d = BN_bn2hex(d);
+                printf("The value of d is %s\n", hex_d);
+                d_is_0 = BN_is_zero(d);
+                e_retry++;
+            }
         }
     }
     RSAPrivateKey private_key;
@@ -86,24 +89,27 @@ RSAKeyGenerationResult RSAKeyGeneration::generateRSAKeysUsingProvablePrimes(bool
         OPENSSL_free(hex_seed);
 
         result_primes = constructTheProvablePrimes(seed, e);
-        d = generatePrivateExponent(e,result_primes.p_,result_primes.q_);
-
-        BN_mul(n, result_primes.p_, result_primes.q_, context_);
-        const char *hex_d = BN_bn2hex(d);
-        printf("The value of d is %s\n", hex_d);
-        const char *hex_n = BN_bn2hex(n);
-        printf("The value of n is %s\n", hex_n);
-        d_is_0 = BN_is_zero(d);
-        int e_retry = 0;
-        while( d_is_0 and e_retry < 10){
-            printf("retrying new e\n");
-            e = generateRandomE();
-            hex_e = BN_bn2hex(e);
-            printf("The value of e is %s\n", hex_e);
+        if(result_primes.success_){
             d = generatePrivateExponent(e,result_primes.p_,result_primes.q_);
-            hex_d = BN_bn2hex(d);
+
+            BN_mul(n, result_primes.p_, result_primes.q_, context_);
+            const char *hex_d = BN_bn2hex(d);
             printf("The value of d is %s\n", hex_d);
+            const char *hex_n = BN_bn2hex(n);
+            printf("The value of n is %s\n", hex_n);
             d_is_0 = BN_is_zero(d);
+            int e_retry = 0;
+            while( d_is_0 and e_retry < 10){
+                printf("retrying new e\n");
+                e = generateRandomE();
+                hex_e = BN_bn2hex(e);
+                printf("The value of e is %s\n", hex_e);
+                d = generatePrivateExponent(e,result_primes.p_,result_primes.q_);
+                hex_d = BN_bn2hex(d);
+                printf("The value of d is %s\n", hex_d);
+                d_is_0 = BN_is_zero(d);
+                e_retry ++;
+            }
         }
     }
     RSAPrivateKey private_key;

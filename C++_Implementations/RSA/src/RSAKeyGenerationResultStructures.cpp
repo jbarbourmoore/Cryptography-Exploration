@@ -14,6 +14,11 @@ ShaweTaylorRandomPrimeResult::ShaweTaylorRandomPrimeResult(bool success, BIGNUM*
     prime_gen_counter_ = prime_gen_counter;
 }
 
+void ShaweTaylorRandomPrimeResult::freeResult(){
+    BN_free(prime_);
+    BN_free(prime_seed_);
+}
+
 ProvablePrimeGenerationResult::ProvablePrimeGenerationResult(bool success, BIGNUM* prime, BIGNUM* prime_1, BIGNUM* prime_2, BIGNUM* prime_seed){
     success_ = success;
     prime_ = prime;

@@ -90,7 +90,7 @@ BIGNUM* BigNumHelpers::sha512BigNum(BIGNUM* bignum_to_hash){
     unsigned hash_length_bytes = 512/8;
 
     // convert the bignum into a byte array to be hashed
-    size_t byte_size = BN_num_bytes(bignum_to_hash);
+    int byte_size = BN_num_bytes(bignum_to_hash);
     unsigned char *byte_array_to_hash = new unsigned char[byte_size]();
     BN_bn2bin(bignum_to_hash, byte_array_to_hash);
 

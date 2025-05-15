@@ -94,6 +94,8 @@ struct ShaweTaylorRandomPrimeResult{
     /// @param prime_seed optional - The next prime seed, default is new
     /// @param prime_gen_counter optional - The prime generation counter value after the completion, default is new
     ShaweTaylorRandomPrimeResult(bool success = false, BIGNUM* prime = BN_new(), BIGNUM* prime_seed = BN_new(), int prime_gen_counter = 0);
+
+    void freeResult();
 };
 
 /// @brief This class contains the variables and methods for an RSA Private Key
