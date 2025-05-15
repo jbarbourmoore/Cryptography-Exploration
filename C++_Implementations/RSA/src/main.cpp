@@ -26,10 +26,14 @@ void runDatapointGenerationMultiThreaded(){
         int key_length = key_lengths[kl];
         for (int i = 0; i < iteration_count; i++){
             thread prov_quint (&RSADurationTracking::trackSingleGenerationInThread, duration_tracking, key_length, RSAGenerationTypes::provable,RSAPrivateKeyTypes::quintuple);
-            thread prov_stand (&RSADurationTracking::trackSingleGenerationInThread, duration_tracking, key_length, RSAGenerationTypes::provable,RSAPrivateKeyTypes::quintuple);
+            thread prov_stand (&RSADurationTracking::trackSingleGenerationInThread, duration_tracking, key_length, RSAGenerationTypes::provable,RSAPrivateKeyTypes::standard);
+            thread prov_quint2 (&RSADurationTracking::trackSingleGenerationInThread, duration_tracking, key_length, RSAGenerationTypes::provable,RSAPrivateKeyTypes::quintuple);
+            thread prov_stand2 (&RSADurationTracking::trackSingleGenerationInThread, duration_tracking, key_length, RSAGenerationTypes::provable,RSAPrivateKeyTypes::standard);
 
             prov_stand.join();
             prov_quint.join();
+            prov_stand2.join();
+            prov_quint2.join();
         }
     }
 
