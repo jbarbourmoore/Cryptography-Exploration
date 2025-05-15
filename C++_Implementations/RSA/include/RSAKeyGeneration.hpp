@@ -112,18 +112,6 @@ class RSAKeyGeneration{
         /// @brief The minimum value for both 'p' and 'q'
         BIGNUM *min_prime_value_ { BN_new() };
 
-        /// @brief The current value for 'e'
-        BIGNUM *e_ { BN_new() };
-
-        /// @brief The current value for 'p'
-        BIGNUM *p_ { BN_new() };
-
-        /// @brief The current value for 'q'
-        BIGNUM *q_ { BN_new() };
-
-        /// @brief The current value for 'seed'
-        BIGNUM *seed_ { BN_new() };
-
         /// @brief the key length in bits
         int keylength_ {2048};
 
@@ -144,20 +132,20 @@ class RSAKeyGeneration{
 
         /// @brief This method generates a seed value to be used in generating provable primes
         /// Based on Nist Fips 186-5 Appendix A.1.2.1 "Get the seed"
-        void generateRandomSeed();
+        BIGNUM* generateRandomSeed();
 
         /// @brief This method generates a random public exponenent to be used in the RSA keys
-        void generateRandomE();
+        BIGNUM* generateRandomE();
 
         /// @brief This method generates the provable primes 'p' and 'q' to be used in the RSA keys
         /// Based on Nist Fips 186-5 Appendix A.1.2.2 "Construction of the Provable Primes p and q"
-        bool constructTheProvablePrimes();
+        ConstructPandQResult constructTheProvablePrimes(BIGNUM *seed, BIGNUM *e);
 
         /// @brief This method generates the provable primes 'p' and 'q' to be used in the RSA keys
         /// Based on Nist Fips 186-5 Appendix A.1.2.2 "Construction of the Provable Primes p and q"
         /// @param N1 The length of the first condition
         /// @param N2 The length of the second condition
-        ConstructPandQResult constructTheProvablePrimesWithAuxillary(int N1, int N2);
+        ConstructPandQResult constructTheProvablePrimesWithAuxillary(BIGNUM *seed, int N1, int N2, BIGNUM *e);
 
         /// @brief The method constructs a provable prime that may or may not have additional conditions.
         /// Based on NIST FIPS 186-5 Appendix B.10 "Construct a Provable Prime (Possibly with Conditions) Based on
@@ -169,7 +157,7 @@ class RSAKeyGeneration{
         /// @return A struct containing a boolean as to whether the method succeeded, a character array of the prime
         /// a character array of the first conditional prime, a character array of the second conditional prime
         /// and a character array of the final seed value for the next prime construction
-        ProvablePrimeGenerationResult constructAProvablePrimePotentiallyWithConditions(int L, int N1, int N2, BIGNUM *first_seed);
+        ProvablePrimeGenerationResult constructAProvablePrimePotentiallyWithConditions(int L, int N1, int N2, BIGNUM *first_seed, BIGNUM *e);
 
         /// @brief This method generates a random prime number using the Shawe Taylor methodology.
         /// @param length The bit length for the prime being created

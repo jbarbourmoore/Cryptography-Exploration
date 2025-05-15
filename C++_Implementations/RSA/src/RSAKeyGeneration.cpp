@@ -17,8 +17,8 @@ RSAKeyGeneration::RSAKeyGeneration(int keylength){
 
 RSAKeyGenerationResult RSAKeyGeneration::generateRSAKeysUsingProvablePrimesWithAuxPrimes(int N1, int N2, bool use_key_quintuple_form){
     // generate a random public exponent
-    generateRandomE();
-    char *hex_e = BN_bn2hex(e_);
+    BIGNUM *e = generateRandomE();
+    char *hex_e = BN_bn2hex(e);
     printf("The value of e is %s\n", hex_e);
     OPENSSL_free(hex_e);
 
@@ -27,18 +27,19 @@ RSAKeyGenerationResult RSAKeyGeneration::generateRSAKeysUsingProvablePrimesWithA
     BIGNUM *n = BN_new();
     BIGNUM *d;
 
+    BIGNUM *seed;
     ConstructPandQResult p_and_q;
 
     while(d_is_0){
 
         // generate a random seed
-        generateRandomSeed();
-        char *hex_seed = BN_bn2hex(seed_);
+        seed = generateRandomSeed();
+        char *hex_seed = BN_bn2hex(seed);
         printf("The value of seed is %s\n", hex_seed);
         OPENSSL_free(hex_seed);
 
-        p_and_q =  constructTheProvablePrimesWithAuxillary(N1, N2);
-        d = generatePrivateExponent(e_,p_and_q.p_,p_and_q.q_);
+        p_and_q =  constructTheProvablePrimesWithAuxillary(seed, N1, N2, e);
+        d = generatePrivateExponent(e,p_and_q.p_,p_and_q.q_);
 
         BN_mul(n, p_and_q.p_, p_and_q.q_, context_);
         const char *hex_d = BN_bn2hex(d);
@@ -49,10 +50,10 @@ RSAKeyGenerationResult RSAKeyGeneration::generateRSAKeysUsingProvablePrimesWithA
         int e_retry = 0;
         while( d_is_0 and e_retry < 10){
             printf("retrying new e\n");
-            generateRandomE();
-            hex_e = BN_bn2hex(e_);
+            e = generateRandomE();
+            hex_e = BN_bn2hex(e);
             printf("The value of e is %s\n", hex_e);
-            d = generatePrivateExponent(e_,p_and_q.p_,p_and_q.q_);
+            d = generatePrivateExponent(e,p_and_q.p_,p_and_q.q_);
             hex_d = BN_bn2hex(d);
             printf("The value of d is %s\n", hex_d);
             d_is_0 = BN_is_zero(d);
@@ -64,35 +65,38 @@ RSAKeyGenerationResult RSAKeyGeneration::generateRSAKeysUsingProvablePrimesWithA
     } else {
         private_key = RSAPrivateKey(n, d, keylength_);
     }
-    RSAPublicKey public_key = RSAPublicKey(n, e_, keylength_);
+    RSAPublicKey public_key = RSAPublicKey(n, e, keylength_);
     RSAKeyGenerationResult key_generation_result = RSAKeyGenerationResult(true,private_key,public_key,keylength_);
     return key_generation_result;
 }
 
 RSAKeyGenerationResult RSAKeyGeneration::generateRSAKeysUsingProvablePrimes(bool use_key_quintuple_form){
     // generate a random public exponent
-    generateRandomE();
-    char *hex_e = BN_bn2hex(e_);
+    BIGNUM *e = generateRandomE();
+    char *hex_e = BN_bn2hex(e);
     printf("The value of e is %s\n", hex_e);
     OPENSSL_free(hex_e);
 
     int d_is_0 = 1;
 
+    BIGNUM *seed;
     BIGNUM *n = BN_new();
     BIGNUM *d;
+
+    ConstructPandQResult result_primes;
 
     while(d_is_0){
 
         // generate a random seed
-        generateRandomSeed();
-        char *hex_seed = BN_bn2hex(seed_);
+        seed = generateRandomSeed();
+        char *hex_seed = BN_bn2hex(seed);
         printf("The value of seed is %s\n", hex_seed);
         OPENSSL_free(hex_seed);
 
-        constructTheProvablePrimes();
-        d = generatePrivateExponent(e_,p_,q_);
+        result_primes = constructTheProvablePrimes(seed, e);
+        d = generatePrivateExponent(e,result_primes.p_,result_primes.q_);
 
-        BN_mul(n, p_, q_, context_);
+        BN_mul(n, result_primes.p_, result_primes.q_, context_);
         const char *hex_d = BN_bn2hex(d);
         printf("The value of d is %s\n", hex_d);
         const char *hex_n = BN_bn2hex(n);
@@ -101,10 +105,10 @@ RSAKeyGenerationResult RSAKeyGeneration::generateRSAKeysUsingProvablePrimes(bool
         int e_retry = 0;
         while( d_is_0 and e_retry < 10){
             printf("retrying new e\n");
-            generateRandomE();
-            hex_e = BN_bn2hex(e_);
+            e = generateRandomE();
+            hex_e = BN_bn2hex(e);
             printf("The value of e is %s\n", hex_e);
-            d = generatePrivateExponent(e_,p_,q_);
+            d = generatePrivateExponent(e,result_primes.p_,result_primes.q_);
             hex_d = BN_bn2hex(d);
             printf("The value of d is %s\n", hex_d);
             d_is_0 = BN_is_zero(d);
@@ -112,11 +116,11 @@ RSAKeyGenerationResult RSAKeyGeneration::generateRSAKeysUsingProvablePrimes(bool
     }
     RSAPrivateKey private_key;
     if (use_key_quintuple_form){
-        private_key = RSAPrivateKey(n, d, p_, q_, keylength_);
+        private_key = RSAPrivateKey(n, d, result_primes.p_, result_primes.q_, keylength_);
     } else {
         private_key = RSAPrivateKey(n, d, keylength_);
     }
-    RSAPublicKey public_key = RSAPublicKey(n, e_, keylength_);
+    RSAPublicKey public_key = RSAPublicKey(n, e, keylength_);
     RSAKeyGenerationResult key_generation_result = RSAKeyGenerationResult(true,private_key,public_key,keylength_);
     return key_generation_result;
 }
@@ -153,7 +157,7 @@ BIGNUM* RSAKeyGeneration::generatePrivateExponent(BIGNUM *e, BIGNUM *p, BIGNUM *
     return d;
 }
 
-void RSAKeyGeneration::generateRandomE(){
+BIGNUM* RSAKeyGeneration::generateRandomE(){
     int security_strength = getSecurityStrength();
 
     BIGNUM *random = BN_new();
@@ -166,14 +170,14 @@ void RSAKeyGeneration::generateRandomE(){
     assert(success == 1);
 
     // add the random value to e_min
-    BN_add(e_, random, e_min_);
+    BN_add(random, random, e_min_);
 
-    BN_free(random);
+    return random;
 }
 
-ConstructPandQResult RSAKeyGeneration::constructTheProvablePrimesWithAuxillary(int N1, int N2){
+ConstructPandQResult RSAKeyGeneration::constructTheProvablePrimesWithAuxillary(BIGNUM *seed, int N1, int N2, BIGNUM *e){
 
-    ProvablePrimeGenerationResult result = constructAProvablePrimePotentiallyWithConditions(getPrimeLength(), N1, N2, seed_);
+    ProvablePrimeGenerationResult result = constructAProvablePrimePotentiallyWithConditions(getPrimeLength(), N1, N2, seed,e);
 
     if (result.success_ != true) {
         printf("Failed to construct provable prime 'p'\n");
@@ -181,7 +185,7 @@ ConstructPandQResult RSAKeyGeneration::constructTheProvablePrimesWithAuxillary(i
     }
     BIGNUM* p = result.prime_;
 
-    result = constructAProvablePrimePotentiallyWithConditions(getPrimeLength(), N1, N2, result.prime_seed_);
+    result = constructAProvablePrimePotentiallyWithConditions(getPrimeLength(), N1, N2, result.prime_seed_,e);
 
     if (result.success_ != true) {
         printf("Failed to construct provable prime 'q'\n");
@@ -191,31 +195,28 @@ ConstructPandQResult RSAKeyGeneration::constructTheProvablePrimesWithAuxillary(i
     return ConstructPandQResult(true, p, result.prime_);
 };
 
-bool RSAKeyGeneration::constructTheProvablePrimes(){
+ConstructPandQResult RSAKeyGeneration::constructTheProvablePrimes(BIGNUM *seed, BIGNUM *e){
 
     
-    ProvablePrimeGenerationResult result = constructAProvablePrimePotentiallyWithConditions(getPrimeLength(), 1, 1, seed_);
+    ProvablePrimeGenerationResult result = constructAProvablePrimePotentiallyWithConditions(getPrimeLength(), 1, 1, seed, e);
 
     if (result.success_ != true) {
         printf("Failed to construct provable prime 'p'\n");
         return false;
     }
-    p_ = result.prime_;
+    BIGNUM *p = result.prime_;
 
-
-    result = constructAProvablePrimePotentiallyWithConditions(getPrimeLength(), 1, 1, result.prime_seed_);
-    // printf("result success : %b\n",result.success_);
+    result = constructAProvablePrimePotentiallyWithConditions(getPrimeLength(), 1, 1, result.prime_seed_, e);
+    
     if (result.success_ != true) {
         printf("Failed to construct provable prime 'q'\n");
         return false;
     }
-    q_ = result.prime_;
-    seed_ = result.prime_seed_;
     
-    return true;
+    return ConstructPandQResult(true, p, result.prime_);
 };
 
-ProvablePrimeGenerationResult RSAKeyGeneration::constructAProvablePrimePotentiallyWithConditions(int L, int N1, int N2, BIGNUM *first_seed){
+ProvablePrimeGenerationResult RSAKeyGeneration::constructAProvablePrimePotentiallyWithConditions(int L, int N1, int N2, BIGNUM *first_seed, BIGNUM *e){
     // An instance of the result struct for if the function fails
     ProvablePrimeGenerationResult false_result = ProvablePrimeGenerationResult{};
     
@@ -386,7 +387,7 @@ ProvablePrimeGenerationResult RSAKeyGeneration::constructAProvablePrimePotential
         pgen_counter += 1;
 
         BN_sub(gcd_result, p, number_one);
-        BN_gcd(gcd_result, gcd_result, e_, context_);
+        BN_gcd(gcd_result, gcd_result, e, context_);
 
         //step 19
         if (BN_is_odd(gcd_result) == 1){
@@ -709,11 +710,13 @@ ShaweTaylorRandomPrimeResult RSAKeyGeneration::generateRandomPrimeWithShaweTaylo
 };
 
 
-void RSAKeyGeneration::generateRandomSeed(){
+BIGNUM* RSAKeyGeneration::generateRandomSeed(){
+    BIGNUM *seed = BN_new();
     int security_strength = getSecurityStrength();
     int length = 2 * security_strength + 1;
-    int success = BN_rand_ex(seed_, length, BN_RAND_TOP_ANY,BN_RAND_BOTTOM_ANY,security_strength,context_);
+    int success = BN_rand_ex(seed, length, BN_RAND_TOP_ANY,BN_RAND_BOTTOM_ANY,security_strength,context_);
     assert(success == 1);
+    return seed;
 }
 
 void RSAKeyGeneration::setEParameters(){
