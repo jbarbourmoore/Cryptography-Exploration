@@ -25,10 +25,30 @@ void ShaweTaylorRandomPrimeResult::freeResult(){
 
 ProvablePrimeGenerationResult::ProvablePrimeGenerationResult(bool success, BIGNUM* prime, BIGNUM* prime_1, BIGNUM* prime_2, BIGNUM* prime_seed){
     success_ = success;
-    prime_ = prime;
-    prime_1_ = prime_1;
-    prime_2_ = prime_2;
-    prime_seed_ = prime_seed;
+    result_ctx_ = BN_CTX_secure_new();
+    BN_CTX_start(result_ctx_);
+    prime_ = BN_CTX_get(result_ctx_);
+    OPENSSL_assert(BN_copy(prime_, prime) != NULL);
+    prime_1_ = BN_CTX_get(result_ctx_);
+    OPENSSL_assert(BN_copy(prime_1_, prime_1) != NULL);
+    prime_2_ = BN_CTX_get(result_ctx_);
+    OPENSSL_assert(BN_copy(prime_2_, prime_2) != NULL);
+    prime_seed_ = BN_CTX_get(result_ctx_);
+    OPENSSL_assert(BN_copy(prime_seed_, prime_seed) != NULL);
+}
+ProvablePrimeGenerationResult::ProvablePrimeGenerationResult(){
+    success_ = false;
+    result_ctx_ = BN_CTX_secure_new();
+    BN_CTX_start(result_ctx_);
+    prime_ = BN_CTX_get(result_ctx_);
+    prime_1_ = BN_CTX_get(result_ctx_);
+    prime_2_ = BN_CTX_get(result_ctx_);
+    prime_seed_ = BN_CTX_get(result_ctx_);
+}
+
+void ProvablePrimeGenerationResult::freeResult(){
+    BN_CTX_end(result_ctx_);
+    BN_CTX_free(result_ctx_);
 }
 
 

@@ -53,6 +53,9 @@ struct ProvablePrimeGenerationResult{
     /// @brief Whether the provable prime generation was a success
     bool success_ {};
 
+    /// @brief The context used for the prime result
+    BN_CTX *result_ctx_ {};
+
     /// @brief The generated prime
     BIGNUM *prime_ {};
 
@@ -71,7 +74,12 @@ struct ProvablePrimeGenerationResult{
     /// @param prime_1 optional - The first auxillary prime, default is new
     /// @param prime_2 optional - The second auxillary prime, default is new
     /// @param prime_seed optional - The next prime seed, default is new
-    ProvablePrimeGenerationResult(bool success = false, BIGNUM *prime = BN_new(), BIGNUM *prime_1 = BN_new(), BIGNUM *prime_2 = BN_new(), BIGNUM *prime_seed = BN_new());
+    ProvablePrimeGenerationResult(bool success, BIGNUM *prime, BIGNUM *prime_1, BIGNUM *prime_2, BIGNUM *prime_seed);
+
+    /// @brief This method initializes a false result
+    ProvablePrimeGenerationResult();
+
+    void freeResult();
 };
 
 /// @brief This structure holds the data from shawe taylor random prime generation (success:bool, prime:char*, prime_seed:char*, prime_gen_counter:int)

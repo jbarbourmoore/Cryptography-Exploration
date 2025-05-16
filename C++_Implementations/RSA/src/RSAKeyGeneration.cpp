@@ -419,9 +419,8 @@ ShaweTaylorRandomPrimeResult RSAKeyGeneration::generateRandomPrimeWithShaweTaylo
             BN_add(prime_seed_inc_i,prime_seed_inc_i,prime_seed);
             PassBigNum pass_prime_seed_inc = PassBigNum(prime_seed_inc_i);
             BigNumHelpers::sha512BigNum(pass_prime_seed_inc).copyAndClear(hash_value);
-            BN_mul(prime_seed_inc_i,hash_value,two_to_ihashlen,context_);
+            BN_mul(prime_seed_inc_i, hash_value, two_to_ihashlen,context_);
             BN_add(a, a, prime_seed_inc_i);
-            // BN_free(hash_value);
         }
 
         // step 28
