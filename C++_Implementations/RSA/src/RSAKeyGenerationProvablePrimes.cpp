@@ -168,43 +168,67 @@ ConstructPandQResult RSAKeyGeneration::constructTheProvablePrimes(BIGNUM *seed, 
 ProvablePrimeGenerationResult RSAKeyGeneration::constructAProvablePrimePotentiallyWithConditions(int L, int N1, int N2, BIGNUM *first_seed, BIGNUM *e){
     // An instance of the result struct for if the function fails
     ProvablePrimeGenerationResult false_result = ProvablePrimeGenerationResult{};
+
+    BN_CTX *prime_gen_ctx = BN_CTX_secure_new();
+    BN_CTX_start(prime_gen_ctx);
     
-    BIGNUM *number_one = BN_new();
+    BIGNUM *number_one = BN_CTX_get(prime_gen_ctx);
     BN_set_word(number_one, 1);
-    BIGNUM *number_two = BN_new();
+    BIGNUM *number_two = BN_CTX_get(prime_gen_ctx);
     BN_set_word(number_two, 2);
 
+    bool success_generating_p1 = false;
     // step 2 and 3
     // an auxillary prime of length N1
-    BIGNUM *p1 = BN_new();
+    BIGNUM *p1 = BN_CTX_get(prime_gen_ctx);
     // The prime seed to be used when generating p2
-    BIGNUM *p2_seed = BN_new();
+    BIGNUM *p2_seed = BN_CTX_get(prime_gen_ctx);
+
     if (N1 == 1){
         BN_set_word(p1, 1);
         BN_copy(p2_seed, first_seed);
+        success_generating_p1 = true;
     } else {
         ShaweTaylorRandomPrimeResult random_prime = generateRandomPrimeWithShaweTaylor(N1, first_seed);
-        p1 = random_prime.prime_;
-        p2_seed = random_prime.prime_seed_;
+        BN_copy(p1, random_prime.prime_);
+        BN_copy(p2_seed, random_prime.prime_seed_);
+        success_generating_p1 = random_prime.success_;
+        random_prime.freeResult();
     }
 
-    BN_free(first_seed);
+    if (!success_generating_p1){
+        printf("Failed when attempting to generate p1\n");
+        BN_CTX_end(prime_gen_ctx);
+        BN_CTX_free(prime_gen_ctx);
+        return false_result;
+    }
+
+    bool success_generating_p2 = false;
 
     // Step 4 and 6
     // an auxillary prime of length N2
-    BIGNUM *p2 = BN_new();
+    BIGNUM *p2 = BN_CTX_get(prime_gen_ctx);
     // the prime seed to be used when generating p0
-    BIGNUM *p0_seed = BN_new();
+    BIGNUM *p0_seed = BN_CTX_get(prime_gen_ctx);
+
     if (N2 == 1){
         BN_set_word(p2,1);
         BN_copy(p0_seed, p2_seed);
+        success_generating_p2 = true;
     } else {
-        ShaweTaylorRandomPrimeResult random_prime = generateRandomPrimeWithShaweTaylor(N2, first_seed);
-        p2 = random_prime.prime_;
-        p0_seed = random_prime.prime_seed_;
+        ShaweTaylorRandomPrimeResult random_prime = generateRandomPrimeWithShaweTaylor(N2, p2_seed);
+        BN_copy(p2, random_prime.prime_);
+        BN_copy(p0_seed, random_prime.prime_seed_);
+        success_generating_p2 = random_prime.success_;
+        random_prime.freeResult();
     }
 
-    BN_free(p2_seed);
+    if (!success_generating_p2){
+        printf("Failed when attempting to generate p2\n");
+        BN_CTX_end(prime_gen_ctx);
+        BN_CTX_free(prime_gen_ctx);
+        return false_result;
+    }
 
     // ceil(L / 2) + 1
     int length = L/2;
@@ -216,24 +240,33 @@ ProvablePrimeGenerationResult RSAKeyGeneration::constructAProvablePrimePotential
     // the result of the prime generation using shawe taylor to find p0
     ShaweTaylorRandomPrimeResult shawe_taylor_result = generateRandomPrimeWithShaweTaylor(length, p0_seed);
     if (shawe_taylor_result.success_ == false){
+        printf("Failed when attempting to generate p0\n");
+        BN_CTX_end(prime_gen_ctx);
+        BN_CTX_free(prime_gen_ctx);
         return false_result;
     }
-    BN_free(p0_seed);
 
     // The generated value for p0 from the shawe taylor result in step 6
-    BIGNUM *p0 =  BN_dup(shawe_taylor_result.prime_);
+    BIGNUM *p0 =  BN_CTX_get(prime_gen_ctx);
+    BN_copy(p0, shawe_taylor_result.prime_);
+
     // The generated value for pseed from the shawe taylor result in step 6
-    BIGNUM *pseed = BN_dup( shawe_taylor_result.prime_seed_);
+    BIGNUM *pseed =  BN_CTX_get(prime_gen_ctx);
+    BN_copy(pseed, shawe_taylor_result.prime_seed_);
+
+    shawe_taylor_result.freeResult();
 
     // Step 7
     // the result of the greatest common denominator of p0p1 and p2
-    BIGNUM *gcd_result = BN_new();
+    BIGNUM *gcd_result = BN_CTX_get(prime_gen_ctx);
     // p0 * p1
-    BIGNUM *p0p1 = BN_new();
+    BIGNUM *p0p1 = BN_CTX_get(prime_gen_ctx);
     BN_mul(p0p1, p0, p1, context_);
     BN_gcd(gcd_result, p0p1, p2, context_);
     if(BN_is_one(gcd_result) != 1){
         printf("The gcd of p0p1 and p2 is not 1");
+        BN_CTX_end(prime_gen_ctx);
+        BN_CTX_free(prime_gen_ctx);
         return false_result;
     }
 
@@ -248,27 +281,28 @@ ProvablePrimeGenerationResult RSAKeyGeneration::constructAProvablePrimePotential
     int pgen_counter = 0;
 
     // step 18
-    BIGNUM *x = BN_new();
+    BIGNUM *x = BN_CTX_get(prime_gen_ctx);
     BN_set_word(x, 0);
 
     // step 19
     // BIGNUM *hash_for_x;
-    BIGNUM *two_to_ihashlen = BN_new();
-    BIGNUM *prime_seed_inc_i = BN_new();
-    BIGNUM *hash_result = BN_new();
+    BIGNUM *two_to_ihashlen = BN_CTX_get(prime_gen_ctx);
+    BIGNUM *prime_seed_inc_i = BN_CTX_get(prime_gen_ctx);
+    BIGNUM *hash_result = BN_CTX_get(prime_gen_ctx);
     for (int i = 0; i <= iteration; i ++){
         BN_set_word(two_to_ihashlen, i * hash_length_);
         BN_exp(two_to_ihashlen, number_two, two_to_ihashlen, context_);
         BIGNUM *i_bn = BN_new();
         BN_set_word(i_bn, i);
         BN_add(prime_seed_inc_i, i_bn, pseed);
-        hash_result = BigNumHelpers::sha512BigNum(prime_seed_inc_i);
+        PassBigNum pass_prime_seed_inc = PassBigNum(prime_seed_inc_i);
+        BigNumHelpers::sha512BigNum(pass_prime_seed_inc).copyAndClear(hash_result);
         BN_mul(hash_result,hash_result,two_to_ihashlen,context_);
-        BN_add(x, x, prime_seed_inc_i);
+        BN_add(x, x, hash_result);
     }
 
-    // const char *hex_x = BN_bn2hex(x);
-    // printf("x : %s\n", hex_x);
+    const char *hex_x = BN_bn2hex(x);
+    printf("x : %s\n", hex_x);
     BN_add_word(pseed, iteration + 1);
 
     // step 13
@@ -352,7 +386,8 @@ ProvablePrimeGenerationResult RSAKeyGeneration::constructAProvablePrimePotential
                 BN_exp(two_to_ihashlen, number_two, two_to_ihashlen, context_);
                 BN_set_word(prime_seed_inc_i, i);
                 BN_add(prime_seed_inc_i,prime_seed_inc_i,pseed);
-                prime_seed_inc_i = BigNumHelpers::sha512BigNum(prime_seed_inc_i);
+                PassBigNum pass_prime_seed_inc = PassBigNum(prime_seed_inc_i);
+                BigNumHelpers::sha512BigNum(pass_prime_seed_inc).copyAndClear(prime_seed_inc_i);
                 BN_mul(prime_seed_inc_i,prime_seed_inc_i,two_to_ihashlen,context_);
                 BN_add(a, a, prime_seed_inc_i);
             }

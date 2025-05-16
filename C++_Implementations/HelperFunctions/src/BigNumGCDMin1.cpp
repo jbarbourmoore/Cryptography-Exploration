@@ -7,7 +7,7 @@ BIGNUM* BigNumHelpers::gcdValueMinusOneSecondValue(BIGNUM* first_value, BIGNUM* 
 
     BN_CTX *context = BN_CTX_new();
     BIGNUM *gcd = BN_new();
-    BN_gcd(gcd, value_minus_one,second_value,context);
+    BN_gcd(gcd, value_minus_one, second_value, context);
 
     BN_free(value_minus_one);
     BN_CTX_free(context);

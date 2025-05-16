@@ -80,6 +80,9 @@ struct ShaweTaylorRandomPrimeResult{
     /// @brief Whether the random prime generation was successful
     bool success_ {};
 
+    /// @brief The context used for the prime result
+    BN_CTX *result_ctx_ {};
+
     /// @brief The generated prime
     BIGNUM *prime_ {};
 

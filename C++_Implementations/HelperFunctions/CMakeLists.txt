@@ -13,6 +13,7 @@ target_sources(BigNumHelpers_lib
         src/BigNumToLongLong.cpp
         src/BigNumPrimeSieve.cpp
         src/BigNumPrimalityTests.cpp
+        src/BigNumHandler.cpp
 )
 
 target_link_libraries(BigNumHelpers_lib

@@ -8,15 +8,19 @@
 #include "RSAKeyGeneration.hpp"
 
 ShaweTaylorRandomPrimeResult::ShaweTaylorRandomPrimeResult(bool success, BIGNUM* prime, BIGNUM* prime_seed, int prime_gen_counter){
+    result_ctx_ = BN_CTX_secure_new();
+    BN_CTX_start(result_ctx_);
     success_ = success;
-    prime_ = prime;
-    prime_seed_ = prime_seed;
+    prime_ = BN_CTX_get(result_ctx_);
+    OPENSSL_assert(BN_copy(prime_, prime) != NULL);
+    prime_seed_ = BN_CTX_get(result_ctx_);
+    OPENSSL_assert(BN_copy(prime_seed_, prime_seed) != NULL);
     prime_gen_counter_ = prime_gen_counter;
 }
 
 void ShaweTaylorRandomPrimeResult::freeResult(){
-    BN_free(prime_);
-    BN_free(prime_seed_);
+    BN_CTX_end(result_ctx_);
+    BN_CTX_free(result_ctx_);
 }
 
 ProvablePrimeGenerationResult::ProvablePrimeGenerationResult(bool success, BIGNUM* prime, BIGNUM* prime_1, BIGNUM* prime_2, BIGNUM* prime_seed){

@@ -5,11 +5,34 @@
 #include <bits/stdc++.h>
 #include <openssl/evp.h>
 #include <vector>
+
+struct PassBigNum{
+
+    /// @brief The intermediate pointer to the big number that is being transfered
+    BIGNUM *bn_ {};
+
+    /// @brief Create a transfer struct for a BIGNUM (it performs copy so the origination can clean up)
+    /// @param bn The pointer to the bignum being transfers
+    PassBigNum(BIGNUM *bn);
+
+    void copyAndClear(BIGNUM *destination_pointer);
+
+    /// @brief This method frees the transfer bignum copy
+    void freePassedBN();
+};
+
 /// @brief This class holds my helper classes for dealing with OpenSSL BIGNUMs
 class BigNumHelpers{
     private:
         static unsigned long long int calculateSquareRoot(unsigned long long int value);
     public:
+
+        /// @brief This method sets the destination pointer to a new bignum in the given context with a copy of the starting pointer
+        /// @param destination_pointer The pointer for the new location
+        /// @param starting_pointer The pointer for the value to be copied
+        /// @param destination_ctx The context to get the copy from
+        static void getBNCopyInContext(BIGNUM* destination_pointer, BIGNUM *starting_pointer, BN_CTX *destination_ctx);
+
         /// @brief This method performs a Byte Wise Xor for two big numbers
         /// @param first_bn The first big number to be XORed
         /// @param second_bn The second big number to be xored
@@ -34,7 +57,7 @@ class BigNumHelpers{
         /// @brief This method finds the SHA512 hash of a given BIGNUM
         /// @param bignum_to_hash This big number to be hashed
         /// @return The resulting SHA512 hash digest as a big number
-        static BIGNUM* sha512BigNum(BIGNUM* bignum_to_hash);
+        static PassBigNum sha512BigNum(PassBigNum input);
 
         /// @brief This method calculates the gcd of a value minus one and a second value
         /// @param first_value The value from which we shall subtract one
