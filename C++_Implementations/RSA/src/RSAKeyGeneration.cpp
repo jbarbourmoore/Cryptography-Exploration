@@ -161,16 +161,8 @@ ConstructPandQResult RSAKeyGeneration::constructTheProbablePrimes(int a, int b, 
 
         if (BN_is_one(temp_value) == 1){
             // int is_prime = BN_check_prime(p, context_, gencb);
-            int is_prime = BN_check_prime(p, context_, callback);
-            printf("is_prime : %d\n", is_prime);
-            if (is_prime == -1){
-                char *hex_p = BN_bn2hex(p);
-                printf("%d : p is %s\n", is_prime, hex_p);
-            }
+            int is_prime = BN_check_prime(p, context_, nullptr);
             if (is_prime == 1){
-                char *hex_p = BN_bn2hex(p);
-                printf("%d : p is %s\n", is_prime, hex_p);
-                printf("p is prime\n");
                 break;
             }
         }
@@ -201,13 +193,12 @@ ConstructPandQResult RSAKeyGeneration::constructTheProbablePrimes(int a, int b, 
         temp_value = BigNumHelpers::gcdValueMinusOneSecondValue(q, e);
 
         if (BN_is_one(temp_value) == 1){
-            int is_prime = BN_check_prime(q, context_, callback);
+            int is_prime = BN_check_prime(q, context_, nullptr);
             if (is_prime == 1){
                 char *hex_p = BN_bn2hex(p);
                 printf("%d : p is %s\n", is_prime, hex_p);
                 hex_p = BN_bn2hex(q);
                 printf("%d : q is %s\n", is_prime, hex_p);
-                printf("%d : q is prime\n", is_prime);
                 break;
             }
         }
@@ -270,7 +261,8 @@ ShaweTaylorRandomPrimeResult RSAKeyGeneration::generateRandomPrimeWithShaweTaylo
             BN_add(prime_seed, prime_seed, number_two);
             
             // step 10 & 11 : return prime if it is in fact prime
-            if (BN_check_prime(c,context_, gencb)==-1 or BN_check_prime(c,context_, gencb)==1){
+
+            if (BN_check_prime(c,context_, nullptr)==1){
                 ShaweTaylorRandomPrimeResult final_result {true, c, prime_seed, prime_gen_counter};
                 // BN_CTX_end(ctx_shawe);
                 // BN_CTX_free(ctx_shawe);

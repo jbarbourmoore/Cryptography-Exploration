@@ -29,15 +29,15 @@ void runDatapointGenerationMultiThreaded(){
             thread prov_stand (&RSADurationTracking::trackSingleGenerationInThread, duration_tracking, key_length, RSAGenerationTypes::provable,RSAPrivateKeyTypes::standard);
             thread prov_with_aux_quint (&RSADurationTracking::trackSingleGenerationInThread, duration_tracking, key_length, RSAGenerationTypes::provable_with_aux,RSAPrivateKeyTypes::quintuple);
             thread prov_with_aux_stand (&RSADurationTracking::trackSingleGenerationInThread, duration_tracking, key_length, RSAGenerationTypes::provable_with_aux,RSAPrivateKeyTypes::standard);
-            // thread prob_quint (&RSADurationTracking::trackSingleGenerationInThread, duration_tracking, key_length, RSAGenerationTypes::probable,RSAPrivateKeyTypes::quintuple);
-            // thread prob_stand (&RSADurationTracking::trackSingleGenerationInThread, duration_tracking, key_length, RSAGenerationTypes::probable,RSAPrivateKeyTypes::standard);
+            thread prob_quint (&RSADurationTracking::trackSingleGenerationInThread, duration_tracking, key_length, RSAGenerationTypes::probable,RSAPrivateKeyTypes::quintuple);
+            thread prob_stand (&RSADurationTracking::trackSingleGenerationInThread, duration_tracking, key_length, RSAGenerationTypes::probable,RSAPrivateKeyTypes::standard);
 
             prov_stand.join();
             prov_quint.join();
             prov_with_aux_quint.join();
             prov_with_aux_stand.join();
-            // prob_quint.join();
-            // prob_stand.join();
+            prob_quint.join();
+            prob_stand.join();
         }
     }
 
@@ -47,19 +47,22 @@ void runDatapointGenerationMultiThreaded(){
 
 int main(int argc, char const *argv[])
 {
-    int max = 50;
-    BIGNUM *max_bn = BN_new();
-    BN_set_word(max_bn, max);
+    // int max = 14943617;
+    // BIGNUM *max_bn = BN_new();
+    // BN_set_word(max_bn, max);
+    // int is_prime = BigNumHelpers::trialDivision(max_bn);
 
-    std::vector<unsigned long long int> primes = BigNumHelpers::primeSieve(max_bn);
+    // printf("is prime : %d\n",is_prime);
 
-    for (int i = 0; i < primes.size(); i ++){
-        printf("%lld, ",primes[i]);
-    }
-    printf("\n");
+    // std::vector<unsigned long long int> primes = BigNumHelpers::primeSieve(max_bn);
+
+    // for (int i = 0; i < primes.size(); i ++){
+    //     printf("%lld, ",primes[i]);
+    // }
+    // printf("\n");
     // RSADurationTracking duration_tracking = RSADurationTracking();
     // duration_tracking.runDatapointGeneration();
-    // runDatapointGenerationMultiThreaded();
+    runDatapointGenerationMultiThreaded();
 
     // RSAKeyGeneration my_key_gen = RSAKeyGeneration(2048);
     // my_key_gen.generateRSAKeysUsingProbablePrimes();

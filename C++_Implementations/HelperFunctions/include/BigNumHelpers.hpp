@@ -7,6 +7,8 @@
 #include <vector>
 /// @brief This class holds my helper classes for dealing with OpenSSL BIGNUMs
 class BigNumHelpers{
+    private:
+        static unsigned long long int calculateSquareRoot(unsigned long long int value);
     public:
         /// @brief This method performs a Byte Wise Xor for two big numbers
         /// @param first_bn The first big number to be XORed
@@ -54,6 +56,8 @@ class BigNumHelpers{
         /// @param input The bignum to be converted
         /// @return The bignum as an unsigned long long or 0 if the number is too large
         static unsigned long long int bnToUnsignedLongLong(BIGNUM*input);
+
+        static int trialDivision(BIGNUM* candidate_prime_bn);
 
 };
 #endif

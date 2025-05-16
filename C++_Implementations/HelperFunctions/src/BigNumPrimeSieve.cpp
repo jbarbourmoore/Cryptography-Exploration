@@ -23,6 +23,7 @@ std::vector<unsigned long long int> BigNumHelpers::primeSieve(BIGNUM* maximum_bi
     std::vector<unsigned long long int> prime_list;
     for(unsigned long long int i = 2; i < max_val; i ++){
         if (is_prime_list[i] == true){
+            printf("%lld\n",i);
             prime_list.push_back(i);
         }
     }
@@ -40,7 +41,7 @@ std::vector<unsigned long long int> BigNumHelpers::primeSieve(unsigned long long
         // printf("potential prime : %lld - ",potential_prime);
         if (is_prime_list[potential_prime] == true){
 
-            for(unsigned long long int i = potential_prime; i <= max_val; i+=potential_prime){
+            for(unsigned long long int i = 2 * potential_prime; i <= max_val; i+=potential_prime){
                 // printf("%lld ",i);
                 is_prime_list[i] = false;
             }
@@ -50,8 +51,9 @@ std::vector<unsigned long long int> BigNumHelpers::primeSieve(unsigned long long
     }
 
     std::vector<unsigned long long int> prime_list;
-    for(unsigned long long int i = 0; i < max_val; i ++){
+    for(unsigned long long int i = 2; i < max_val; i ++){
         if (is_prime_list[i] == true){
+            // printf("%lld\n",i);
             prime_list.push_back(i);
         }
     }
