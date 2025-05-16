@@ -18,6 +18,15 @@ ShaweTaylorRandomPrimeResult::ShaweTaylorRandomPrimeResult(bool success, BIGNUM*
     prime_gen_counter_ = prime_gen_counter;
 }
 
+ShaweTaylorRandomPrimeResult::ShaweTaylorRandomPrimeResult(){
+    result_ctx_ = BN_CTX_secure_new();
+    BN_CTX_start(result_ctx_);
+    success_ = false;
+    prime_ = BN_CTX_get(result_ctx_);
+    prime_seed_ = BN_CTX_get(result_ctx_);
+    prime_gen_counter_ = 0;
+}
+
 void ShaweTaylorRandomPrimeResult::freeResult(){
     BN_CTX_end(result_ctx_);
     BN_CTX_free(result_ctx_);
@@ -50,7 +59,6 @@ void ProvablePrimeGenerationResult::freeResult(){
     BN_CTX_end(result_ctx_);
     BN_CTX_free(result_ctx_);
 }
-
 
 RSAKeyGenerationResult::RSAKeyGenerationResult(bool success, RSAPrivateKey private_key, RSAPublicKey public_key, int key_length){
     success_ = success;

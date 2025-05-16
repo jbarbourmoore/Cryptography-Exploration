@@ -104,7 +104,10 @@ struct ShaweTaylorRandomPrimeResult{
     /// @param prime optional - The prime that was generated, default is new
     /// @param prime_seed optional - The next prime seed, default is new
     /// @param prime_gen_counter optional - The prime generation counter value after the completion, default is new
-    ShaweTaylorRandomPrimeResult(bool success = false, BIGNUM* prime = BN_new(), BIGNUM* prime_seed = BN_new(), int prime_gen_counter = 0);
+    ShaweTaylorRandomPrimeResult(bool success, BIGNUM* prime, BIGNUM* prime_seed, int prime_gen_counter);
+
+    /// @brief This method initializes a false result
+    ShaweTaylorRandomPrimeResult();
 
     void freeResult();
 };
