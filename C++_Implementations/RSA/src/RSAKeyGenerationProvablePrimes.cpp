@@ -272,7 +272,8 @@ ProvablePrimeGenerationResult RSAKeyGeneration::constructAProvablePrimePotential
         success_generating_primes = true;
     } else {
         // A random prime with bit length N1
-        ShaweTaylorRandomPrimeResult random_prime = generateRandomPrimeWithShaweTaylor(N1, first_seed_copied);
+        PassBigNum passing_seed = PassBigNum(first_seed_copied);
+        ShaweTaylorRandomPrimeResult random_prime = generateRandomPrimeWithShaweTaylor(N1, passing_seed);
         BN_copy(p1, random_prime.prime_);
         BN_copy(p2_seed, random_prime.prime_seed_);
         success_generating_primes = random_prime.success_;
@@ -290,7 +291,8 @@ ProvablePrimeGenerationResult RSAKeyGeneration::constructAProvablePrimePotential
         BN_copy(p0_seed, p2_seed);
     } else if (success_generating_primes) {
         // A random prime with bit length N2
-        ShaweTaylorRandomPrimeResult random_prime = generateRandomPrimeWithShaweTaylor(N2, p2_seed);
+        PassBigNum passing_seed = PassBigNum(p2_seed);
+        ShaweTaylorRandomPrimeResult random_prime = generateRandomPrimeWithShaweTaylor(N2, passing_seed);
         BN_copy(p2, random_prime.prime_);
         BN_copy(p0_seed, random_prime.prime_seed_);
         success_generating_primes = random_prime.success_;
@@ -305,7 +307,8 @@ ProvablePrimeGenerationResult RSAKeyGeneration::constructAProvablePrimePotential
 
     // Step 6
     // the result of the prime generation using shawe taylor to find p0
-    ShaweTaylorRandomPrimeResult shawe_taylor_result = generateRandomPrimeWithShaweTaylor(length, p0_seed);
+    PassBigNum passing_seed = PassBigNum(p0_seed);
+    ShaweTaylorRandomPrimeResult shawe_taylor_result = generateRandomPrimeWithShaweTaylor(length, passing_seed);
     success_generating_primes = shawe_taylor_result.success_;
      
     // The generated value for p0 from the shawe taylor result in step 6

@@ -189,11 +189,17 @@ class RSAKeyGeneration{
         /// and a character array of the final seed value for the next prime construction
         ProvablePrimeGenerationResult constructAProvablePrimePotentiallyWithConditions(int L, int N1, int N2, BIGNUM *first_seed, BIGNUM *e);
 
+        /// @brief This method generates a random prime number using the Shawe Taylor methodology if length < 33
+        /// @param length The bit length for the prime being created
+        /// @param input_seed The input seed for the prime being created
+        /// @return The result of the prime generation as a struct.
+        ShaweTaylorRandomPrimeResult shaweTaylorShort(int length, PassBigNum input_seed);
+
         /// @brief This method generates a random prime number using the Shawe Taylor methodology.
         /// @param length The bit length for the prime being created
         /// @param input_seed The input seed for the prime being created
         /// @return The result of the prime generation as a struct.
-        ShaweTaylorRandomPrimeResult generateRandomPrimeWithShaweTaylor(int length, BIGNUM* input_seed);
+        ShaweTaylorRandomPrimeResult generateRandomPrimeWithShaweTaylor(int length, PassBigNum input_seed);
 
         /// @brief This method calculated the private exponent 'd'
         /// @param e The public exponent 'e'
