@@ -69,6 +69,23 @@ RSAKeyGenerationResult::RSAKeyGenerationResult(bool success, RSAPrivateKey priva
 
 ConstructPandQResult::ConstructPandQResult(bool success, BIGNUM *p, BIGNUM *q){
     success_ = success;
-    p_ = p;
-    q_ = q;
+    result_ctx_ = BN_CTX_secure_new();
+    BN_CTX_start(result_ctx_);
+    p_ = BN_CTX_get(result_ctx_);
+    BN_copy(p_, p);
+    q_ = BN_CTX_get(result_ctx_);
+    BN_copy(q_, q);
+}
+
+ConstructPandQResult::ConstructPandQResult(){
+    success_ = false;
+    result_ctx_ = BN_CTX_secure_new();
+    BN_CTX_start(result_ctx_);
+    p_ = BN_CTX_get(result_ctx_);
+    q_ = BN_CTX_get(result_ctx_);
+}
+
+void ConstructPandQResult::freeResult(){
+    BN_CTX_end(result_ctx_);
+    BN_CTX_free(result_ctx_);
 }

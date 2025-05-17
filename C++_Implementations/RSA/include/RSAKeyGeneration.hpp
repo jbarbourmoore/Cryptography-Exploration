@@ -26,25 +26,36 @@ struct RSAKeyGenerationResult{
     int key_length_ {};
 
     /// @brief Initializes a key generation result
-    /// @param success optional - Whether the key generation was successful, default is false
-    /// @param private_key optional - The private key that was generated, default is new
-    /// @param public_key optional - The public key that was generated, default is new
-    /// @param key_length optional - the length of the key in bits, default is 2048
+    /// @param success Whether the key generation was successful
+    /// @param private_key The private key that was generated
+    /// @param public_key The public key that was generated
+    /// @param key_length the length of the key in bits
     RSAKeyGenerationResult(bool success = false, RSAPrivateKey private_key = RSAPrivateKey(), RSAPublicKey public_key = RSAPublicKey(), int key_length = 2048);
 };
 
 struct ConstructPandQResult{
     bool success_ {};
 
+    /// @brief The context used for the p & q construction result
+    BN_CTX *result_ctx_ {};
+
+    /// @brief The big number containing the first prime 'p'
     BIGNUM *p_ {};
 
+    /// @brief The big number containing the first prime 'q'
     BIGNUM *q_ {};
 
     /// @brief Initializes a result from generating 'p' and 'q
-    /// @param success optional - Whether the prime construction was successful, default is false
-    /// @param p optional - The prime 'p', default is new
-    /// @param q optional - The prime 'q', default is new
-    ConstructPandQResult(bool success = false, BIGNUM *p = BN_new(), BIGNUM *q = BN_new());
+    /// @param success Whether the prime construction was successful, default is false
+    /// @param p The prime 'p'
+    /// @param q The prime 'q'
+    ConstructPandQResult(bool success, BIGNUM *p, BIGNUM *q);
+
+    /// @brief This method initializes a false result
+    ConstructPandQResult();
+
+    /// @brief This method frees the BIGNUMs contained by this stucture
+    void freeResult();
 };
 
 /// @brief This structure holds the data from construction of a provable prime (success:bool, prime:char*, prime_1:char*, prime_2:char*, seed:char*)
