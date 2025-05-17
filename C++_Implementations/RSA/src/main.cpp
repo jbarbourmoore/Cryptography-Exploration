@@ -16,7 +16,7 @@
 void runDatapointGenerationMultiThreaded(){
 
     RSADurationTracking duration_tracking = RSADurationTracking();
-    int iteration_count = 5;
+    int iteration_count = 3;
     vector<RSAGenerationTypes> generation_types = {RSAGenerationTypes::provable};
     vector<RSAPrivateKeyTypes> private_key_types = {RSAPrivateKeyTypes::quintuple, RSAPrivateKeyTypes::standard};
     // vector<int> key_lengths = {2048, 3072};

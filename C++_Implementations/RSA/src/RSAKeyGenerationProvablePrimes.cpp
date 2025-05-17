@@ -146,6 +146,7 @@ ConstructPandQResult RSAKeyGeneration::constructTheProvablePrimesWithAuxillary(B
         BN_copy(seed, prime_generation_result.prime_seed_);
 
         bool p_q_min_diff_success = false;
+        int retry_counter = 0;
         while (prime_generation_success & !p_q_min_diff_success){
             prime_generation_result.freeResult();
 
@@ -162,6 +163,10 @@ ConstructPandQResult RSAKeyGeneration::constructTheProvablePrimesWithAuxillary(B
                 } else {
                     printf("p and q are too close together, regenerating q\n");
                 }
+                if (retry_counter > 5){
+                    prime_generation_success = false;
+                }
+                retry_counter ++;
             }
         }
     }
@@ -202,11 +207,11 @@ ConstructPandQResult RSAKeyGeneration::constructTheProvablePrimes(BIGNUM *seed, 
         BN_copy(seed, prime_generation_result.prime_seed_);
 
         bool p_q_min_diff_success = false;
+        int retry_counter = 0;
         while (prime_generation_success & !p_q_min_diff_success){
             prime_generation_result.freeResult();
 
             prime_generation_result = constructAProvablePrimePotentiallyWithConditions(getPrimeLength(), 1, 1, seed, e);
-            
             if(prime_generation_success){
                 BN_copy(q, prime_generation_result.prime_);
                 BN_copy(seed, prime_generation_result.prime_seed_);
@@ -218,6 +223,10 @@ ConstructPandQResult RSAKeyGeneration::constructTheProvablePrimes(BIGNUM *seed, 
                 } else {
                     printf("p and q are too close together, regenerating q\n");
                 }
+                if (retry_counter > 5){
+                    prime_generation_success = false;
+                }
+                retry_counter ++;
             }
         }
     }
