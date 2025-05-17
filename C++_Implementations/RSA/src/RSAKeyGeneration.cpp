@@ -214,7 +214,7 @@ ConstructPandQResult RSAKeyGeneration::constructTheProbablePrimes(int a, int b, 
 }
 
 ShaweTaylorRandomPrimeResult RSAKeyGeneration::generateRandomPrimeWithShaweTaylor(int length, BIGNUM* input_seed){
-    ShaweTaylorRandomPrimeResult false_result {};
+    ShaweTaylorRandomPrimeResult false_result = ShaweTaylorRandomPrimeResult();
 
     BN_CTX *ctx_shawe = BN_CTX_new();
     assert(ctx_shawe != NULL);
@@ -241,7 +241,7 @@ ShaweTaylorRandomPrimeResult RSAKeyGeneration::generateRandomPrimeWithShaweTaylo
     int prime_gen_counter = 0;
     int max_counter = length * 10;
 
-    BN_CTX *while_lt33_ctx = BN_CTX_secure_new();
+    BN_CTX *while_lt33_ctx = BN_CTX_new();
     if (length < 33) {
         while (prime_gen_counter <= max_counter){
             BN_CTX_start(while_lt33_ctx);
@@ -306,7 +306,7 @@ ShaweTaylorRandomPrimeResult RSAKeyGeneration::generateRandomPrimeWithShaweTaylo
     // step 14
     ShaweTaylorRandomPrimeResult iterative_result = generateRandomPrimeWithShaweTaylor(length/2, copied_input_seed);
     
-    BN_CTX *after_recurse_ctx = BN_CTX_secure_new();
+    BN_CTX *after_recurse_ctx = BN_CTX_new();
     BN_CTX_start(after_recurse_ctx);
 
     // step 15

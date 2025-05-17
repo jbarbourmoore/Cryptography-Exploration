@@ -462,12 +462,12 @@ ProvablePrimeGenerationResult RSAKeyGeneration::constructAProvablePrimePotential
                     // const char *hex_c = BN_bn2hex(p);
                     // printf("p : %s\n",hex_c);    
                     ProvablePrimeGenerationResult final_result =ProvablePrimeGenerationResult(true, p, p1, p2, pseed);
-                    BN_free(x);
-                    BN_free(y);
-                    BN_free(a);
-                    BN_free(z);
-                    BN_free(p0p1);
-                    BN_free(two_to_ihashlen);
+                    // BN_free(x);
+                    // BN_free(y);
+                    // BN_free(a);
+                    // BN_free(z);
+                    // BN_free(p0p1);
+                    // BN_free(two_to_ihashlen);
 
                     // BN_CTX_end(prime_gen_ctx);
                     // BN_CTX_free(prime_gen_ctx);

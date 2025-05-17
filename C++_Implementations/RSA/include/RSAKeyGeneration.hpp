@@ -64,9 +64,6 @@ struct ProvablePrimeGenerationResult{
     /// @brief Whether the provable prime generation was a success
     bool success_ {};
 
-    /// @brief The context used for the prime result
-    BN_CTX *result_ctx_ {};
-
     /// @brief The generated prime
     BIGNUM *prime_ {};
 
@@ -98,9 +95,6 @@ struct ShaweTaylorRandomPrimeResult{
 
     /// @brief Whether the random prime generation was successful
     bool success_ {};
-
-    /// @brief The context used for the prime result
-    BN_CTX *result_ctx_ {};
 
     /// @brief The generated prime
     BIGNUM *prime_ {};
