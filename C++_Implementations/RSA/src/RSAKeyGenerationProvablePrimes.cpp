@@ -195,8 +195,13 @@ ProvablePrimeGenerationResult RSAKeyGeneration::constructAProvablePrimePotential
     // An instance of the result struct for if the function fails
     ProvablePrimeGenerationResult false_result = ProvablePrimeGenerationResult();
 
+
+
     BN_CTX *prime_gen_ctx = BN_CTX_new();
     BN_CTX_start(prime_gen_ctx);
+
+    BIGNUM *first_seed_copied = BN_CTX_get(prime_gen_ctx);
+    BN_copy(first_seed_copied, first_seed);
     
     BIGNUM *number_one = BN_CTX_get(prime_gen_ctx);
     BN_set_word(number_one, 1);
@@ -212,10 +217,10 @@ ProvablePrimeGenerationResult RSAKeyGeneration::constructAProvablePrimePotential
 
     if (N1 == 1){
         BN_set_word(p1, 1);
-        BN_copy(p2_seed, first_seed);
+        BN_copy(p2_seed, first_seed_copied);
         success_generating_p1 = true;
     } else {
-        ShaweTaylorRandomPrimeResult random_prime = generateRandomPrimeWithShaweTaylor(N1, first_seed);
+        ShaweTaylorRandomPrimeResult random_prime = generateRandomPrimeWithShaweTaylor(N1, first_seed_copied);
         BN_copy(p1, random_prime.prime_);
         BN_copy(p2_seed, random_prime.prime_seed_);
         success_generating_p1 = random_prime.success_;
@@ -249,8 +254,6 @@ ProvablePrimeGenerationResult RSAKeyGeneration::constructAProvablePrimePotential
         random_prime.freeResult();
     }
 
-    BN_free(p2_seed);
-
     if (!success_generating_p2){
         printf("Failed when attempting to generate p2\n");
         BN_CTX_end(prime_gen_ctx);
@@ -273,8 +276,6 @@ ProvablePrimeGenerationResult RSAKeyGeneration::constructAProvablePrimePotential
         BN_CTX_free(prime_gen_ctx);
         return false_result;
     }
-
-    BN_free(p0_seed);
 
     // The generated value for p0 from the shawe taylor result in step 6
     BIGNUM *p0 =  BN_CTX_get(prime_gen_ctx);
@@ -379,13 +380,13 @@ ProvablePrimeGenerationResult RSAKeyGeneration::constructAProvablePrimePotential
     while(pgen_counter <= max_counter){
         // Step 16 
         // p =  (2(t p2 − y) p0 p1 + 1)
-        BIGNUM *p = BN_new();
+        BIGNUM *p = BN_CTX_get(prime_gen_ctx);
         BN_mul(p, t, p2, context_);
         BN_sub(p, p, y);
         BN_mul_word(p, 2);
         BN_mul(p, p, p0p1, context_);
         BN_add_word(p, 1);
-        BIGNUM *two_to_L = BN_new();
+        BIGNUM *two_to_L = BN_CTX_get(prime_gen_ctx);
         BN_exp(two_to_L, number_two, l_bn, context_);
         if(BN_cmp(p, two_to_L) == 1){
             BN_add(t_num, two_y_p0p1, min_prime_value_);
@@ -406,7 +407,7 @@ ProvablePrimeGenerationResult RSAKeyGeneration::constructAProvablePrimePotential
         if (BN_is_odd(gcd_result) == 1){
             // printf("hi");
             // step 19.1
-            BIGNUM *a = BN_new();
+            BIGNUM *a = BN_CTX_get(prime_gen_ctx);
             BN_set_word(a, 0);
         
             // printf("iterations : %d\n",iteration);
@@ -468,9 +469,17 @@ ProvablePrimeGenerationResult RSAKeyGeneration::constructAProvablePrimePotential
                     // BN_free(z);
                     // BN_free(p0p1);
                     // BN_free(two_to_ihashlen);
+                    // BN_free(z_p0_modp);
+                    // BN_free(gcd_result);
+                    // BN_free(p);
+                    // BN_free(p1);
+                    // BN_free(p2);
+                    // BN_free(pseed);
 
-                    // BN_CTX_end(prime_gen_ctx);
-                    // BN_CTX_free(prime_gen_ctx);
+                    if(prime_gen_ctx){
+                        BN_CTX_end(prime_gen_ctx);
+                        BN_CTX_free(prime_gen_ctx);
+                    }
                     // printf("final result length %d : %b\n", L, final_result.success_);  
                     return final_result;
                 }
@@ -480,23 +489,20 @@ ProvablePrimeGenerationResult RSAKeyGeneration::constructAProvablePrimePotential
             // //printf("iteration %d\n", iteration);
             // // step 32
             if (pgen_counter > max_counter){
-                printf("Failed with gen_counter %d\n",pgen_counter);
-                BN_free(x);
-                BN_free(y);
-                BN_free(a);
-                BN_free(z);
-                BN_free(p0p1);
-                BN_free(two_to_ihashlen);
-                BN_free(two_to_L);
+                if(prime_gen_ctx){
+                    BN_CTX_end(prime_gen_ctx);
+                    BN_CTX_free(prime_gen_ctx);
+                }
                 return false_result;
                 
             }
-
             BN_add_word(t, 1);
 
         }
     }
-
-
+    if(prime_gen_ctx){
+        BN_CTX_end(prime_gen_ctx);
+        BN_CTX_free(prime_gen_ctx);
+    }
     return false_result;
 };

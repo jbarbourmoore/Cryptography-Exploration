@@ -31,6 +31,7 @@ struct RSAKeyGenerationResult{
     /// @param public_key The public key that was generated
     /// @param key_length the length of the key in bits
     RSAKeyGenerationResult(bool success = false, RSAPrivateKey private_key = RSAPrivateKey(), RSAPublicKey public_key = RSAPublicKey(), int key_length = 2048);
+
 };
 
 struct ConstructPandQResult{

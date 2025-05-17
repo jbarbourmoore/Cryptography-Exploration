@@ -19,8 +19,8 @@ void runDatapointGenerationMultiThreaded(){
     int iteration_count = 5;
     vector<RSAGenerationTypes> generation_types = {RSAGenerationTypes::provable};
     vector<RSAPrivateKeyTypes> private_key_types = {RSAPrivateKeyTypes::quintuple, RSAPrivateKeyTypes::standard};
-    vector<int> key_lengths = {2048, 3072};
-    // vector<int> key_lengths = {2048, 3072, 7680, 15360};
+    // vector<int> key_lengths = {2048, 3072};
+    vector<int> key_lengths = {2048, 3072, 7680, 15360};
     
     for (int kl = 0; kl < key_lengths.size(); kl++){
         int key_length = key_lengths[kl];
@@ -64,9 +64,9 @@ int main(int argc, char const *argv[])
     //     printf("%lld, ",primes[i]);
     // }
     // printf("\n");
-    RSADurationTracking duration_tracking = RSADurationTracking();
-    duration_tracking.runDatapointGeneration();
-    // runDatapointGenerationMultiThreaded();
+    // RSADurationTracking duration_tracking = RSADurationTracking();
+    // duration_tracking.runDatapointGeneration();
+    runDatapointGenerationMultiThreaded();
 
     // RSAKeyGeneration my_key_gen = RSAKeyGeneration(2048);
     // my_key_gen.generateRSAKeysUsingProbablePrimes();
