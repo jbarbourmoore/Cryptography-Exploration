@@ -14,6 +14,7 @@ target_sources(RSA_app
         src/RSADurationTracking.cpp
         src/RSAKeyGenerationResultStructures.cpp
         src/RSAKeyGenerationProvablePrimes.cpp
+        src/RSAKeyGenerationProbablePrimes.cpp
         src/RSAKeyGenerationShaweTaylorRandomPrime.cpp
 )
 
@@ -41,6 +42,7 @@ target_sources(RSA_lib
         src/RSADurationTracking.cpp
         src/RSAKeyGenerationResultStructures.cpp
         src/RSAKeyGenerationProvablePrimes.cpp
+        src/RSAKeyGenerationProbablePrimes.cpp
         src/RSAKeyGenerationShaweTaylorRandomPrime.cpp
 )
 

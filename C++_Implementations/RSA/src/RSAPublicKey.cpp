@@ -8,8 +8,10 @@
 #include "RSAPublicKey.hpp"
 
 RSAPublicKey::RSAPublicKey(BIGNUM *n, BIGNUM *e, int keylength){
-    n_ = n;
-    e_ = e;
+    n_ = BN_new();
+    BN_copy(n_, n);
+    e_  = BN_new();
+    BN_copy(e_, e);
     keylength_ = keylength;
 }
 

@@ -1,47 +1,57 @@
 #include "RSAKeyGeneration.hpp"
 
 ShaweTaylorRandomPrimeResult RSAKeyGeneration::shaweTaylorShort(int length, PassBigNum input_seed_passed){
-
-    int hash_length_ = 512;
     
-
+    // The BN_CTX for the shawTaylorShort function
     BN_CTX *ctx_shawe_short = BN_CTX_secure_new();
-
     assert(ctx_shawe_short != NULL);
-
     BN_CTX_start(ctx_shawe_short);
 
+    // temporary variable for the number 1 as a BIGNUM
     BIGNUM *number_one = BN_CTX_get(ctx_shawe_short);
     BN_set_word(number_one, 1);
+    // temporary variale for the number 2 as a BIGNUM
     BIGNUM *number_two = BN_CTX_get(ctx_shawe_short);
     BN_set_word(number_two, 2);
-
+    // The prime seed 
     BIGNUM *prime_seed = BN_CTX_get(ctx_shawe_short);
     input_seed_passed.copyAndClear(prime_seed);
 
+    // The current counter value for generating the prime number
     int prime_gen_counter = 0;
-    int max_counter = length * 10;
+    // The maximum counter value before the algorithm gives up finding a prime
+    int max_counter = length * 5;
+    // whether a prime has been found
     bool prime_found = false;
 
+    // The candidate prime
     BIGNUM *c = BN_CTX_get(ctx_shawe_short);
 
     while (prime_gen_counter <= max_counter && !prime_found){
 \
-        // step 5 : XOR(hash(pseed),hash(pseed+1))
+        // temporary value for the hash value of the prime seed
         BIGNUM *hash_prime_seed = BN_CTX_get(ctx_shawe_short);
+        // temporary value for the seed incremented by one
+        BIGNUM *inc_seed = BN_CTX_get(ctx_shawe_short);
+        // temporary value for the hash of the prime seed incremented by one
+        BIGNUM *hash_inc_seed = BN_CTX_get(ctx_shawe_short);
+        // tempoary value for the miniumum acceptable value of the candidate prime
+        BIGNUM *c_base = BN_CTX_get(ctx_shawe_short);
+        // temporay value for the length minus 1
+        BIGNUM *length_min_1 = BN_CTX_get(ctx_shawe_short);
+
+        // step 5 : XOR(hash(pseed),hash(pseed+1))
 
         PassBigNum prime_seed_to_hash = PassBigNum(prime_seed);
         BigNumHelpers::sha512BigNum(prime_seed_to_hash).copyAndClear(hash_prime_seed);
-        BIGNUM *inc_seed = BN_CTX_get(ctx_shawe_short);
         BN_add(inc_seed, prime_seed, number_one);
-        BIGNUM *hash_inc_seed = BN_CTX_get(ctx_shawe_short);
         PassBigNum prime_inc_seed_to_hash = PassBigNum(inc_seed);
         BigNumHelpers::sha512BigNum(prime_inc_seed_to_hash).copyAndClear(hash_inc_seed);
-        c = BigNumHelpers::xorBigNums(hash_prime_seed, hash_inc_seed);
+        PassBigNum hash_seed_to_xor = PassBigNum(hash_prime_seed);
+        PassBigNum hash_seed_inc_to_xor = PassBigNum(hash_inc_seed);
+        BigNumHelpers::xorBigNums(hash_seed_to_xor, hash_seed_inc_to_xor).copyAndClear(c);
 
         // step 6
-        BIGNUM *c_base = BN_CTX_get(ctx_shawe_short);
-        BIGNUM *length_min_1 = BN_CTX_get(ctx_shawe_short);
         BN_set_word(length_min_1, length - 1);
         BN_exp(c_base, number_two, length_min_1, context_);
         BN_mod(c, c, c_base, context_);
@@ -81,21 +91,27 @@ ShaweTaylorRandomPrimeResult RSAKeyGeneration::shaweTaylorShort(int length, Pass
 }
 
 ShaweTaylorRandomPrimeResult RSAKeyGeneration::generateRandomPrimeWithShaweTaylor(int length, PassBigNum input_seed_passed){
-    
+    // the prime seed
     BIGNUM* prime_seed = BN_new();
     input_seed_passed.copyAndClear(prime_seed);
+
+    // the result of the Shawe Taylor methof of finding a random prime
     ShaweTaylorRandomPrimeResult result;
 
+    // a seed ready to pass to another function
     PassBigNum seed_to_pass = PassBigNum(prime_seed);
+
+    // The BN_CTX associated with this run of the generateRandomPrimeWithShaweTaylor function
+    BN_CTX *shawe_ctx = NULL;
     
     if (length < 33) {
-
         result = shaweTaylorShort(length, seed_to_pass);
     } else {
         // step 14
+        // The result of the recursive call to the generateRandomPrimeWithShaweTaylor function
         ShaweTaylorRandomPrimeResult previous_recursion_result = generateRandomPrimeWithShaweTaylor(length/2, seed_to_pass);
 
-        BN_CTX *shawe_ctx = BN_CTX_new();
+        shawe_ctx = BN_CTX_new();
         assert(shawe_ctx != NULL);
         BN_CTX_start(shawe_ctx);
 
@@ -106,7 +122,6 @@ ShaweTaylorRandomPrimeResult RSAKeyGeneration::generateRandomPrimeWithShaweTaylo
 
         int prime_gen_counter = 0;
         int max_counter = length * 10;
-    
 
         // step 15
         if (previous_recursion_result.success_ == false) {
@@ -114,14 +129,23 @@ ShaweTaylorRandomPrimeResult RSAKeyGeneration::generateRandomPrimeWithShaweTaylo
         } else {
             // the candidate prime
             BIGNUM *c = BN_CTX_get(shawe_ctx);
+            // temporary variable for c0
             BIGNUM *c0 = BN_CTX_get(shawe_ctx);
+            // temporary variable for 'x'
             BIGNUM *x = BN_CTX_get(shawe_ctx);
+            // temporary variable for 2 ** (i * hash_length_)
             BIGNUM *two_to_ihashlen = BN_CTX_get(shawe_ctx);
+            // temporary variable for the prime seed incremented by i
             BIGNUM *prime_seed_inc_i = BN_CTX_get(shawe_ctx);
+            // temporary variable for the result of finding the hash
             BIGNUM *hash_value = BN_CTX_get(shawe_ctx);
+            // tempoary variable for 2 ** (length - 1)
             BIGNUM *two_length_1_bn = BN_CTX_get(shawe_ctx);
+            // temporary variable for 2 * c0
             BIGNUM *two_c0 = BN_CTX_get(shawe_ctx);
+            // temporary variable for t
             BIGNUM *t = BN_CTX_get(shawe_ctx);
+            // temporary variable for the remainder when calculating t
             BIGNUM *t_rem = BN_CTX_get(shawe_ctx);
             // temporary variable for 2 * c_0
             BIGNUM *t2c0 = BN_CTX_get(shawe_ctx);
@@ -131,7 +155,9 @@ ShaweTaylorRandomPrimeResult RSAKeyGeneration::generateRandomPrimeWithShaweTaylo
             BIGNUM *length_bn = BN_CTX_get(shawe_ctx);
             // temporary variable for a
             BIGNUM *a = BN_CTX_get(shawe_ctx);
+            // temporary variable for the greatest common denominator
             BIGNUM *gcd_result = BN_CTX_get(shawe_ctx);
+            // temporary variable for z ** c0 % c
             BIGNUM *z_c0_modc = BN_CTX_get(shawe_ctx);
 
             // step 16
@@ -241,8 +267,6 @@ ShaweTaylorRandomPrimeResult RSAKeyGeneration::generateRandomPrimeWithShaweTaylo
                     BN_mod_exp(z_c0_modc, z, c0, c, context_);
                     if (BN_is_one(z_c0_modc) == 1) {
                         result = ShaweTaylorRandomPrimeResult(true, c, prime_seed, prime_gen_counter);
-                        BN_CTX_end(shawe_ctx);
-                        BN_CTX_free(shawe_ctx);
                         break;
                     }
                 }
@@ -251,13 +275,16 @@ ShaweTaylorRandomPrimeResult RSAKeyGeneration::generateRandomPrimeWithShaweTaylo
                 if (prime_gen_counter >= max_counter){
                     printf("Failed with gen_counter %d\n",prime_gen_counter);
                     result = ShaweTaylorRandomPrimeResult();
-                    BN_CTX_end(shawe_ctx);
-                    BN_CTX_free(shawe_ctx);
                     break;
                 }
                 BN_add_word(t, 1);
             }
         }
+    }
+
+    if(shawe_ctx != NULL){
+        BN_CTX_end(shawe_ctx);
+        BN_CTX_free(shawe_ctx);
     }
     BN_free(prime_seed);
     return result;

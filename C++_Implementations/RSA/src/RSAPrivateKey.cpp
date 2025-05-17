@@ -11,17 +11,23 @@
 
 RSAPrivateKey::RSAPrivateKey(BIGNUM *n, BIGNUM *d, int key_length){
     keylength_ = key_length;
-    n_ = n;
-    d_ = d;
+    n_ = BN_new();
+    BN_copy(n_, n);
+    d_  = BN_new();
+    BN_copy(d_, d);
     quint_form_ = false;
 }
 
 RSAPrivateKey::RSAPrivateKey(BIGNUM *n, BIGNUM *d, BIGNUM *p, BIGNUM *q, int key_length){
     keylength_ = key_length;
-    n_ = n;
-    d_ = d;
-    p_ = p;
-    q_ = q;
+    n_ = BN_new();
+    BN_copy(n_, n);
+    d_  = BN_new();
+    BN_copy(d_, d);
+    p_ = BN_new();
+    BN_copy(p_, p);
+    q_  = BN_new();
+    BN_copy(q_, q);
     quint_form_ = true;
     populateQuintForm();
 }
