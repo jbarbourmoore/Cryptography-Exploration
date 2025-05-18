@@ -9,7 +9,7 @@
 
 RSAKeyGenerationResult RSAKeyGeneration::generateRSAKeysUsingProvablePrimesWithAuxPrimes(int N1, int N2, bool use_key_quintuple_form){
     // generate a random public exponent
-    BIGNUM *e = generateRandomE();
+    BIGNUM *e = BN_new();
     // char *hex_e = BN_bn2hex(e);
     // printf("The value of e is %s\n", hex_e);
     // OPENSSL_free(hex_e);
@@ -17,22 +17,24 @@ RSAKeyGenerationResult RSAKeyGeneration::generateRSAKeysUsingProvablePrimesWithA
     int d_is_0 = 1;
 
     BIGNUM *n = BN_new();
-    BIGNUM *d;
+    BIGNUM *d = BN_new();
 
-    BIGNUM *seed;
+    generateRandomE(e);
+
+    BIGNUM *seed = BN_new();
     ConstructPandQResult p_and_q;
 
     while(d_is_0){
 
         // generate a random seed
-        seed = generateRandomSeed();
+        generateRandomSeed(seed);
         // char *hex_seed = BN_bn2hex(seed);
         // printf("The value of seed is %s\n", hex_seed);
         // OPENSSL_free(hex_seed);
 
         p_and_q =  constructTheProvablePrimesWithAuxillary(seed, N1, N2, e);
         if(p_and_q.success_){
-            d = generatePrivateExponent(e,p_and_q.p_,p_and_q.q_);
+            generatePrivateExponent(d, e, p_and_q.p_, p_and_q.q_);
 
             BN_mul(n, p_and_q.p_, p_and_q.q_, context_);
             // const char *hex_d = BN_bn2hex(d);
@@ -43,10 +45,10 @@ RSAKeyGenerationResult RSAKeyGeneration::generateRSAKeysUsingProvablePrimesWithA
             int e_retry = 0;
             while( d_is_0 and e_retry < 10){
                 // printf("retrying new e\n");
-                e = generateRandomE();
+                generateRandomE(e);
                 // hex_e = BN_bn2hex(e);
                 // printf("The value of e is %s\n", hex_e);
-                d = generatePrivateExponent(e,p_and_q.p_,p_and_q.q_);
+                generatePrivateExponent(d, e, p_and_q.p_, p_and_q.q_);
                 // hex_d = BN_bn2hex(d);
                 // printf("The value of d is %s\n", hex_d);
                 d_is_0 = BN_is_zero(d);
@@ -67,7 +69,7 @@ RSAKeyGenerationResult RSAKeyGeneration::generateRSAKeysUsingProvablePrimesWithA
 
 RSAKeyGenerationResult RSAKeyGeneration::generateRSAKeysUsingProvablePrimes(bool use_key_quintuple_form){
     // generate a random public exponent
-    BIGNUM *e = generateRandomE();
+    BIGNUM *e = BN_new();
     // char *hex_e = BN_bn2hex(e);
     // printf("The value of e is %s\n", hex_e);
     // OPENSSL_free(hex_e);
@@ -76,21 +78,23 @@ RSAKeyGenerationResult RSAKeyGeneration::generateRSAKeysUsingProvablePrimes(bool
 
     BIGNUM *seed;
     BIGNUM *n = BN_new();
-    BIGNUM *d;
+    BIGNUM *d = BN_new();
+
+    generateRandomE(e);
 
     ConstructPandQResult result_primes;
 
     while(d_is_0){
 
         // generate a random seed
-        seed = generateRandomSeed();
+        generateRandomSeed(seed);
         // char *hex_seed = BN_bn2hex(seed);
         // printf("The value of seed is %s\n", hex_seed);
         // OPENSSL_free(hex_seed);
 
         result_primes = constructTheProvablePrimes(seed, e);
         if(result_primes.success_){
-            d = generatePrivateExponent(e,result_primes.p_,result_primes.q_);
+            generatePrivateExponent(d, e, result_primes.p_, result_primes.q_);
 
             BN_mul(n, result_primes.p_, result_primes.q_, context_);
             // const char *hex_d = BN_bn2hex(d);
@@ -101,10 +105,10 @@ RSAKeyGenerationResult RSAKeyGeneration::generateRSAKeysUsingProvablePrimes(bool
             int e_retry = 0;
             while( d_is_0 and e_retry < 10){
                 // printf("retrying new e\n");
-                e = generateRandomE();
+                generateRandomE(e);
                 // hex_e = BN_bn2hex(e);
                 // printf("The value of e is %s\n", hex_e);
-                d = generatePrivateExponent(e,result_primes.p_,result_primes.q_);
+                generatePrivateExponent(d, e, result_primes.p_, result_primes.q_);
                 // hex_d = BN_bn2hex(d);
                 // printf("The value of d is %s\n", hex_d);
                 d_is_0 = BN_is_zero(d);

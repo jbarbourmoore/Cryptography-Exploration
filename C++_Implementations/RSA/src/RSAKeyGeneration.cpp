@@ -9,70 +9,75 @@
 
 RSAKeyGeneration::RSAKeyGeneration(int keylength){
     keylength_ = keylength;
+    context_ = BN_CTX_secure_new();
+    BN_CTX_start(context_);
+
+    e_min_ = BN_CTX_get(context_);
+    e_max_ = BN_CTX_get(context_);
+    min_pq_diff_ = BN_CTX_get(context_);
+    min_prime_value_ = BN_CTX_get(context_);
 
     setEParameters();
     setMinPQDiff();
     setMinPrimeValue();
 }
 
-BIGNUM* RSAKeyGeneration::generatePrivateExponent(BIGNUM *e, BIGNUM *p, BIGNUM *q){
-    BN_CTX_start(context_);
-    // phi = (p.getValue() - 1) * (q.getValue() - 1)
-    BIGNUM *phi = BN_CTX_get(context_);
-
+void RSAKeyGeneration::generatePrivateExponent(BIGNUM *d, BIGNUM *e, BIGNUM *p, BIGNUM *q){
+    BN_CTX *calc_d_context = BN_CTX_secure_new();
+    BN_CTX_start(calc_d_context);
+    
     // p_1 = p.getValue() - 1
-    BIGNUM *p_min_1 = BN_CTX_get(context_);
+    BIGNUM *p_min_1 = BN_CTX_get(calc_d_context);
     p_min_1 = BN_copy(p_min_1, p);
     BN_sub_word(p_min_1, 1);
 
     // q_1 = q.getValue() - 1
-    BIGNUM *q_min_1  = BN_CTX_get(context_);
+    BIGNUM *q_min_1  = BN_CTX_get(calc_d_context);
     q_min_1 = BN_copy(q_min_1, q);
     BN_sub_word(q_min_1, 1);
 
-    BN_mul(phi, q_min_1, p_min_1, context_);
-
     // gcd_p1_q1 = euclidsAlgorithm(p_1, q_1)
-    BIGNUM *gcd_p1_q1 = BN_CTX_get(context_);
+    BIGNUM *gcd_p1_q1 = BN_CTX_get(calc_d_context);
     BN_gcd(gcd_p1_q1, p_min_1, q_min_1, context_);
 
-    // phi = p_1 * q_1 // gcd_p1_q1
+    // phi = (p.getValue() - 1) * (q.getValue() - 1)
+    BIGNUM *phi = BN_CTX_get(calc_d_context);
+    BN_mul(phi, q_min_1, p_min_1, context_);
     BN_div(phi, NULL, phi, gcd_p1_q1, context_);
 
     // d = calculateInverseMod_GCD1_ExtendedEuclidsBased(e.getValue(), phi)
-    BIGNUM *d = BN_new();
     BN_mod_inverse(d, e, phi, context_);
 
-    BN_CTX_end(context_);
-
-    return d;
+    /// free the variables used in these calculations
+    if (calc_d_context){
+        BN_CTX_end(calc_d_context);
+        BN_CTX_free(calc_d_context);
+    }
 }
 
-BIGNUM* RSAKeyGeneration::generateRandomE(){
+void RSAKeyGeneration::generateRandomE(BIGNUM *e){
     int security_strength = getSecurityStrength();
-
-    BIGNUM *random = BN_new();
-
     int bits = 256 - 16;
+    int success = 0;
 
-    // generate the random value in the range
-    int success = BN_rand_ex(random, bits, BN_RAND_TOP_ANY, BN_RAND_BOTTOM_ODD, security_strength, context_);
-
-    assert(success == 1);
-
-    // add the random value to e_min
-    BN_add(random, random, e_min_);
-
-    return random;
+    // continue until the generation of e is successful
+    while (success != 1){
+        // generate the random value with 240 bits
+        success = BN_rand_ex(e, bits, BN_RAND_TOP_ANY, BN_RAND_BOTTOM_ODD, security_strength, context_);
+        if (success == 1){
+            // add the generated random value for e to e_min
+            BN_add(e, e, e_min_);
+        }
+    }
 }
 
-BIGNUM* RSAKeyGeneration::generateRandomSeed(){
-    BIGNUM *seed = BN_new();
+void RSAKeyGeneration::generateRandomSeed(BIGNUM* seed){
     int security_strength = getSecurityStrength();
     int length = 2 * security_strength + 1;
-    int success = BN_rand_ex(seed, length, BN_RAND_TOP_ANY,BN_RAND_BOTTOM_ANY,security_strength,context_);
-    assert(success == 1);
-    return seed;
+    int success = 0;
+    while (success != 1){
+        success = BN_rand_ex(seed, length, BN_RAND_TOP_ANY,BN_RAND_BOTTOM_ANY,security_strength,context_);
+    }
 }
 
 void RSAKeyGeneration::setEParameters(){

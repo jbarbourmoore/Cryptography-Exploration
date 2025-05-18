@@ -147,16 +147,16 @@ class RSAKeyGeneration{
 
     private:
         /// @brief The minimum value for e (the public exponent)
-        BIGNUM *e_min_ { BN_new() };
+        BIGNUM *e_min_;
 
         /// @brief The maximum value for e (the public exponent)
-        BIGNUM *e_max_ { BN_new() };
+        BIGNUM *e_max_;
 
         /// @brief The minimum difference between 'p' and 'q'
-        BIGNUM *min_pq_diff_ { BN_new() };
+        BIGNUM *min_pq_diff_;
 
         /// @brief The minimum value for both 'p' and 'q'
-        BIGNUM *min_prime_value_ { BN_new() };
+        BIGNUM *min_prime_value_;
 
         /// @brief the key length in bits
         int keylength_ {2048};
@@ -165,7 +165,7 @@ class RSAKeyGeneration{
         int hash_length_ {512};
 
         /// @brief The BN CTX to be used in the calculations for this rsa key generation
-        BN_CTX *context_ = BN_CTX_new();
+        BN_CTX *context_;
 
         /// @brief This method sets the parameters for e
         void setEParameters();
@@ -178,33 +178,49 @@ class RSAKeyGeneration{
 
         /// @brief This method generates a seed value to be used in generating provable primes
         /// Based on Nist Fips 186-5 Appendix A.1.2.1 "Get the seed"
-        BIGNUM* generateRandomSeed();
+        void generateRandomSeed(BIGNUM* seed);
 
         /// @brief This method generates a random public exponenent to be used in the RSA keys
-        BIGNUM* generateRandomE();
-
-        
+        /// @parameter The pointer to the public exponent, 'e', as a BIGNUM
+        void generateRandomE(BIGNUM *e);
 
         /// @brief This method generates the probable primes 'p' and 'q' to be used in the RSA keys
         /// Based on Nist Fips 186-5 A.1.3 "Generation of Random Primes that are Probably Prime"
+        /// @param a Optional - The restriction for p mod 8, default is -1 (which means no restriction in this implementation)
+        /// @param b Optional - The restriction for q mod 8, default is -1 (which means no restriction in this implementation)
         /// @param e The public exponent
         /// @return A ConstructPandQResult containing, success p and q.
         ConstructPandQResult constructTheProbablePrimes(int a = -1, int b = -1, BIGNUM *e = BN_new());
 
         /// @brief This method generates the probable prime to be used in the RSA keys
         /// Based on Nist Fips 186-5 B.9 "Compute a Probable Prime Factor Based on Auxiliary Primes"
+        /// @param r1 The first auxillary prime to be used when constructing the probable prime
+        /// @param r2 The second auxillary prime to be used when constructing the probable prime
         /// @param e The public exponent
+        /// @param c Optional - The restriction for the prime mod 8, default is -1 (which means no restriction in this implementation)
         /// @return A ConstructPandQResult containing, success p and q.
         ProbablePrimeGenerationWithAuxResult constructAProbablePrimeWithAux( BIGNUM *r1, BIGNUM *r2, BIGNUM *e, int c = -1);
 
         /// @brief This method generates the probable primes 'p' and 'q' to be used in the RSA keys
         /// Based on Nist Fips 186-5 A.1.5 "Generation of Probable Primes with Conditions Based on Auxiliary Provable Primes "
+        /// @param a Optional - The restriction for p mod 8, default is -1 (which means no restriction in this implementation)
+        /// @param b Optional - The restriction for q mod 8, default is -1 (which means no restriction in this implementation)
+        /// @param bitlen1 Optional - The bit length for p1, default is 200
+        /// @param bitlen2 Optional - The bit length for p2, default is 200
+        /// @param bitlen3 Optional - The bit length for q1, default is 200
+        /// @param bitlen4 Optional - The bit length for q2, default is 200
         /// @param e The public exponent
         /// @return A ConstructPandQResult containing, success p and q.
         ConstructPandQResult constructTheProbablePrimesWithProvableAux(int a = -1, int b = -1, int bitlen1 = 200, int bitlen2 = 200, int bitlen3 = 200, int bitlen4 = 200, BIGNUM *seed = BN_new(), BIGNUM *e = BN_new());
 
         /// @brief This method generates the probable primes 'p' and 'q' to be used in the RSA keys
         /// Based on Nist Fips 186-5 A.1.6 "Generation of Probable Primes with Conditions Based on Auxiliary Probable Primes "
+        /// @param a Optional - The restriction for p mod 8, default is -1 (which means no restriction in this implementation)
+        /// @param b Optional - The restriction for q mod 8, default is -1 (which means no restriction in this implementation)
+        /// @param bitlen1 Optional - The bit length for p1, default is 200
+        /// @param bitlen2 Optional - The bit length for p2, default is 200
+        /// @param bitlen3 Optional - The bit length for q1, default is 200
+        /// @param bitlen4 Optional - The bit length for q2, default is 200
         /// @param e The public exponent
         /// @return A ConstructPandQResult containing, success p and q.
         ConstructPandQResult constructTheProbablePrimesWithProbableAux(int a = -1, int b = -1, int bitlen1 = 200, int bitlen2 = 200, int bitlen3 = 200, int bitlen4 = 200, BIGNUM *e = BN_new());
@@ -244,18 +260,13 @@ class RSAKeyGeneration{
         ShaweTaylorRandomPrimeResult generateRandomPrimeWithShaweTaylor(int length, PassBigNum input_seed);
 
         /// @brief This method calculated the private exponent 'd'
+        /// @param d The pointer for the public exponent, d;
         /// @param e The public exponent 'e'
         /// @param p The first prime 'p'
         /// @param q The second prime 'q'
         /// @return 'd' The private exponent for the RSA keys
-        BIGNUM* generatePrivateExponent(BIGNUM *e, BIGNUM *p, BIGNUM *q);
+        void generatePrivateExponent(BIGNUM *d, BIGNUM *e, BIGNUM *p, BIGNUM *q);
 
-        /// @brief This method checks whether the greatest common denominator of phi and e is 1
-        /// @param e The public exponent 'e'
-        /// @param p The first prime 'p'
-        /// @param q The second prime 'q'
-        /// @return a bool that is true if the gcd of phi and e is 1
-        // bool checkGCDPhiE(BIGNUM *e, BIGNUM *p, BIGNUM *q);
     public:
 
         /// @brief Instantiates RSAKeyGeneration with a given keylength in bits
@@ -269,18 +280,34 @@ class RSAKeyGeneration{
 
         /// @brief This method generates RSA keys based on provable primes.
         /// Based on Nist Fips 186-5 A.1.3 "Generation of Random Primes that are Probably Prime"
+        /// @param a Optional - The restriction for p mod 8, default is -1 (which means no restriction in this implementation)
+        /// @param b Optional - The restriction for q mod 8, default is -1 (which means no restriction in this implementation)
         /// @param use_key_quintuple_form Optional - Whether or not the generated private key should be in quintuple form (default is true)
+        /// @return The result of the key generation consisting of a public key, private key and whether it succeeded
         RSAKeyGenerationResult generateRSAKeysUsingProbablePrimes(int a = -1, int b = -1, bool use_key_quintuple_form = true);
 
         /// @brief This method generates RSA keys based on provable primes with provable auxillary primes.
         /// Based on Nist Fips 186-5 A.1.5 "Generation of Probable Primes with Conditions Based on Auxiliary Provable Primes"
+        /// @param a Optional - The restriction for p mod 8, default is -1 (which means no restriction in this implementation)
+        /// @param b Optional - The restriction for q mod 8, default is -1 (which means no restriction in this implementation)
+        /// @param bitlen1 Optional - The bit length for p1, default is 200
+        /// @param bitlen2 Optional - The bit length for p2, default is 200
+        /// @param bitlen3 Optional - The bit length for q1, default is 200
+        /// @param bitlen4 Optional - The bit length for q2, default is 200
         /// @param use_key_quintuple_form Optional - Whether or not the generated private key should be in quintuple form (default is true)
+        /// @return The result of the key generation consisting of a public key, private key and whether it succeeded
         RSAKeyGenerationResult generateRSAKeysUsingProbablePrimesWithProvableAux(int a = -1, int b = -1, int bitlen1 = 200, int bitlen2 = 200, int bitlen3 = 200, int bitlen4 = 200, bool use_key_quintuple_form = true);
 
-        
         /// @brief This method generates RSA keys based on provable primes with probable auxillary primes.
         /// Based on Nist Fips 186-5 A.1.6 "Generation of Probable Primes with Conditions Based on Auxiliary Probable Primes"
+        /// @param a Optional - The restriction for p mod 8, default is -1 (which means no restriction in this implementation)
+        /// @param b Optional - The restriction for q mod 8, default is -1 (which means no restriction in this implementation)
+        /// @param bitlen1 Optional - The bit length for p1, default is 200
+        /// @param bitlen2 Optional - The bit length for p2, default is 200
+        /// @param bitlen3 Optional - The bit length for q1, default is 200
+        /// @param bitlen4 Optional - The bit length for q2, default is 200
         /// @param use_key_quintuple_form Optional - Whether or not the generated private key should be in quintuple form (default is true)
+        /// @return The result of the key generation consisting of a public key, private key and whether it succeeded
         RSAKeyGenerationResult generateRSAKeysUsingProbablePrimesWithProbableAux(int a = -1, int b = -1, int bitlen1 = 200, int bitlen2 = 200, int bitlen3 = 200, int bitlen4 = 200, bool use_key_quintuple_form = true);
 
         /// @brief This method generates RSA keys based on provable primes.
@@ -301,7 +328,6 @@ class RSAKeyGeneration{
         /// @brief This method returns the bit length for each large prime for the RSA Key Generation
         /// @return The prime length in bits
         int getPrimeLength();
-
 };
 
 #endif

@@ -20,7 +20,7 @@ RSAKeyGenerationResult RSAKeyGeneration::generateRSAKeysUsingProbablePrimes(int 
     BIGNUM *e =  BN_CTX_get(gen_keys_ctx);
 
     // select a random value between 2 ** 16 and 2 ** 256 for use as 2
-    e = generateRandomE();
+    generateRandomE(e);
 
     int d_is_0 = 1;
     ConstructPandQResult result_primes;
@@ -33,13 +33,16 @@ RSAKeyGenerationResult RSAKeyGeneration::generateRSAKeysUsingProbablePrimes(int 
             result_primes.freeResult();
 
             // calculate the private exponent, d based on the generated value for e, p and q
-            d = generatePrivateExponent(e, p, q);
+            generatePrivateExponent(d, e, p, q);
 
             // if there in an issue finding e due to the inverse, attempt to use a couple different value for e before regenerating both primes
             d_is_0 = BN_is_zero(d);
             int e_retry = 0;
             while( d_is_0 and e_retry < 10){
-                e = generateRandomE();
+                generateRandomE(e);
+
+                // calculate the private exponent, d based on the generated value for e, p and q
+                generatePrivateExponent(d, e, p, q);
                 d_is_0 = BN_is_zero(d);
                 e_retry++;
             }
@@ -89,14 +92,14 @@ RSAKeyGenerationResult RSAKeyGeneration::generateRSAKeysUsingProbablePrimesWithP
     BIGNUM *e =  BN_CTX_get(gen_keys_ctx);
 
     // select a random value between 2 ** 16 and 2 ** 256 for use as 2
-    e = generateRandomE();
+    generateRandomE(e);
 
     int d_is_0 = 1;
     ConstructPandQResult result_primes;
     while(d_is_0 == 1){
 
         // generate a random seed
-        seed = generateRandomSeed();
+        generateRandomSeed(seed);
     
         // generate the primes p and q
         result_primes = constructTheProbablePrimesWithProvableAux(a, b, bitlen1, bitlen2, bitlen3, bitlen4, seed, e);
@@ -108,13 +111,15 @@ RSAKeyGenerationResult RSAKeyGeneration::generateRSAKeysUsingProbablePrimesWithP
             result_primes.freeResult();
 
             // calculate the private exponent, d based on the generated value for e, p and q
-            d = generatePrivateExponent(e, p, q);
+            generatePrivateExponent(d, e, p, q);
             
             // if there in an issue finding e due to the inverse, attempt to use a couple different value for e before regenerating both primes
             d_is_0 = BN_is_zero(d);
             int e_retry = 0;
             while( d_is_0 and e_retry < 10){
-                e = generateRandomE();
+                generateRandomE(e);
+                // calculate the private exponent, d based on the generated value for e, p and q
+                generatePrivateExponent(d, e, p, q);
                 d_is_0 = BN_is_zero(d);
                 e_retry++;
             }
@@ -162,7 +167,7 @@ RSAKeyGenerationResult RSAKeyGeneration::generateRSAKeysUsingProbablePrimesWithP
     BIGNUM *e =  BN_CTX_get(gen_primes_ctx);
 
     // select a random value between 2 ** 16 and 2 ** 256 for use as 2
-    e = generateRandomE();
+    generateRandomE(e);
 
     int d_is_0 = 1;
     ConstructPandQResult result_primes;
@@ -176,13 +181,15 @@ RSAKeyGenerationResult RSAKeyGeneration::generateRSAKeysUsingProbablePrimesWithP
             result_primes.freeResult();
 
             // calculate the private exponent, d based on the generated value for e, p and q
-            d = generatePrivateExponent(e, p, q);
+            generatePrivateExponent(d, e, p, q);
             
             // if there in an issue finding e due to the inverse, attempt to use a couple different value for e before regenerating both primes
             d_is_0 = BN_is_zero(d);
             int e_retry = 0;
             while( d_is_0 and e_retry < 10){
-                e = generateRandomE();
+                generateRandomE(e);
+                // calculate the private exponent, d based on the generated value for e, p and q
+                generatePrivateExponent(d, e, p, q);
                 d_is_0 = BN_is_zero(d);
                 e_retry++;
             }
