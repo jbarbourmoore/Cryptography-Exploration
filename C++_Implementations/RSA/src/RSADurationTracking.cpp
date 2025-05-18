@@ -52,7 +52,7 @@ string RSADurationDatapoint::getGenerationTypeString(){
         gen_type = "\"Provably Prime, Aux Primes\"";
         break;
     case RSAGenerationTypes::probable_with_aux_prov:
-        gen_type = "\"Probably Prime, Probable Aux Primes\"";
+        gen_type = "\"Probably Prime, Provable Aux Primes\"";
         break;
     case RSAGenerationTypes::probable_with_aux_prob:
         gen_type = "\"Probably Prime, Probable Aux Primes\"";
