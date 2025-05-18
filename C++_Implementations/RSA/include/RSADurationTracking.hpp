@@ -38,13 +38,15 @@ class RSADurationDatapoint{
         RSAPrivateKeyTypes private_key_type_ {};
 
         /// @brief How long it took to generate a key in seconds
-        float key_generation_duration_ {0};
+        double key_generation_duration_ {0};
 
         /// @brief How long it took to encrypt the data in seconds
-        float encryption_duration_ {0};
+        double encryption_duration_ {0};
 
         /// @brief How long it took to decrypt the data in seconds
-        float decryption_duration_{0};
+        double decryption_duration_{0};
+
+        string doubleToString(double input);
 
     public :
 
@@ -55,7 +57,7 @@ class RSADurationDatapoint{
         /// @param key_generation_duration The duration it took to generate the key in seconds
         /// @param encryption_duration The duration it took to encrypt the data in seconds
         /// @param decryption_duration The duration it took to decrypt the data in seconds 
-        RSADurationDatapoint(int key_length = 2048, RSAGenerationTypes generation_type=RSAGenerationTypes::provable, RSAPrivateKeyTypes private_key_type=RSAPrivateKeyTypes::quintuple, float key_generation_duration=0, float encryption_duration=0, float decryption_duration=0);
+        RSADurationDatapoint(int key_length = 2048, RSAGenerationTypes generation_type=RSAGenerationTypes::provable, RSAPrivateKeyTypes private_key_type=RSAPrivateKeyTypes::quintuple, double key_generation_duration=0, double encryption_duration=0, double decryption_duration=0);
 
         /// @brief The method gets the generation method as a string
         /// @return The string of the generation method for primes 'p' and 'q'

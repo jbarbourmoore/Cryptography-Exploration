@@ -111,7 +111,7 @@ ShaweTaylorRandomPrimeResult RSAKeyGeneration::generateRandomPrimeWithShaweTaylo
         // The result of the recursive call to the generateRandomPrimeWithShaweTaylor function
         ShaweTaylorRandomPrimeResult previous_recursion_result = generateRandomPrimeWithShaweTaylor(length/2, seed_to_pass);
 
-        shawe_ctx = BN_CTX_new();
+        shawe_ctx = BN_CTX_secure_new();
         assert(shawe_ctx != NULL);
         BN_CTX_start(shawe_ctx);
 
@@ -133,12 +133,6 @@ ShaweTaylorRandomPrimeResult RSAKeyGeneration::generateRandomPrimeWithShaweTaylo
             BIGNUM *c0 = BN_CTX_get(shawe_ctx);
             // temporary variable for 'x'
             BIGNUM *x = BN_CTX_get(shawe_ctx);
-            // temporary variable for 2 ** (i * hash_length_)
-            BIGNUM *two_to_ihashlen = BN_CTX_get(shawe_ctx);
-            // temporary variable for the prime seed incremented by i
-            BIGNUM *prime_seed_inc_i = BN_CTX_get(shawe_ctx);
-            // temporary variable for the result of finding the hash
-            BIGNUM *hash_value = BN_CTX_get(shawe_ctx);
             // tempoary variable for 2 ** (length - 1)
             BIGNUM *two_length_1_bn = BN_CTX_get(shawe_ctx);
             // temporary variable for 2 * c0
@@ -172,23 +166,8 @@ ShaweTaylorRandomPrimeResult RSAKeyGeneration::generateRandomPrimeWithShaweTaylo
 
             previous_recursion_result.freeResult();
         
-            // step 18
-            BN_set_word(x, 0);
-
-            // step 19        
-            for (int i = 0; i <= iteration; i ++){
-                BN_set_word(two_to_ihashlen, i * hash_length_);
-                BN_exp(two_to_ihashlen, number_two, two_to_ihashlen, context_);
-                BN_set_word(prime_seed_inc_i, i);
-                BN_add(prime_seed_inc_i,prime_seed_inc_i,prime_seed);
-                PassBigNum pass_prime_seed_inc = PassBigNum(prime_seed_inc_i);
-                BigNumHelpers::sha512BigNum(pass_prime_seed_inc).copyAndClear(hash_value);
-                BN_mul(prime_seed_inc_i, hash_value, two_to_ihashlen,context_);
-                BN_add(x, x, prime_seed_inc_i);
-            }
-
-            // step 20
-            BN_add_word(prime_seed, iteration + 1);
+            // step 18 - 20
+            generatePseudoRandomNumber(x, iteration, prime_seed);
 
             // step 21
             BN_set_word(two_length_1_bn, length - 1);
@@ -206,7 +185,6 @@ ShaweTaylorRandomPrimeResult RSAKeyGeneration::generateRandomPrimeWithShaweTaylo
             while (prime_gen_counter <= max_counter){
 
                 // step 23
-                
                 BN_mul(t2c0, t, two_c0, context_);
                 BN_set_word(length_bn, length);
                 BN_exp(two_to_length, number_two, length_bn, context_);
@@ -219,33 +197,15 @@ ShaweTaylorRandomPrimeResult RSAKeyGeneration::generateRandomPrimeWithShaweTaylo
                 }
 
                 // step 24
-                
                 BN_mul(c, two_c0, t, context_);
                 BN_add_word(c, 1);
 
                 // step 25
                 prime_gen_counter += 1;
 
-                // step 26
-                
-                BN_set_word(a, 0);
-                
-                hash_value = BN_CTX_get(shawe_ctx);
-                // step 27
-                for (int i = 0; i <= iteration; i ++){
-                    BN_set_word(two_to_ihashlen, i * hash_length_);
-                    BN_exp(two_to_ihashlen, number_two, two_to_ihashlen, context_);
-                    BN_set_word(prime_seed_inc_i, i);
-                    BN_add(prime_seed_inc_i,prime_seed_inc_i,prime_seed);
-                    PassBigNum pass_prime_seed_inc = PassBigNum(prime_seed_inc_i);
-                    BigNumHelpers::sha512BigNum(pass_prime_seed_inc).copyAndClear(hash_value);
-                    BN_mul(prime_seed_inc_i, hash_value, two_to_ihashlen,context_);
-                    BN_add(a, a, prime_seed_inc_i);
-                }
-
-                // step 28
-                BN_add_word(prime_seed, iteration + 1);
-
+                // step 26 - 28
+                generatePseudoRandomNumber(a, iteration, prime_seed);
+            
                 // step 29 : a = 2 + a mod (c - 3)
                 // temporary variable for c -3
                 BIGNUM *c_min_3 = BN_CTX_get(shawe_ctx);

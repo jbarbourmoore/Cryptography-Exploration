@@ -329,6 +329,8 @@ class RSAKeyGeneration{
 
         /// @brief This method end the key generation and frees the variables used
         void freeKeyGeneration();
+
+        void generatePseudoRandomNumber(BIGNUM* result, int iteration_count, BIGNUM* seed);
 };
 
 #endif

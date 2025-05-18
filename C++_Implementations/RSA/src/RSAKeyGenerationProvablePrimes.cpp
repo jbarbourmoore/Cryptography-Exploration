@@ -313,18 +313,10 @@ ProvablePrimeGenerationResult RSAKeyGeneration::constructAProvablePrimePotential
     BIGNUM *p0p1 = BN_CTX_get(prime_gen_ctx);
     // A temporary variable for x
     BIGNUM *x = BN_CTX_get(prime_gen_ctx);
-    // A temporary variable for 2 ** ( i * hash_length_)
-    BIGNUM *two_to_ihashlen = BN_CTX_get(prime_gen_ctx);
-    // A temporary variable for prime_seed + i
-    BIGNUM *prime_seed_inc_i = BN_CTX_get(prime_gen_ctx);
-    // A temporary variable for the hash digest
-    BIGNUM *hash_result = BN_CTX_get(prime_gen_ctx);
-    // A temporary variable for i as a BIGNUM
-    BIGNUM *i_bn = BN_CTX_get(prime_gen_ctx);
     // A temporary variable for the modulus for x (2**L - sq2 * 2**(L-1))
     BIGNUM *x_modulus = BN_CTX_get(prime_gen_ctx);
     // A temporary variable for the value of L as a BIGNUM
-    BIGNUM *l_bn = BN_CTX_get(prime_gen_ctx);
+    BIGNUM *L_bn = BN_CTX_get(prime_gen_ctx);
     // A temporary variable for the inverse of p0p1 in the modulus p2
     BIGNUM *y = BN_CTX_get(prime_gen_ctx);
     // A temporary variable for the value of t as a BIGNUM
@@ -416,26 +408,11 @@ ProvablePrimeGenerationResult RSAKeyGeneration::constructAProvablePrimePotential
         // A counter to track how many iterations have been ran while attempting to generate the prime
         int pgen_counter = 0;
 
-        // step 18
-        BN_set_word(x, 0);
-
-        // step 19
-        for (int i = 0; i <= iteration; i ++){
-            BN_set_word(two_to_ihashlen, i * hash_length_);
-            BN_exp(two_to_ihashlen, number_two, two_to_ihashlen, context_);
-            BN_set_word(i_bn, i);
-            BN_add(prime_seed_inc_i, i_bn, pseed);
-            PassBigNum pass_prime_seed_inc = PassBigNum(prime_seed_inc_i);
-            BigNumHelpers::sha512BigNum(pass_prime_seed_inc).copyAndClear(hash_result);
-            BN_mul(hash_result,hash_result,two_to_ihashlen,context_);
-            BN_add(x, x, hash_result);
-        }
-
-        BN_add_word(pseed, iteration + 1);
+        generatePseudoRandomNumber(x, iteration, pseed);
 
         // step 13
-        BN_set_word(l_bn, L);
-        BN_exp(x_modulus, number_two, l_bn, context_);
+        BN_set_word(L_bn, L);
+        BN_exp(x_modulus, number_two, L_bn, context_);
         BN_sub(x_modulus, x_modulus, min_prime_value_);
         BN_mod(x, x, x_modulus, context_);
         BN_add(x, x, min_prime_value_);
@@ -463,7 +440,7 @@ ProvablePrimeGenerationResult RSAKeyGeneration::constructAProvablePrimePotential
             BN_mul_word(p, 2);
             BN_mul(p, p, p0p1, context_);
             BN_add_word(p, 1);
-            BN_exp(two_to_L, number_two, l_bn, context_);
+            BN_exp(two_to_L, number_two, L_bn, context_);
             if(BN_cmp(p, two_to_L) == 1){
                 BN_add(t_num, two_y_p0p1, min_prime_value_);
                 BN_div(t,t_r,t_num,t_den,context_);
@@ -479,31 +456,9 @@ ProvablePrimeGenerationResult RSAKeyGeneration::constructAProvablePrimePotential
             //step 19
             if (BN_is_odd(gcd_result) == 1){
 
-                // step 19.1
-                BN_set_word(a, 0);
-            
-                BN_copy(prime_seed_inc_i, pseed);
-                // step 19.2 For i = 0 to iterations do => a = a + (Hash(pseed + i))× 2 **(i × hashlen)
-                for (int i = 0; i <= iteration; i ++){
-                    // i * hash_length
-                    BN_set_word(two_to_ihashlen, i * hash_length_);
-                    // 2 ** (i * hash_length)
-                    BN_exp(two_to_ihashlen, number_two, two_to_ihashlen, context_);
-                    // pseed + i
-                    BN_copy(prime_seed_inc_i, pseed);
-                    BN_add_word(prime_seed_inc_i, i);
-                    // hash(pseed + i)
-                    PassBigNum pass_prime_seed_inc = PassBigNum(prime_seed_inc_i);
-                    BigNumHelpers::sha512BigNum(pass_prime_seed_inc).copyAndClear(hash_result);
-                    // (Hash(pseed + i))× 2 **(i × hashlen)
-                    BN_mul(hash_result, hash_result, two_to_ihashlen, context_);
-                    // a = a + (Hash(pseed + i))× 2 **(i × hashlen)
-                    BN_add(a, a, hash_result);
-                }
-
-                // step 19.3 : pseed = pseed + iterations + 1. 
-                BN_add_word(pseed, iteration + 1);
-
+                // step 19.1 - 19.3
+                generatePseudoRandomNumber(a, iteration, pseed);
+                
                 // step 19.4 : a = 2 + a mod (p - 3)
                 BN_copy(p_min_3, p);
                 BN_sub_word(p_min_3, 3);

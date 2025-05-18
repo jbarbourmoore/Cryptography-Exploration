@@ -7,7 +7,7 @@
 
 #include "RSADurationTracking.hpp"
 
-RSADurationDatapoint::RSADurationDatapoint(int key_length, RSAGenerationTypes generation_type, RSAPrivateKeyTypes private_key_type, float key_generation_duration, float encryption_duration, float decryption_duration){
+RSADurationDatapoint::RSADurationDatapoint(int key_length, RSAGenerationTypes generation_type, RSAPrivateKeyTypes private_key_type, double key_generation_duration, double encryption_duration, double decryption_duration){
     key_length_ = key_length;
     generation_type_ = generation_type;
     private_key_type_ = private_key_type;
@@ -79,9 +79,9 @@ vector<string> RSADurationDatapoint::getContents(){
         security_strength = 256;
     } 
     string security_strength_str = to_string(security_strength);
-    string gen_duration_str = to_string(key_generation_duration_);
-    string encrypt_duration_str = to_string(encryption_duration_);
-    string decrypt_duration_str = to_string(decryption_duration_);
+    string gen_duration_str = doubleToString(key_generation_duration_);
+    string encrypt_duration_str = doubleToString(encryption_duration_);
+    string decrypt_duration_str = doubleToString(decryption_duration_);
     string gen_type_str = getGenerationTypeString();
     string key_type_str = getPrivateKeyTypeString();
 
@@ -101,6 +101,13 @@ RSADurationTracking::RSADurationTracking(){
     csv_writer_ = CSVWriter(headers, "RSA_Durations_C++.csv");
     csv_writer_.writeHeaders();
 };
+
+string RSADurationDatapoint::doubleToString(double input){
+    char buffer[20];
+    sprintf(buffer, "%.10lf", input);
+    std::string result_string(buffer);
+    return result_string;
+}
 
 void RSADurationTracking::trackSingleGenerationInThread(int key_length, RSAGenerationTypes gen_type, RSAPrivateKeyTypes key_type){
     RSADurationDatapoint datapoint = generateDatapoint(key_length, gen_type, key_type);
@@ -169,27 +176,29 @@ RSADurationDatapoint RSADurationTracking::generateDatapoint(int keylength, RSAGe
 
     auto stop = std::chrono::high_resolution_clock::now();
 
-    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
-    int miliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(duration).count();
-    float seconds = miliseconds / 1000.0;
+    auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(stop - start);
+    int duration_in_nanoseconds = std::chrono::duration_cast<std::chrono::nanoseconds>(duration).count();
+    double generation_seconds = abs( duration_in_nanoseconds / 1000000000.0);
 
     start = std::chrono::high_resolution_clock::now();
     const char *encrypted_message = gen_res.public_key_.encryptionPrimitive(input_message);
     stop = std::chrono::high_resolution_clock::now();
-    duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
-    miliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(duration).count();
+    duration = std::chrono::duration_cast<std::chrono::nanoseconds>(stop - start);
+    duration_in_nanoseconds = std::chrono::duration_cast<std::chrono::nanoseconds>(duration).count();
 
-    float encryption_seconds = miliseconds / 1000.0;
+    double encryption_seconds = abs( duration_in_nanoseconds / 1000000000.0);
 
     start = std::chrono::high_resolution_clock::now();
     const char *decrypted_message = gen_res.private_key_.decryptionPrimitive(encrypted_message);
     stop = std::chrono::high_resolution_clock::now();
-    duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
-    miliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(duration).count();
+    duration = std::chrono::duration_cast<std::chrono::nanoseconds>(stop - start);
+    duration_in_nanoseconds = std::chrono::duration_cast<std::chrono::nanoseconds>(duration).count();
 
-    float decryption_seconds = miliseconds / 1000.0;
+    double decryption_seconds = abs( duration_in_nanoseconds / 1000000000.0);
 
-    RSADurationDatapoint datapoint = RSADurationDatapoint(keylength, generation_type, private_key_type, seconds, encryption_seconds, decryption_seconds);
+    
+
+    RSADurationDatapoint datapoint = RSADurationDatapoint(keylength, generation_type, private_key_type, generation_seconds, encryption_seconds, decryption_seconds);
     datapoint.printToTerminal();
     if (strcmp(decrypted_message, input_message) == 0) {
         printf("The decryption was successful.\n");

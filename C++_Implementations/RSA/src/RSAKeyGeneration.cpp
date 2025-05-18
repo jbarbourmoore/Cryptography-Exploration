@@ -146,3 +146,36 @@ int RSAKeyGeneration::getKeyLength(){
 int RSAKeyGeneration::getPrimeLength(){
     return keylength_ / 2;
 };
+
+void RSAKeyGeneration::generatePseudoRandomNumber(BIGNUM* result, int iteration_count, BIGNUM* seed){
+    BN_CTX *pseudo_gen_ctx = BN_CTX_secure_new();
+    BN_CTX_start(pseudo_gen_ctx);
+
+    BIGNUM *two_to_ihashlen = BN_CTX_get(pseudo_gen_ctx);
+    BIGNUM *number_two = BN_CTX_get(pseudo_gen_ctx);
+    BIGNUM *seed_inc_i = BN_CTX_get(pseudo_gen_ctx);
+    BIGNUM *hash_result = BN_CTX_get(pseudo_gen_ctx);
+
+    BN_set_word(number_two, 2);
+    BN_set_word(result, 0);
+
+    // For i = 0 to iterations do => a = a + (Hash(seed + i))× 2 **(i × hashlen)
+    for (int i = 0; i <= iteration_count; i ++){
+        // i * hash_length
+        BN_set_word(two_to_ihashlen, i * hash_length_);
+        // 2 ** (i * hash_length)
+        BN_exp(two_to_ihashlen, number_two, two_to_ihashlen, context_);
+        // seed + i
+        BN_copy(seed_inc_i, seed);
+        BN_add_word(seed_inc_i, i);
+        // hash(seed + i)
+        BigNumHelpers::sha512BigNum(hash_result, seed_inc_i);
+        // (Hash(seed + i))× 2 **(i × hashlen)
+        BN_mul(hash_result, hash_result, two_to_ihashlen, context_);
+        // a = a + (Hash(seed + i))× 2 **(i × hashlen)
+        BN_add(result, result, hash_result);
+    }
+
+    // seed = pseed + iterations + 1. 
+    BN_add_word(seed, iteration_count + 1);
+}

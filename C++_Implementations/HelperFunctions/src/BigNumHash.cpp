@@ -124,3 +124,29 @@ PassBigNum BigNumHelpers::sha512BigNum(PassBigNum passed_bn){
 
     return hash_packaged;
 };
+
+void BigNumHelpers::sha512BigNum(BIGNUM* result, BIGNUM* input_bn){
+    unsigned hash_length_bytes = 512/8;
+
+    // convert the bignum into a byte array to be hashed
+    int byte_size = BN_num_bytes(input_bn);
+
+    // printf("Bytes: %d\n", byte_size);
+    unsigned char *byte_array_to_hash = new unsigned char[byte_size]();
+    BN_bn2bin(input_bn, byte_array_to_hash);
+
+    // Initialize a digest and add the byte arrat to hash to it
+    EVP_MD_CTX *evp_ctx = EVP_MD_CTX_new();
+    EVP_DigestInit(evp_ctx, EVP_sha512());
+    EVP_DigestUpdate(evp_ctx, byte_array_to_hash, byte_size);
+
+    // extracted the hash digest as a byte array
+    unsigned char hash_result_bytes[hash_length_bytes];
+    EVP_DigestFinal(evp_ctx, hash_result_bytes, &hash_length_bytes);
+    EVP_MD_CTX_free(evp_ctx);
+
+    // convert the hash digest back to a BIGNUM and return
+    BN_bin2bn(hash_result_bytes, hash_length_bytes, result);
+
+    OPENSSL_free(byte_array_to_hash);
+};

@@ -39,7 +39,7 @@ class BigNumHelpers{
         /// @return The result of the bytewise XOR operation as a big number
         static BIGNUM* xorBigNums(BIGNUM* first_bn, BIGNUM* second_bn);
 
-         /// @brief This method performs a Byte Wise Xor for two big numbers
+        /// @brief This method performs a Byte Wise Xor for two big numbers
         /// @param first_bn The first big number to be XORed
         /// @param second_bn The second big number to be xored
         /// @return The result of the bytewise XOR operation as a big number
@@ -64,6 +64,11 @@ class BigNumHelpers{
         /// @param bignum_to_hash This big number to be hashed
         /// @return The resulting SHA512 hash digest as a big number
         static PassBigNum sha512BigNum(PassBigNum input);
+
+        /// @brief This method finds the SHA512 hash of a given BIGNUM
+        /// @param bignum_to_hash This big number to be hashed
+        /// @return The resulting SHA512 hash digest as a big number
+        static void sha512BigNum(BIGNUM* result, BIGNUM* input_bn);
 
         /// @brief This method calculates the gcd of a value minus one and a second value
         /// @param result The pointer for the result of the BN of the result
