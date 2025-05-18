@@ -10,9 +10,9 @@
 RSAKeyGenerationResult RSAKeyGeneration::generateRSAKeysUsingProvablePrimesWithAuxPrimes(int N1, int N2, bool use_key_quintuple_form){
     // generate a random public exponent
     BIGNUM *e = generateRandomE();
-    char *hex_e = BN_bn2hex(e);
-    printf("The value of e is %s\n", hex_e);
-    OPENSSL_free(hex_e);
+    // char *hex_e = BN_bn2hex(e);
+    // printf("The value of e is %s\n", hex_e);
+    // OPENSSL_free(hex_e);
 
     int d_is_0 = 1;
 
@@ -26,29 +26,29 @@ RSAKeyGenerationResult RSAKeyGeneration::generateRSAKeysUsingProvablePrimesWithA
 
         // generate a random seed
         seed = generateRandomSeed();
-        char *hex_seed = BN_bn2hex(seed);
-        printf("The value of seed is %s\n", hex_seed);
-        OPENSSL_free(hex_seed);
+        // char *hex_seed = BN_bn2hex(seed);
+        // printf("The value of seed is %s\n", hex_seed);
+        // OPENSSL_free(hex_seed);
 
         p_and_q =  constructTheProvablePrimesWithAuxillary(seed, N1, N2, e);
         if(p_and_q.success_){
             d = generatePrivateExponent(e,p_and_q.p_,p_and_q.q_);
 
             BN_mul(n, p_and_q.p_, p_and_q.q_, context_);
-            const char *hex_d = BN_bn2hex(d);
-            printf("The value of d is %s\n", hex_d);
-            const char *hex_n = BN_bn2hex(n);
-            printf("The value of n is %s\n", hex_n);
+            // const char *hex_d = BN_bn2hex(d);
+            // printf("The value of d is %s\n", hex_d);
+            // const char *hex_n = BN_bn2hex(n);
+            // printf("The value of n is %s\n", hex_n);
             d_is_0 = BN_is_zero(d);
             int e_retry = 0;
             while( d_is_0 and e_retry < 10){
-                printf("retrying new e\n");
+                // printf("retrying new e\n");
                 e = generateRandomE();
-                hex_e = BN_bn2hex(e);
-                printf("The value of e is %s\n", hex_e);
+                // hex_e = BN_bn2hex(e);
+                // printf("The value of e is %s\n", hex_e);
                 d = generatePrivateExponent(e,p_and_q.p_,p_and_q.q_);
-                hex_d = BN_bn2hex(d);
-                printf("The value of d is %s\n", hex_d);
+                // hex_d = BN_bn2hex(d);
+                // printf("The value of d is %s\n", hex_d);
                 d_is_0 = BN_is_zero(d);
                 e_retry++;
             }
@@ -68,9 +68,9 @@ RSAKeyGenerationResult RSAKeyGeneration::generateRSAKeysUsingProvablePrimesWithA
 RSAKeyGenerationResult RSAKeyGeneration::generateRSAKeysUsingProvablePrimes(bool use_key_quintuple_form){
     // generate a random public exponent
     BIGNUM *e = generateRandomE();
-    char *hex_e = BN_bn2hex(e);
-    printf("The value of e is %s\n", hex_e);
-    OPENSSL_free(hex_e);
+    // char *hex_e = BN_bn2hex(e);
+    // printf("The value of e is %s\n", hex_e);
+    // OPENSSL_free(hex_e);
 
     int d_is_0 = 1;
 
@@ -84,29 +84,29 @@ RSAKeyGenerationResult RSAKeyGeneration::generateRSAKeysUsingProvablePrimes(bool
 
         // generate a random seed
         seed = generateRandomSeed();
-        char *hex_seed = BN_bn2hex(seed);
-        printf("The value of seed is %s\n", hex_seed);
-        OPENSSL_free(hex_seed);
+        // char *hex_seed = BN_bn2hex(seed);
+        // printf("The value of seed is %s\n", hex_seed);
+        // OPENSSL_free(hex_seed);
 
         result_primes = constructTheProvablePrimes(seed, e);
         if(result_primes.success_){
             d = generatePrivateExponent(e,result_primes.p_,result_primes.q_);
 
             BN_mul(n, result_primes.p_, result_primes.q_, context_);
-            const char *hex_d = BN_bn2hex(d);
-            printf("The value of d is %s\n", hex_d);
-            const char *hex_n = BN_bn2hex(n);
-            printf("The value of n is %s\n", hex_n);
+            // const char *hex_d = BN_bn2hex(d);
+            // printf("The value of d is %s\n", hex_d);
+            // const char *hex_n = BN_bn2hex(n);
+            // printf("The value of n is %s\n", hex_n);
             d_is_0 = BN_is_zero(d);
             int e_retry = 0;
             while( d_is_0 and e_retry < 10){
-                printf("retrying new e\n");
+                // printf("retrying new e\n");
                 e = generateRandomE();
-                hex_e = BN_bn2hex(e);
-                printf("The value of e is %s\n", hex_e);
+                // hex_e = BN_bn2hex(e);
+                // printf("The value of e is %s\n", hex_e);
                 d = generatePrivateExponent(e,result_primes.p_,result_primes.q_);
-                hex_d = BN_bn2hex(d);
-                printf("The value of d is %s\n", hex_d);
+                // hex_d = BN_bn2hex(d);
+                // printf("The value of d is %s\n", hex_d);
                 d_is_0 = BN_is_zero(d);
                 e_retry ++;
             }

@@ -96,3 +96,26 @@ void ConstructPandQResult::freeResult(){
         BN_free(q_);
     }
 }
+
+ProbablePrimeGenerationWithAuxResult::ProbablePrimeGenerationWithAuxResult(bool success, BIGNUM *prime, BIGNUM *X){
+    success_ = success;
+    prime_ = BN_new();
+    BN_copy(prime_, prime);
+    X_ = BN_new();
+    BN_copy(X_, X);
+}
+
+ProbablePrimeGenerationWithAuxResult::ProbablePrimeGenerationWithAuxResult(){
+    success_ = false;
+    X_ = BN_new();
+    prime_ = BN_new();
+}
+
+void ProbablePrimeGenerationWithAuxResult::freeResult(){
+    if(prime_){
+        BN_free(prime_);
+    }
+    if(X_){
+        BN_free(X_);
+    }
+}

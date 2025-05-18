@@ -14,7 +14,7 @@ using namespace std;
 
 /// @brief This enum track the different types of RSA prime generation as laid out in NIST 186-5
 enum class RSAGenerationTypes{
-    provable, probable, provable_with_aux, probable_with_aux_prov, probable_with_auth_prob
+    provable, probable, provable_with_aux, probable_with_aux_prov, probable_with_aux_prob
 };
 
 /// @brief This enum tracks the private key types

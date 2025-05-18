@@ -54,7 +54,7 @@ string RSADurationDatapoint::getGenerationTypeString(){
     case RSAGenerationTypes::probable_with_aux_prov:
         gen_type = "\"Probably Prime, Probable Aux Primes\"";
         break;
-    case RSAGenerationTypes::probable_with_auth_prob:
+    case RSAGenerationTypes::probable_with_aux_prob:
         gen_type = "\"Probably Prime, Probable Aux Primes\"";
         break;
     
@@ -136,6 +136,7 @@ void RSADurationTracking::runDatapointGeneration(){
 };
 
 void RSADurationTracking::printDurations(){
+    // printf("number of datapoints : %ld\n",datapoints.size());
     for (int dp = 0; dp < datapoints.size(); dp ++){
         datapoints[dp].printToTerminal();
     }
@@ -159,6 +160,10 @@ RSADurationDatapoint RSADurationTracking::generateDatapoint(int keylength, RSAGe
         gen_res = my_key_gen.generateRSAKeysUsingProvablePrimesWithAuxPrimes(200,200,use_key_quintuple_form);
     } else if ( generation_type == RSAGenerationTypes::probable){
         gen_res = my_key_gen.generateRSAKeysUsingProbablePrimes(-1,-1,use_key_quintuple_form);
+    } else if ( generation_type == RSAGenerationTypes::probable_with_aux_prov){
+        gen_res = my_key_gen.generateRSAKeysUsingProbablePrimesWithProvableAux(-1,-1, 200, 200, 200, 200, use_key_quintuple_form);
+    } else if ( generation_type == RSAGenerationTypes::probable_with_aux_prob){
+        gen_res = my_key_gen.generateRSAKeysUsingProbablePrimesWithProbableAux(-1,-1, 200, 200, 200, 200, use_key_quintuple_form);
     } else {
         throw exception();
     }
@@ -169,7 +174,7 @@ RSADurationDatapoint RSADurationTracking::generateDatapoint(int keylength, RSAGe
     int miliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(duration).count();
     float seconds = miliseconds / 1000.0;
 
-    printf("duration : %f seconds\n", seconds);
+    
 
     start = std::chrono::high_resolution_clock::now();
     const char *encrypted_message = gen_res.public_key_.encryptionPrimitive(input_message);
@@ -187,12 +192,12 @@ RSADurationDatapoint RSADurationTracking::generateDatapoint(int keylength, RSAGe
 
     float decryption_seconds = miliseconds / 1000.0;
 
+    RSADurationDatapoint datapoint = RSADurationDatapoint(keylength, generation_type, private_key_type, seconds, encryption_seconds, decryption_seconds);
+    datapoint.printToTerminal();
     if (strcmp(decrypted_message, input_message) == 0) {
         printf("The decryption was successful.\n");
     } else {
         printf("The result of the decryption is not the same as the original message.\n");
     }
-
-    RSADurationDatapoint datapoint = RSADurationDatapoint(keylength, generation_type, private_key_type, seconds, encryption_seconds, decryption_seconds);
     return datapoint;
 }

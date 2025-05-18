@@ -91,6 +91,30 @@ struct ProvablePrimeGenerationResult{
     void freeResult();
 };
 
+/// @brief This structure holds the data from construction of a probable prime (success:bool, prime:BIGNUM*, X:BIGNUM*)
+struct ProbablePrimeGenerationWithAuxResult{
+
+    /// @brief Whether the probable prime generation was a success
+    bool success_ {};
+
+    /// @brief The generated prime
+    BIGNUM *prime_ {};
+
+    /// @brief The X value used to create the prime
+    BIGNUM *X_ {};
+
+    /// @brief Initializes a probable prime generation result
+    /// @param success Whether the probable prime generation was successful
+    /// @param prime The prime that was generated
+    /// @param X The X value used in the generation of the prime
+    ProbablePrimeGenerationWithAuxResult(bool success, BIGNUM *prime, BIGNUM *X);
+
+    /// @brief This method initializes a false result
+    ProbablePrimeGenerationWithAuxResult();
+
+    void freeResult();
+};
+
 /// @brief This structure holds the data from shawe taylor random prime generation (success:bool, prime:char*, prime_seed:char*, prime_gen_counter:int)
 struct ShaweTaylorRandomPrimeResult{
 
@@ -161,11 +185,29 @@ class RSAKeyGeneration{
 
         
 
-        /// @brief This method generates the provable primes 'p' and 'q' to be used in the RSA keys
+        /// @brief This method generates the probable primes 'p' and 'q' to be used in the RSA keys
         /// Based on Nist Fips 186-5 A.1.3 "Generation of Random Primes that are Probably Prime"
         /// @param e The public exponent
         /// @return A ConstructPandQResult containing, success p and q.
         ConstructPandQResult constructTheProbablePrimes(int a = -1, int b = -1, BIGNUM *e = BN_new());
+
+        /// @brief This method generates the probable prime to be used in the RSA keys
+        /// Based on Nist Fips 186-5 B.9 "Compute a Probable Prime Factor Based on Auxiliary Primes"
+        /// @param e The public exponent
+        /// @return A ConstructPandQResult containing, success p and q.
+        ProbablePrimeGenerationWithAuxResult constructAProbablePrimeWithAux( BIGNUM *r1, BIGNUM *r2, BIGNUM *e, int c = -1);
+
+        /// @brief This method generates the probable primes 'p' and 'q' to be used in the RSA keys
+        /// Based on Nist Fips 186-5 A.1.5 "Generation of Probable Primes with Conditions Based on Auxiliary Provable Primes "
+        /// @param e The public exponent
+        /// @return A ConstructPandQResult containing, success p and q.
+        ConstructPandQResult constructTheProbablePrimesWithProvableAux(int a = -1, int b = -1, int bitlen1 = 200, int bitlen2 = 200, int bitlen3 = 200, int bitlen4 = 200, BIGNUM *seed = BN_new(), BIGNUM *e = BN_new());
+
+        /// @brief This method generates the probable primes 'p' and 'q' to be used in the RSA keys
+        /// Based on Nist Fips 186-5 A.1.6 "Generation of Probable Primes with Conditions Based on Auxiliary Probable Primes "
+        /// @param e The public exponent
+        /// @return A ConstructPandQResult containing, success p and q.
+        ConstructPandQResult constructTheProbablePrimesWithProbableAux(int a = -1, int b = -1, int bitlen1 = 200, int bitlen2 = 200, int bitlen3 = 200, int bitlen4 = 200, BIGNUM *e = BN_new());
 
         /// @brief This method generates the provable primes 'p' and 'q' to be used in the RSA keys
         /// Based on Nist Fips 186-5 Appendix A.1.2.2 "Construction of the Provable Primes p and q"
@@ -229,6 +271,17 @@ class RSAKeyGeneration{
         /// Based on Nist Fips 186-5 A.1.3 "Generation of Random Primes that are Probably Prime"
         /// @param use_key_quintuple_form Optional - Whether or not the generated private key should be in quintuple form (default is true)
         RSAKeyGenerationResult generateRSAKeysUsingProbablePrimes(int a = -1, int b = -1, bool use_key_quintuple_form = true);
+
+        /// @brief This method generates RSA keys based on provable primes with provable auxillary primes.
+        /// Based on Nist Fips 186-5 A.1.5 "Generation of Probable Primes with Conditions Based on Auxiliary Provable Primes"
+        /// @param use_key_quintuple_form Optional - Whether or not the generated private key should be in quintuple form (default is true)
+        RSAKeyGenerationResult generateRSAKeysUsingProbablePrimesWithProvableAux(int a = -1, int b = -1, int bitlen1 = 200, int bitlen2 = 200, int bitlen3 = 200, int bitlen4 = 200, bool use_key_quintuple_form = true);
+
+        
+        /// @brief This method generates RSA keys based on provable primes with probable auxillary primes.
+        /// Based on Nist Fips 186-5 A.1.6 "Generation of Probable Primes with Conditions Based on Auxiliary Probable Primes"
+        /// @param use_key_quintuple_form Optional - Whether or not the generated private key should be in quintuple form (default is true)
+        RSAKeyGenerationResult generateRSAKeysUsingProbablePrimesWithProbableAux(int a = -1, int b = -1, int bitlen1 = 200, int bitlen2 = 200, int bitlen3 = 200, int bitlen4 = 200, bool use_key_quintuple_form = true);
 
         /// @brief This method generates RSA keys based on provable primes.
         /// @param N1 The length of the first auxillary prime in bits

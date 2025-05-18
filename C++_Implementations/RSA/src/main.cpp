@@ -3,7 +3,7 @@
 /// Libaries Used : OpenSSL BIGNUM for dealing with extremely large integers
 /// Author        : Jamie Barbour-Moore
 /// Created       : 05/11/25
-/// Updated       : 05/14/25
+/// Updated       : 05/18/25
 
 #include <openssl/bn.h>
 #include <string.h>
@@ -19,8 +19,8 @@ void runDatapointGenerationMultiThreaded(){
     int iteration_count = 3;
     vector<RSAGenerationTypes> generation_types = {RSAGenerationTypes::provable};
     vector<RSAPrivateKeyTypes> private_key_types = {RSAPrivateKeyTypes::quintuple, RSAPrivateKeyTypes::standard};
-    vector<int> key_lengths = {2048, 3072};
-    //vector<int> key_lengths = {2048, 3072, 7680, 15360};
+    // vector<int> key_lengths = {2048, 3072};
+    vector<int> key_lengths = {2048, 3072, 7680, 15360};
     
     for (int kl = 0; kl < key_lengths.size(); kl++){
         int key_length = key_lengths[kl];
@@ -31,8 +31,10 @@ void runDatapointGenerationMultiThreaded(){
             thread prov_with_aux_stand (&RSADurationTracking::trackSingleGenerationInThread, duration_tracking, key_length, RSAGenerationTypes::provable_with_aux,RSAPrivateKeyTypes::standard);
             thread prob_quint (&RSADurationTracking::trackSingleGenerationInThread, duration_tracking, key_length, RSAGenerationTypes::probable,RSAPrivateKeyTypes::quintuple);
             thread prob_stand (&RSADurationTracking::trackSingleGenerationInThread, duration_tracking, key_length, RSAGenerationTypes::probable,RSAPrivateKeyTypes::standard);
-            thread prob_quint2 (&RSADurationTracking::trackSingleGenerationInThread, duration_tracking, key_length, RSAGenerationTypes::probable,RSAPrivateKeyTypes::quintuple);
-            thread prob_stand2 (&RSADurationTracking::trackSingleGenerationInThread, duration_tracking, key_length, RSAGenerationTypes::probable,RSAPrivateKeyTypes::standard);
+            thread prob_with_prov_quint (&RSADurationTracking::trackSingleGenerationInThread, duration_tracking, key_length, RSAGenerationTypes::probable_with_aux_prov,RSAPrivateKeyTypes::quintuple);
+            thread prob_with_prov_stand (&RSADurationTracking::trackSingleGenerationInThread, duration_tracking, key_length, RSAGenerationTypes::probable_with_aux_prov,RSAPrivateKeyTypes::standard);
+            thread prob_with_prob_quint (&RSADurationTracking::trackSingleGenerationInThread, duration_tracking, key_length, RSAGenerationTypes::probable_with_aux_prob,RSAPrivateKeyTypes::quintuple);
+            thread prob_with_prob_stand (&RSADurationTracking::trackSingleGenerationInThread, duration_tracking, key_length, RSAGenerationTypes::probable_with_aux_prob,RSAPrivateKeyTypes::standard);
 
             prov_stand.join();
             prov_quint.join();
@@ -40,8 +42,10 @@ void runDatapointGenerationMultiThreaded(){
             prov_with_aux_stand.join();
             prob_quint.join();
             prob_stand.join();
-            prob_quint2.join();
-            prob_stand2.join();
+            prob_with_prov_quint.join();
+            prob_with_prov_stand.join();
+            prob_with_prob_quint.join();
+            prob_with_prob_stand.join();
         }
     }
 
