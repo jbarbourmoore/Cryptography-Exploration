@@ -22,6 +22,13 @@ RSAKeyGeneration::RSAKeyGeneration(int keylength){
     setMinPrimeValue();
 }
 
+void RSAKeyGeneration::freeKeyGeneration(){
+    if (context_){
+        BN_CTX_end(context_);
+        BN_CTX_free(context_);
+    }
+}
+
 void RSAKeyGeneration::generatePrivateExponent(BIGNUM *d, BIGNUM *e, BIGNUM *p, BIGNUM *q){
     BN_CTX *calc_d_context = BN_CTX_secure_new();
     BN_CTX_start(calc_d_context);

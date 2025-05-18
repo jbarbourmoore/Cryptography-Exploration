@@ -4,8 +4,6 @@
 #include <openssl/bn.h>
 #include <string.h>
 #include <cassert>
-#include <thread>
-#include <mutex>
 #include "BigNumHelpers.hpp"
 #include "RSAPrivateKey.hpp"
 #include "RSAPublicKey.hpp"
@@ -328,6 +326,9 @@ class RSAKeyGeneration{
         /// @brief This method returns the bit length for each large prime for the RSA Key Generation
         /// @return The prime length in bits
         int getPrimeLength();
+
+        /// @brief This method end the key generation and frees the variables used
+        void freeKeyGeneration();
 };
 
 #endif

@@ -4,7 +4,6 @@
 #include <openssl/bn.h>
 #include <string.h>
 
-
 /// @brief This class contains the variables and methods for an RSA Private Key
 class RSAPrivateKey{
 

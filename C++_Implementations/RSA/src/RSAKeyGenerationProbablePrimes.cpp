@@ -19,7 +19,7 @@ RSAKeyGenerationResult RSAKeyGeneration::generateRSAKeysUsingProbablePrimes(int 
     // the public exponent
     BIGNUM *e =  BN_CTX_get(gen_keys_ctx);
 
-    // select a random value between 2 ** 16 and 2 ** 256 for use as 2
+    // select a random value between 2 ** 16 and 2 ** 256 for use as e
     generateRandomE(e);
 
     int d_is_0 = 1;
@@ -91,7 +91,7 @@ RSAKeyGenerationResult RSAKeyGeneration::generateRSAKeysUsingProbablePrimesWithP
     // the public exponent
     BIGNUM *e =  BN_CTX_get(gen_keys_ctx);
 
-    // select a random value between 2 ** 16 and 2 ** 256 for use as 2
+    // select a random value between 2 ** 16 and 2 ** 256 for use as e
     generateRandomE(e);
 
     int d_is_0 = 1;
@@ -166,7 +166,7 @@ RSAKeyGenerationResult RSAKeyGeneration::generateRSAKeysUsingProbablePrimesWithP
     // the public exponent
     BIGNUM *e =  BN_CTX_get(gen_primes_ctx);
 
-    // select a random value between 2 ** 16 and 2 ** 256 for use as 2
+    // select a random value between 2 ** 16 and 2 ** 256 for use as e
     generateRandomE(e);
 
     int d_is_0 = 1;

@@ -57,7 +57,6 @@ string RSADurationDatapoint::getGenerationTypeString(){
     case RSAGenerationTypes::probable_with_aux_prob:
         gen_type = "\"Probably Prime, Probable Aux Primes\"";
         break;
-    
     default:
         gen_type = "Unknown";
         break;
@@ -79,14 +78,14 @@ vector<string> RSADurationDatapoint::getContents(){
     } else if (key_length_ == 15360){
         security_strength = 256;
     } 
-    string security_strength_string = to_string(security_strength);
-    string gen_dur_string = to_string(key_generation_duration_);
-    string en_dur_string = to_string(encryption_duration_);
-    string de_dur_string = to_string(decryption_duration_);
-    string gen_type_string = getGenerationTypeString();
-    string key_type_string = getPrivateKeyTypeString();
+    string security_strength_str = to_string(security_strength);
+    string gen_duration_str = to_string(key_generation_duration_);
+    string encrypt_duration_str = to_string(encryption_duration_);
+    string decrypt_duration_str = to_string(decryption_duration_);
+    string gen_type_str = getGenerationTypeString();
+    string key_type_str = getPrivateKeyTypeString();
 
-    vector<string> data_vector = {security_strength_string,gen_dur_string,gen_type_string,en_dur_string,de_dur_string,key_type_string};
+    vector<string> data_vector = {security_strength_str,gen_duration_str,gen_type_str,encrypt_duration_str,decrypt_duration_str,key_type_str};
     return data_vector;
 };
 
@@ -174,8 +173,6 @@ RSADurationDatapoint RSADurationTracking::generateDatapoint(int keylength, RSAGe
     int miliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(duration).count();
     float seconds = miliseconds / 1000.0;
 
-    
-
     start = std::chrono::high_resolution_clock::now();
     const char *encrypted_message = gen_res.public_key_.encryptionPrimitive(input_message);
     stop = std::chrono::high_resolution_clock::now();
@@ -199,5 +196,10 @@ RSADurationDatapoint RSADurationTracking::generateDatapoint(int keylength, RSAGe
     } else {
         printf("The result of the decryption is not the same as the original message.\n");
     }
+
+    gen_res.private_key_.freeKey();
+    gen_res.public_key_.freeKey();
+    my_key_gen.freeKeyGeneration();
+
     return datapoint;
 }
