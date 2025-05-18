@@ -345,8 +345,6 @@ ProvablePrimeGenerationResult RSAKeyGeneration::constructAProvablePrimePotential
     BIGNUM *p_min_3 = BN_CTX_get(prime_gen_ctx);
     // temporary variable for z (z = a ** (2(t p2 − y) p1) mod p)
     BIGNUM *z = BN_CTX_get(prime_gen_ctx);
-    // A temporary variable for z - 1
-    BIGNUM *z_minus_1 = BN_CTX_get(prime_gen_ctx);
     // A temporary variable for z ** p0 % p
     BIGNUM *z_p0_modp = BN_CTX_get(prime_gen_ctx);
     
@@ -477,28 +475,33 @@ ProvablePrimeGenerationResult RSAKeyGeneration::constructAProvablePrimePotential
             // Step 18
             pgen_counter += 1;
 
-            BN_sub(gcd_result, p, number_one);
-            BN_gcd(gcd_result, gcd_result, e, context_);
-
+            BigNumHelpers::gcdValueMinusOneSecondValue(gcd_result, p, e);
             //step 19
             if (BN_is_odd(gcd_result) == 1){
 
                 // step 19.1
                 BN_set_word(a, 0);
             
-                // step 19.2
+                BN_copy(prime_seed_inc_i, pseed);
+                // step 19.2 For i = 0 to iterations do => a = a + (Hash(pseed + i))× 2 **(i × hashlen)
                 for (int i = 0; i <= iteration; i ++){
+                    // i * hash_length
                     BN_set_word(two_to_ihashlen, i * hash_length_);
+                    // 2 ** (i * hash_length)
                     BN_exp(two_to_ihashlen, number_two, two_to_ihashlen, context_);
-                    BN_set_word(prime_seed_inc_i, i);
-                    BN_add(prime_seed_inc_i,prime_seed_inc_i,pseed);
+                    // pseed + i
+                    BN_copy(prime_seed_inc_i, pseed);
+                    BN_add_word(prime_seed_inc_i, i);
+                    // hash(pseed + i)
                     PassBigNum pass_prime_seed_inc = PassBigNum(prime_seed_inc_i);
-                    BigNumHelpers::sha512BigNum(pass_prime_seed_inc).copyAndClear(prime_seed_inc_i);
-                    BN_mul(prime_seed_inc_i,prime_seed_inc_i,two_to_ihashlen,context_);
-                    BN_add(a, a, prime_seed_inc_i);
+                    BigNumHelpers::sha512BigNum(pass_prime_seed_inc).copyAndClear(hash_result);
+                    // (Hash(pseed + i))× 2 **(i × hashlen)
+                    BN_mul(hash_result, hash_result, two_to_ihashlen, context_);
+                    // a = a + (Hash(pseed + i))× 2 **(i × hashlen)
+                    BN_add(a, a, hash_result);
                 }
 
-                // step 19.3
+                // step 19.3 : pseed = pseed + iterations + 1. 
                 BN_add_word(pseed, iteration + 1);
 
                 // step 19.4 : a = 2 + a mod (p - 3)
@@ -507,15 +510,14 @@ ProvablePrimeGenerationResult RSAKeyGeneration::constructAProvablePrimePotential
                 BN_mod(a, a, p_min_3, context_);
                 BN_add_word(a, 2);
 
-                
+                // step 19.5 z = a ** 2 * (t * p2 − y) * p1 mod p. 
                 BN_mul(z, t, p2, context_);
                 BN_sub(z, z, y);
                 BN_mul_word(z, 2);
                 BN_mul(z, z, p1, context_);
                 BN_mod_exp(z, a, z, p, context_);
 
-                BN_sub(z_minus_1, z, number_one);
-                BN_gcd(gcd_result, z_minus_1, p, context_);
+                BigNumHelpers::gcdValueMinusOneSecondValue(gcd_result, z, p);
     
                 if(BN_is_one(gcd_result) == 1){
                     BN_mod_exp(z_p0_modp, z, p0, p, context_);

@@ -263,7 +263,8 @@ ConstructPandQResult RSAKeyGeneration::constructTheProbablePrimes(int a, int b, 
         }
 
         // step 4.5 : ensure the gcd of p-1 and e is one and then test for primality
-        temp_value = BigNumHelpers::gcdValueMinusOneSecondValue(p, e);
+
+        BigNumHelpers::gcdValueMinusOneSecondValue(temp_value, p, e);
         if (BN_is_one(temp_value) == 1){
             int is_prime = BN_check_prime(p, context_, nullptr);
             if (is_prime == 1){
@@ -294,7 +295,7 @@ ConstructPandQResult RSAKeyGeneration::constructTheProbablePrimes(int a, int b, 
             }
             
             // step 5.6 : ensure the gcd of q - 1 and e is one and then test for primality
-            temp_value = BigNumHelpers::gcdValueMinusOneSecondValue(q, e);
+            BigNumHelpers::gcdValueMinusOneSecondValue(temp_value, q, e);
             if (BN_is_one(temp_value) == 1){
                 int is_prime = BN_check_prime(q, context_, nullptr);
                 if (is_prime == 1){
@@ -708,7 +709,7 @@ ProbablePrimeGenerationWithAuxResult RSAKeyGeneration::constructAProbablePrimeWi
                 Y_in_range = BN_cmp(Y, Y_max);
             }
             // Step 7 : ensure the gcd of Y - 1 and e is 1
-            BigNumHelpers::gcdValueMinusOneSecondValue(Y, e);
+            BigNumHelpers::gcdValueMinusOneSecondValue(gcd_result, Y, e);
             successful_so_far = (BN_is_one(gcd_result) == 1);
             if (successful_so_far){
                 prime_found = BN_check_prime(Y, context_,nullptr) == 1;

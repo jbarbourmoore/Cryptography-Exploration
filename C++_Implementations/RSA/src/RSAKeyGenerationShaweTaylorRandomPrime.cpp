@@ -261,7 +261,7 @@ ShaweTaylorRandomPrimeResult RSAKeyGeneration::generateRandomPrimeWithShaweTaylo
                 BN_mod_exp(z, a, z, c, context_);
                 
                 // step 31
-                gcd_result = BigNumHelpers::gcdValueMinusOneSecondValue(z, c);
+                BigNumHelpers::gcdValueMinusOneSecondValue(gcd_result, z, c);
                 
                 if (BN_is_one(gcd_result) == 1) {
                     BN_mod_exp(z_c0_modc, z, c0, c, context_);

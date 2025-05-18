@@ -66,10 +66,10 @@ class BigNumHelpers{
         static PassBigNum sha512BigNum(PassBigNum input);
 
         /// @brief This method calculates the gcd of a value minus one and a second value
-        /// @param first_value The value from which we shall subtract one
-        /// @param second_value The second value
-        /// @return The greatest common denominator as a BIGNUM
-        static BIGNUM* gcdValueMinusOneSecondValue(BIGNUM* first_value, BIGNUM* second_value);
+        /// @param result The pointer for the result of the BN of the result
+        /// @param first_value The value from which we subtract one
+        /// @param second_value The other value for which we are calculating the gcd
+        static void  gcdValueMinusOneSecondValue(BIGNUM* result, BIGNUM* first_value, BIGNUM* second_value);
 
         /// @brief This method find all the prime numbers less than the value passed to it
         /// @param maximum_value The maximum value for any prime number found
