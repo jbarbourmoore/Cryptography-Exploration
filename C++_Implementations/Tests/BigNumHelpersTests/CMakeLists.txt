@@ -3,6 +3,7 @@ add_executable(BigNumHelpers_Tests)
 target_sources(BigNumHelpers_Tests 
     PRIVATE 
         src/BigNumPrimeSieveTests.cpp
+        src/BigNumXorTests.cpp
         )
 
 target_link_libraries(BigNumHelpers_Tests 
