@@ -18,5 +18,20 @@ int main(int argc, char const *argv[])
     printf("input : %u, right rotate 1 output : %u\n",input, rotr_output);
     printf("input : %u,  left rotate 1 output : %u\n",input, rotl_output);
 
+    word hex_to_word_result = SHA1::hexStringToWord("FF");
+    printf("input : FF, word  : %u\n", hex_to_word_result);
+    string hex_result = SHA1::wordToHexString(hex_to_word_result);
+    printf("input : %u, string : %s\n", hex_to_word_result, hex_result.c_str());
+
+    hex_to_word_result = SHA1::hexStringToWord("FFFFFFFF");
+    printf("input : FFFFFFFF, word : %u\n", hex_to_word_result);
+    hex_result = SHA1::wordToHexString(hex_to_word_result);
+    printf("input : %u, string : %s\n", hex_to_word_result, hex_result.c_str());
+
+    hex_to_word_result ++;
+    printf("max_value plus 1 : %u\n", hex_to_word_result);
+    hex_result = SHA1::wordToHexString(hex_to_word_result);
+    printf("input : %u, string : %s\n", hex_to_word_result, hex_result.c_str());
+    
     return 0;
 }
