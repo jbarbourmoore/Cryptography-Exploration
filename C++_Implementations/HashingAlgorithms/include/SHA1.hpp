@@ -6,6 +6,8 @@
 #include <vector>
 #include <ranges>
 
+
+
 using namespace std;
 
 /// @brief A single 32 bit word for use in the SHA hashing algorithm
@@ -35,8 +37,11 @@ class SHA1 {
         /// @brief The number of bits available in the final block
         static const int FINAL_BLOCK_CAPACITY = 448;
 
-        /// @brief The constants used in the SHA-1 as list in section 4.2.1 "SHA-1 Constants" of NIST FIPS 180-4
+        /// @brief The constants used in SHA-1 as listed in section 4.2.1 "SHA-1 Constants" of NIST FIPS 180-4
         static const string K[4];
+
+        /// @brief The starting hash values used in SHA-1 as listed in section 5.3.1 "SHA-1" of NIST FIPS 180-4
+        static const string H0[5];
 
     public :
 
@@ -92,4 +97,20 @@ class SHA1 {
         /// @param input The message
         /// @return a string of hex representing the message
         static string messageToHexString(message input);
+
+        /// @brief This method hashes a message and output it as a hex string
+        /// @param input the pre padded message to be hashed
+        /// @return The hash digest as a hex string
+        static string hashMessageToHex(message input);
+
+        /// @brief This method pads a hex string input
+        /// @param input The hex string of the input with unknown length
+        /// @return The message as a padded vector of blocks
+        static message padStringToMessage(string input);
+
+        /// @brief This method finds the modulus value 
+        /// @param value the value that we are taking the modulus of
+        /// @param modulo the modulus
+        /// @return The modulus value that is calculated
+        static u_int64_t mod(u_int64_t value, u_int64_t modulo);
 };

@@ -38,5 +38,22 @@ int main(int argc, char const *argv[])
     hex_result = SHA1::messageToHexString(vector_to_message);
     printf("message string : %s\n", hex_result.c_str());
 
+    hex_result = SHA1::hashMessageToHex(vector_to_message);
+    printf("hash digest : %s\n", hex_result.c_str());
+
+    string string_input = "abc";
+    message string_to_message = SHA1::padStringToMessage(string_input);
+    hex_result = SHA1::messageToHexString(string_to_message);
+    printf("\ninput : %s\nmessage string : \n%s\n",string_input.c_str(), hex_result.c_str());
+    hex_result = SHA1::hashMessageToHex(string_to_message);
+    printf("hash digest : %s\n", hex_result.c_str());
+
+    string_input = "abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq";
+    string_to_message = SHA1::padStringToMessage(string_input);
+    hex_result = SHA1::messageToHexString(string_to_message);
+    printf("\ninput : %s\nmessage string : \n%s\n",string_input.c_str() , hex_result.c_str());
+    hex_result = SHA1::hashMessageToHex(string_to_message);
+    printf("hash digest : %s\n", hex_result.c_str());
+
     return 0;
 }
