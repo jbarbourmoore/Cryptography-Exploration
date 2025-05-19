@@ -13,6 +13,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 find_package(OpenSSL REQUIRED)
 
 add_subdirectory(RSA)
+add_subdirectory(HashingAlgorithms)
 add_subdirectory(HelperFunctions)
 add_subdirectory(Tests)
 
