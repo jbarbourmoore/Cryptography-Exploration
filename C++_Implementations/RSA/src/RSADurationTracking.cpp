@@ -104,7 +104,7 @@ RSADurationTracking::RSADurationTracking(){
 
 string RSADurationDatapoint::doubleToString(double input){
     char buffer[20];
-    sprintf(buffer, "%.10lf", input);
+    sprintf(buffer, "%10.7lf", input);
     std::string result_string(buffer);
     return result_string;
 }
@@ -176,25 +176,25 @@ RSADurationDatapoint RSADurationTracking::generateDatapoint(int keylength, RSAGe
 
     auto stop = std::chrono::high_resolution_clock::now();
 
-    auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(stop - start);
-    int duration_in_nanoseconds = std::chrono::duration_cast<std::chrono::nanoseconds>(duration).count();
-    double generation_seconds = abs( duration_in_nanoseconds / 1000000000.0);
+    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
+    int duration_in_nanoseconds = std::chrono::duration_cast<std::chrono::microseconds>(duration).count();
+    double generation_seconds = abs( duration_in_nanoseconds / 1000000.0);
 
     start = std::chrono::high_resolution_clock::now();
     const char *encrypted_message = gen_res.public_key_.encryptionPrimitive(input_message);
     stop = std::chrono::high_resolution_clock::now();
-    duration = std::chrono::duration_cast<std::chrono::nanoseconds>(stop - start);
-    duration_in_nanoseconds = std::chrono::duration_cast<std::chrono::nanoseconds>(duration).count();
+    duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
+    duration_in_nanoseconds = std::chrono::duration_cast<std::chrono::microseconds>(duration).count();
 
-    double encryption_seconds = abs( duration_in_nanoseconds / 1000000000.0);
+    double encryption_seconds = abs( duration_in_nanoseconds / 1000000.0);
 
     start = std::chrono::high_resolution_clock::now();
     const char *decrypted_message = gen_res.private_key_.decryptionPrimitive(encrypted_message);
     stop = std::chrono::high_resolution_clock::now();
-    duration = std::chrono::duration_cast<std::chrono::nanoseconds>(stop - start);
-    duration_in_nanoseconds = std::chrono::duration_cast<std::chrono::nanoseconds>(duration).count();
+    duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
+    duration_in_nanoseconds = std::chrono::duration_cast<std::chrono::microseconds>(duration).count();
 
-    double decryption_seconds = abs( duration_in_nanoseconds / 1000000000.0);
+    double decryption_seconds = abs( duration_in_nanoseconds / 1000000.0);
 
     
 
