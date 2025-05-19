@@ -30,8 +30,8 @@ TEST(KeyGenTests_ProbablyPrimeProvAux, prob_with_prov_2048_stand) {
 }
 
 /// @brief This unit tests generating a random key with bit length 3076 and using it to encrypt and decrypt a message 
-TEST(KeyGenTests_ProbablyPrimeProvAux, prob_with_prov_3076_stand) {
-    int keylength = 3076;
+TEST(KeyGenTests_ProbablyPrimeProvAux, prob_with_prov_3072_stand) {
+    int keylength = 3072;
     int bitlen1 = 160;
     int bitlen2 = 140;
     int bitlen3 = 130;
@@ -127,8 +127,8 @@ TEST(KeyGenTests_ProbablyPrimeProvAux, prob_with_prov_2048_quint) {
 }
 
 /// @brief This unit tests generating a random key with bit length 3076 and using it to encrypt and decrypt a message 
-TEST(KeyGenTests_ProbablyPrimeProvAux, prob_with_prov_3076_quint) {
-    int keylength = 3076;
+TEST(KeyGenTests_ProbablyPrimeProvAux, prob_with_prov_3072_quint) {
+    int keylength = 3072;
     int bitlen1 = 160;
     int bitlen2 = 140;
     int bitlen3 = 130;

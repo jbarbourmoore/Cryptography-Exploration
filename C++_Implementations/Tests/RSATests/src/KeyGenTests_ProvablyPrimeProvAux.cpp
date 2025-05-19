@@ -27,9 +27,9 @@ TEST(KeyGenTests_ProvablyPrimeProvAux, prov_with_prov_2048_quint) {
     gen_res.private_key_.freeKey();
 }
 
-/// @brief This unit tests generating a random key with bit length 3076 and using it to encrypt and decrypt a message 
-TEST(KeyGenTests_ProvablyPrimeProvAux, prov_with_prov_3076_quint) {
-    int keylength = 3076;
+/// @brief This unit tests generating a random key with bit length 3072 and using it to encrypt and decrypt a message 
+TEST(KeyGenTests_ProvablyPrimeProvAux, prov_with_prov_3072_quint) {
+    int keylength = 3072;
     int bitlen1 = 150;
     int bitlen2 = 170;
     int bitlen3 = 220;
@@ -116,8 +116,8 @@ TEST(KeyGenTests_ProvablyPrimeProvAux, prov_with_prov_2048_stand) {
 }
 
 /// @brief This unit tests generating a random key with bit length 3076 and using it to encrypt and decrypt a message 
-TEST(KeyGenTests_ProvablyPrimeProvAux, prov_with_prov_3076_stand) {
-    int keylength = 3076;
+TEST(KeyGenTests_ProvablyPrimeProvAux, prov_with_prov_3072_stand) {
+    int keylength = 3072;
     int bitlen1 = 190;
     int bitlen2 = 170;
     int bitlen3 = 180;

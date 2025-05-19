@@ -26,8 +26,8 @@ TEST(KeyGenTests_ProbablyPrime, prob_2048_quint) {
 }
 
 /// @brief This unit tests generating a random key with bit length 3076 and using it to encrypt and decrypt a message 
-TEST(KeyGenTests_ProbablyPrime, prob_3076_quint) {
-    int keylength = 3076;
+TEST(KeyGenTests_ProbablyPrime, prob_3072_quint) {
+    int keylength = 3072;
     int a = 1;
     int b = -1;
     bool use_quintuple_form = true;
@@ -106,8 +106,8 @@ TEST(KeyGenTests_ProbablyPrime, prob_2048_stand) {
 }
 
 /// @brief This unit tests generating a random key with bit length 3076 and using it to encrypt and decrypt a message 
-TEST(KeyGenTests_ProbablyPrime, prob_3076_stand) {
-    int keylength = 3076;
+TEST(KeyGenTests_ProbablyPrime, prob_3072_stand) {
+    int keylength = 3072;
     int a = 1;
     int b = -1;
     bool use_quintuple_form = false;
