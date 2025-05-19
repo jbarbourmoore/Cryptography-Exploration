@@ -45,6 +45,12 @@ class BigNumHelpers{
         /// @return The result of the bytewise XOR operation as a big number
         static PassBigNum xorBigNums(PassBigNum first_bn, PassBigNum second_bn);
 
+        /// @brief This method performs a Byte Wise Xor for two big numbers
+        /// @param result_pointer The pointer to the location the result shall be stored
+        /// @param first_bn The first big number to be XORed
+        /// @param second_bn The second big number to be xored
+        static void xorBigNums(BIGNUM* result_pointer, BIGNUM* first_bn, BIGNUM* second_bn);
+
         /// @brief This method finds the SHA224 hash of a given BIGNUM
         /// @param bignum_to_hash This big number to be hashed
         /// @return The resulting SHA224 hash digest as a big number

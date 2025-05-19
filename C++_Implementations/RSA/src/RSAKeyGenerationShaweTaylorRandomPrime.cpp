@@ -41,15 +41,10 @@ ShaweTaylorRandomPrimeResult RSAKeyGeneration::shaweTaylorShort(int length, Pass
         BIGNUM *length_min_1 = BN_CTX_get(ctx_shawe_short);
 
         // step 5 : XOR(hash(pseed),hash(pseed+1))
-
-        PassBigNum prime_seed_to_hash = PassBigNum(prime_seed);
-        BigNumHelpers::sha512BigNum(prime_seed_to_hash).copyAndClear(hash_prime_seed);
+        BigNumHelpers::sha512BigNum(hash_prime_seed, prime_seed);
         BN_add(inc_seed, prime_seed, number_one);
-        PassBigNum prime_inc_seed_to_hash = PassBigNum(inc_seed);
-        BigNumHelpers::sha512BigNum(prime_inc_seed_to_hash).copyAndClear(hash_inc_seed);
-        PassBigNum hash_seed_to_xor = PassBigNum(hash_prime_seed);
-        PassBigNum hash_seed_inc_to_xor = PassBigNum(hash_inc_seed);
-        BigNumHelpers::xorBigNums(hash_seed_to_xor, hash_seed_inc_to_xor).copyAndClear(c);
+        BigNumHelpers::sha512BigNum(hash_inc_seed, inc_seed);
+        BigNumHelpers::xorBigNums(c, hash_prime_seed, hash_inc_seed);
 
         // step 6
         BN_set_word(length_min_1, length - 1);

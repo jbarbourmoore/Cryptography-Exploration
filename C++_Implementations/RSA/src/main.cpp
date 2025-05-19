@@ -16,7 +16,7 @@
 void runDatapointGenerationMultiThreaded(){
 
     RSADurationTracking duration_tracking = RSADurationTracking();
-    int iteration_count = 3;
+    int iteration_count = 10;
     vector<RSAGenerationTypes> generation_types = {RSAGenerationTypes::provable};
     vector<RSAPrivateKeyTypes> private_key_types = {RSAPrivateKeyTypes::quintuple, RSAPrivateKeyTypes::standard};
     // vector<int> key_lengths = {2048, 3072};
@@ -55,6 +55,8 @@ void runDatapointGenerationMultiThreaded(){
 
 int main(int argc, char const *argv[])
 {
+    runDatapointGenerationMultiThreaded();
+
     // int max = 14943617;
     // BIGNUM *max_bn = BN_new();
     // BN_set_word(max_bn, max);
@@ -70,7 +72,7 @@ int main(int argc, char const *argv[])
     // printf("\n");
     // RSADurationTracking duration_tracking = RSADurationTracking();
     // duration_tracking.runDatapointGeneration();
-    runDatapointGenerationMultiThreaded();
+    
 
     // RSAKeyGeneration my_key_gen = RSAKeyGeneration(2048);
     // my_key_gen.generateRSAKeysUsingProbablePrimes();
