@@ -32,6 +32,11 @@ int main(int argc, char const *argv[])
     printf("max_value plus 1 : %u\n", hex_to_word_result);
     hex_result = SHA1::wordToHexString(hex_to_word_result);
     printf("input : %u, string : %s\n", hex_to_word_result, hex_result.c_str());
-    
+
+    vector<bool> vector_of_bool = {true,true,false,true};
+    message vector_to_message = SHA1::padVectorBoolInput(vector_of_bool);
+    hex_result = SHA1::messageToHexString(vector_to_message);
+    printf("message string : %s\n", hex_result.c_str());
+
     return 0;
 }
