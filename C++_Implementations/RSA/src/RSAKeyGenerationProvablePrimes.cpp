@@ -7,7 +7,7 @@
 
 #include "RSAKeyGeneration.hpp"
 
-RSAKeyGenerationResult RSAKeyGeneration::generateRSAKeysUsingProvablePrimesWithAuxPrimes(int N1, int N2, bool use_key_quintuple_form){
+RSAKeyGenerationResult RSAKeyGeneration::generateRSAKeysUsingProvablePrimesWithAuxPrimes(int bitlen1, int bitlen2, int bitlen3, int bitlen4, bool use_key_quintuple_form){
     
     // The context for this function generating RSA Keys using provable primes
     BN_CTX *gen_keys_ctx = BN_CTX_secure_new();
@@ -37,7 +37,7 @@ RSAKeyGenerationResult RSAKeyGeneration::generateRSAKeysUsingProvablePrimesWithA
         generateRandomSeed(seed);
 
         // generate the primes p and q
-        result_primes =  constructTheProvablePrimesWithAuxillary(seed, N1, N2, e);
+        result_primes =  constructTheProvablePrimesWithAuxillary(seed, bitlen1, bitlen2, bitlen3, bitlen4, e);
         if(result_primes.success_){
 
             BN_copy(p, result_primes.p_);
@@ -156,7 +156,7 @@ RSAKeyGenerationResult RSAKeyGeneration::generateRSAKeysUsingProvablePrimes(bool
     return key_generation_result;
 }
 
-ConstructPandQResult RSAKeyGeneration::constructTheProvablePrimesWithAuxillary(BIGNUM *seed, int N1, int N2, BIGNUM *e){
+ConstructPandQResult RSAKeyGeneration::constructTheProvablePrimesWithAuxillary(BIGNUM *seed, int bitlen1, int bitlen2, int bitlen3, int bitlen4, BIGNUM *e){
     
     // The context for this function generating the provable primes 'p' and 'q'
     BN_CTX *construct_ctx = BN_CTX_new();
@@ -169,7 +169,7 @@ ConstructPandQResult RSAKeyGeneration::constructTheProvablePrimesWithAuxillary(B
     // A temporary variable for the difference between 'p' and 'q'
     BIGNUM *diff_p_q = BN_CTX_get(construct_ctx);
 
-    ProvablePrimeGenerationResult prime_generation_result = constructAProvablePrimePotentiallyWithConditions(getPrimeLength(), N1, N2, seed, e);
+    ProvablePrimeGenerationResult prime_generation_result = constructAProvablePrimePotentiallyWithConditions(getPrimeLength(), bitlen1, bitlen2, seed, e);
 
     // Whether the primes with successfully constructed thus far
     bool prime_generation_success = prime_generation_result.success_;
@@ -183,7 +183,7 @@ ConstructPandQResult RSAKeyGeneration::constructTheProvablePrimesWithAuxillary(B
         while (prime_generation_success & !p_q_min_diff_success){
             prime_generation_result.freeResult();
 
-            prime_generation_result = constructAProvablePrimePotentiallyWithConditions(getPrimeLength(), N1, N2, seed, e);
+            prime_generation_result = constructAProvablePrimePotentiallyWithConditions(getPrimeLength(), bitlen3, bitlen4, seed, e);
             
             if(prime_generation_success){
                 BN_copy(q, prime_generation_result.prime_);
@@ -488,7 +488,6 @@ ProvablePrimeGenerationResult RSAKeyGeneration::constructAProvablePrimePotential
                     break;
                 }
                 BN_add_word(t, 1);
-
             }
         }
     }

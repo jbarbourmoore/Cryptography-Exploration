@@ -24,6 +24,9 @@ TEST(KeyGenTests_ProbablyPrimeProvAux, prob_with_prov_2048_stand) {
     
     EXPECT_NE(strcmp(encrypted_message, input_message), 0);
     EXPECT_EQ(strcmp(decrypted_message, input_message), 0);
+
+    gen_res.public_key_.freeKey();
+    gen_res.private_key_.freeKey();
 }
 
 /// @brief This unit tests generating a random key with bit length 3076 and using it to encrypt and decrypt a message 
@@ -45,6 +48,9 @@ TEST(KeyGenTests_ProbablyPrimeProvAux, prob_with_prov_3076_stand) {
     
     EXPECT_NE(strcmp(encrypted_message, input_message), 0);
     EXPECT_EQ(strcmp(decrypted_message, input_message), 0);
+
+    gen_res.public_key_.freeKey();
+    gen_res.private_key_.freeKey();
 }
 
 /// @brief This unit tests generating a random key with bit length 7680 and using it to encrypt and decrypt a message 
@@ -66,6 +72,9 @@ TEST(KeyGenTests_ProbablyPrimeProvAux, prob_with_prov_7680_stand) {
     
     EXPECT_NE(strcmp(encrypted_message, input_message), 0);
     EXPECT_EQ(strcmp(decrypted_message, input_message), 0);
+
+    gen_res.public_key_.freeKey();
+    gen_res.private_key_.freeKey();
 }
 
 /// @brief This unit tests generating a random key with bit length 15360 and using it to encrypt and decrypt a message 
@@ -87,6 +96,9 @@ TEST(KeyGenTests_ProbablyPrimeProvAux, prob_with_prov_15360_stand) {
 
     EXPECT_NE(strcmp(encrypted_message, input_message), 0);
     EXPECT_EQ(strcmp(decrypted_message, input_message), 0);
+
+    gen_res.public_key_.freeKey();
+    gen_res.private_key_.freeKey();
 }
 
 
@@ -109,6 +121,9 @@ TEST(KeyGenTests_ProbablyPrimeProvAux, prob_with_prov_2048_quint) {
     
     EXPECT_NE(strcmp(encrypted_message, input_message), 0);
     EXPECT_EQ(strcmp(decrypted_message, input_message), 0);
+
+    gen_res.public_key_.freeKey();
+    gen_res.private_key_.freeKey();
 }
 
 /// @brief This unit tests generating a random key with bit length 3076 and using it to encrypt and decrypt a message 
@@ -130,6 +145,9 @@ TEST(KeyGenTests_ProbablyPrimeProvAux, prob_with_prov_3076_quint) {
     
     EXPECT_NE(strcmp(encrypted_message, input_message), 0);
     EXPECT_EQ(strcmp(decrypted_message, input_message), 0);
+
+    gen_res.public_key_.freeKey();
+    gen_res.private_key_.freeKey();
 }
 
 /// @brief This unit tests generating a random key with bit length 7680 and using it to encrypt and decrypt a message 
@@ -151,6 +169,9 @@ TEST(KeyGenTests_ProbablyPrimeProvAux, prob_with_prov_7680_quint) {
     
     EXPECT_NE(strcmp(encrypted_message, input_message), 0);
     EXPECT_EQ(strcmp(decrypted_message, input_message), 0);
+
+    gen_res.public_key_.freeKey();
+    gen_res.private_key_.freeKey();
 }
 
 /// @brief This unit tests generating a random key with bit length 15360 and using it to encrypt and decrypt a message 
@@ -172,4 +193,7 @@ TEST(KeyGenTests_ProbablyPrimeProvAux, prob_with_prov_15360_quint) {
 
     EXPECT_NE(strcmp(encrypted_message, input_message), 0);
     EXPECT_EQ(strcmp(decrypted_message, input_message), 0);
+
+    gen_res.public_key_.freeKey();
+    gen_res.private_key_.freeKey();
 }

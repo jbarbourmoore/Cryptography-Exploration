@@ -225,13 +225,19 @@ class RSAKeyGeneration{
 
         /// @brief This method generates the provable primes 'p' and 'q' to be used in the RSA keys
         /// Based on Nist Fips 186-5 Appendix A.1.2.2 "Construction of the Provable Primes p and q"
+        /// @param seed The first randomly generated seed to be used when generating the primes
+        /// @param e The public exponent selected for the RSA Key Pair
         ConstructPandQResult constructTheProvablePrimes(BIGNUM *seed, BIGNUM *e);
 
         /// @brief This method generates the provable primes 'p' and 'q' to be used in the RSA keys
         /// Based on Nist Fips 186-5 Appendix A.1.2.2 "Construction of the Provable Primes p and q"
-        /// @param N1 The length of the first condition
-        /// @param N2 The length of the second condition
-        ConstructPandQResult constructTheProvablePrimesWithAuxillary(BIGNUM *seed, int N1, int N2, BIGNUM *e);
+        /// @param seed The first randomly generated seed to be used when generating the primes
+        /// @param bitlen1 The bit length for p1
+        /// @param bitlen2 The bit length for p2
+        /// @param bitlen3 The bit length for q1
+        /// @param bitlen4 The bit length for q2
+        /// @param e The public exponent selected for the RSA Key Pair
+        ConstructPandQResult constructTheProvablePrimesWithAuxillary(BIGNUM *seed, int bitlen1, int bitlen2, int bitlen3, int bitlen4, BIGNUM *e);
 
         /// @brief The method constructs a provable prime that may or may not have additional conditions.
         /// Based on NIST FIPS 186-5 Appendix B.10 "Construct a Provable Prime (Possibly with Conditions) Based on
@@ -309,11 +315,13 @@ class RSAKeyGeneration{
         RSAKeyGenerationResult generateRSAKeysUsingProbablePrimesWithProbableAux(int a = -1, int b = -1, int bitlen1 = 200, int bitlen2 = 200, int bitlen3 = 200, int bitlen4 = 200, bool use_key_quintuple_form = true);
 
         /// @brief This method generates RSA keys based on provable primes.
-        /// @param N1 The length of the first auxillary prime in bits
-        /// @param N2 The length of the second auxillary prime in bits 
+        /// @param bitlen1 The bit length for p1
+        /// @param bitlen2 The bit length for p2
+        /// @param bitlen3 The bit length for q1
+        /// @param bitlen4 The bit length for q2
         /// @param use_key_quintuple_form Optional - Whether or not the generated private key should be in quintuple form (default is true)
         /// @return The RSA Key Generation Result with both the public and private keys
-        RSAKeyGenerationResult generateRSAKeysUsingProvablePrimesWithAuxPrimes(int N1, int N2, bool use_key_quintuple_form);
+        RSAKeyGenerationResult generateRSAKeysUsingProvablePrimesWithAuxPrimes(int bitlen1, int bitlen2, int bitlen3, int bitlen4, bool use_key_quintuple_form);
 
         /// @brief This method returns the security strength for the RSA Key Generation basec on the key length
         /// @return The security strength
@@ -330,6 +338,10 @@ class RSAKeyGeneration{
         /// @brief This method end the key generation and frees the variables used
         void freeKeyGeneration();
 
+        /// @brief The method loops over the hash of the increment seed iteration_count times to generate a pseudo random number
+        /// @param result The pointer to the BIGNUM in which to place the result
+        /// @param iteration_count The number of iterations to perform
+        /// @param seed The first seed to be used
         void generatePseudoRandomNumber(BIGNUM* result, int iteration_count, BIGNUM* seed);
 };
 
