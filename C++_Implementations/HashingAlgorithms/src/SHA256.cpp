@@ -23,10 +23,94 @@ word SHA256::bigEpsilonFromOne(word x){
 
 word SHA256::smallEpsilonFromZero(word x){
     word result = ROTR(x, 7) ^ ROTR(x, 18) ^ (x >> 3);
+    // printf("ROTR(x, 7) : %s, ROTR(x, 18) : %s, SHR(x, 3) : %s, small epsilon from zero : %s\n", wordToHexString(ROTR(x, 7)).c_str(), wordToHexString(ROTR(x, 18)).c_str(), wordToHexString(x>>3).c_str(), wordToHexString(result).c_str());
     return result;
 }
 
 word SHA256::smallEpsilonFromOne(word x){
     word result = ROTR(x, 17) ^ ROTR(x, 19) ^ (x >> 10);
     return result;
+}
+
+string SHA256::hashMessageToHex(message input){
+    word H[8];
+    H[0] = H0[0];
+    H[1] = H0[1];
+    H[2] = H0[2];
+    H[3] = H0[3];
+    H[4] = H0[4];
+    H[5] = H0[5];
+    H[6] = H0[6];
+    H[7] = H0[7];
+
+    for (size_t block_num = 0; block_num < input.size(); block_num ++){
+        word a = H[0];
+        word b = H[1];
+        word c = H[2];
+        word d = H[3];
+        word e = H[4];
+        word f = H[5];
+        word g = H[6];
+        word h = H[7];
+        printf("a : %s", wordToHexString(a).c_str());
+        printf(", b : %s", wordToHexString(b).c_str());
+        printf(", c : %s", wordToHexString(c).c_str());
+        printf(", d : %s", wordToHexString(d).c_str());
+        printf(", e : %s", wordToHexString(e).c_str());
+        printf(", f : %s", wordToHexString(f).c_str());
+        printf(", g : %s", wordToHexString(g).c_str());
+        printf(", h : %s\n", wordToHexString(h).c_str());
+        block M = input[block_num];
+        word W[80];
+        for (size_t t = 0; t < 16; t ++){
+            W[t] = M[t];
+            // printf("W[%lu] : %s\n", t, wordToHexString(W[t]).c_str());
+        }
+        for (size_t t = 16; t < ITERATION_COUNT; t ++){
+            // printf("%s ",wordToHexString(W[t-15]).c_str());
+            W[t] = smallEpsilonFromOne(W[t - 2]) + W[t - 7] + smallEpsilonFromZero(W[t - 15]) + W[t - 16];
+            // printf("W[%lu] : %s\n", t, wordToHexString(W[t]).c_str());
+        }
+        for (size_t t = 0; t < ITERATION_COUNT; t ++){
+            word T1 = h + bigEpsilonFromOne(e) + ch(e, f, g) + K[t] + W[t];
+            word T2 = bigEpsilonFromZero(a) + maj(a, b, c);
+            h = g;
+            g = f;
+            f = e;
+            e = d + T1;
+            d = c;
+            c = b;
+            b = a;
+            a = T1 + T2;
+            // printf("%ld -> a : %s",t, wordToHexString(a).c_str());
+            // printf(", b : %s", wordToHexString(b).c_str());
+            // printf(", c : %s", wordToHexString(c).c_str());
+            // printf(", d : %s", wordToHexString(d).c_str());
+            // printf(", e : %s", wordToHexString(e).c_str());
+            // printf(", f : %s", wordToHexString(f).c_str());
+            // printf(", g : %s", wordToHexString(g).c_str());
+            // printf(", h : %s\n", wordToHexString(h).c_str());
+        }
+        H[0] = H[0] + a;
+        H[1] = H[1] + b;
+        H[2] = H[2] + c;
+        H[3] = H[3] + d;
+        H[4] = H[4] + e;
+        H[5] = H[5] + f;
+        H[6] = H[6] + g;
+        H[7] = H[7] + h;
+    }
+
+    string hash_digest = "";
+    for ( int i = 0; i < 8; i ++){
+        hash_digest += wordToHexString(H[i]) + " ";
+    }
+
+    int digest_length_hex = MESSAGE_DIGEST_SIZE / 4 + ((MESSAGE_DIGEST_SIZE / 4) / 8) - 1;
+    printf("%d\n",digest_length_hex);
+    if(hash_digest.size() > digest_length_hex){
+        hash_digest = hash_digest.substr(0, digest_length_hex);
+    }
+
+    return hash_digest;
 }

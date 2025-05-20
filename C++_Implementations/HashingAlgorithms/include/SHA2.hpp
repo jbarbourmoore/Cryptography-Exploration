@@ -3,12 +3,16 @@
 class SHA256 : public SHA1 {
     private :
         /// @brief The hash algorithm's message digest size in bits (src: NIST FIPS 180-4 Figure 1: Secure Hash Algorithm Properties)
-        static const int MESSAGE_DIGEST_SIZE = 160;
+        static const int MESSAGE_DIGEST_SIZE = 256;
 
         /// @brief The constants used in SHA-224 and SHA256 as listed in section 4.2.2 "SHA-224 and SHA-256 Constants" of NIST FIPS 180-4
         static const word K[64];
 
+        /// @brief The starting hash values used in SHA-256 as listed in section 5.3.3 "SHA-256" of NIST FIPS 180-4
         static const word H0[8];
+
+        /// @brief The number of times to iterate over a single message block
+        static const int ITERATION_COUNT = 64;
 
     public : 
 
@@ -36,4 +40,8 @@ class SHA256 : public SHA1 {
         /// @return The word that is the result of the function
         static word smallEpsilonFromOne(word x);
 
+        /// @brief This method hashes a message and output it as a hex string
+        /// @param input the pre padded message to be hashed
+        /// @return The hash digest as a hex string
+        static string hashMessageToHex(message input);
 };

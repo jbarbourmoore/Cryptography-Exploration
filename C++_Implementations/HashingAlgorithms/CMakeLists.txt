@@ -8,6 +8,7 @@ target_include_directories(Hash_app
 target_sources(Hash_app
     PRIVATE
         src/SHA1.cpp
+        src/SHA256.cpp
         src/main.cpp
 )
 
@@ -23,6 +24,7 @@ target_include_directories(Hash_lib
 
 target_sources(Hash_lib
     PRIVATE
+        src/SHA256.cpp
         src/SHA1.cpp
 )
     
