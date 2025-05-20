@@ -14,3 +14,4 @@ include(GoogleTest)
 
 add_subdirectory(RSATests)
 add_subdirectory(BigNumHelpersTests)
+add_subdirectory(HashingTests)
