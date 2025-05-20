@@ -7,146 +7,44 @@
 /// Updated       : 05/13/25
 
 #include "BigNumHelpers.hpp"
-BIGNUM* BigNumHelpers::sha224BigNum(BIGNUM* bignum_to_hash){
-    BIGNUM *hash_result = BN_new();
-    unsigned hash_length_bytes = 224/8;
+#include "CreateHashDigest.hpp"
 
-    // convert the bignum into a byte array to be hashed
-    size_t size = BN_num_bytes(bignum_to_hash);
-    unsigned char *byte_array_to_hash = new unsigned char[size]();
-    BN_bn2bin(bignum_to_hash, byte_array_to_hash);
+void BigNumHelpers::sha224BigNum(BIGNUM* result, BIGNUM* input_bn){
+    char *hex_to_hash = BN_bn2hex(input_bn);
+    std::string str = std::string(hex_to_hash);
 
-    // Initialize a digest and add the byte arrat to hash to it
-    EVP_MD_CTX *hash_context = EVP_MD_CTX_new();
-    EVP_DigestInit_ex(hash_context, EVP_sha224(), NULL);
-    EVP_DigestUpdate(hash_context, byte_array_to_hash, size);
+    std::string hex_result = CreateHashDigest::fromHexString(str, HashType::SHA512_DIGEST);
+    BN_hex2bn(&result, hex_result.c_str());
 
-    // extracted the hash digest as a byte array
-    unsigned char hash_result_bytes[hash_length_bytes];
-    EVP_DigestFinal_ex(hash_context, hash_result_bytes, &hash_length_bytes);
-    EVP_MD_CTX_free(hash_context);
-
-    // convert the hash digest back to a BIGNUM and return
-    BN_bin2bn(hash_result_bytes, hash_length_bytes, hash_result);
-    // char *hash_result_hex = BN_bn2hex(hash_result);
-    // printf("hash : %s\n", hash_result_hex);
-    return hash_result;
+    OPENSSL_free(hex_to_hash);
 };
 
-BIGNUM* BigNumHelpers::sha256BigNum(BIGNUM* bignum_to_hash){
-    BIGNUM *hash_result = BN_new();
-    unsigned hash_length_bytes = 256/8;
+void BigNumHelpers::sha256BigNum(BIGNUM* result, BIGNUM* input_bn){
+    char *hex_to_hash = BN_bn2hex(input_bn);
+    std::string str = std::string(hex_to_hash);
 
-    // convert the bignum into a byte array to be hashed
-    size_t size = BN_num_bytes(bignum_to_hash);
-    unsigned char *byte_array_to_hash = new unsigned char[size]();
-    BN_bn2bin(bignum_to_hash, byte_array_to_hash);
+    std::string hex_result = CreateHashDigest::fromHexString(str, HashType::SHA256_DIGEST);
+    BN_hex2bn(&result, hex_result.c_str());
 
-    // Initialize a digest and add the byte arrat to hash to it
-    EVP_MD_CTX *hash_context = EVP_MD_CTX_new();
-    EVP_DigestInit_ex(hash_context, EVP_sha256(), NULL);
-    EVP_DigestUpdate(hash_context, byte_array_to_hash, size);
-
-    // extracted the hash digest as a byte array
-    unsigned char hash_result_bytes[hash_length_bytes];
-    EVP_DigestFinal_ex(hash_context, hash_result_bytes, &hash_length_bytes);
-    EVP_MD_CTX_free(hash_context);
-
-    // convert the hash digest back to a BIGNUM and return
-    BN_bin2bn(hash_result_bytes, hash_length_bytes, hash_result);
-    // char *hash_result_hex = BN_bn2hex(hash_result);
-    // printf("hash : %s\n", hash_result_hex);
-    return hash_result;
+    OPENSSL_free(hex_to_hash);
 };
 
-BIGNUM* BigNumHelpers::sha384BigNum(BIGNUM* bignum_to_hash){
-    BIGNUM *hash_result = BN_new();
-    unsigned hash_length_bytes = 384/8;
+void BigNumHelpers::sha384BigNum(BIGNUM* result, BIGNUM* input_bn){
+    char *hex_to_hash = BN_bn2hex(input_bn);
+    std::string str = std::string(hex_to_hash);
 
-    // convert the bignum into a byte array to be hashed
-    size_t size = BN_num_bytes(bignum_to_hash);
-    unsigned char *byte_array_to_hash = new unsigned char[size]();
-    BN_bn2bin(bignum_to_hash, byte_array_to_hash);
+    std::string hex_result = CreateHashDigest::fromHexString(str, HashType::SHA384_DIGEST);
+    BN_hex2bn(&result, hex_result.c_str());
 
-    // Initialize a digest and add the byte arrat to hash to it
-    EVP_MD_CTX *hash_context = EVP_MD_CTX_new();
-    EVP_DigestInit_ex(hash_context, EVP_sha384(), NULL);
-    EVP_DigestUpdate(hash_context, byte_array_to_hash, size);
-
-    // extracted the hash digest as a byte array
-    unsigned char hash_result_bytes[hash_length_bytes];
-    EVP_DigestFinal_ex(hash_context, hash_result_bytes, &hash_length_bytes);
-    EVP_MD_CTX_free(hash_context);
-
-    // convert the hash digest back to a BIGNUM and return
-    BN_bin2bn(hash_result_bytes, hash_length_bytes, hash_result);
-    // char *hash_result_hex = BN_bn2hex(hash_result);
-    // printf("hash : %s\n", hash_result_hex);
-    return hash_result;
-};
-
-PassBigNum BigNumHelpers::sha512BigNum(PassBigNum passed_bn){
-    BN_CTX *bn_ctx = BN_CTX_secure_new();
-    BN_CTX_start(bn_ctx);
-
-    BIGNUM *input_bn = BN_CTX_get(bn_ctx);
-    passed_bn.copyAndClear(input_bn);
-
-    unsigned hash_length_bytes = 512/8;
-
-    // convert the bignum into a byte array to be hashed
-    int byte_size = BN_num_bytes(input_bn);
-
-    // printf("Bytes: %d\n", byte_size);
-    unsigned char *byte_array_to_hash = new unsigned char[byte_size]();
-    BN_bn2bin(input_bn, byte_array_to_hash);
-
-    // Initialize a digest and add the byte arrat to hash to it
-    EVP_MD_CTX *evp_ctx = EVP_MD_CTX_new();
-    EVP_DigestInit_ex(evp_ctx, EVP_sha512(), nullptr);
-    EVP_DigestUpdate(evp_ctx, byte_array_to_hash, byte_size);
-
-    // extracted the hash digest as a byte array
-    unsigned char hash_result_bytes[hash_length_bytes];
-    EVP_DigestFinal_ex(evp_ctx, hash_result_bytes, &hash_length_bytes);
-    EVP_MD_CTX_free(evp_ctx);
-
-    // convert the hash digest back to a BIGNUM and return
-    BIGNUM *hash_result = BN_new();
-    BN_bin2bn(hash_result_bytes, hash_length_bytes, hash_result);
-
-    PassBigNum hash_packaged = PassBigNum(hash_result);
-
-    // OPENSSL_free(hash_result_bytes);
-    OPENSSL_free(byte_array_to_hash);
-    BN_CTX_end(bn_ctx);
-    BN_CTX_free(bn_ctx);
-
-    return hash_packaged;
+    OPENSSL_free(hex_to_hash);
 };
 
 void BigNumHelpers::sha512BigNum(BIGNUM* result, BIGNUM* input_bn){
-    unsigned hash_length_bytes = 512/8;
+    char *hex_to_hash = BN_bn2hex(input_bn);
+    std::string str = std::string(hex_to_hash);
 
-    // convert the bignum into a byte array to be hashed
-    int byte_size = BN_num_bytes(input_bn);
+    std::string hex_result = CreateHashDigest::fromHexString(str, HashType::SHA512_DIGEST);
+    BN_hex2bn(&result, hex_result.c_str());
 
-    // printf("Bytes: %d\n", byte_size);
-    unsigned char *byte_array_to_hash = new unsigned char[byte_size]();
-    BN_bn2bin(input_bn, byte_array_to_hash);
-
-    // Initialize a digest and add the byte arrat to hash to it
-    EVP_MD_CTX *evp_ctx = EVP_MD_CTX_new();
-    EVP_DigestInit(evp_ctx, EVP_sha512());
-    EVP_DigestUpdate(evp_ctx, byte_array_to_hash, byte_size);
-
-    // extracted the hash digest as a byte array
-    unsigned char hash_result_bytes[hash_length_bytes];
-    EVP_DigestFinal(evp_ctx, hash_result_bytes, &hash_length_bytes);
-    EVP_MD_CTX_free(evp_ctx);
-
-    // convert the hash digest back to a BIGNUM and return
-    BN_bin2bn(hash_result_bytes, hash_length_bytes, result);
-
-    OPENSSL_free(byte_array_to_hash);
+    OPENSSL_free(hex_to_hash);
 };

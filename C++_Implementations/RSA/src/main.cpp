@@ -76,8 +76,8 @@ int main(int argc, char const *argv[])
     // duration_tracking.runDatapointGeneration();
     
 
-    // RSAKeyGeneration my_key_gen = RSAKeyGeneration(2048);
-    // my_key_gen.generateRSAKeysUsingProbablePrimes();
+    RSAKeyGeneration my_key_gen = RSAKeyGeneration(2048);
+    my_key_gen.generateRSAKeysUsingProvablePrimes();
 
     // RSADurationTracking duration_tracking = RSADurationTracking();
     // duration_tracking.runDatapointGeneration();

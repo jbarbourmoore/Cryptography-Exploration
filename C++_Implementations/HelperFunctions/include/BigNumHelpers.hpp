@@ -3,7 +3,6 @@
 
 #include <openssl/bn.h>
 #include <bits/stdc++.h>
-#include <openssl/evp.h>
 #include <vector>
 
 struct PassBigNum{
@@ -52,28 +51,23 @@ class BigNumHelpers{
         static void xorBigNums(BIGNUM* result_pointer, BIGNUM* first_bn, BIGNUM* second_bn);
 
         /// @brief This method finds the SHA224 hash of a given BIGNUM
-        /// @param bignum_to_hash This big number to be hashed
-        /// @return The resulting SHA224 hash digest as a big number
-        static BIGNUM* sha224BigNum(BIGNUM* bignum_to_hash);
+        /// @param result The pointer to the BIGNUM where the hash digest will be placed
+        /// @param input_bn The pointer to the BIGNUM to be hashed
+        static void sha224BigNum(BIGNUM* result, BIGNUM* input_bn);
 
         /// @brief This method finds the SHA256 hash of a given BIGNUM
-        /// @param bignum_to_hash This big number to be hashed
-        /// @return The resulting SHA256 hash digest as a big number
-        static BIGNUM* sha256BigNum(BIGNUM* bignum_to_hash);
+        /// @param result The pointer to the BIGNUM where the hash digest will be placed
+        /// @param input_bn The pointer to the BIGNUM to be hashed
+        static void sha256BigNum(BIGNUM* result, BIGNUM* input_bn);
 
         /// @brief This method finds the SHA384 hash of a given BIGNUM
-        /// @param bignum_to_hash This big number to be hashed
-        /// @return The resulting SHA384 hash digest as a big number
-        static BIGNUM* sha384BigNum(BIGNUM* bignum_to_hash);
+        /// @param result The pointer to the BIGNUM where the hash digest will be placed
+        /// @param input_bn The pointer to the BIGNUM to be hashed
+        static void sha384BigNum(BIGNUM* result, BIGNUM* input_bn);
 
         /// @brief This method finds the SHA512 hash of a given BIGNUM
-        /// @param bignum_to_hash This big number to be hashed
-        /// @return The resulting SHA512 hash digest as a big number
-        static PassBigNum sha512BigNum(PassBigNum input);
-
-        /// @brief This method finds the SHA512 hash of a given BIGNUM
-        /// @param bignum_to_hash This big number to be hashed
-        /// @return The resulting SHA512 hash digest as a big number
+        /// @param result The pointer to the BIGNUM where the hash digest will be placed
+        /// @param input_bn The pointer to the BIGNUM to be hashed
         static void sha512BigNum(BIGNUM* result, BIGNUM* input_bn);
 
         /// @brief This method calculates the gcd of a value minus one and a second value

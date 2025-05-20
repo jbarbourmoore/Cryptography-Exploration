@@ -109,5 +109,7 @@ string CreateHashDigest::fromHexString(string input_hex, HashType hash_type){
             break;
         }
     }
+    hash_digest.erase(std::remove_if(hash_digest.begin(), hash_digest.end(), ::isspace), hash_digest.end());
+    // printf("hash digest -> %s\n",hash_digest.c_str());
     return hash_digest;
 }

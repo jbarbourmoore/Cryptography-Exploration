@@ -18,6 +18,7 @@ target_sources(BigNumHelpers_lib
 
 target_link_libraries(BigNumHelpers_lib
         OpenSSL::SSL
+        Hash_lib
         )
 
 add_library(IOHelpers_lib)
