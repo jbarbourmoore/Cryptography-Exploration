@@ -18,6 +18,7 @@ target_sources(Hash_lib
         src/SHA512_256.cpp
         src/SHA512.cpp
         src/SHA384.cpp
+        src/CreateHashDigest.cpp
         )
 
 target_link_libraries(Hash_app

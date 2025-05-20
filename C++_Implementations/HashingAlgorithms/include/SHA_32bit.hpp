@@ -1,4 +1,7 @@
-#include <CreateHashDigest.hpp>
+#ifndef SHA_32bit_HPP
+#define SHA_32bit_HPP
+
+#include <SHA.hpp>
 
 namespace sha32bit
 {
@@ -176,8 +179,10 @@ class SHA256 : public SHA_32bit {
         /// @return The hex string of the hash digest
         string hashString(string input_string) override;
 
+        /// @brief This method creates a SHA Hash Digest of the input hex string
+        /// @param input_hex The hex string that is to be hashed
+        /// @return The hex string of the hash digest
         string hashHexString(string input_hex) override;
-
 };
 
 class SHA224 : public SHA256 {
@@ -197,3 +202,5 @@ class SHA224 : public SHA256 {
         word getDigestSize() override;
 
 };
+
+#endif
