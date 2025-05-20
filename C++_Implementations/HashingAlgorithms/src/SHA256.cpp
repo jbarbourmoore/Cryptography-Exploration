@@ -1,4 +1,4 @@
-#include "SHA2.hpp"
+#include "SHA_32bit.hpp"
 
 const word SHA256::K[64] = {0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
                             0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3, 0x72be5d74, 0x80deb1fe, 0x9bdc06a7, 0xc19bf174,
@@ -9,7 +9,15 @@ const word SHA256::K[64] = {0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x39
                             0x19a4c116, 0x1e376c08, 0x2748774c, 0x34b0bcb5, 0x391c0cb3, 0x4ed8aa4a, 0x5b9cca4f, 0x682e6ff3,
                             0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208, 0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2};
 
-const word SHA256::H0[8] = {0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19};
+const word SHA256::H0_SHA256[8] = {0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19};
+
+word SHA256::getH0(int index){
+    return H0_SHA256[index];
+}
+
+word SHA256::getDigestSize(){
+    return MESSAGE_DIGEST_SIZE;
+}
 
 word SHA256::bigEpsilonFromZero(word x){
     word result = ROTR(x, 2) ^ ROTR(x, 13) ^ ROTR(x, 22);
@@ -19,6 +27,12 @@ word SHA256::bigEpsilonFromZero(word x){
 word SHA256::bigEpsilonFromOne(word x){
     word result = ROTR(x, 6) ^ ROTR(x, 11) ^ ROTR(x, 25);
     return result;
+}
+
+string SHA256::hashString(string input_string){
+    message string_to_message = padStringToMessage(input_string);
+    string hex_result = hashMessageToHex(string_to_message);
+    return hex_result;
 }
 
 word SHA256::smallEpsilonFromZero(word x){
@@ -34,14 +48,14 @@ word SHA256::smallEpsilonFromOne(word x){
 
 string SHA256::hashMessageToHex(message input){
     word H[8];
-    H[0] = H0[0];
-    H[1] = H0[1];
-    H[2] = H0[2];
-    H[3] = H0[3];
-    H[4] = H0[4];
-    H[5] = H0[5];
-    H[6] = H0[6];
-    H[7] = H0[7];
+    H[0] = getH0(0);
+    H[1] = getH0(1);
+    H[2] = getH0(2);
+    H[3] = getH0(3);
+    H[4] = getH0(4);
+    H[5] = getH0(5);
+    H[6] = getH0(6);
+    H[7] = getH0(7);
 
     for (size_t block_num = 0; block_num < input.size(); block_num ++){
         word a = H[0];
@@ -52,14 +66,14 @@ string SHA256::hashMessageToHex(message input){
         word f = H[5];
         word g = H[6];
         word h = H[7];
-        printf("a : %s", wordToHexString(a).c_str());
-        printf(", b : %s", wordToHexString(b).c_str());
-        printf(", c : %s", wordToHexString(c).c_str());
-        printf(", d : %s", wordToHexString(d).c_str());
-        printf(", e : %s", wordToHexString(e).c_str());
-        printf(", f : %s", wordToHexString(f).c_str());
-        printf(", g : %s", wordToHexString(g).c_str());
-        printf(", h : %s\n", wordToHexString(h).c_str());
+        // printf("a : %s", wordToHexString(a).c_str());
+        // printf(", b : %s", wordToHexString(b).c_str());
+        // printf(", c : %s", wordToHexString(c).c_str());
+        // printf(", d : %s", wordToHexString(d).c_str());
+        // printf(", e : %s", wordToHexString(e).c_str());
+        // printf(", f : %s", wordToHexString(f).c_str());
+        // printf(", g : %s", wordToHexString(g).c_str());
+        // printf(", h : %s\n", wordToHexString(h).c_str());
         block M = input[block_num];
         word W[80];
         for (size_t t = 0; t < 16; t ++){
@@ -106,7 +120,7 @@ string SHA256::hashMessageToHex(message input){
         hash_digest += wordToHexString(H[i]) + " ";
     }
 
-    int digest_length_hex = MESSAGE_DIGEST_SIZE / 4 + ((MESSAGE_DIGEST_SIZE / 4) / 8) - 1;
+    int digest_length_hex = getDigestSize() / 4 + ((getDigestSize() / 4) / 8) - 1;
     printf("%d\n",digest_length_hex);
     if(hash_digest.size() > digest_length_hex){
         hash_digest = hash_digest.substr(0, digest_length_hex);
