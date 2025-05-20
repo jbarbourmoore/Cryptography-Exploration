@@ -7,6 +7,8 @@ target_sources(Hash_Tests
         src/SHA224_tests.cpp
         src/SHA384_tests.cpp
         src/SHA512_tests.cpp
+        src/SHA512_224_tests.cpp
+        src/SHA512_256_tests.cpp
         )
 
 target_link_libraries(Hash_Tests 

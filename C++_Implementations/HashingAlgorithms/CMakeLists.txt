@@ -14,6 +14,8 @@ target_sources(Hash_lib
         src/SHA1.cpp
         src/SHA_32bit.cpp
         src/SHA_64bit.cpp
+        src/SHA512_224.cpp
+        src/SHA512_256.cpp
         src/SHA512.cpp
         src/SHA384.cpp
         )

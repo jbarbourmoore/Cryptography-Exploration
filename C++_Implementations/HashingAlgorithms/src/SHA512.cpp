@@ -112,7 +112,11 @@ string SHA512::hashMessageToHex(message input){
         hash_digest += wordToHexString(H[i]) + " ";
     }
 
-    int digest_length_hex = getDigestSize() / 4 + ((getDigestSize() / 4) / 16) - 1;
+    int digest_size = getDigestSize() / 4;
+    int digest_length_hex = digest_size + (digest_size / 16);
+    if (digest_size % 16 == 0){
+        digest_length_hex -= 1;
+    }
     printf("%lu : %d\n",getDigestSize() / 4,digest_length_hex);
     if(hash_digest.size() > digest_length_hex){
         hash_digest = hash_digest.substr(0, digest_length_hex);
