@@ -13,7 +13,7 @@ void BigNumHelpers::sha224BigNum(BIGNUM* result, BIGNUM* input_bn){
     char *hex_to_hash = BN_bn2hex(input_bn);
     std::string str = std::string(hex_to_hash);
 
-    std::string hex_result = CreateHashDigest::fromHexString(str, HashType::SHA512_DIGEST);
+    std::string hex_result = CreateHashDigest::fromHexString(str, HashType::SHA224_DIGEST);
     BN_hex2bn(&result, hex_result.c_str());
 
     OPENSSL_free(hex_to_hash);
