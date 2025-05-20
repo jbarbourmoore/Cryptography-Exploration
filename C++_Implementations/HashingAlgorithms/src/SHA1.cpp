@@ -5,9 +5,9 @@
 
 #include "SHA1.hpp"
 
-const string SHA1::K[4] = {"5A827999", "6ED9EBA1", "8F1BBCDC", "CA62C1D6"};
+const word SHA1::K[4] = {0x5A827999, 0x6ED9EBA1, 0x8F1BBCDC, 0xCA62C1D6};
 
-const string SHA1::H0[5] = {"67452301", "EFCDAB89", "98BADCFE", "10325476","C3D2E1F0"};
+const word SHA1::H0[5] = {0x67452301, 0xEFCDAB89, 0x98BADCFE, 0x10325476, 0xC3D2E1F0};
 
 word SHA1::ROTR(word input, int shift){
     word result = (input >> shift) | (input << (WORD_SIZE - shift));
@@ -129,17 +129,11 @@ string SHA1::messageToHexString(message input){
 
 string SHA1::hashMessageToHex(message input){
     word H[5];
-    H[0] = hexStringToWord(H0[0]);
-    H[1] = hexStringToWord(H0[1]);
-    H[2] = hexStringToWord(H0[2]);
-    H[3] = hexStringToWord(H0[3]);
-    H[4] = hexStringToWord(H0[4]);
-
-    word Kw[4];
-    Kw[0] = hexStringToWord(K[0]);
-    Kw[1] = hexStringToWord(K[1]);
-    Kw[2] = hexStringToWord(K[2]);
-    Kw[3] = hexStringToWord(K[3]);
+    H[0] = H0[0];
+    H[1] = H0[1];
+    H[2] = H0[2];
+    H[3] = H0[3];
+    H[4] = H0[4];
 
     for (size_t block_num = 0; block_num < input.size(); block_num ++){
         word a = H[0];
@@ -160,17 +154,17 @@ string SHA1::hashMessageToHex(message input){
             word Kt;
             word f_bcd;
             if (t < 20){
-                Kt = Kw[0];
+                Kt = K[0];
                 // printf("b = %s, c = %s, d= %s\n", wordToHexString(b).c_str(),wordToHexString(c).c_str(),wordToHexString(d).c_str());
                 f_bcd = ch(b, c ,d);
             } else if (t < 40) {
-                Kt = Kw[1];
+                Kt = K[1];
                 f_bcd = parity(b, c, d);
             } else if (t < 60) {
-                Kt = Kw[2];
+                Kt = K[2];
                 f_bcd = maj(b, c, d);
             } else {
-                Kt = Kw[3];
+                Kt = K[3];
                 f_bcd = parity(b, c, d);
             }
             // printf("f_bcd = %s\n", wordToHexString(f_bcd).c_str());

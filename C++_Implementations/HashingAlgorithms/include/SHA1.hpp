@@ -38,10 +38,10 @@ class SHA1 {
         static const int FINAL_BLOCK_CAPACITY = 448;
 
         /// @brief The constants used in SHA-1 as listed in section 4.2.1 "SHA-1 Constants" of NIST FIPS 180-4
-        static const string K[4];
+        static const word K[4];
 
         /// @brief The starting hash values used in SHA-1 as listed in section 5.3.1 "SHA-1" of NIST FIPS 180-4
-        static const string H0[5];
+        static const word H0[5];
 
     public :
 

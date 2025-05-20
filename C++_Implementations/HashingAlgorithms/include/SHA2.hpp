@@ -5,6 +5,11 @@ class SHA256 : public SHA1 {
         /// @brief The hash algorithm's message digest size in bits (src: NIST FIPS 180-4 Figure 1: Secure Hash Algorithm Properties)
         static const int MESSAGE_DIGEST_SIZE = 160;
 
+        /// @brief The constants used in SHA-224 and SHA256 as listed in section 4.2.2 "SHA-224 and SHA-256 Constants" of NIST FIPS 180-4
+        static const word K[64];
+
+        static const word H0[8];
+
     public : 
 
         /// @brief The method performs the function as defined in section 4.1.2 SHA-224 and SHA-256 Functions of NIST-FIPS 180-4
