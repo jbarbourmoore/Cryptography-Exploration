@@ -5,6 +5,7 @@ target_sources(Hash_Tests
         src/SHA1_tests.cpp
         src/SHA256_tests.cpp
         src/SHA224_tests.cpp
+        src/SHA384_tests.cpp
         src/SHA512_tests.cpp
         )
 

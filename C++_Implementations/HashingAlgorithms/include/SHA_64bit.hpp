@@ -144,20 +144,20 @@ class SHA512 : public SHA_64bit {
 
 };
 
-// class SHA224 : public SHA256 {
-//     protected :
-//         /// @brief The hash algorithm's message digest size in bits (src: NIST FIPS 180-4 Figure 1: Secure Hash Algorithm Properties)
-//         const int MESSAGE_DIGEST_SIZE = 224;
+class SHA384 : public SHA512 {
+    protected :
+        /// @brief The hash algorithm's message digest size in bits (src: NIST FIPS 180-4 Figure 1: Secure Hash Algorithm Properties)
+        const int MESSAGE_DIGEST_SIZE = 384;
 
-//         /// @brief The starting hash values used in SHA-224 as listed in section 5.3.4 "SHA-224" of NIST FIPS 180-4
-//         static const word H0_SHA224[8];
+        /// @brief The starting hash values used in SHA-224 as listed in section 5.3.4 "SHA-224" of NIST FIPS 180-4
+        static const word H0_SHA384[8];
 
-//         /// @brief This method returns the initial hash value for use with SHA224
-//         /// @return The constant word at that index
-//         word getH0(int index) override;
+        /// @brief This method returns the initial hash value for use with SHA224
+        /// @return The constant word at that index
+        word getH0(int index) override;
 
-//         /// @brief This method returns the digest size for use with SHA224
-//         /// @return The constant word at that index
-//         word getDigestSize() override;
+        /// @brief This method returns the digest size for use with SHA224
+        /// @return The constant word at that index
+        word getDigestSize() override;
 
-// };
+};
