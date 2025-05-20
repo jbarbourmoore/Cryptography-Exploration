@@ -1,3 +1,8 @@
+/// This file contains the methods for my SHA384 Experimentation in C++
+///
+/// Author        : Jamie Barbour-Moore
+/// Created       : 05/20/25
+
 #include "SHA_64bit.hpp"
 
 const word SHA384::H0_SHA384[8] = { 0xcbbb9d5dc1059ed8, 0x629a292a367cd507, 0x9159015a3070dd17, 0x152fecd8f70e5939, 

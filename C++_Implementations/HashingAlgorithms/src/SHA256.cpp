@@ -1,3 +1,8 @@
+/// This file contains the methods for my SHA256 Experimentation in C++
+///
+/// Author        : Jamie Barbour-Moore
+/// Created       : 05/20/25
+
 #include "SHA_32bit.hpp"
 
 const word SHA256::K[64] = {0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
@@ -35,6 +40,12 @@ string SHA256::hashString(string input_string){
     return hex_result;
 }
 
+string SHA256::hashHexString(string input_hex){
+    message string_to_message = padHexStringToMessage(input_hex);
+    string hex_result = hashMessageToHex(string_to_message);
+    return hex_result;
+}
+
 word SHA256::smallEpsilonFromZero(word x){
     word result = ROTR(x, 7) ^ ROTR(x, 18) ^ (x >> 3);
     // printf("ROTR(x, 7) : %s, ROTR(x, 18) : %s, SHR(x, 3) : %s, small epsilon from zero : %s\n", wordToHexString(ROTR(x, 7)).c_str(), wordToHexString(ROTR(x, 18)).c_str(), wordToHexString(x>>3).c_str(), wordToHexString(result).c_str());
@@ -47,6 +58,7 @@ word SHA256::smallEpsilonFromOne(word x){
 }
 
 string SHA256::hashMessageToHex(message input){
+    // use the overrided methods to load the appropriate constants
     word H[8];
     H[0] = getH0(0);
     H[1] = getH0(1);
@@ -58,6 +70,7 @@ string SHA256::hashMessageToHex(message input){
     H[7] = getH0(7);
 
     for (size_t block_num = 0; block_num < input.size(); block_num ++){
+        // set the working variables for the iteration
         word a = H[0];
         word b = H[1];
         word c = H[2];
@@ -66,25 +79,18 @@ string SHA256::hashMessageToHex(message input){
         word f = H[5];
         word g = H[6];
         word h = H[7];
-        // printf("a : %s", wordToHexString(a).c_str());
-        // printf(", b : %s", wordToHexString(b).c_str());
-        // printf(", c : %s", wordToHexString(c).c_str());
-        // printf(", d : %s", wordToHexString(d).c_str());
-        // printf(", e : %s", wordToHexString(e).c_str());
-        // printf(", f : %s", wordToHexString(f).c_str());
-        // printf(", g : %s", wordToHexString(g).c_str());
-        // printf(", h : %s\n", wordToHexString(h).c_str());
+        
+        // create the message schedule
         block M = input[block_num];
         word W[80];
         for (size_t t = 0; t < 16; t ++){
             W[t] = M[t];
-            // printf("W[%lu] : %s\n", t, wordToHexString(W[t]).c_str());
         }
         for (size_t t = 16; t < ITERATION_COUNT; t ++){
-            // printf("%s ",wordToHexString(W[t-15]).c_str());
             W[t] = smallEpsilonFromOne(W[t - 2]) + W[t - 7] + smallEpsilonFromZero(W[t - 15]) + W[t - 16];
-            // printf("W[%lu] : %s\n", t, wordToHexString(W[t]).c_str());
         }
+
+        // process the message block
         for (size_t t = 0; t < ITERATION_COUNT; t ++){
             word T1 = h + bigEpsilonFromOne(e) + ch(e, f, g) + K[t] + W[t];
             word T2 = bigEpsilonFromZero(a) + maj(a, b, c);
@@ -96,15 +102,9 @@ string SHA256::hashMessageToHex(message input){
             c = b;
             b = a;
             a = T1 + T2;
-            // printf("%ld -> a : %s",t, wordToHexString(a).c_str());
-            // printf(", b : %s", wordToHexString(b).c_str());
-            // printf(", c : %s", wordToHexString(c).c_str());
-            // printf(", d : %s", wordToHexString(d).c_str());
-            // printf(", e : %s", wordToHexString(e).c_str());
-            // printf(", f : %s", wordToHexString(f).c_str());
-            // printf(", g : %s", wordToHexString(g).c_str());
-            // printf(", h : %s\n", wordToHexString(h).c_str());
         }
+
+        // update the hash values
         H[0] = H[0] + a;
         H[1] = H[1] + b;
         H[2] = H[2] + c;
@@ -115,16 +115,22 @@ string SHA256::hashMessageToHex(message input){
         H[7] = H[7] + h;
     }
 
+    // convert the hash to hexadecimal
     string hash_digest = "";
     for ( int i = 0; i < 8; i ++){
         hash_digest += wordToHexString(H[i]) + " ";
     }
 
-    int digest_length_hex = getDigestSize() / 4 + ((getDigestSize() / 4) / 8) - 1;
-    printf("%d\n",digest_length_hex);
+    // ensure the hash digest is the appropriate length
+    int digest_size = getDigestSize() / 4;
+    int digest_length_hex = digest_size + (digest_size / 8);
+    if (digest_size % 8 == 0){
+        digest_length_hex -= 1;
+    }
     if(hash_digest.size() > digest_length_hex){
         hash_digest = hash_digest.substr(0, digest_length_hex);
     }
 
+    // return the hash digest
     return hash_digest;
 }

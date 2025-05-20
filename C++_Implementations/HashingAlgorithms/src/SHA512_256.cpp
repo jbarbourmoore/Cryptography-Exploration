@@ -1,3 +1,8 @@
+/// This file contains the methods for my SHA512/256 Experimentation in C++
+///
+/// Author        : Jamie Barbour-Moore
+/// Created       : 05/20/25
+
 #include "SHA_64bit.hpp"
 
 const word SHA512_256::H0_SHA512_256[8] = { 0x22312194FC2BF72C, 0x9F555FA3C84C64C2, 0x2393B86B6F53B151, 0x963877195940EABD, 

@@ -38,10 +38,10 @@ class SHA{
 
     public :
 
-        // /// @brief This method creates a SHA Hash Digest of the input hex string
-        // /// @param input_hex The hex string that is to be hashed
-        // /// @return The hex string of the hash digest
-        // virtual string hashHexString(string input_hex) = 0;
+        /// @brief This method creates a SHA Hash Digest of the input hex string
+        /// @param input_hex The hex string that is to be hashed
+        /// @return The hex string of the hash digest
+        virtual string hashHexString(string input_hex) = 0;
 
         /// @brief This method creates a SHA Hash Digest of the input string
         /// @param input_hex The string that is to be hashed

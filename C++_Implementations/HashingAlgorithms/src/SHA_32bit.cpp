@@ -43,11 +43,6 @@ word SHA_32bit::ch(word x, word y, word z){
     return result;
 }
 
-// word SHA_32bit::parity(word x, word y, word z){
-//     word result = x ^ y ^ z;
-//     return result;
-// }
-
 word SHA_32bit::maj(word x, word y, word z){
     word result = (x & y) ^ (x & z) ^ (y & z);
     return result;
@@ -74,32 +69,38 @@ string SHA_32bit::messageToHexString(message input){
 }
 
 message SHA_32bit::padStringToMessage(string input){
-   int length = input.size();
-   int i;
-   string hex = "";
+    int length = input.size();
+    string hex = "";
 
-   for (i = 0; i < length; i++){
+    for (int i = 0; i < length; i++){
         char new_char[3];
         sprintf(new_char, "%02X", input[i]);
         hex = hex + new_char[0] + new_char[1];
-   }
-
-    // printf("hex : %s\n", hex.c_str());
-
-    hex += "80";
-    // printf("hex : %s\n", hex.c_str());
-
-    int cur_length = hex.size();
-    int block_size_hex = BLOCK_SIZE / 4;
-    int final_block_capacity_hex = FINAL_BLOCK_CAPACITY / 4;
-
-    u_int64_t k = mod(- cur_length + final_block_capacity_hex, block_size_hex);
-    // printf("k = %lu\n",k);
-    for (i = 0; i < k; i ++){
-        hex += "0";
     }
 
-    int input_bit_length = 8 * length;
+    return padHexStringToMessage(hex);
+}
+
+message SHA_32bit::padHexStringToMessage(string input_hex){
+    // the initial length of the hex string
+    u_int64_t length = input_hex.size();
+    
+    // append bits 1,0,0,0
+    input_hex += "8";
+
+    // determine how much padding needs to be added
+    int cur_length = input_hex.size();
+    int block_size_hex = BLOCK_SIZE / 4;
+    int final_block_capacity_hex = FINAL_BLOCK_CAPACITY / 4;
+    u_int64_t k = mod(- cur_length + final_block_capacity_hex, block_size_hex);
+
+    // add the rest of the padding
+    for (int i = 0; i < k; i ++){
+        input_hex += "0";
+    }
+
+    // convert the initial bit length into hexadecimal with 64 bits and append it
+    u_int64_t input_bit_length = 4 * length;
     int hex_chars = 64 / 4;
     string size_label = "";
     string hexvalues = "0123456789ABCDEF";
@@ -113,19 +114,19 @@ message SHA_32bit::padStringToMessage(string input){
             size_label = "0" + size_label;
         }
     }
-    hex += size_label;
+    input_hex += size_label;
 
-    cur_length = hex.size();
+    // assemble the vector of blocks of the words for the message
+    cur_length = input_hex.size();
     int blocks_in_message = cur_length / (BLOCK_SIZE/4);
     int words_in_block = BLOCK_SIZE / WORD_SIZE;
-
     message from_input = message();
     for (size_t block_num = 0; block_num < blocks_in_message; block_num ++){
         int block_start = block_num * BLOCK_SIZE/4;
         block new_block = block();
         for (size_t word_num = 0; word_num < words_in_block; word_num ++){
             int start_index = block_start + word_num * WORD_SIZE/4;
-            new_block[word_num] = hexStringToWord(hex.substr(start_index, WORD_SIZE / 4));
+            new_block[word_num] = hexStringToWord(input_hex.substr(start_index, WORD_SIZE / 4));
         }
         from_input.push_back(new_block);
     }

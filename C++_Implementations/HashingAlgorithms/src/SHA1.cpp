@@ -15,6 +15,7 @@ word SHA1::parity(word x, word y, word z){
 }
 
 string SHA1::hashMessageToHex(message input){
+    // set the initial hash values using the constants
     word H[5];
     H[0] = H0[0];
     H[1] = H0[1];
@@ -23,11 +24,14 @@ string SHA1::hashMessageToHex(message input){
     H[4] = H0[4];
 
     for (size_t block_num = 0; block_num < input.size(); block_num ++){
+        // set the working variables for the iteration
         word a = H[0];
         word b = H[1];
         word c = H[2];
         word d = H[3];
         word e = H[4];
+
+        // create the message schedule
         block M = input[block_num];
         word W[80];
         for (size_t t = 0; t < 16; t ++){
@@ -37,12 +41,13 @@ string SHA1::hashMessageToHex(message input){
             W[t] = W[t - 3] ^ W[t - 8] ^ W[t - 14] ^ W[t - 16];
             W[t] = ROTL(W[t], 1);
         }
+
+        // process the message block
         for (size_t t = 0; t < 80; t ++){
             word Kt;
             word f_bcd;
             if (t < 20){
                 Kt = K[0];
-                // printf("b = %s, c = %s, d= %s\n", wordToHexString(b).c_str(),wordToHexString(c).c_str(),wordToHexString(d).c_str());
                 f_bcd = ch(b, c ,d);
             } else if (t < 40) {
                 Kt = K[1];
@@ -54,7 +59,6 @@ string SHA1::hashMessageToHex(message input){
                 Kt = K[3];
                 f_bcd = parity(b, c, d);
             }
-            // printf("f_bcd = %s\n", wordToHexString(f_bcd).c_str());
             word T = ROTL(a, 5);
             T = T + f_bcd + Kt + e + W[t];
             e = d;
@@ -62,20 +66,16 @@ string SHA1::hashMessageToHex(message input){
             c = ROTL(b, 30);
             b = a;
             a = T;
-            // printf("%ld -> a : %s",t, wordToHexString(a).c_str());
-            // printf(", b : %s", wordToHexString(b).c_str());
-            // printf(", c : %s", wordToHexString(c).c_str());
-            // printf(", d : %s", wordToHexString(d).c_str());
-            // printf(", e : %s\n", wordToHexString(e).c_str());
         }
+        // update the hash values
         H[0] = H[0] + a;
         H[1] = H[1] + b;
         H[2] = H[2] + c;
         H[3] = H[3] + d;
         H[4] = H[4] + e;
-        
     }
 
+    // convert the hash digest to hexadecimal string
     string hash_digest = "";
     for ( int i = 0; i < 5; i ++){
         hash_digest += wordToHexString(H[i]);
@@ -84,11 +84,18 @@ string SHA1::hashMessageToHex(message input){
         }
     }
 
+    // return the hash digest as a hexadecimal string
     return hash_digest;
 }
 
 string SHA1::hashString(string input_string){
     message string_to_message = padStringToMessage(input_string);
+    string hex_result = hashMessageToHex(string_to_message);
+    return hex_result;
+}
+
+string SHA1::hashHexString(string input_hex){
+    message string_to_message = padHexStringToMessage(input_hex);
     string hex_result = hashMessageToHex(string_to_message);
     return hex_result;
 }

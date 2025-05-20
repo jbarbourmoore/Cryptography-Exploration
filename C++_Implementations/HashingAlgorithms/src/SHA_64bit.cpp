@@ -1,4 +1,4 @@
-/// This file contains the methods for my SHA_32bit Experimentation in C++
+/// This file contains the methods for my SHA_64bit Experimentation in C++
 ///
 /// Author        : Jamie Barbour-Moore
 /// Created       : 05/20/25
@@ -69,32 +69,39 @@ string SHA_64bit::messageToHexString(message input){
 }
 
 message SHA_64bit::padStringToMessage(string input){
-   __int128_t length = input.size();
-   __int128_t i;
-   string hex = "";
 
-   for (i = 0; i < length; i++){
+    string input_hex = "";
+
+   for (__int128_t i = 0; i < input.size(); i++){
         char new_char[3];
         sprintf(new_char, "%02X", input[i]);
-        hex = hex + new_char[0] + new_char[1];
+        input_hex = input_hex + new_char[0] + new_char[1];
    }
 
-    // printf("hex : %s\n", hex.c_str());
+   return padHexStringToMessage(input_hex);
+}
 
-    hex += "80";
-    // printf("hex : %s\n", hex.c_str());
+message SHA_64bit::padHexStringToMessage(string input_hex){
 
-    __int128_t cur_length = hex.size();
+    // the initial length of the hex string
+    __int128_t length = input_hex.length();
+
+    // append bits 1,0,0,0
+    input_hex += "8";
+
+    // determine how much padding needs to be added
+    __int128_t cur_length = input_hex.size();
     int block_size_hex = BLOCK_SIZE / 4;
     int final_block_capacity_hex = FINAL_BLOCK_CAPACITY / 4;
 
+    // add the rest of the padding
     __int128_t k = mod(- cur_length + final_block_capacity_hex, block_size_hex);
-    // printf("k = %lu\n",k);
-    for (i = 0; i < k; i ++){
-        hex += "0";
+    for (__int128_t i = 0; i < k; i ++){
+        input_hex += "0";
     }
 
-    __int128_t input_bit_length = 8 * length;
+    // convert the initial bit length into hexadecimal with 128 bits and append it
+    __int128_t input_bit_length = 4 * length;
     int hex_chars = 128 / 4;
     string size_label = "";
     string hexvalues = "0123456789ABCDEF";
@@ -108,19 +115,19 @@ message SHA_64bit::padStringToMessage(string input){
             size_label = "0" + size_label;
         }
     }
-    hex += size_label;
+    input_hex += size_label;
 
-    cur_length = hex.size();
+    // assemble the vector of blocks of the words for the message
+    cur_length = input_hex.size();
     int blocks_in_message = cur_length / (BLOCK_SIZE/4);
     int words_in_block = BLOCK_SIZE / WORD_SIZE;
-
     message from_input = message();
     for (size_t block_num = 0; block_num < blocks_in_message; block_num ++){
         int block_start = block_num * BLOCK_SIZE/4;
         block new_block = block();
         for (size_t word_num = 0; word_num < words_in_block; word_num ++){
             int start_index = block_start + word_num * WORD_SIZE/4;
-            new_block[word_num] = hexStringToWord(hex.substr(start_index, WORD_SIZE / 4));
+            new_block[word_num] = hexStringToWord(input_hex.substr(start_index, WORD_SIZE / 4));
         }
         from_input.push_back(new_block);
     }

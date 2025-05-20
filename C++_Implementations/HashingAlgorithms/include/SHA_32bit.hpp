@@ -65,10 +65,15 @@ class SHA_32bit : public SHA {
         /// @return a string of hex representing the message
         string messageToHexString(message input);
 
+        /// @brief This method pads a string input
+        /// @param input The string of the input with unknown length
+        /// @return The message as a padded vector of blocks
+        message padStringToMessage(string input);
+
         /// @brief This method pads a hex string input
         /// @param input The hex string of the input with unknown length
         /// @return The message as a padded vector of blocks
-        message padStringToMessage(string input);
+        message padHexStringToMessage(string input_hex);
 
         /// @brief This method finds the modulus value 
         /// @param value the value that we are taking the modulus of
@@ -108,7 +113,9 @@ class SHA1 : public SHA_32bit {
         /// @return The hash digest as a hex string
         string hashMessageToHex(message input);
 
-        string hashString(string input_string);
+        string hashString(string input_string) override;
+
+        string hashHexString(string input_hex) override;
 };
 
 
@@ -168,6 +175,8 @@ class SHA256 : public SHA_32bit {
         /// @param input_hex The string that is to be hashed
         /// @return The hex string of the hash digest
         string hashString(string input_string) override;
+
+        string hashHexString(string input_hex) override;
 
 };
 
