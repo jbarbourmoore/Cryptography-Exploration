@@ -1,5 +1,35 @@
 # Cryptography Exploration
-A repository created in order to explore cryptography related algorithms, implementations and concepts. The sequence diagrams shown below are created using plantuml code I generated using Python based on the results of the implemented algorithms.
+A repository created in order to explore cryptography related algorithms, implementations and concepts. The algorithms so far have been implemented in Python and/or C++. The sequence diagrams shown below are created using plantuml code I generated using Python based on the results of the implemented algorithms.    
+
+## Table of Contents
+1. Cryptography Schemes - [README Section](#cryptography-schemes)
+    1. Symmetric Encryption Algorithms - [README Section](#symmetric-encryption-algorithms)
+        1. Advanced Encryption Standard (AES) - [README Section](#advanced-encryption-standard-aes)
+            * Galois / Counter Mode (GCM) - [README Section](#galois--counter-mode-gcm)
+            * Basic Modes of Operation - [README Section](#basic-modes-of-operation)
+        2. Triple Data Encryption Standard (TDES) - [README Section](#triple-data-encryption-standard-tdes)
+            * Basic Modes of Operation - [README Section](#basic-modes-of-operation-1)
+    2. Elliptic Curve Digital Signature Algorithm (ECDSA) - [README Section](#elliptic-curve-digital-signature-algorithm-ecdsa)
+    3. Edwards-Curve Digital Signature Algotithm (EdDSA) - [README Section](#edwards-curve-digital-signature-algotithm-eddsa)
+    4. RSA Cryptography Scheme - [README Section](#rsa-cryptography-scheme)
+        1. RSA Key Generation - [README Section](#rsa-key-generation)
+        2. RSA Private Key Forms - [README Section](#rsa-private-key-forms)
+    5. Diffie Hellman Key Exchange - [README Section](#diffie-hellman-key-exchange)
+    6. Elliptic Curve Diffie Hellman Key Exchange - [README Section](#diffie-hellman-key-exchange)
+    7. Hashing Algorithms - [README Section](#hashing-algorithms)
+        1. Secure Hash Algoithm 1 (SHA1) - [README Section](#secure-hash-algoithm-1-sha1)
+        2. Secure Hash Algorithm 2 (SHA2) - [README Section](#secure-hash-algorithm-2-sha2)
+        3. Secure Hash Algorithm 3 (SHA3) - [README Section](#secure-hash-algorithm-3-sha3)
+    8. Message Authentication Codes - [README Section](#message-authentication-codes)
+        1. Keyed-Hash Message Authentication Code (HMAC) - [README Section](#keyed-hash-message-authentication-code-hmac)
+        2. CMAC Mode For Authentication - [README Section](#cmac-mode-for-authentication)
+    9. Historical Cyphers - [README Section](#historical-cyphers)
+        1. Caesar Cypher - [README Section](#caesar-cypher)
+        2. Multiplicative Cypher - [README Section](#multiplicative-cypher)
+2. Bad Actor Methodologies - [README Section](#bad-actor-methodologies)
+    1. Shor's Algorithm Vs RSA - [README Section](#shors-algorithm-vs-rsa)
+    2. Brute Force Vs Caesar Cypher - [README Section](#brute-force-vs-caesar-cypher)
+    3. Brute Force Vs Multiplicative Cypher - [README Section](#brute-force-vs-multiplicative-cypher)
 
 ## Cryptography Schemes  
 
