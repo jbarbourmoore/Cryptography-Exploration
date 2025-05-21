@@ -16,5 +16,6 @@ add_subdirectory(RSA)
 add_subdirectory(HashingAlgorithms)
 add_subdirectory(HelperFunctions)
 add_subdirectory(Tests)
+add_subdirectory(QT_GUI_Cryptography)
 
 include(CTest)

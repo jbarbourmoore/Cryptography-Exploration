@@ -55,9 +55,9 @@ void runDatapointGenerationMultiThreaded(){
 
 int main(int argc, char const *argv[])
 {
-    //runDatapointGenerationMultiThreaded();
+    runDatapointGenerationMultiThreaded();
 
-    printf("int: %ld\nu_int64_t: %ld\nu_int32_t: %ld\n", sizeof(int), sizeof(u_int64_t), sizeof(u_int32_t));
+    // printf("int: %ld\nu_int64_t: %ld\nu_int32_t: %ld\n", sizeof(int), sizeof(u_int64_t), sizeof(u_int32_t));
 
     // int max = 14943617;
     // BIGNUM *max_bn = BN_new();
@@ -76,8 +76,8 @@ int main(int argc, char const *argv[])
     // duration_tracking.runDatapointGeneration();
     
 
-    RSAKeyGeneration my_key_gen = RSAKeyGeneration(2048);
-    my_key_gen.generateRSAKeysUsingProvablePrimes();
+    // RSAKeyGeneration my_key_gen = RSAKeyGeneration(2048);
+    // my_key_gen.generateRSAKeysUsingProvablePrimes();
 
     // RSADurationTracking duration_tracking = RSADurationTracking();
     // duration_tracking.runDatapointGeneration();
