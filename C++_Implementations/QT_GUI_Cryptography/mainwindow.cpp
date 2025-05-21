@@ -48,6 +48,19 @@ void MainWindow::on_generate_button_clicked(){
     ui->n_text->setPlainText(rsa_keys.private_key_.getHexN());
     ui->d_text->setPlainText(rsa_keys.private_key_.getHexD());
     ui->e_text->setPlainText(rsa_keys.public_key_.getHexE());
+    if(use_quint_form){
+        ui->text_p->setPlainText(rsa_keys.private_key_.getHexP());
+        ui->text_q->setPlainText(rsa_keys.private_key_.getHexQ());
+        ui->text_dP->setPlainText(rsa_keys.private_key_.getHexdP());
+        ui->text_dQ->setPlainText(rsa_keys.private_key_.getHexdQ());
+        ui->text_qInv->setPlainText(rsa_keys.private_key_.getHexqInv());
+    } else{
+        ui->text_p->setPlainText("'p' is only part of private keys when using the quintuple form");
+        ui->text_q->setPlainText("'q' is only part of private keys when using the quintuple form");
+        ui->text_dP->setPlainText("'dP' is only part of private keys when using the quintuple form");
+        ui->text_dQ->setPlainText("'dQ' is only part of private keys when using the quintuple form");
+        ui->text_qInv->setPlainText("'qInv' is only part of private keys when using the quintuple form");
+    }
 }
 
 void MainWindow::on_encrypt_button_clicked(){

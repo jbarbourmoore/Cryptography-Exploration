@@ -1,8 +1,8 @@
 #ifndef RSAPrivateKey_HPP
 #define RSAPrivateKey_HPP
 
+#include <stddef.h>
 #include <openssl/bn.h>
-#include <string.h>
 
 /// @brief This class contains the variables and methods for an RSA Private Key
 class RSAPrivateKey{
@@ -104,6 +104,26 @@ class RSAPrivateKey{
         /// @brief This method returns the hexadecimal character array for the private key's 'd' value
         /// @return Hexadecimal character array for 'd' value
         char* getHexD();
+
+        /// @brief This method returns the hexadecimal character array for the private key's 'd' value
+        /// @return Hexadecimal character array for 'd' value
+        char* getHexP();
+
+        /// @brief This method returns the hexadecimal character array for the private key's 'd' value
+        /// @return Hexadecimal character array for 'd' value
+        char* getHexQ();
+
+        /// @brief This method returns the hexadecimal character array for the private key's 'd' value
+        /// @return Hexadecimal character array for 'd' value
+        char* getHexdP();
+
+        /// @brief This method returns the hexadecimal character array for the private key's 'd' value
+        /// @return Hexadecimal character array for 'd' value
+        char* getHexdQ();
+
+        /// @brief This method returns the hexadecimal character array for the private key's 'd' value
+        /// @return Hexadecimal character array for 'd' value
+        char* getHexqInv();
 
         /// @brief This method returns the key length as a number of bits
         /// @return The int value of bits in the key length (nlen)

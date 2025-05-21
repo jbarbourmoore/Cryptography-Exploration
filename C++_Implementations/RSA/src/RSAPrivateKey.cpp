@@ -123,13 +123,53 @@ bool RSAPrivateKey::isQuintForm(){
 }
 
 char* RSAPrivateKey::getHexN(){
-    char *ouputChars = BN_bn2hex(n_);
-    return ouputChars;
+    char *output_chars = BN_bn2hex(n_);
+    return output_chars;
 };
 
 char* RSAPrivateKey::getHexD(){
-    char *ouputChars = BN_bn2hex(d_);
-    return ouputChars;
+    char *output_chars = BN_bn2hex(d_);
+    return output_chars;
+};
+
+char* RSAPrivateKey::getHexP(){
+    char *output_chars;
+    if(quint_form_){
+        output_chars = BN_bn2hex(p_);
+    }
+    return output_chars;
+};
+
+char* RSAPrivateKey::getHexQ(){
+    char *output_chars;
+    if(quint_form_){
+        output_chars = BN_bn2hex(q_);
+    }
+    return output_chars;
+};
+
+char* RSAPrivateKey::getHexdP(){
+    char *output_chars;
+    if(quint_form_){
+        output_chars = BN_bn2hex(dP_);
+    }
+    return output_chars;
+};
+
+char* RSAPrivateKey::getHexdQ(){
+    char *output_chars;
+    if(quint_form_){
+        output_chars = BN_bn2hex(dQ_);
+    }
+    return output_chars;
+};
+
+char* RSAPrivateKey::getHexqInv(){
+    char *output_chars;
+    if(quint_form_){
+        output_chars = BN_bn2hex(qInv_);
+    }
+    return output_chars;
 };
 
 int RSAPrivateKey::getKeyLength(){
