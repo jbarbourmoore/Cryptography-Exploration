@@ -10,6 +10,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->rsa_key_gen_button, SIGNAL(clicked()), this, SLOT(on_generate_button_clicked()));
     connect(ui->rsa_encrypt_button, SIGNAL(clicked()), this, SLOT(on_encrypt_button_clicked()));
     connect(ui->rsa_decrypt_button, SIGNAL(clicked()), this, SLOT(on_decrypt_button_clicked()));
+    connect(ui->rsa_swap_out_button, SIGNAL(clicked()), this, SLOT(on_rsa_swap_output_button_clicked()));
     connect(ui->hash_button, SIGNAL(clicked()), this, SLOT(on_hash_button_clicked()));
 }
 
@@ -46,6 +47,32 @@ void MainWindow::updateKeyLength(){
         key_gen_.setKeyLength(key_length);
     }
 }
+
+double MainWindow::generateKeys(bool use_key_quintuple_form){
+
+    int generation_type = ui->rsa_key_type_select->currentIndex();
+
+    auto start = std::chrono::high_resolution_clock::now();
+    if ( generation_type == 3){
+        rsa_keys_ = key_gen_.generateRSAKeysUsingProvablePrimes(use_key_quintuple_form);
+    } else if ( generation_type == 4){
+        rsa_keys_ = key_gen_.generateRSAKeysUsingProvablePrimesWithAuxPrimes(200, 200, 200, 200, use_key_quintuple_form);
+    } else if ( generation_type == 0){
+        rsa_keys_ = key_gen_.generateRSAKeysUsingProbablePrimes(-1,-1,use_key_quintuple_form);
+    } else if ( generation_type == 2){
+        rsa_keys_ = key_gen_.generateRSAKeysUsingProbablePrimesWithProvableAux(-1,-1, 200, 200, 200, 200, use_key_quintuple_form);
+    } else if ( generation_type == 1){
+        rsa_keys_ = key_gen_.generateRSAKeysUsingProbablePrimesWithProbableAux(-1,-1, 200, 200, 200, 200, use_key_quintuple_form);
+    } else {
+        throw exception();
+    }
+    auto stop = std::chrono::high_resolution_clock::now();
+
+    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
+    int duration_in_nanoseconds = std::chrono::duration_cast<std::chrono::microseconds>(duration).count();
+    double generation_seconds = abs( duration_in_nanoseconds / 1000000.0);
+    return generation_seconds;
+}
 void MainWindow::on_generate_button_clicked(){
     
     bool use_quint_form = false;
@@ -54,10 +81,13 @@ void MainWindow::on_generate_button_clicked(){
         use_quint_form = true;
     }
     updateKeyLength();
-
     rsa_keys_.private_key_.freeKey();
     rsa_keys_.public_key_.freeKey();
-    rsa_keys_ = key_gen_.generateRSAKeysUsingProbablePrimes(-1,-1,use_quint_form);
+    double generation_seconds = generateKeys(use_quint_form);
+    char buffer[35];
+    sprintf(buffer, "Duration: %10.7lf seconds", generation_seconds);
+    std::string result_string(buffer);
+    ui->last_dur_label->setText(result_string.c_str());
     ui->n_text->setPlainText(rsa_keys_.private_key_.getHexN());
     ui->d_text->setPlainText(rsa_keys_.private_key_.getHexD());
     ui->e_text->setPlainText(rsa_keys_.public_key_.getHexE());
@@ -101,5 +131,48 @@ void MainWindow::on_decrypt_button_clicked(){
     }
 }
 void MainWindow::on_hash_button_clicked(){
+    QString input_qstring = ui->hash_in_text->toPlainText();
+    if(input_qstring.isEmpty()){
+        ui->digest_text->setPlainText("Please enter a string to hash");
+    }
+    else{
+        int hash_alg_selected = ui->hash_alg_select->currentIndex();
+        std::string hash_digest = "";
+        switch(hash_alg_selected){
+            case 0:{
+                hash_digest = CreateHashDigest::fromString(input_qstring.toStdString(),HashType::SHA1_DIGEST);
+                break;
+            }
+            case 1 : {
+                hash_digest = CreateHashDigest::fromString(input_qstring.toStdString(),HashType::SHA224_DIGEST);
+                break;
+            }
+            case 2 : {
+                hash_digest = CreateHashDigest::fromString(input_qstring.toStdString(),HashType::SHA256_DIGEST);
+                break;
+            }
+            case 3 :{
+                hash_digest = CreateHashDigest::fromString(input_qstring.toStdString(),HashType::SHA384_DIGEST);
+                break;
+            }
+            case 4 :{
+                hash_digest = CreateHashDigest::fromString(input_qstring.toStdString(),HashType::SHA512_DIGEST);
+                break;
+            }
+            case 5 :{
+                hash_digest = CreateHashDigest::fromString(input_qstring.toStdString(),HashType::SHA512_224_DIGEST);
+                break;
+            }
+            case 6 :{
+                hash_digest = CreateHashDigest::fromString(input_qstring.toStdString(),HashType::SHA512_256_DIGEST);
+                break;
+            }
+        }
+        ui->digest_text->setPlainText(hash_digest.c_str());
+    }
+}
 
+void MainWindow::on_rsa_swap_output_button_clicked(){
+    QString input_qstring = ui->rsa_out_text->toPlainText();
+    ui->rsa_in_text->setPlainText(input_qstring);
 }

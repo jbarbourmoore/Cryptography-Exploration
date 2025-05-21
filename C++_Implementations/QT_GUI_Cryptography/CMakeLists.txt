@@ -45,7 +45,8 @@ endif()
 target_link_libraries(QT_GUI_Cryptography 
                             PRIVATE 
                                 Qt${QT_VERSION_MAJOR}::Widgets
-                                RSA_lib)
+                                RSA_lib
+                                Hash_lib)
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
 # If you are developing for iOS or macOS you should consider setting an
