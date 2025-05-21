@@ -6,6 +6,7 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    // Load an application style
 
     connect(ui->rsa_key_gen_button, SIGNAL(clicked()), this, SLOT(on_generate_button_clicked()));
     connect(ui->rsa_encrypt_button, SIGNAL(clicked()), this, SLOT(on_encrypt_button_clicked()));
@@ -85,7 +86,7 @@ void MainWindow::on_generate_button_clicked(){
     rsa_keys_.public_key_.freeKey();
     double generation_seconds = generateKeys(use_quint_form);
     char buffer[35];
-    sprintf(buffer, "Duration: %10.7lf seconds", generation_seconds);
+    sprintf(buffer, "Duration: %10.5lf seconds", generation_seconds);
     std::string result_string(buffer);
     ui->last_dur_label->setText(result_string.c_str());
     ui->n_text->setPlainText(rsa_keys_.private_key_.getHexN());
