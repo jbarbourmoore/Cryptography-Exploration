@@ -6,9 +6,21 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
-    <height>600</height>
+    <width>951</width>
+    <height>729</height>
    </rect>
+  </property>
+  <property name="sizeIncrement">
+   <size>
+    <width>0</width>
+    <height>1</height>
+   </size>
+  </property>
+  <property name="baseSize">
+   <size>
+    <width>1</width>
+    <height>1</height>
+   </size>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
@@ -19,9 +31,21 @@
      <rect>
       <x>0</x>
       <y>0</y>
-      <width>801</width>
-      <height>581</height>
+      <width>941</width>
+      <height>698</height>
      </rect>
+    </property>
+    <property name="sizeIncrement">
+     <size>
+      <width>1</width>
+      <height>1</height>
+     </size>
+    </property>
+    <property name="baseSize">
+     <size>
+      <width>1</width>
+      <height>1</height>
+     </size>
     </property>
     <property name="tabShape">
      <enum>QTabWidget::Triangular</enum>
@@ -39,464 +63,465 @@
      <attribute name="title">
       <string>RSA</string>
      </attribute>
-     <widget class="QWidget" name="layoutWidget">
-      <property name="geometry">
-       <rect>
-        <x>20</x>
-        <y>10</y>
-        <width>761</width>
-        <height>511</height>
-       </rect>
-      </property>
-      <layout class="QVBoxLayout" name="verticalLayout">
-       <item>
-        <layout class="QHBoxLayout" name="horizontalLayout">
-         <item>
-          <widget class="QLabel" name="rsa_nlen_label">
-           <property name="maximumSize">
-            <size>
-             <width>125</width>
-             <height>16777215</height>
-            </size>
-           </property>
-           <property name="text">
-            <string>Key Length</string>
-           </property>
+     <layout class="QGridLayout" name="gridLayout">
+      <item row="0" column="0">
+       <layout class="QVBoxLayout" name="verticalLayout">
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout">
+          <item>
+           <widget class="QLabel" name="rsa_nlen_label">
+            <property name="maximumSize">
+             <size>
+              <width>125</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>Key Length</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QComboBox" name="rsa_nlen_select">
+            <item>
+             <property name="text">
+              <string>2048 Bits</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>3072 Bits</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>7680 Bits</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>15360 Bits</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="rsa_key_type_label">
+            <property name="maximumSize">
+             <size>
+              <width>125</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>Private Key Type</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QComboBox" name="rsa_key_type_select">
+            <item>
+             <property name="text">
+              <string>Standard Form</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Quintuple Form</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_6">
+          <item>
+           <widget class="QLabel" name="gen_type_label">
+            <property name="maximumSize">
+             <size>
+              <width>125</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>Generation Type</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QComboBox" name="gen_type_select">
+            <item>
+             <property name="text">
+              <string>Probably Prime</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Probably Prime with Probable Auxilary Primes</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Probably Prime with Provable Auxilary Primes</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Provably Prime</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Provably Prime with Provable Auxilary Primes</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item alignment="Qt::AlignHCenter">
+           <widget class="QLabel" name="last_dur_label">
+            <property name="maximumSize">
+             <size>
+              <width>125</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>Last Duration</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="rsa_key_gen_button">
+            <property name="minimumSize">
+             <size>
+              <width>125</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>125</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>Generate</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_4"/>
+        </item>
+        <item>
+         <widget class="QTabWidget" name="key_details_tabs">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>150</height>
+           </size>
+          </property>
+          <property name="tabPosition">
+           <enum>QTabWidget::North</enum>
+          </property>
+          <property name="currentIndex">
+           <number>0</number>
+          </property>
+          <widget class="QWidget" name="tab_n">
+           <attribute name="title">
+            <string>'n'</string>
+           </attribute>
+           <widget class="QPlainTextEdit" name="n_text">
+            <property name="geometry">
+             <rect>
+              <x>0</x>
+              <y>0</y>
+              <width>761</width>
+              <height>121</height>
+             </rect>
+            </property>
+            <property name="autoFillBackground">
+             <bool>true</bool>
+            </property>
+            <property name="frameShape">
+             <enum>QFrame::NoFrame</enum>
+            </property>
+            <property name="frameShadow">
+             <enum>QFrame::Plain</enum>
+            </property>
+            <property name="readOnly">
+             <bool>true</bool>
+            </property>
+           </widget>
           </widget>
-         </item>
-         <item>
-          <widget class="QComboBox" name="rsa_nlen_select">
-           <item>
-            <property name="text">
-             <string>2048 Bits</string>
+          <widget class="QWidget" name="tab_d">
+           <attribute name="title">
+            <string>'d'</string>
+           </attribute>
+           <widget class="QPlainTextEdit" name="d_text">
+            <property name="geometry">
+             <rect>
+              <x>0</x>
+              <y>0</y>
+              <width>761</width>
+              <height>121</height>
+             </rect>
             </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>3072 Bits</string>
+            <property name="autoFillBackground">
+             <bool>true</bool>
             </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>7680 Bits</string>
+            <property name="frameShape">
+             <enum>QFrame::NoFrame</enum>
             </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>15360 Bits</string>
+            <property name="frameShadow">
+             <enum>QFrame::Plain</enum>
             </property>
-           </item>
+            <property name="readOnly">
+             <bool>true</bool>
+            </property>
+           </widget>
           </widget>
-         </item>
-         <item>
-          <widget class="QLabel" name="rsa_key_type_label">
-           <property name="maximumSize">
-            <size>
-             <width>125</width>
-             <height>16777215</height>
-            </size>
-           </property>
-           <property name="text">
-            <string>Private Key Type</string>
-           </property>
+          <widget class="QWidget" name="tab_e">
+           <attribute name="title">
+            <string>'e'</string>
+           </attribute>
+           <widget class="QPlainTextEdit" name="e_text">
+            <property name="geometry">
+             <rect>
+              <x>0</x>
+              <y>0</y>
+              <width>761</width>
+              <height>121</height>
+             </rect>
+            </property>
+            <property name="autoFillBackground">
+             <bool>true</bool>
+            </property>
+            <property name="frameShape">
+             <enum>QFrame::NoFrame</enum>
+            </property>
+            <property name="frameShadow">
+             <enum>QFrame::Plain</enum>
+            </property>
+            <property name="readOnly">
+             <bool>true</bool>
+            </property>
+           </widget>
           </widget>
-         </item>
-         <item>
-          <widget class="QComboBox" name="rsa_key_type_select">
-           <item>
-            <property name="text">
-             <string>Standard Form</string>
+          <widget class="QWidget" name="tab_p">
+           <attribute name="title">
+            <string>'p'</string>
+           </attribute>
+           <widget class="QPlainTextEdit" name="text_p">
+            <property name="geometry">
+             <rect>
+              <x>0</x>
+              <y>0</y>
+              <width>761</width>
+              <height>121</height>
+             </rect>
             </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Quintuple Form</string>
+            <property name="autoFillBackground">
+             <bool>true</bool>
             </property>
-           </item>
+            <property name="frameShape">
+             <enum>QFrame::NoFrame</enum>
+            </property>
+            <property name="frameShadow">
+             <enum>QFrame::Plain</enum>
+            </property>
+            <property name="readOnly">
+             <bool>true</bool>
+            </property>
+           </widget>
           </widget>
-         </item>
-        </layout>
-       </item>
-       <item>
-        <layout class="QHBoxLayout" name="horizontalLayout_6">
-         <item>
-          <widget class="QLabel" name="gen_type_label">
-           <property name="maximumSize">
-            <size>
-             <width>125</width>
-             <height>16777215</height>
-            </size>
-           </property>
-           <property name="text">
-            <string>Generation Type</string>
-           </property>
+          <widget class="QWidget" name="tab_q">
+           <attribute name="title">
+            <string>'q'</string>
+           </attribute>
+           <widget class="QPlainTextEdit" name="text_q">
+            <property name="geometry">
+             <rect>
+              <x>0</x>
+              <y>0</y>
+              <width>761</width>
+              <height>121</height>
+             </rect>
+            </property>
+            <property name="autoFillBackground">
+             <bool>true</bool>
+            </property>
+            <property name="frameShape">
+             <enum>QFrame::NoFrame</enum>
+            </property>
+            <property name="frameShadow">
+             <enum>QFrame::Plain</enum>
+            </property>
+            <property name="readOnly">
+             <bool>true</bool>
+            </property>
+           </widget>
           </widget>
-         </item>
-         <item>
-          <widget class="QComboBox" name="gen_type_select">
-           <item>
-            <property name="text">
-             <string>Probably Prime</string>
+          <widget class="QWidget" name="tab_dP">
+           <attribute name="title">
+            <string>'dP'</string>
+           </attribute>
+           <widget class="QPlainTextEdit" name="text_dP">
+            <property name="geometry">
+             <rect>
+              <x>0</x>
+              <y>0</y>
+              <width>761</width>
+              <height>121</height>
+             </rect>
             </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Probably Prime with Probable Auxilary Primes</string>
+            <property name="autoFillBackground">
+             <bool>true</bool>
             </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Probably Prime with Provable Auxilary Primes</string>
+            <property name="frameShape">
+             <enum>QFrame::NoFrame</enum>
             </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Provably Prime</string>
+            <property name="frameShadow">
+             <enum>QFrame::Plain</enum>
             </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Provably Prime with Provable Auxilary Primes</string>
+            <property name="readOnly">
+             <bool>true</bool>
             </property>
-           </item>
+           </widget>
           </widget>
-         </item>
-         <item alignment="Qt::AlignHCenter">
-          <widget class="QLabel" name="last_dur_label">
-           <property name="maximumSize">
-            <size>
-             <width>125</width>
-             <height>16777215</height>
-            </size>
-           </property>
-           <property name="text">
-            <string>Last Duration</string>
-           </property>
+          <widget class="QWidget" name="tab_dQ">
+           <attribute name="title">
+            <string>'dQ'</string>
+           </attribute>
+           <widget class="QPlainTextEdit" name="text_dQ">
+            <property name="geometry">
+             <rect>
+              <x>0</x>
+              <y>0</y>
+              <width>761</width>
+              <height>121</height>
+             </rect>
+            </property>
+            <property name="autoFillBackground">
+             <bool>true</bool>
+            </property>
+            <property name="frameShape">
+             <enum>QFrame::NoFrame</enum>
+            </property>
+            <property name="frameShadow">
+             <enum>QFrame::Plain</enum>
+            </property>
+            <property name="readOnly">
+             <bool>true</bool>
+            </property>
+           </widget>
           </widget>
-         </item>
-         <item>
-          <widget class="QPushButton" name="rsa_key_gen_button">
-           <property name="minimumSize">
-            <size>
-             <width>125</width>
-             <height>0</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>125</width>
-             <height>16777215</height>
-            </size>
-           </property>
-           <property name="text">
-            <string>Generate</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
-       <item>
-        <layout class="QHBoxLayout" name="horizontalLayout_4"/>
-       </item>
-       <item>
-        <widget class="QTabWidget" name="key_details_tabs">
-         <property name="minimumSize">
-          <size>
-           <width>0</width>
-           <height>150</height>
-          </size>
-         </property>
-         <property name="tabPosition">
-          <enum>QTabWidget::North</enum>
-         </property>
-         <property name="currentIndex">
-          <number>0</number>
-         </property>
-         <widget class="QWidget" name="tab_n">
-          <attribute name="title">
-           <string>'n'</string>
-          </attribute>
-          <widget class="QPlainTextEdit" name="n_text">
-           <property name="geometry">
-            <rect>
-             <x>0</x>
-             <y>0</y>
-             <width>761</width>
-             <height>121</height>
-            </rect>
-           </property>
-           <property name="autoFillBackground">
-            <bool>true</bool>
-           </property>
-           <property name="frameShape">
-            <enum>QFrame::NoFrame</enum>
-           </property>
-           <property name="frameShadow">
-            <enum>QFrame::Plain</enum>
-           </property>
-           <property name="readOnly">
-            <bool>true</bool>
-           </property>
+          <widget class="QWidget" name="tab_qInv">
+           <attribute name="title">
+            <string>'qInv'</string>
+           </attribute>
+           <widget class="QPlainTextEdit" name="text_qInv">
+            <property name="geometry">
+             <rect>
+              <x>0</x>
+              <y>0</y>
+              <width>761</width>
+              <height>121</height>
+             </rect>
+            </property>
+            <property name="autoFillBackground">
+             <bool>true</bool>
+            </property>
+            <property name="frameShape">
+             <enum>QFrame::NoFrame</enum>
+            </property>
+            <property name="frameShadow">
+             <enum>QFrame::Plain</enum>
+            </property>
+            <property name="documentTitle">
+             <string/>
+            </property>
+            <property name="readOnly">
+             <bool>true</bool>
+            </property>
+           </widget>
           </widget>
          </widget>
-         <widget class="QWidget" name="tab_d">
-          <attribute name="title">
-           <string>'d'</string>
-          </attribute>
-          <widget class="QPlainTextEdit" name="d_text">
-           <property name="geometry">
-            <rect>
-             <x>0</x>
-             <y>0</y>
-             <width>761</width>
-             <height>121</height>
-            </rect>
-           </property>
-           <property name="autoFillBackground">
-            <bool>true</bool>
-           </property>
-           <property name="frameShape">
-            <enum>QFrame::NoFrame</enum>
-           </property>
-           <property name="frameShadow">
-            <enum>QFrame::Plain</enum>
-           </property>
-           <property name="readOnly">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </widget>
-         <widget class="QWidget" name="tab_e">
-          <attribute name="title">
-           <string>'e'</string>
-          </attribute>
-          <widget class="QPlainTextEdit" name="e_text">
-           <property name="geometry">
-            <rect>
-             <x>0</x>
-             <y>0</y>
-             <width>761</width>
-             <height>121</height>
-            </rect>
-           </property>
-           <property name="autoFillBackground">
-            <bool>true</bool>
-           </property>
-           <property name="frameShape">
-            <enum>QFrame::NoFrame</enum>
-           </property>
-           <property name="frameShadow">
-            <enum>QFrame::Plain</enum>
-           </property>
-           <property name="readOnly">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </widget>
-         <widget class="QWidget" name="tab_p">
-          <attribute name="title">
-           <string>'p'</string>
-          </attribute>
-          <widget class="QPlainTextEdit" name="text_p">
-           <property name="geometry">
-            <rect>
-             <x>0</x>
-             <y>0</y>
-             <width>761</width>
-             <height>121</height>
-            </rect>
-           </property>
-           <property name="autoFillBackground">
-            <bool>true</bool>
-           </property>
-           <property name="frameShape">
-            <enum>QFrame::NoFrame</enum>
-           </property>
-           <property name="frameShadow">
-            <enum>QFrame::Plain</enum>
-           </property>
-           <property name="readOnly">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </widget>
-         <widget class="QWidget" name="tab_q">
-          <attribute name="title">
-           <string>'q'</string>
-          </attribute>
-          <widget class="QPlainTextEdit" name="text_q">
-           <property name="geometry">
-            <rect>
-             <x>0</x>
-             <y>0</y>
-             <width>761</width>
-             <height>121</height>
-            </rect>
-           </property>
-           <property name="autoFillBackground">
-            <bool>true</bool>
-           </property>
-           <property name="frameShape">
-            <enum>QFrame::NoFrame</enum>
-           </property>
-           <property name="frameShadow">
-            <enum>QFrame::Plain</enum>
-           </property>
-           <property name="readOnly">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </widget>
-         <widget class="QWidget" name="tab_dP">
-          <attribute name="title">
-           <string>'dP'</string>
-          </attribute>
-          <widget class="QPlainTextEdit" name="text_dP">
-           <property name="geometry">
-            <rect>
-             <x>0</x>
-             <y>0</y>
-             <width>761</width>
-             <height>121</height>
-            </rect>
-           </property>
-           <property name="autoFillBackground">
-            <bool>true</bool>
-           </property>
-           <property name="frameShape">
-            <enum>QFrame::NoFrame</enum>
-           </property>
-           <property name="frameShadow">
-            <enum>QFrame::Plain</enum>
-           </property>
-           <property name="readOnly">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </widget>
-         <widget class="QWidget" name="tab_dQ">
-          <attribute name="title">
-           <string>'dQ'</string>
-          </attribute>
-          <widget class="QPlainTextEdit" name="text_dQ">
-           <property name="geometry">
-            <rect>
-             <x>0</x>
-             <y>0</y>
-             <width>761</width>
-             <height>121</height>
-            </rect>
-           </property>
-           <property name="autoFillBackground">
-            <bool>true</bool>
-           </property>
-           <property name="frameShape">
-            <enum>QFrame::NoFrame</enum>
-           </property>
-           <property name="frameShadow">
-            <enum>QFrame::Plain</enum>
-           </property>
-           <property name="readOnly">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </widget>
-         <widget class="QWidget" name="tab_qInv">
-          <attribute name="title">
-           <string>'qInv'</string>
-          </attribute>
-          <widget class="QPlainTextEdit" name="text_qInv">
-           <property name="geometry">
-            <rect>
-             <x>0</x>
-             <y>0</y>
-             <width>761</width>
-             <height>121</height>
-            </rect>
-           </property>
-           <property name="autoFillBackground">
-            <bool>true</bool>
-           </property>
-           <property name="frameShape">
-            <enum>QFrame::NoFrame</enum>
-           </property>
-           <property name="frameShadow">
-            <enum>QFrame::Plain</enum>
-           </property>
-           <property name="documentTitle">
-            <string/>
-           </property>
-           <property name="readOnly">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </widget>
-        </widget>
-       </item>
-       <item>
-        <layout class="QHBoxLayout" name="horizontalLayout_3">
-         <item>
-          <widget class="QLabel" name="rsa_in_label">
-           <property name="minimumSize">
-            <size>
-             <width>60</width>
-             <height>0</height>
-            </size>
-           </property>
-           <property name="text">
-            <string>Input</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QPlainTextEdit" name="rsa_in_text"/>
-         </item>
-        </layout>
-       </item>
-       <item>
-        <layout class="QHBoxLayout" name="horizontalLayout_2">
-         <item>
-          <widget class="QPushButton" name="rsa_encrypt_button">
-           <property name="text">
-            <string>Encrypt</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QPushButton" name="rsa_decrypt_button">
-           <property name="text">
-            <string>Decrypt</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
-       <item>
-        <layout class="QHBoxLayout" name="horizontalLayout_5">
-         <item>
-          <widget class="QLabel" name="rsa_out_label">
-           <property name="minimumSize">
-            <size>
-             <width>60</width>
-             <height>0</height>
-            </size>
-           </property>
-           <property name="text">
-            <string>Output</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QPlainTextEdit" name="rsa_out_text">
-           <property name="readOnly">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
-      </layout>
-     </widget>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_3">
+          <item>
+           <widget class="QLabel" name="rsa_in_label">
+            <property name="minimumSize">
+             <size>
+              <width>70</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>Hex Input</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPlainTextEdit" name="rsa_in_text"/>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_2">
+          <item>
+           <widget class="QPushButton" name="rsa_encrypt_button">
+            <property name="text">
+             <string>Encrypt</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="rsa_swap_out_button">
+            <property name="text">
+             <string>Move Output To Input</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="rsa_decrypt_button">
+            <property name="text">
+             <string>Decrypt</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_5">
+          <item>
+           <widget class="QLabel" name="rsa_out_label">
+            <property name="minimumSize">
+             <size>
+              <width>70</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>Hex Output</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPlainTextEdit" name="rsa_out_text">
+            <property name="readOnly">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </item>
+     </layout>
     </widget>
     <widget class="QWidget" name="sha_tab">
      <attribute name="title">
@@ -599,7 +624,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>800</width>
+     <width>951</width>
      <height>19</height>
     </rect>
    </property>

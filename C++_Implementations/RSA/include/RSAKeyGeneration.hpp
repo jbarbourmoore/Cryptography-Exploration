@@ -165,6 +165,7 @@ class RSAKeyGeneration{
         /// @brief The BN CTX to be used in the calculations for this rsa key generation
         BN_CTX *context_;
 
+
         /// @brief This method sets the parameters for e
         void setEParameters();
 
@@ -343,6 +344,9 @@ class RSAKeyGeneration{
         /// @param iteration_count The number of iterations to perform
         /// @param seed The first seed to be used
         void generatePseudoRandomNumber(BIGNUM* result, int iteration_count, BIGNUM* seed);
+
+        void setKeyLength(int key_length);
+
 };
 
 #endif

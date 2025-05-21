@@ -22,6 +22,13 @@ RSAKeyGeneration::RSAKeyGeneration(int keylength){
     setMinPrimeValue();
 }
 
+void RSAKeyGeneration::setKeyLength(int key_length){
+    keylength_ = key_length;
+    setEParameters();
+    setMinPQDiff();
+    setMinPrimeValue();
+}
+
 void RSAKeyGeneration::freeKeyGeneration(){
     if (context_){
         BN_CTX_end(context_);

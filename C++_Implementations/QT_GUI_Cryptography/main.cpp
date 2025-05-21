@@ -9,6 +9,6 @@ int main(int argc, char *argv[])
     RSAKeyGeneration key_gen = RSAKeyGeneration(2048);
     QApplication a(argc, argv);
     MainWindow w;
-    w.show();
+    w.showNormal();
     return a.exec();
 }

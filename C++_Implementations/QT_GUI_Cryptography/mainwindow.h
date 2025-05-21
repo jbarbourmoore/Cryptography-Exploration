@@ -26,6 +26,8 @@ private slots:
 
 private:
     RSAKeyGeneration key_gen_;
+    RSAKeyGenerationResult rsa_keys_;
+    void updateKeyLength();
     Ui::MainWindow *ui;
 };
 #endif // MAINWINDOW_H
