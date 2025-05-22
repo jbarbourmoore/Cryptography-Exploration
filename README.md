@@ -27,15 +27,15 @@ A repository created in order to explore cryptography related algorithms, implem
         2. Secure Hash Algorithm 2 (SHA2) - [README Section](#secure-hash-algorithm-2-sha2) - [Python Code](https://github.com/jbarbourmoore/Cryptography-Exploration/blob/0a5b12a1dcd05a0785b3af13584fc09e29bb1590/CryptographySchemes/HashingAlgorithms/SecureHashAlgorithm2.py) - [Python Tests](https://github.com/jbarbourmoore/Cryptography-Exploration/blob/0a5b12a1dcd05a0785b3af13584fc09e29bb1590/CryptographySchemes/UnitTest/SHA2_UnitTests.py) - [C++ Code](https://github.com/jbarbourmoore/Cryptography-Exploration/blob/main/C%2B%2B_Implementations/HashingAlgorithms/src/SHA256.cpp) - [C++ Tests](https://github.com/jbarbourmoore/Cryptography-Exploration/blob/0a5b12a1dcd05a0785b3af13584fc09e29bb1590/CryptographySchemes/UnitTest/SHA2_UnitTests.py)
         3. Secure Hash Algorithm 3 (SHA3) - [README Section](#secure-hash-algorithm-3-sha3) - [Python Code](https://github.com/jbarbourmoore/Cryptography-Exploration/blob/0a5b12a1dcd05a0785b3af13584fc09e29bb1590/CryptographySchemes/HashingAlgorithms/SecureHashAlgorithm3.py) - [Python Tests](https://github.com/jbarbourmoore/Cryptography-Exploration/blob/0a5b12a1dcd05a0785b3af13584fc09e29bb1590/CryptographySchemes/UnitTest/SHA3_UnitTests.py)
     8. Message Authentication Codes - [README Section](#message-authentication-codes)
-        1. Keyed-Hash Message Authentication Code (HMAC) - [README Section](#keyed-hash-message-authentication-code-hmac)
-        2. CMAC Mode For Authentication - [README Section](#cmac-mode-for-authentication)
+        1. Keyed-Hash Message Authentication Code (HMAC) - [README Section](#keyed-hash-message-authentication-code-hmac) - [Python Code](https://github.com/jbarbourmoore/Cryptography-Exploration/blob/754b9c731626a64aa6448544444dfd5b0d2f5ab7/CryptographySchemes/MessageAuthenticationCodes/KeyedHashMessageAuthenticationCode.py) - [Python Tests](https://github.com/jbarbourmoore/Cryptography-Exploration/blob/754b9c731626a64aa6448544444dfd5b0d2f5ab7/CryptographySchemes/UnitTest/HMAC_UnitTests.py)
+        2. CMAC Mode For Authentication - [README Section](#cmac-mode-for-authentication) - [Python Code](https://github.com/jbarbourmoore/Cryptography-Exploration/blob/754b9c731626a64aa6448544444dfd5b0d2f5ab7/CryptographySchemes/MessageAuthenticationCodes/KeyedHashMessageAuthenticationCode.py) - [Python Tests](https://github.com/jbarbourmoore/Cryptography-Exploration/blob/754b9c731626a64aa6448544444dfd5b0d2f5ab7/CryptographySchemes/UnitTest/CMAC_UnitTests.py)
     9. Historical Cyphers - [README Section](#historical-cyphers)
-        1. Caesar Cypher - [README Section](#caesar-cypher)
-        2. Multiplicative Cypher - [README Section](#multiplicative-cypher)
+        1. Caesar Cypher - [README Section](#caesar-cypher) - [Python Code](https://github.com/jbarbourmoore/Cryptography-Exploration/blob/754b9c731626a64aa6448544444dfd5b0d2f5ab7/CryptographySchemes/HistoricalCyphers/CaesarCypher.py)
+        2. Multiplicative Cypher - [README Section](#multiplicative-cypher) - [Python Code](https://github.com/jbarbourmoore/Cryptography-Exploration/blob/754b9c731626a64aa6448544444dfd5b0d2f5ab7/CryptographySchemes/HistoricalCyphers/MultiplicativeCypher.py)
 2. Bad Actor Methodologies - [README Section](#bad-actor-methodologies)
-    1. Shor's Algorithm Vs RSA - [README Section](#shors-algorithm-vs-rsa)
-    2. Brute Force Vs Caesar Cypher - [README Section](#brute-force-vs-caesar-cypher)
-    3. Brute Force Vs Multiplicative Cypher - [README Section](#brute-force-vs-multiplicative-cypher)
+    1. Shor's Algorithm Vs RSA - [README Section](#shors-algorithm-vs-rsa) - [Python Code](https://github.com/jbarbourmoore/Cryptography-Exploration/blob/754b9c731626a64aa6448544444dfd5b0d2f5ab7/BadActorMethodologies/ShorsAlgorithmVsRSA.py)
+    2. Brute Force Vs Caesar Cypher - [README Section](#brute-force-vs-caesar-cypher) - [Python Code](https://github.com/jbarbourmoore/Cryptography-Exploration/blob/754b9c731626a64aa6448544444dfd5b0d2f5ab7/BadActorMethodologies/BruteForceVsCaesarCypher.py)
+    3. Brute Force Vs Multiplicative Cypher - [README Section](#brute-force-vs-multiplicative-cypher) - [Python Code](https://github.com/jbarbourmoore/Cryptography-Exploration/blob/754b9c731626a64aa6448544444dfd5b0d2f5ab7/BadActorMethodologies/BruteForceVsMultiplicativeCypher.py)
 
 ## Cryptography Schemes  
 
