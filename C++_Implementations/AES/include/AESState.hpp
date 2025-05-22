@@ -3,15 +3,35 @@
 /// @brief This class should include the cypher and most of the necessary components for Advanced Encryption Standard
 /// as laid out in nist fips 197 https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.197-upd1.pdf
 class AES{
+    protected :
+        /// @brief The array of values for the round constants from NIST FIPS 197 Table 5. "Round constants"
+        static const unsigned char RNDCONST[10][4];
+
+};
+
+struct AESState{
+
+    private :
+        unsigned char s[16];
+
     public :
+        /// @brief This method initializes an AES state of 0
+        AESState();
+
+        /// @brief This method initializes an AES State with a copy of s_input
+        /// @param s_input The unsigned character array of values to assign to the AES State
+        AESState(unsigned char* s_input);
+
+        /// @brief This method gets the unsigned character at a given index
+        /// @param index The index at which to get the unsigned character
+        /// @return The byte that is at the index
+        unsigned char getByte(int index);
+
         /// @brief The array of values for substitution from NIST FIPS 197 : Table 4. "SBOX(): substitution values for the byte xy (in hexadecimal format)"
         static const unsigned char SBOX[256];
 
         /// @brief The array of values for inverse substitution from NIST FIPS 197 : Table 6. "INVSBOX(): substitution values for the byte xy (in hexadecimal format)"
         static const unsigned char INVSBOX[256];
-
-        /// @brief The array of values for the round constants from NIST FIPS 197 Table 5. "Round constants"
-        static const unsigned char RNDCONST[10][4];
 
         /// @brief The array of values for the mix columns constants from NIST FIPS 197 Section 5.1.3 "MixColumns()"
         static const unsigned char MIXCOLS[16];
@@ -33,15 +53,29 @@ class AES{
         static int cr2i(int c, int r, int max_c = 4);
 
         /// @brief This method performs the mix columns function from Figure 4 "Illustration of MIXCOLUMNS()" of Nist Fips 197
-        /// @param s The state as an unsigned character array
-        static void mixColumns(unsigned char *s);
+        void mixColumns();
 
         /// @brief This method performs the inverse mix columns function from Figure 4 "Illustration of MIXCOLUMNS()" of Nist Fips 197
-        /// @param s The state as an unsigned character array
-        static void invMixColumns(unsigned char *s);
+        void invMixColumns();
 
-        /// @brief This method prints a 4x4 matrix to the console
-        /// @param s The matrix to be printed
-        static void print4x4Matrix(unsigned char *s);
+        /// @brief This method prints the state as a 4x4 matrix to the console
+        void printState();
 
+        /// @brief This method substitutes bytes according to the substitution matrix from Figure 2 in NIST FIPS 197  "Illustration of SUBBYTES()"
+        void subBytes();
+
+        /// @brief This method substitutes bytes according to the inverse substitution matrix from Section 5.3.2 "INVSUBBYTES()" of NIST FIPS 197
+        void invSubBytes();
+
+        /// @brief This method performs the shift rows function as defined in NIST FIPS 197 section 5.1.2 "SHIFTROWS()"
+        void shiftRows();
+
+        /// @brief This method performs the inverse shift rows function as defined in NIST FIPS 197 section 5.3.1 "INVSHIFTROWS()"
+        void invShiftRows();
+
+        /// @brief The function takes the modulus of a value in case the value is negative
+        /// @param value the value that we are taking the modulus of
+        /// @param modulo the modulus
+        /// @return The modulus value that is calculated
+        static unsigned char mod(unsigned char value, unsigned char modulo);
 };

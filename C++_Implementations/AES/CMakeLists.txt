@@ -9,7 +9,7 @@ target_include_directories(AES_lib
 
 target_sources(AES_lib
     PRIVATE
-        src/AES.cpp
+        src/AESState.cpp
         src/AESConstants.cpp
         )
 

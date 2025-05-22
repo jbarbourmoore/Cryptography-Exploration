@@ -1,6 +1,6 @@
-#include "AES.hpp"
+#include "AESState.hpp"
 
-unsigned char AES::xTimes(unsigned char byte_to_multiply, int mult_factor){\
+unsigned char AESState::xTimes(unsigned char byte_to_multiply, int mult_factor){\
     unsigned char result = 0;
     if(mult_factor == 1){
         result = byte_to_multiply;
@@ -25,11 +25,11 @@ unsigned char AES::xTimes(unsigned char byte_to_multiply, int mult_factor){\
     return result;
 }
 
-int AES::cr2i(int c, int r, int max_c){
+int AESState::cr2i(int c, int r, int max_c){
     return r * max_c + c;
 }
 
-void AES::mixColumns(unsigned char *s){
+void AESState::mixColumns(){
     unsigned char temp[16];
     for (int r = 0; r < 4; r++){
         for (int c = 0; c < 4; c++){
@@ -46,7 +46,7 @@ void AES::mixColumns(unsigned char *s){
     }
 }
 
-void AES::invMixColumns(unsigned char *s){
+void AESState::invMixColumns(){
     unsigned char temp[16];
     for (int r = 0; r < 4; r++){
         for (int c = 0; c < 4; c++){
@@ -62,11 +62,67 @@ void AES::invMixColumns(unsigned char *s){
     }
 }
 
-void AES::print4x4Matrix(unsigned char *s){
+void AESState::printState(){
     for(int r = 0; r < 4; r++){
         for(int c= 0; c < 4; c++){
-            printf("%.2x ", s[AES::cr2i(c, r)]);
+            printf("%.2x ", s[cr2i(c, r)]);
         }
         printf("\n");
     }
+}
+
+void AESState::subBytes(){
+    for (int i = 0; i < 16; i++){
+        s[i] = SBOX[s[i]];
+    }
+}
+
+void AESState::invSubBytes(){
+    for (int i = 0; i < 16; i++){
+        s[i] = INVSBOX[s[i]];
+    }
+}
+
+void AESState::shiftRows(){
+    unsigned char temp[16];
+    for (int r = 0; r < 4; r++){
+        for (int c = 0; c < 4; c++){
+            temp[cr2i(c, r)] = s[cr2i((c + r) % 4, r)];
+        }
+    }
+    for (int i = 0; i < 16; i++){
+        s[i] = temp[i];
+    }
+}
+
+void AESState::invShiftRows(){
+    unsigned char temp[16];
+    for (int r = 0; r < 4; r++){
+        for (int c = 0; c < 4; c++){
+            temp[cr2i(c, r)] = s[cr2i(mod(c - r, 4), r)];
+        }
+    }
+    for (int i = 0; i < 16; i++){
+        s[i] = temp[i];
+    }
+}
+
+AESState::AESState(){
+    for (int i = 0; i < 16; i ++){
+        s[i] = 0;
+    }
+}
+
+AESState::AESState(unsigned char *s_input){
+    for (int i = 0; i < 16; i ++){
+        s[i] = s_input[i];
+    }
+}
+
+unsigned char AESState::getByte(int index){
+    return s[index];
+}
+
+unsigned char AESState::mod(unsigned char value, unsigned char modulo){
+    return (value % modulo + modulo) % modulo;
 }
