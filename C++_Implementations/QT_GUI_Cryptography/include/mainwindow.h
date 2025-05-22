@@ -1,0 +1,63 @@
+#ifndef MAINWINDOW_H
+#define MAINWINDOW_H
+
+#include "RSAKeyGeneration.hpp"
+#include "CreateHashDigest.hpp"
+#include <QMainWindow>
+#include <string.h>
+#include <chrono>
+
+QT_BEGIN_NAMESPACE
+namespace Ui {
+class MainWindow;
+}
+QT_END_NAMESPACE
+
+class MainWindow : public QMainWindow
+{
+    Q_OBJECT
+
+public:
+    /// @brief This method instantiates the main window 
+    /// @param parent optional - The pointer to the QWidget that is this windows parent if one exists, default is nullptr
+    MainWindow(QWidget *parent = nullptr);
+
+    /// @brief This method destructs the main window
+    ~MainWindow();
+
+private slots:
+    
+    /// @brief This method generates RSA Keys when the 'Generate' button is clicked
+    void on_generate_button_clicked();
+
+    /// @brief This method encrypts the inputted hexadecimal string when the 'Encrypt' button is clicked
+    void on_encrypt_button_clicked();
+
+    /// @brief This method decrypts the inputted hexadecimal string when the 'Decrypt' button is clicked
+    void on_decrypt_button_clicked();
+
+    /// @brief This method generates the hash digests when the 'Hash' button is clicked
+    void on_hash_button_clicked();
+
+    /// @brief This method moved the text from the output text box to the input text box when the button is clicked
+    void on_rsa_swap_output_button_clicked();
+
+private:
+    /// @brief This variable holds the instantiated key generation object to be used
+    RSAKeyGeneration key_gen_;
+
+    /// @brief This variable holds the current RSA keys
+    RSAKeyGenerationResult rsa_keys_;
+
+    /// @brief This method updated the key length for the key_gen_ based on user selections from the drop down
+    void updateKeyLength();
+
+    /// @brief This method generated the rsa keys based on the information from the dropdowns such as key length and prime generation method.
+    /// @param use_key_quintuple_form Whether the private key being generated should be in quintuple form
+    /// @return The duration that the key generation took to run
+    double generateKeys(bool use_key_quintuple_form);
+
+    /// @brief The main UI object for the window
+    Ui::MainWindow *ui;
+};
+#endif // MAINWINDOW_H
