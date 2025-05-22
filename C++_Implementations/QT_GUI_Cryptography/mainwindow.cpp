@@ -6,7 +6,6 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    // Load an application style
 
     connect(ui->rsa_key_gen_button, SIGNAL(clicked()), this, SLOT(on_generate_button_clicked()));
     connect(ui->rsa_encrypt_button, SIGNAL(clicked()), this, SLOT(on_encrypt_button_clicked()));
@@ -134,42 +133,25 @@ void MainWindow::on_decrypt_button_clicked(){
 void MainWindow::on_hash_button_clicked(){
     QString input_qstring = ui->hash_in_text->toPlainText();
     if(input_qstring.isEmpty()){
-        ui->digest_text->setPlainText("Please enter a string to hash");
+        const char *input = "Please enter a string to hash";
+        ui->sha1_digest_text->setPlainText(input);
     }
     else{
-        int hash_alg_selected = ui->hash_alg_select->currentIndex();
         std::string hash_digest = "";
-        switch(hash_alg_selected){
-            case 0:{
-                hash_digest = CreateHashDigest::fromString(input_qstring.toStdString(),HashType::SHA1_DIGEST);
-                break;
-            }
-            case 1 : {
-                hash_digest = CreateHashDigest::fromString(input_qstring.toStdString(),HashType::SHA224_DIGEST);
-                break;
-            }
-            case 2 : {
-                hash_digest = CreateHashDigest::fromString(input_qstring.toStdString(),HashType::SHA256_DIGEST);
-                break;
-            }
-            case 3 :{
-                hash_digest = CreateHashDigest::fromString(input_qstring.toStdString(),HashType::SHA384_DIGEST);
-                break;
-            }
-            case 4 :{
-                hash_digest = CreateHashDigest::fromString(input_qstring.toStdString(),HashType::SHA512_DIGEST);
-                break;
-            }
-            case 5 :{
-                hash_digest = CreateHashDigest::fromString(input_qstring.toStdString(),HashType::SHA512_224_DIGEST);
-                break;
-            }
-            case 6 :{
-                hash_digest = CreateHashDigest::fromString(input_qstring.toStdString(),HashType::SHA512_256_DIGEST);
-                break;
-            }
-        }
-        ui->digest_text->setPlainText(hash_digest.c_str());
+        hash_digest = CreateHashDigest::fromString(input_qstring.toStdString(),HashType::SHA1_DIGEST);
+        ui->sha1_digest_text->setPlainText(hash_digest.c_str());
+        hash_digest = CreateHashDigest::fromString(input_qstring.toStdString(),HashType::SHA224_DIGEST);
+        ui->sha224_digest_text->setPlainText(hash_digest.c_str());
+        hash_digest = CreateHashDigest::fromString(input_qstring.toStdString(),HashType::SHA256_DIGEST);
+        ui->sha256_digest_text->setPlainText(hash_digest.c_str());
+        hash_digest = CreateHashDigest::fromString(input_qstring.toStdString(),HashType::SHA384_DIGEST);
+        ui->sha382_digest_text->setPlainText(hash_digest.c_str());
+        hash_digest = CreateHashDigest::fromString(input_qstring.toStdString(),HashType::SHA512_DIGEST);
+        ui->sha512_digest_text->setPlainText(hash_digest.c_str());
+        hash_digest = CreateHashDigest::fromString(input_qstring.toStdString(),HashType::SHA512_224_DIGEST);
+        ui->sha512_224_digest_text->setPlainText(hash_digest.c_str());
+        hash_digest = CreateHashDigest::fromString(input_qstring.toStdString(),HashType::SHA512_256_DIGEST);
+        ui->sha512_256_digest_text->setPlainText(hash_digest.c_str());
     }
 }
 

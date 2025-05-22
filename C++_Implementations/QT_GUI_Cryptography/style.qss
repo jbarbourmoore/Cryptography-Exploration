@@ -54,6 +54,7 @@ QFrame {
     padding: 2px;
 }
 QPlainTextEdit {
+    font-family: monospace;
     background-color: #1c171c;
 }
 
@@ -101,4 +102,7 @@ QComboBox {
 
 QComboBox::down-arrow {
     color:#23b5f0;
+}
+QLineEdit {
+    border: 1px solid #23b5f0;
 }
