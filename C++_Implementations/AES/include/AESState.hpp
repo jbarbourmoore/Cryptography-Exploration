@@ -1,13 +1,7 @@
+#ifndef AESState_HPP
+#define AESState_HPP
+
 #include <cstdio>
-
-/// @brief This class should include the cypher and most of the necessary components for Advanced Encryption Standard
-/// as laid out in nist fips 197 https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.197-upd1.pdf
-class AES{
-    protected :
-        /// @brief The array of values for the round constants from NIST FIPS 197 Table 5. "Round constants"
-        static const unsigned char RNDCONST[10][4];
-
-};
 
 struct AESState{
 
@@ -79,3 +73,6 @@ struct AESState{
         /// @return The modulus value that is calculated
         static unsigned char mod(unsigned char value, unsigned char modulo);
 };
+
+#endif
+
