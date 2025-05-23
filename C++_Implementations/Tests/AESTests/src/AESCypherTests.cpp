@@ -1,0 +1,233 @@
+#include <gtest/gtest.h>  
+#include <cstdio>
+
+#include "AES.hpp"
+
+TEST(AESCypher_Tests, aes128_cypher_test_1) {
+    unsigned char given_plain_text_array[16] = {0x6B, 0xC1, 0xBE, 0xE2, 0x2E, 0x40, 0x9F, 0x96, 0xE9, 0x3D, 0x7E, 0x11, 0x73, 0x93, 0x17, 0x2A};
+    unsigned char given_cypher_text_array[16] = {0x3A, 0xD7, 0x7B, 0xB4, 0x0D, 0x7A, 0x36, 0x60, 0xA8, 0x9E, 0xCA, 0xF3, 0x24, 0x66, 0xEF, 0x97};
+    unsigned char key_128[16] = {0x2b, 0x7e, 0x15, 0x16, 0x28, 0xae, 0xd2, 0xa6, 0xab, 0xf7, 0x15, 0x88, 0x09, 0xcf, 0x4f, 0x3c};
+    
+    AESDataBlock given_plain_text = AESDataBlock(given_plain_text_array);
+    AESDataBlock given_cypher_text = AESDataBlock(given_cypher_text_array);
+
+    printf("\nCypher Result With AES 128\n");
+    AESDataBlock actual_cypher_text = AES::AES128Cypher(given_plain_text, key_128);
+    actual_cypher_text.print();
+    printf("Inverse Cypher Result With AES 128\n");
+    AESDataBlock actual_plain_text = AES::AES128InvCypher(actual_cypher_text, key_128);
+    actual_plain_text.print();
+
+    EXPECT_EQ(actual_plain_text, given_plain_text);
+    EXPECT_EQ(actual_cypher_text, given_cypher_text);
+}
+
+TEST(AESCypher_Tests, aes192_cypher_test_1) {
+    unsigned char given_plain_text_array[16] = {0x6B, 0xC1, 0xBE, 0xE2, 0x2E, 0x40, 0x9F, 0x96, 0xE9, 0x3D, 0x7E, 0x11, 0x73, 0x93, 0x17, 0x2A};
+    unsigned char given_cypher_text_array[16] = {0xBD, 0x33, 0x4F, 0x1D, 0x6E, 0x45, 0xF2, 0x5F, 0xF7, 0x12, 0xA2, 0x14, 0x57, 0x1F, 0xA5, 0xCC};
+    unsigned char key_192[24] = {0x8e ,0x73 ,0xb0 ,0xf7 ,0xda ,0x0e, 0x64, 0x52, 0xc8, 0x10, 0xf3, 0x2b, 0x80, 0x90, 0x79, 0xe5, 0x62, 0xf8, 0xea, 0xd2, 0x52, 0x2c, 0x6b, 0x7b};
+    
+    AESDataBlock given_plain_text = AESDataBlock(given_plain_text_array);
+    AESDataBlock given_cypher_text = AESDataBlock(given_cypher_text_array);
+
+    printf("\nCypher Result With AES 192\n");
+    AESDataBlock actual_cypher_text = AES::AES192Cypher(given_plain_text, key_192);
+    actual_cypher_text.print();
+    printf("Inverse Cypher Result With AES 192\n");
+    AESDataBlock actual_plain_text = AES::AES192InvCypher(actual_cypher_text, key_192);
+    actual_plain_text.print();
+
+    EXPECT_EQ(actual_plain_text, given_plain_text);
+    EXPECT_EQ(actual_cypher_text, given_cypher_text);
+}
+
+TEST(AESCypher_Tests, aes256_cypher_test_1) {
+    unsigned char given_plain_text_array[16] = {0x6B, 0xC1, 0xBE, 0xE2, 0x2E, 0x40, 0x9F, 0x96, 0xE9, 0x3D, 0x7E, 0x11, 0x73, 0x93, 0x17, 0x2A};
+    unsigned char given_cypher_text_array[16] = {0xF3, 0xEE, 0xD1, 0xBD, 0xB5, 0xD2, 0xA0, 0x3C, 0x06, 0x4B, 0x5A, 0x7E, 0x3D, 0xB1, 0x81, 0xF8};
+    unsigned char key_256[32] = {0x60, 0x3d, 0xeb, 0x10, 0x15, 0xca, 0x71, 0xbe, 0x2b, 0x73, 0xae, 0xf0, 0x85, 0x7d, 0x77, 0x81, 0x1f, 0x35, 0x2c, 0x07, 0x3b, 0x61, 0x08, 0xd7, 0x2d, 0x98, 0x10, 0xa3, 0x09, 0x14, 0xdf, 0xf4};
+    
+    AESDataBlock given_plain_text = AESDataBlock(given_plain_text_array);
+    AESDataBlock given_cypher_text = AESDataBlock(given_cypher_text_array);
+
+    printf("\nCypher Result With AES 256\n");
+    AESDataBlock actual_cypher_text = AES::AES256Cypher(given_plain_text, key_256);
+    actual_cypher_text.print();
+    printf("Inverse Cypher Result With AES 256\n");
+    AESDataBlock actual_plain_text = AES::AES256InvCypher(actual_cypher_text, key_256);
+    actual_plain_text.print();
+
+    EXPECT_EQ(actual_plain_text, given_plain_text);
+    EXPECT_EQ(actual_cypher_text, given_cypher_text);
+}
+
+TEST(AESCypher_Tests, aes128_cypher_test_2) {
+    unsigned char given_plain_text_array[16] = {0xAE, 0x2D, 0x8A, 0x57, 0x1E, 0x03, 0xAC, 0x9C, 0x9E,0xB7, 0x6F, 0xAC, 0x45, 0xAF, 0x8E, 0x51};
+    unsigned char given_cypher_text_array[16] = {0xF5, 0xD3, 0xD5, 0x85, 0x03, 0xB9, 0x69, 0x9D, 0xE7, 0x85, 0x89, 0x5A, 0x96, 0xFD, 0xBA, 0xAF};
+    unsigned char key_128[16] = {0x2b, 0x7e, 0x15, 0x16, 0x28, 0xae, 0xd2, 0xa6, 0xab, 0xf7, 0x15, 0x88, 0x09, 0xcf, 0x4f, 0x3c};
+    
+    AESDataBlock given_plain_text = AESDataBlock(given_plain_text_array);
+    AESDataBlock given_cypher_text = AESDataBlock(given_cypher_text_array);
+
+    printf("\nCypher Result With AES 128\n");
+    AESDataBlock actual_cypher_text = AES::AES128Cypher(given_plain_text, key_128);
+    actual_cypher_text.print();
+    printf("Inverse Cypher Result With AES 128\n");
+    AESDataBlock actual_plain_text = AES::AES128InvCypher(actual_cypher_text, key_128);
+    actual_plain_text.print();
+
+    EXPECT_EQ(actual_plain_text, given_plain_text);
+    EXPECT_EQ(actual_cypher_text, given_cypher_text);
+}
+
+TEST(AESCypher_Tests, aes192_cypher_test_2) {
+    unsigned char given_plain_text_array[16] = {0xAE, 0x2D, 0x8A, 0x57, 0x1E, 0x03, 0xAC, 0x9C, 0x9E,0xB7, 0x6F, 0xAC, 0x45, 0xAF, 0x8E, 0x51};
+    unsigned char given_cypher_text_array[16] = {0x97, 0x41, 0x04, 0x84, 0x6D, 0x0A, 0xD3, 0xAD, 0x77, 0x34, 0xEC, 0xB3, 0xEC, 0xEE, 0x4E, 0xEF};
+    unsigned char key_192[24] = {0x8e ,0x73 ,0xb0 ,0xf7 ,0xda ,0x0e, 0x64, 0x52, 0xc8, 0x10, 0xf3, 0x2b, 0x80, 0x90, 0x79, 0xe5, 0x62, 0xf8, 0xea, 0xd2, 0x52, 0x2c, 0x6b, 0x7b};
+    
+    AESDataBlock given_plain_text = AESDataBlock(given_plain_text_array);
+    AESDataBlock given_cypher_text = AESDataBlock(given_cypher_text_array);
+
+    printf("\nCypher Result With AES 192\n");
+    AESDataBlock actual_cypher_text = AES::AES192Cypher(given_plain_text, key_192);
+    actual_cypher_text.print();
+    printf("Inverse Cypher Result With AES 192\n");
+    AESDataBlock actual_plain_text = AES::AES192InvCypher(actual_cypher_text, key_192);
+    actual_plain_text.print();
+
+    EXPECT_EQ(actual_plain_text, given_plain_text);
+    EXPECT_EQ(actual_cypher_text, given_cypher_text);
+}
+
+TEST(AESCypher_Tests, aes256_cypher_test_2) {
+    unsigned char given_plain_text_array[16] = {0xAE, 0x2D, 0x8A, 0x57, 0x1E, 0x03, 0xAC, 0x9C, 0x9E,0xB7, 0x6F, 0xAC, 0x45, 0xAF, 0x8E, 0x51};
+    unsigned char given_cypher_text_array[16] = {0x43, 0xB1, 0xCD, 0x7F, 0x59, 0x8E, 0xCE, 0x23, 0x88, 0x1B, 0x00, 0xE3, 0xED, 0x03, 0x06, 0x88};
+    unsigned char key_256[32] = {0x60, 0x3d, 0xeb, 0x10, 0x15, 0xca, 0x71, 0xbe, 0x2b, 0x73, 0xae, 0xf0, 0x85, 0x7d, 0x77, 0x81, 0x1f, 0x35, 0x2c, 0x07, 0x3b, 0x61, 0x08, 0xd7, 0x2d, 0x98, 0x10, 0xa3, 0x09, 0x14, 0xdf, 0xf4};
+    
+    AESDataBlock given_plain_text = AESDataBlock(given_plain_text_array);
+    AESDataBlock given_cypher_text = AESDataBlock(given_cypher_text_array);
+
+    printf("\nCypher Result With AES 256\n");
+    AESDataBlock actual_cypher_text = AES::AES256Cypher(given_plain_text, key_256);
+    actual_cypher_text.print();
+    printf("Inverse Cypher Result With AES 256\n");
+    AESDataBlock actual_plain_text = AES::AES256InvCypher(actual_cypher_text, key_256);
+    actual_plain_text.print();
+
+    EXPECT_EQ(actual_plain_text, given_plain_text);
+    EXPECT_EQ(actual_cypher_text, given_cypher_text);
+}
+
+
+TEST(AESCypher_Tests, aes128_cypher_test_3) {
+    unsigned char given_plain_text_array[16] = {0x30, 0xC8, 0x1C, 0x46, 0xA3, 0x5C, 0xE4, 0x11, 0xE5, 0xFB, 0xC1, 0x19, 0x1A, 0x0A, 0x52, 0xEF};
+    unsigned char given_cypher_text_array[16] = {0x43, 0xB1, 0xCD, 0x7F, 0x59, 0x8E, 0xCE, 0x23, 0x88, 0x1B, 0x00, 0xE3, 0xED, 0x03, 0x06, 0x88};
+    unsigned char key_128[16] = {0x2b, 0x7e, 0x15, 0x16, 0x28, 0xae, 0xd2, 0xa6, 0xab, 0xf7, 0x15, 0x88, 0x09, 0xcf, 0x4f, 0x3c};
+    
+    AESDataBlock given_plain_text = AESDataBlock(given_plain_text_array);
+    AESDataBlock given_cypher_text = AESDataBlock(given_cypher_text_array);
+
+    printf("\nCypher Result With AES 128\n");
+    AESDataBlock actual_cypher_text = AES::AES128Cypher(given_plain_text, key_128);
+    actual_cypher_text.print();
+    printf("Inverse Cypher Result With AES 128\n");
+    AESDataBlock actual_plain_text = AES::AES128InvCypher(actual_cypher_text, key_128);
+    actual_plain_text.print();
+
+    EXPECT_EQ(actual_plain_text, given_plain_text);
+    EXPECT_EQ(actual_cypher_text, given_cypher_text);
+}
+
+TEST(AESCypher_Tests, aes192_cypher_test_3) {
+    unsigned char given_plain_text_array[16] = {0x30, 0xC8, 0x1C, 0x46, 0xA3, 0x5C, 0xE4, 0x11, 0xE5, 0xFB, 0xC1, 0x19, 0x1A, 0x0A, 0x52, 0xEF};
+    unsigned char given_cypher_text_array[16] = {0xEF, 0x7A, 0xFD, 0x22, 0x70, 0xE2, 0xE6, 0x0A, 0xDC, 0xE0, 0xBA, 0x2F, 0xAC, 0xE6, 0x44, 0x4E};
+    unsigned char key_192[24] = {0x8e ,0x73 ,0xb0 ,0xf7 ,0xda ,0x0e, 0x64, 0x52, 0xc8, 0x10, 0xf3, 0x2b, 0x80, 0x90, 0x79, 0xe5, 0x62, 0xf8, 0xea, 0xd2, 0x52, 0x2c, 0x6b, 0x7b};
+    
+    AESDataBlock given_plain_text = AESDataBlock(given_plain_text_array);
+    AESDataBlock given_cypher_text = AESDataBlock(given_cypher_text_array);
+
+    printf("\nCypher Result With AES 192\n");
+    AESDataBlock actual_cypher_text = AES::AES192Cypher(given_plain_text, key_192);
+    actual_cypher_text.print();
+    printf("Inverse Cypher Result With AES 192\n");
+    AESDataBlock actual_plain_text = AES::AES192InvCypher(actual_cypher_text, key_192);
+    actual_plain_text.print();
+
+    EXPECT_EQ(actual_plain_text, given_plain_text);
+    EXPECT_EQ(actual_cypher_text, given_cypher_text);
+}
+
+TEST(AESCypher_Tests, aes256_cypher_test_3) {
+    unsigned char given_plain_text_array[16] = {0x30, 0xC8, 0x1C, 0x46, 0xA3, 0x5C, 0xE4, 0x11, 0xE5, 0xFB, 0xC1, 0x19, 0x1A, 0x0A, 0x52, 0xEF};
+    unsigned char given_cypher_text_array[16] = {0xB6, 0xED, 0x21, 0xB9, 0x9C, 0xA6, 0xF4, 0xF9, 0xF1, 0x53, 0xE7, 0xB1, 0xBE, 0xAF, 0xED, 0x1D};
+    unsigned char key_256[32] = {0x60, 0x3d, 0xeb, 0x10, 0x15, 0xca, 0x71, 0xbe, 0x2b, 0x73, 0xae, 0xf0, 0x85, 0x7d, 0x77, 0x81, 0x1f, 0x35, 0x2c, 0x07, 0x3b, 0x61, 0x08, 0xd7, 0x2d, 0x98, 0x10, 0xa3, 0x09, 0x14, 0xdf, 0xf4};
+    
+    AESDataBlock given_plain_text = AESDataBlock(given_plain_text_array);
+    AESDataBlock given_cypher_text = AESDataBlock(given_cypher_text_array);
+
+    printf("\nCypher Result With AES 256\n");
+    AESDataBlock actual_cypher_text = AES::AES256Cypher(given_plain_text, key_256);
+    actual_cypher_text.print();
+    printf("Inverse Cypher Result With AES 256\n");
+    AESDataBlock actual_plain_text = AES::AES256InvCypher(actual_cypher_text, key_256);
+    actual_plain_text.print();
+
+    EXPECT_EQ(actual_plain_text, given_plain_text);
+    EXPECT_EQ(actual_cypher_text, given_cypher_text);
+}
+
+TEST(AESCypher_Tests, aes128_cypher_test_4) {
+    unsigned char given_plain_text_array[16] = {0xF6, 0x9F, 0x24, 0x45, 0xDF, 0x4F, 0x9B, 0x17, 0xAD, 0x2B, 0x41, 0x7B, 0xE6, 0x6C, 0x37, 0x10};
+    unsigned char given_cypher_text_array[16] = {0x7B, 0x0C, 0x78, 0x5E, 0x27, 0xE8, 0xAD, 0x3F, 0x82, 0x23, 0x20, 0x71, 0x04, 0x72, 0x5D, 0xD4};
+    unsigned char key_128[16] = {0x2b, 0x7e, 0x15, 0x16, 0x28, 0xae, 0xd2, 0xa6, 0xab, 0xf7, 0x15, 0x88, 0x09, 0xcf, 0x4f, 0x3c};
+    
+    AESDataBlock given_plain_text = AESDataBlock(given_plain_text_array);
+    AESDataBlock given_cypher_text = AESDataBlock(given_cypher_text_array);
+
+    printf("\nCypher Result With AES 128\n");
+    AESDataBlock actual_cypher_text = AES::AES128Cypher(given_plain_text, key_128);
+    actual_cypher_text.print();
+    printf("Inverse Cypher Result With AES 128\n");
+    AESDataBlock actual_plain_text = AES::AES128InvCypher(actual_cypher_text, key_128);
+    actual_plain_text.print();
+
+    EXPECT_EQ(actual_plain_text, given_plain_text);
+    EXPECT_EQ(actual_cypher_text, given_cypher_text);
+}
+
+TEST(AESCypher_Tests, aes192_cypher_test_4) {
+    unsigned char given_plain_text_array[16] = {0xF6, 0x9F, 0x24, 0x45, 0xDF, 0x4F, 0x9B, 0x17, 0xAD, 0x2B, 0x41, 0x7B, 0xE6, 0x6C, 0x37, 0x10};
+    unsigned char given_cypher_text_array[16] = {0x9A, 0x4B, 0x41, 0xBA, 0x73, 0x8D, 0x6C, 0x72, 0xFB, 0x16, 0x69, 0x16, 0x03, 0xC1, 0x8E, 0x0E};
+    unsigned char key_192[24] = {0x8e ,0x73 ,0xb0 ,0xf7 ,0xda ,0x0e, 0x64, 0x52, 0xc8, 0x10, 0xf3, 0x2b, 0x80, 0x90, 0x79, 0xe5, 0x62, 0xf8, 0xea, 0xd2, 0x52, 0x2c, 0x6b, 0x7b};
+    
+    AESDataBlock given_plain_text = AESDataBlock(given_plain_text_array);
+    AESDataBlock given_cypher_text = AESDataBlock(given_cypher_text_array);
+
+    printf("\nCypher Result With AES 192\n");
+    AESDataBlock actual_cypher_text = AES::AES192Cypher(given_plain_text, key_192);
+    actual_cypher_text.print();
+    printf("Inverse Cypher Result With AES 192\n");
+    AESDataBlock actual_plain_text = AES::AES192InvCypher(actual_cypher_text, key_192);
+    actual_plain_text.print();
+
+    EXPECT_EQ(actual_plain_text, given_plain_text);
+    EXPECT_EQ(actual_cypher_text, given_cypher_text);
+}
+
+TEST(AESCypher_Tests, aes256_cypher_test_4) {
+    unsigned char given_plain_text_array[16] = {0xF6, 0x9F, 0x24, 0x45, 0xDF, 0x4F, 0x9B, 0x17, 0xAD, 0x2B, 0x41, 0x7B, 0xE6, 0x6C, 0x37, 0x10};
+    unsigned char given_cypher_text_array[16] = {0x23, 0x30, 0x4B, 0x7A, 0x39, 0xF9, 0xF3, 0xFF, 0x06, 0x7D, 0x8D, 0x8F, 0x9E, 0x24, 0xEC, 0xC7};
+    unsigned char key_256[32] = {0x60, 0x3d, 0xeb, 0x10, 0x15, 0xca, 0x71, 0xbe, 0x2b, 0x73, 0xae, 0xf0, 0x85, 0x7d, 0x77, 0x81, 0x1f, 0x35, 0x2c, 0x07, 0x3b, 0x61, 0x08, 0xd7, 0x2d, 0x98, 0x10, 0xa3, 0x09, 0x14, 0xdf, 0xf4};
+    
+    AESDataBlock given_plain_text = AESDataBlock(given_plain_text_array);
+    AESDataBlock given_cypher_text = AESDataBlock(given_cypher_text_array);
+
+    printf("\nCypher Result With AES 256\n");
+    AESDataBlock actual_cypher_text = AES::AES256Cypher(given_plain_text, key_256);
+    actual_cypher_text.print();
+    printf("Inverse Cypher Result With AES 256\n");
+    AESDataBlock actual_plain_text = AES::AES256InvCypher(actual_cypher_text, key_256);
+    actual_plain_text.print();
+
+    EXPECT_EQ(actual_plain_text, given_plain_text);
+    EXPECT_EQ(actual_cypher_text, given_cypher_text);
+}

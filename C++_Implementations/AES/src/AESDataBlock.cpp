@@ -18,13 +18,26 @@ AESDataBlock::AESDataBlock(unsigned char* input){
     }
 }
 
-void AESDataBlock::print() const{
-    for(int i = 0; i < byte_length; i ++){
-        printf("0x%.2X", data_block[i]);
-        if(i < byte_length - 1){
-            printf(", ");
+AESDataBlock::AESDataBlock(std::string input, bool is_hex){
+    if (is_hex){
+        for (int i = 0; i < byte_length; i ++){
+            data_block[i] = std::stoul(input.substr(i*2,2), nullptr, 16);
         }
     }
+}
+
+void AESDataBlock::print(bool with_char_formatting) const{
+    for(int i = 0; i < byte_length; i ++){
+        if (with_char_formatting) {
+            printf("0x%.2X", data_block[i]);
+            if(i < byte_length - 1){
+                printf(", ");
+            }
+        } else {
+            printf("%.2X", data_block[i]);
+        }
+    }
+    printf("\n");
 }
 
 unsigned char AESDataBlock::getByte(int index) const{

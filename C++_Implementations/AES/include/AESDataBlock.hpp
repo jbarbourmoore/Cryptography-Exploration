@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <cstdio>
+#include <string>
 
 class AESDataBlock {
     private :
@@ -25,8 +26,17 @@ class AESDataBlock {
         /// @param input 
         AESDataBlock(unsigned char* input);
 
+        /// @brief This method initializes an AESDataBlock by copying over an unsigned char
+        /// @param input 
+
+        /// @brief This method initializes an AESDataBlock by copying over an unsigned char
+        /// @param input 
+        /// @param is_hex Whether the string is a hex string, default is true
+        AESDataBlock(std::string input, bool is_hex = true);
+
         /// @brief This method prints out the bytes from the data block
-        void print() const;
+        /// @param with_char_formatting Whether the print statement should be spaced like a character array, default is true
+        void print(bool with_char_formatting = true) const;
 
         void setByte(int index, unsigned char byte_to_set);
 
