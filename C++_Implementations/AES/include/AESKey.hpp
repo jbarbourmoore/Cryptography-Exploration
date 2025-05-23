@@ -4,7 +4,7 @@
 #include "AESConstants.hpp"
 #include "AESWord.hpp"
 #include <vector>
-#include <array>
+#include <string>
 #include <stdio.h>
 
 
@@ -20,6 +20,11 @@ class AESKey{
         /// @param key_type Which AES variant the key is for
         /// @return The expanded key
         static std::vector<AESWord> keyExpansion(unsigned char *key, AESKeyTypes key_type);
+
+        /// @brief This method performs key expansion is the key is passed as a c_str
+        /// @param key The key that is to be expanded
+        /// @return The expanded key
+        static std::vector<AESWord> keyExpansion(std::string key);
 
         /// @brief This method gets the key length in bits
         /// @param key_type Which AES variant is being queried

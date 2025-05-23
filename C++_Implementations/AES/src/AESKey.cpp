@@ -40,6 +40,31 @@ std::vector<AESWord> AESKey::keyExpansion(unsigned char *key, AESKeyTypes key_ty
     return w;
 }
 
+std::vector<AESWord> AESKey::keyExpansion(std::string key){
+    int string_length = key.size();
+    std::vector<AESWord> w;
+    if(string_length == 32){
+        unsigned char key_bytes[16];
+        for (int i = 0; i < 16; i ++){
+            key_bytes[i] = std::stoul(key.substr(i*2,2), nullptr, 16);
+        }
+        w = keyExpansion(key_bytes, AES_KEY_128);
+    } else if (string_length == 48){
+        unsigned char key_bytes[24];
+        for (int i = 0; i < 24; i ++){
+            key_bytes[i] = std::stoul(key.substr(i*2,2), nullptr, 16);
+        }
+        w = keyExpansion(key_bytes, AES_KEY_192);
+    } else if (string_length == 64){
+        unsigned char key_bytes[32];
+        for (int i = 0; i < 32; i ++){
+            key_bytes[i] = std::stoul(key.substr(i*2,2), nullptr, 16);
+        }
+        w = keyExpansion(key_bytes, AES_KEY_256);
+    }
+    return w;
+}
+
 int AESKey::getKeyLength(AESKeyTypes key_type){
     int key_length = 192;
     if(key_type == AESKeyTypes::AES_KEY_192){
