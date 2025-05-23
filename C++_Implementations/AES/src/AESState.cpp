@@ -33,10 +33,10 @@ void AESState::mixColumns(){
     unsigned char temp[16];
     for (int r = 0; r < 4; r++){
         for (int c = 0; c < 4; c++){
-            unsigned char mult1 = xTimes(s[cr2i(c, 0)], MIXCOLS[cr2i(0, r)]);
-            unsigned char mult2 = xTimes(s[cr2i(c, 1)], MIXCOLS[cr2i(1, r)]);
-            unsigned char mult3 = xTimes(s[cr2i(c, 2)], MIXCOLS[cr2i(2, r)]);
-            unsigned char mult4 = xTimes(s[cr2i(c, 3)], MIXCOLS[cr2i(3, r)]);
+            unsigned char mult1 = xTimes(s[cr2i(c, 0)], AESConstants::MIXCOLS[cr2i(0, r)]);
+            unsigned char mult2 = xTimes(s[cr2i(c, 1)], AESConstants::MIXCOLS[cr2i(1, r)]);
+            unsigned char mult3 = xTimes(s[cr2i(c, 2)], AESConstants::MIXCOLS[cr2i(2, r)]);
+            unsigned char mult4 = xTimes(s[cr2i(c, 3)], AESConstants::MIXCOLS[cr2i(3, r)]);
             // printf("%.2x ^ %.2x ^ %.2x ^ %.2x\n", mult1,mult2, mult3, mult4);
             temp[cr2i(c, r)] = mult1 ^ mult2 ^ mult3 ^ mult4;
         }
@@ -50,10 +50,10 @@ void AESState::invMixColumns(){
     unsigned char temp[16];
     for (int r = 0; r < 4; r++){
         for (int c = 0; c < 4; c++){
-            unsigned char mult1 = xTimes(s[cr2i(c, 0)], INVMIXCOLS[cr2i(0, r)]);
-            unsigned char mult2 = xTimes(s[cr2i(c, 1)], INVMIXCOLS[cr2i(1, r)]);
-            unsigned char mult3 = xTimes(s[cr2i(c, 2)], INVMIXCOLS[cr2i(2, r)]);
-            unsigned char mult4 = xTimes(s[cr2i(c, 3)], INVMIXCOLS[cr2i(3, r)]);
+            unsigned char mult1 = xTimes(s[cr2i(c, 0)], AESConstants::INVMIXCOLS[cr2i(0, r)]);
+            unsigned char mult2 = xTimes(s[cr2i(c, 1)], AESConstants::INVMIXCOLS[cr2i(1, r)]);
+            unsigned char mult3 = xTimes(s[cr2i(c, 2)], AESConstants::INVMIXCOLS[cr2i(2, r)]);
+            unsigned char mult4 = xTimes(s[cr2i(c, 3)], AESConstants::INVMIXCOLS[cr2i(3, r)]);
             temp[cr2i(c, r)] = mult1 ^ mult2 ^ mult3 ^ mult4;
         }
     }
@@ -73,13 +73,13 @@ void AESState::printState(){
 
 void AESState::subBytes(){
     for (int i = 0; i < 16; i++){
-        s[i] = SBOX[s[i]];
+        s[i] = AESConstants::SBOX[s[i]];
     }
 }
 
 void AESState::invSubBytes(){
     for (int i = 0; i < 16; i++){
-        s[i] = INVSBOX[s[i]];
+        s[i] = AESConstants::INVSBOX[s[i]];
     }
 }
 

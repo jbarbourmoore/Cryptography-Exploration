@@ -11,6 +11,8 @@ target_sources(AES_lib
     PRIVATE
         src/AESState.cpp
         src/AESConstants.cpp
+        src/AESKey.cpp
+        src/AES.cpp
         )
 
 target_link_libraries(AES_app
