@@ -10,17 +10,27 @@ AESState AES::input2State(unsigned char *input){
     return AESState(temp);
 }
 
-std::array<unsigned char, 16> AES::state2Output(AESState s){
-    std::array<unsigned char, 16> result;
+AESState AES::input2State(const AESDataBlock &input){
+    unsigned char temp[16];
     for (int r = 0; r < 4; r++){
         for (int c = 0; c < 4; c++){
-            result[r + 4 * c] = s.getByte(AESState::cr2i(c, r));
+            temp[AESState::cr2i(c, r)] = input.getByte(r + 4 * c);
+        }
+    }
+    return AESState(temp);
+}
+
+AESDataBlock AES::state2Output(AESState s){
+    AESDataBlock result = AESDataBlock();
+    for (int r = 0; r < 4; r++){
+        for (int c = 0; c < 4; c++){
+            result.setByte(r + 4 * c, s.getByte(AESState::cr2i(c, r)));
         }
     }
     return result;
 }
 
-AESState AES::cypher(unsigned char *input, int Nr,  std::vector<AESWord> w){
+AESState AES::cypher(AESDataBlock input, int Nr,  std::vector<AESWord> w){
     AESState state = input2State(input);
     std::array<AESWord, 4> wi = getRoundSubkey(0, w);
     state.addRoundKey(wi);
@@ -38,8 +48,8 @@ AESState AES::cypher(unsigned char *input, int Nr,  std::vector<AESWord> w){
     return state;
 }
 
-AESState AES::invCypher(std::array<unsigned char, 16> input, int Nr, std::vector<AESWord> w){
-    AESState state = input2State(input._M_elems);
+AESState AES::invCypher(AESDataBlock input, int Nr, std::vector<AESWord> w){
+    AESState state = input2State(input);
     std::array<AESWord, 4> wi = getRoundSubkey(Nr, w);
     state.addRoundKey(wi);
     for (int round = Nr - 1; round > 0; round--){
@@ -64,42 +74,84 @@ std::array<AESWord, 4> AES::getRoundSubkey(int round, std::vector<AESWord> w){
     return wi;
 }
 
-std::array<unsigned char, 16> AES::AES128Cypher(unsigned char *input, unsigned char *key){
+AESDataBlock AES::AES128Cypher(unsigned char *input, unsigned char *key){
     std::vector<AESWord> w = AESKey::keyExpansion(key, AES_KEY_128);
     int Nr = AESKey::getNr(AES_KEY_128);
     AESState state = cypher(input, Nr, w);
     return state2Output(state);
 }
 
-std::array<unsigned char, 16> AES::AES192Cypher(unsigned char *input, unsigned char *key){
+AESDataBlock AES::AES192Cypher(unsigned char *input, unsigned char *key){
     std::vector<AESWord> w = AESKey::keyExpansion(key, AES_KEY_192);
     int Nr = AESKey::getNr(AES_KEY_192);
     AESState state = cypher(input, Nr, w);
     return state2Output(state);
 }
 
-std::array<unsigned char, 16> AES::AES256Cypher(unsigned char *input, unsigned char *key){
+AESDataBlock AES::AES256Cypher(unsigned char *input, unsigned char *key){
     std::vector<AESWord> w = AESKey::keyExpansion(key, AES_KEY_256);
     int Nr = AESKey::getNr(AES_KEY_256);
     AESState state = cypher(input, Nr, w);
     return state2Output(state);
 }
 
-std::array<unsigned char, 16> AES::AES128InvCypher(std::array<unsigned char, 16> input, unsigned char *key){
+AESDataBlock AES::AES128Cypher(AESDataBlock input, unsigned char *key){
+    std::vector<AESWord> w = AESKey::keyExpansion(key, AES_KEY_128);
+    int Nr = AESKey::getNr(AES_KEY_128);
+    AESState state = cypher(input, Nr, w);
+    return state2Output(state);
+}
+
+AESDataBlock AES::AES192Cypher(AESDataBlock input, unsigned char *key){
+    std::vector<AESWord> w = AESKey::keyExpansion(key, AES_KEY_192);
+    int Nr = AESKey::getNr(AES_KEY_192);
+    AESState state = cypher(input, Nr, w);
+    return state2Output(state);
+}
+
+AESDataBlock AES::AES256Cypher(AESDataBlock input, unsigned char *key){
+    std::vector<AESWord> w = AESKey::keyExpansion(key, AES_KEY_256);
+    int Nr = AESKey::getNr(AES_KEY_256);
+    AESState state = cypher(input, Nr, w);
+    return state2Output(state);
+}
+
+AESDataBlock AES::AES128InvCypher(AESDataBlock input, unsigned char *key){
     std::vector<AESWord> w = AESKey::keyExpansion(key, AES_KEY_128);
     int Nr = AESKey::getNr(AES_KEY_128);
     AESState state = invCypher(input, Nr, w);
     return state2Output(state);
 }
 
-std::array<unsigned char, 16> AES::AES192InvCypher(std::array<unsigned char, 16> input, unsigned char *key){
+AESDataBlock AES::AES192InvCypher(AESDataBlock input, unsigned char *key){
     std::vector<AESWord> w = AESKey::keyExpansion(key, AES_KEY_192);
     int Nr = AESKey::getNr(AES_KEY_192);
     AESState state = invCypher(input, Nr, w);
     return state2Output(state);
 }
 
-std::array<unsigned char, 16> AES::AES256InvCypher(std::array<unsigned char, 16> input, unsigned char *key){
+AESDataBlock AES::AES256InvCypher(AESDataBlock input, unsigned char *key){
+    std::vector<AESWord> w = AESKey::keyExpansion(key, AES_KEY_256);
+    int Nr = AESKey::getNr(AES_KEY_256);
+    AESState state = invCypher(input, Nr, w);
+    return state2Output(state);
+}
+
+AESDataBlock AES::AES128InvCypher(unsigned char *input, unsigned char *key){
+    std::vector<AESWord> w = AESKey::keyExpansion(key, AES_KEY_128);
+    int Nr = AESKey::getNr(AES_KEY_128);
+    AESState state = invCypher(input, Nr, w);
+    return state2Output(state);
+}
+
+AESDataBlock AES::AES192InvCypher(unsigned char *input, unsigned char *key){
+    std::vector<AESWord> w = AESKey::keyExpansion(key, AES_KEY_192);
+    int Nr = AESKey::getNr(AES_KEY_192);
+    AESState state = invCypher(input, Nr, w);
+    return state2Output(state);
+}
+
+AESDataBlock AES::AES256InvCypher(unsigned char *input, unsigned char *key){
     std::vector<AESWord> w = AESKey::keyExpansion(key, AES_KEY_256);
     int Nr = AESKey::getNr(AES_KEY_256);
     AESState state = invCypher(input, Nr, w);

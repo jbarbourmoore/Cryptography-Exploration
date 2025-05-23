@@ -3,8 +3,6 @@
 /// Author        : Jamie Barbour-Moore
 /// Created       : 05/22/25
 
-#include "AESState.hpp"
-#include "AESKey.hpp"
 #include "AES.hpp"
 #include <cassert>
 
@@ -77,40 +75,40 @@ int main(int argc, char const *argv[])
 
     unsigned char hex_to_cypher[16] = {0x6B, 0xC1, 0xBE, 0xE2, 0x2E, 0x40, 0x9F, 0x96, 0xE9, 0x3D, 0x7E, 0x11, 0x73, 0x93, 0x17, 0x2A};
     
-    std::array<unsigned char, 16> cypher_hex = AES::AES128Cypher(hex_to_cypher, key_128);
+    AESDataBlock cypher_hex = AES::AES128Cypher(hex_to_cypher, key_128);
     printf("\nCypher Result With AES 128\n");
-    for(int i = 0; i < 16; i ++){
-        printf("%.2x", cypher_hex.at(i));
-    }
-    std::array<unsigned char, 16> inverse_cypher_hex = AES::AES128InvCypher(cypher_hex, key_128);
+    cypher_hex.print();
     printf("\nInverse Cypher Result With AES 128\n");
-    for(int i = 0; i < 16; i ++){
-        printf("%.2x", inverse_cypher_hex.at(i));
-    }
-
+    AESDataBlock inverse_cypher_hex = AES::AES128InvCypher(cypher_hex, key_128);
+    inverse_cypher_hex.print();
+    
     printf("\n");
     printf("\nCypher Result With AES 192\n");
-    std::array<unsigned char, 16> cypher_hex_192 = AES::AES192Cypher(hex_to_cypher, key_192);
-    for(int i = 0; i < 16; i ++){
-        printf("%.2x", cypher_hex_192.at(i));
-    }
-    std::array<unsigned char, 16> inverse_cypher_hex_192 = AES::AES192InvCypher(cypher_hex_192, key_192);
+    AESDataBlock cypher_hex_192 = AES::AES192Cypher(hex_to_cypher, key_192);
+    cypher_hex_192.print();
+    AESDataBlock inverse_cypher_hex_192 = AES::AES192InvCypher(cypher_hex_192, key_192);
     printf("\nInverse Cypher Result With AES 192\n");
-    for(int i = 0; i < 16; i ++){
-        printf("%.2x", inverse_cypher_hex_192.at(i));
-    }
+    inverse_cypher_hex_192.print();
 
     printf("\n");
     printf("\nCypher Result With AES 256\n");
-    std::array<unsigned char, 16> cypher_hex_256 = AES::AES256Cypher(hex_to_cypher, key_256);
-    for(int i = 0; i < 16; i ++){
-        printf("%.2x", cypher_hex_256.at(i));
-    }
-    std::array<unsigned char, 16> inverse_cypher_hex_256 = AES::AES256InvCypher(cypher_hex_256, key_256);
+    AESDataBlock cypher_hex_256 = AES::AES192Cypher(hex_to_cypher, key_256);
+    cypher_hex_256.print();
+    AESDataBlock inverse_cypher_hex_256 = AES::AES192InvCypher(cypher_hex_256, key_256);
     printf("\nInverse Cypher Result With AES 256\n");
-    for(int i = 0; i < 16; i ++){
-        printf("%.2x", inverse_cypher_hex_256.at(i));
-    }
+    inverse_cypher_hex_256.print();
+
+    // printf("\n");
+    // printf("\nCypher Result With AES 256\n");
+    // std::array<unsigned char, 16> cypher_hex_256 = AES::AES256Cypher(hex_to_cypher, key_256);
+    // for(int i = 0; i < 16; i ++){
+    //     printf("0x%.2x, ", cypher_hex_256.at(i));
+    // }
+    // std::array<unsigned char, 16> inverse_cypher_hex_256 = AES::AES256InvCypher(cypher_hex_256, key_256);
+    // printf("\nInverse Cypher Result With AES 256\n");
+    // for(int i = 0; i < 16; i ++){
+    //     printf("0x%.2x, ", inverse_cypher_hex_256.at(i));
+    // }
     printf("\n");
     return 0;
 }

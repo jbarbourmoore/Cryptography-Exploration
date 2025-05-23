@@ -14,6 +14,7 @@ target_sources(AES_lib
         src/AESKey.cpp
         src/AES.cpp
         src/AESWord.cpp
+        src/AESDataBlock.cpp
         )
 
 target_link_libraries(AES_app
