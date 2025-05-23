@@ -6,6 +6,7 @@ target_sources(AES_Tests
         src/AESKeyExpansionTests.cpp
         src/AESCypherTests.cpp
         src/ModesTests/AES_ECBTests.cpp
+        src/ModesTests/AES_CBCTests.cpp
         )
 
 target_link_libraries(AES_Tests 

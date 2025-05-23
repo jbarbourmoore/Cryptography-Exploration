@@ -17,6 +17,7 @@ target_sources(AES_lib
         src/AESWord.cpp
         src/AESDataBlock.cpp
         src/Modes/AES_ECB.cpp
+        src/Modes/AES_CBC.cpp
         )
 
 target_link_libraries(AES_app
