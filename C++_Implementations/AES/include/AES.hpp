@@ -47,24 +47,6 @@ class AES{
         /// @param input The input to the cypher
         /// @param key The key for the cypher
         /// @return The cypher text produced
-        static AESDataBlock AES128Cypher(unsigned char *input, unsigned char *key);
-
-        /// @brief This method perform the cypher for AES192
-        /// @param input The input to the cypher
-        /// @param key The key for the cypher
-        /// @return The cypher text produced
-        static AESDataBlock AES192Cypher(unsigned char *input, unsigned char *key);
-
-        /// @brief This method perform the cypher for AES256
-        /// @param input The input to the cypher
-        /// @param key The key for the cypher
-        /// @return The cypher text produced
-        static AESDataBlock AES256Cypher(unsigned char *input, unsigned char *key);
-
-        /// @brief This method perform the cypher for AES128
-        /// @param input The input to the cypher
-        /// @param key The key for the cypher
-        /// @return The cypher text produced
         static AESDataBlock AES128Cypher(AESDataBlock input, unsigned char *key);
 
         /// @brief This method perform the cypher for AES192
@@ -78,6 +60,24 @@ class AES{
         /// @param key The key for the cypher
         /// @return The cypher text produced
         static AESDataBlock AES256Cypher(AESDataBlock input, unsigned char *key);
+
+        /// @brief This method perform the cypher for AES128
+        /// @param input The input to the cypher
+        /// @param key The key for the cypher
+        /// @return The cypher text produced
+        static AESDataBlock AES128Cypher(AESDataBlock input, std::vector<AESWord> expanded_key);
+
+        /// @brief This method perform the cypher for AES192
+        /// @param input The input to the cypher
+        /// @param key The key for the cypher
+        /// @return The cypher text produced
+        static AESDataBlock AES192Cypher(AESDataBlock input, std::vector<AESWord> expanded_key);
+
+        /// @brief This method perform the cypher for AES256
+        /// @param input The input to the cypher
+        /// @param key The key for the cypher
+        /// @return The cypher text produced
+        static AESDataBlock AES256Cypher(AESDataBlock input, std::vector<AESWord> expanded_key);
 
         /// @brief This method perform the inverse cypher for AES128
         /// @param input The input to the inverse cypher
@@ -101,19 +101,19 @@ class AES{
         /// @param input The input to the inverse cypher
         /// @param key The key for the inverse cypher
         /// @return The plain text produced
-        static AESDataBlock AES128InvCypher(unsigned char *input, unsigned char *key);
+        static AESDataBlock AES128InvCypher(AESDataBlock input, std::vector<AESWord> expanded_key);
 
         /// @brief This method perform the inverse cypher for AES192
         /// @param input The input to the inverse cypher
         /// @param key The key for the inverse cypher
         /// @return The plain text produced
-        static AESDataBlock AES192InvCypher(unsigned char *input, unsigned char *key);
+        static AESDataBlock AES192InvCypher(AESDataBlock input, std::vector<AESWord> expanded_key);
 
         /// @brief This method perform the inverse cypher for AES256
         /// @param input The input to the inverse cypher
         /// @param key The key for the inverse cypher
         /// @return The plain text produced
-        static AESDataBlock AES256InvCypher(unsigned char *input, unsigned char *key);
+        static AESDataBlock AES256InvCypher(AESDataBlock input, std::vector<AESWord> expanded_key);
 };
 
 #endif
