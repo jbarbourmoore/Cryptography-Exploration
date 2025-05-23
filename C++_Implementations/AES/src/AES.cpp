@@ -38,6 +38,24 @@ AESState AES::cypher(unsigned char *input, int Nr,  std::vector<AESWord> w){
     return state;
 }
 
+AESState AES::invCypher(std::array<unsigned char, 16> input, int Nr, std::vector<AESWord> w){
+    AESState state = input2State(input._M_elems);
+    std::array<AESWord, 4> wi = getRoundSubkey(Nr, w);
+    state.addRoundKey(wi);
+    for (int round = Nr - 1; round > 0; round--){
+        state.invShiftRows();
+        state.invSubBytes();
+        wi = getRoundSubkey(round, w);
+        state.addRoundKey(wi);
+        state.invMixColumns();
+    }
+    state.invShiftRows();
+    state.invSubBytes();
+    wi = getRoundSubkey(0, w);
+    state.addRoundKey(wi);
+    return state;
+}
+
 std::array<AESWord, 4> AES::getRoundSubkey(int round, std::vector<AESWord> w){
     std::array<AESWord, 4> wi;
     for (int i = 0; i < 4; i ++){
@@ -64,5 +82,26 @@ std::array<unsigned char, 16> AES::AES256Cypher(unsigned char *input, unsigned c
     std::vector<AESWord> w = AESKey::keyExpansion(key, AES_KEY_256);
     int Nr = AESKey::getNr(AES_KEY_256);
     AESState state = cypher(input, Nr, w);
+    return state2Output(state);
+}
+
+std::array<unsigned char, 16> AES::AES128InvCypher(std::array<unsigned char, 16> input, unsigned char *key){
+    std::vector<AESWord> w = AESKey::keyExpansion(key, AES_KEY_128);
+    int Nr = AESKey::getNr(AES_KEY_128);
+    AESState state = invCypher(input, Nr, w);
+    return state2Output(state);
+}
+
+std::array<unsigned char, 16> AES::AES192InvCypher(std::array<unsigned char, 16> input, unsigned char *key){
+    std::vector<AESWord> w = AESKey::keyExpansion(key, AES_KEY_192);
+    int Nr = AESKey::getNr(AES_KEY_192);
+    AESState state = invCypher(input, Nr, w);
+    return state2Output(state);
+}
+
+std::array<unsigned char, 16> AES::AES256InvCypher(std::array<unsigned char, 16> input, unsigned char *key){
+    std::vector<AESWord> w = AESKey::keyExpansion(key, AES_KEY_256);
+    int Nr = AESKey::getNr(AES_KEY_256);
+    AESState state = invCypher(input, Nr, w);
     return state2Output(state);
 }

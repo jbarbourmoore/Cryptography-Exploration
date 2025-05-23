@@ -36,8 +36,10 @@ class AES{
         /// @param w The expanded key
         static AESState cypher(unsigned char *input, int Nr,  std::vector<AESWord> w);
 
+        static AESState invCypher(std::array<unsigned char, 16> input, int Nr, std::vector<AESWord> w);
+
     public:
-    
+
         /// @brief This method perform the cypher for AES128
         /// @param input The input to the cypher
         /// @param key The key for the cypher
@@ -55,6 +57,24 @@ class AES{
         /// @param key The key for the cypher
         /// @return The cypher text produced
         static std::array<unsigned char, 16> AES256Cypher(unsigned char *input, unsigned char *key);
+
+        /// @brief This method perform the inverse cypher for AES128
+        /// @param input The input to the inverse cypher
+        /// @param key The key for the inverse cypher
+        /// @return The plane text produced
+        static std::array<unsigned char, 16> AES128InvCypher(std::array<unsigned char, 16> input, unsigned char *key);
+
+        /// @brief This method perform the inverse cypher for AES192
+        /// @param input The input to the inverse cypher
+        /// @param key The key for the inverse cypher
+        /// @return The plane text produced
+        static std::array<unsigned char, 16> AES192InvCypher(std::array<unsigned char, 16> input, unsigned char *key);
+
+        /// @brief This method perform the inverse cypher for AES256
+        /// @param input The input to the inverse cypher
+        /// @param key The key for the inverse cypher
+        /// @return The plane text produced
+        static std::array<unsigned char, 16> AES256InvCypher(std::array<unsigned char, 16> input, unsigned char *key);
 };
 
 #endif
