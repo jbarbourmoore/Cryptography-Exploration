@@ -18,6 +18,13 @@ AESDataBlock::AESDataBlock(unsigned char* input){
     }
 }
 
+void AESDataBlock::xorBlock(AESDataBlock other){
+    for(int i = 0; i < byte_length; i ++){
+        data_block[i] = data_block[i] ^ other.getByte(i);
+    }
+}
+
+
 AESDataBlock::AESDataBlock(std::string input, bool is_hex){
     if (is_hex){
         for (int i = 0; i < byte_length; i ++){
@@ -56,4 +63,33 @@ bool AESDataBlock::operator==(const AESDataBlock &other) const{
         }
     }
     return is_equal;
+}
+
+std::vector<AESDataBlock> AESDataBlock::dataBlocksFromHexString(std::string input){
+    int block_size_hex = 32;
+    int num_blocks = input.size() / block_size_hex;
+    std::vector<AESDataBlock> data_blocks;
+
+    for (int i = 0; i < num_blocks; i++){
+        data_blocks.push_back(AESDataBlock(input.substr(i * block_size_hex, block_size_hex)));
+    }
+    return data_blocks;
+}
+
+std::string AESDataBlock::getString() const{
+    std::string result = "";
+    for(int i = 0; i < byte_length; i ++){
+        char buffer[3];
+        sprintf(buffer, "%.2x", data_block[i]);
+        result.append(buffer);
+    }
+    return result;
+}
+
+std::string AESDataBlock::hexStringFromDataBlocks(std::vector<AESDataBlock> input){
+    std::string output = "";
+    for (int i = 0; i < input.size(); i++){
+        output.append(input.at(i).getString());
+    }
+    return output;
 }

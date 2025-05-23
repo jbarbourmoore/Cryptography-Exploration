@@ -26,6 +26,10 @@ class AESDataBlock {
         /// @param input 
         AESDataBlock(unsigned char* input);
 
+         /// @brief This method performs a bytewise exclusive or operation with another AESDataBlock
+        /// @param other The other AESDataBlock to be XORed
+        void xorBlock(AESDataBlock other);
+
         /// @brief This method initializes an AESDataBlock by copying over an unsigned char
         /// @param input 
 
@@ -49,6 +53,15 @@ class AESDataBlock {
         /// @param other The other datablock that is being compared
         /// @return A boolean that is true if all the bytes are the same
         bool operator==(const AESDataBlock &other) const;
+
+        /// @brief This method gets a vector of AESDataBlocks from a single string in hexadecimal form
+        /// @param input The hexadecimal string for the input
+        /// @return the input as a vector of AES Data Blocks
+        static std::vector<AESDataBlock> dataBlocksFromHexString(std::string input);
+
+        std::string getString() const;
+
+        std::string hexStringFromDataBlocks(std::vector<AESDataBlock> input);
 };
 
 #endif

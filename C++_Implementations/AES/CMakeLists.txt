@@ -5,6 +5,7 @@ add_library(AES_lib)
 target_include_directories(AES_lib
     PUBLIC
         include/
+        include/Modes/
 )
 
 target_sources(AES_lib
@@ -15,6 +16,7 @@ target_sources(AES_lib
         src/AES.cpp
         src/AESWord.cpp
         src/AESDataBlock.cpp
+        src/Modes/AES_ECB.cpp
         )
 
 target_link_libraries(AES_app
