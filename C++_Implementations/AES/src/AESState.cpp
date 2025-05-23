@@ -107,10 +107,10 @@ void AESState::invShiftRows(){
     }
 }
 
-void AESState::addRoundKey(AESWord *round_key){
+void AESState::addRoundKey(std::array<AESWord, 4> round_key){
     for (int c = 0; c < 4; c++){
         AESWord temp = AESWord(s[cr2i(c , 0)], s[cr2i(c , 1)], s[cr2i(c , 2)], s[cr2i(c , 3)]);
-        temp.xorWord(round_key[c]);
+        temp.xorWord(round_key.at(c));
         for (int r = 0; r < 4; r++){
             s[cr2i(c , r)] = temp.getByte(r);
         }

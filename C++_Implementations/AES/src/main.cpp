@@ -5,6 +5,7 @@
 
 #include "AESState.hpp"
 #include "AESKey.hpp"
+#include "AES.hpp"
 #include <cassert>
 
 int main(int argc, char const *argv[])
@@ -73,5 +74,25 @@ int main(int argc, char const *argv[])
 
     unsigned char key_256[32] = {0x60, 0x3d, 0xeb, 0x10, 0x15, 0xca, 0x71, 0xbe, 0x2b, 0x73, 0xae, 0xf0, 0x85, 0x7d, 0x77, 0x81, 0x1f, 0x35, 0x2c, 0x07, 0x3b, 0x61, 0x08, 0xd7, 0x2d, 0x98, 0x10, 0xa3, 0x09, 0x14, 0xdf, 0xf4};
     AESKey::keyExpansion(key_256, AES_KEY_256);
+
+    unsigned char hex_to_cypher[16] = {0x6B, 0xC1, 0xBE, 0xE2, 0x2E, 0x40, 0x9F, 0x96, 0xE9, 0x3D, 0x7E, 0x11, 0x73, 0x93, 0x17, 0x2A};
+    
+    std::array<unsigned char, 16> cypher_hex = AES::AES128Cypher(hex_to_cypher, key_128);
+    for(int i = 0; i < 16; i ++){
+        printf("%.2x", cypher_hex.at(i));
+    }
+    printf("\n");
+
+    std::array<unsigned char, 16> cypher_hex_192 = AES::AES192Cypher(hex_to_cypher, key_192);
+    for(int i = 0; i < 16; i ++){
+        printf("%.2x", cypher_hex_192.at(i));
+    }
+    printf("\n");
+
+    std::array<unsigned char, 16> cypher_hex_256 = AES::AES256Cypher(hex_to_cypher, key_256);
+    for(int i = 0; i < 16; i ++){
+        printf("%.2x", cypher_hex_256.at(i));
+    }
+    printf("\n");
     return 0;
 }

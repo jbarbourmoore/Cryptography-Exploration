@@ -26,7 +26,7 @@ class AESWord{
 
         /// @brief This method is a copy instantiator
         /// @param input The AES word to be copied into the new word
-        AESWord(AESWord *input);
+        AESWord(const AESWord &input);
 
         /// @brief This method performs a bytewise exclusive or operation with another AESWord
         /// @param other The other AESWord to be XORed

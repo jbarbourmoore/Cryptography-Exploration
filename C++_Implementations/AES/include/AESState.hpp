@@ -5,6 +5,7 @@
 #include "AESWord.hpp"
 
 #include <cstdio>
+#include <array>
 
 struct AESState{
 
@@ -61,7 +62,7 @@ struct AESState{
 
         /// @brief This method performs the add round key function as defined in NIST FIPS 197 Section 5.1.4 "ADDROUNDKEY()"
         /// @param round_key 
-        void addRoundKey(AESWord *round_key);
+        void addRoundKey(std::array<AESWord, 4> round_key);
 
         /// @brief The function takes the modulus of a value in case the value is negative
         /// @param value the value that we are taking the modulus of

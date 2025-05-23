@@ -8,7 +8,7 @@ std::vector<AESWord> AESKey::keyExpansion(unsigned char *key, AESKeyTypes key_ty
     int i = 0;
     while (i < Nk) {
         w.push_back(AESWord(key[i*4],key[i*4+1],key[i*4+2],key[i*4+3]));
-        w.at(i).print();
+        // w.at(i).print();
         i++;
     }
     while (i < Nr * 4 + 4){
@@ -33,8 +33,8 @@ std::vector<AESWord> AESKey::keyExpansion(unsigned char *key, AESKeyTypes key_ty
         }
         temp.xorWord(w.at(i - Nk));
         w.push_back(temp);
-        printf("%d :",i);
-        temp.print();
+        // printf("%d :",i);
+        // temp.print();
         i++;
     }
     return w;

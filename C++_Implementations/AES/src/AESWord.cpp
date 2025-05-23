@@ -6,9 +6,9 @@ AESWord::AESWord(){
     }
 }
 
-AESWord::AESWord(AESWord *input){
+AESWord::AESWord(const AESWord &input){
     for (int i = 0; i  < 4; i++){
-        word[i] = input->word[i];
+        word[i] = input.getByte(i);
     }
 }
 
