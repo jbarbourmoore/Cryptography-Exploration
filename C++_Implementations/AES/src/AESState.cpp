@@ -62,7 +62,7 @@ void AESState::invMixColumns(){
     }
 }
 
-void AESState::printState(){
+void AESState::printState() const{
     for(int r = 0; r < 4; r++){
         for(int c= 0; c < 4; c++){
             printf("%.2x ", s[cr2i(c, r)]);
@@ -107,6 +107,16 @@ void AESState::invShiftRows(){
     }
 }
 
+void AESState::addRoundKey(AESWord *round_key){
+    for (int c = 0; c < 4; c++){
+        AESWord temp = AESWord(s[cr2i(c , 0)], s[cr2i(c , 1)], s[cr2i(c , 2)], s[cr2i(c , 3)]);
+        temp.xorWord(round_key[c]);
+        for (int r = 0; r < 4; r++){
+            s[cr2i(c , r)] = temp.getByte(r);
+        }
+    }
+}
+
 AESState::AESState(){
     for (int i = 0; i < 16; i ++){
         s[i] = 0;
@@ -119,10 +129,20 @@ AESState::AESState(unsigned char *s_input){
     }
 }
 
-unsigned char AESState::getByte(int index){
+unsigned char AESState::getByte(int index) const{
     return s[index];
 }
 
 unsigned char AESState::mod(unsigned char value, unsigned char modulo){
     return (value % modulo + modulo) % modulo;
+}
+
+bool AESState::operator==(const AESState &other) const{
+    bool is_equal = true;
+    for (int i = 0; i < 16; i++){
+        if (getByte(i) != other.getByte(i)){
+            is_equal = false;
+        }
+    }
+    return is_equal;
 }

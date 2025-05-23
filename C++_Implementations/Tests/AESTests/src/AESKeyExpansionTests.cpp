@@ -1,0 +1,55 @@
+#include <gtest/gtest.h>  
+#include <cstdio>
+
+#include "AESKey.hpp"
+
+TEST(AESKeyExpansion_Tests, aes128_keyexpansion_test) {
+
+    unsigned char key_128[16] = {0x2b, 0x7e, 0x15, 0x16, 0x28, 0xae, 0xd2, 0xa6, 0xab, 0xf7, 0x15, 0x88, 0x09, 0xcf, 0x4f, 0x3c};
+    std::vector<AESWord> expended_key = AESKey::keyExpansion(key_128,AES_KEY_128);
+
+    AESWord expected_words[5] = {   AESWord(0xa0, 0xfa, 0xfe, 0x17),
+                                    AESWord(0xdb, 0x0b, 0xad, 0x00),
+                                    AESWord(0xca, 0x00, 0x93, 0xfd),
+                                    AESWord(0xac, 0x77, 0x66, 0xf3),
+                                    AESWord(0xb6, 0x63, 0x0c, 0xa6)};
+    int expected_indexes[5] = {4, 19, 27, 36, 43};
+
+    for (int i = 0; i < 5; i++){
+        EXPECT_EQ(expected_words[i], expended_key.at(expected_indexes[i]));
+    }
+}
+
+TEST(AESKeyExpansion_Tests, aes192_keyexpansion_test) {
+
+    unsigned char key_192[24] = {0x8e ,0x73 ,0xb0 ,0xf7 ,0xda ,0x0e, 0x64, 0x52, 0xc8, 0x10, 0xf3, 0x2b, 0x80, 0x90, 0x79, 0xe5, 0x62, 0xf8, 0xea, 0xd2, 0x52, 0x2c, 0x6b, 0x7b};
+    std::vector<AESWord> expended_key = AESKey::keyExpansion(key_192, AES_KEY_192);
+
+    AESWord expected_words[5] = {   AESWord(0x52, 0x2c, 0x6b, 0x7b),
+                                    AESWord(0xaa, 0x32, 0x63, 0x60),
+                                    AESWord(0x6f, 0xa6, 0x49, 0x71),
+                                    AESWord(0x67, 0x47, 0xd2, 0x6b),
+                                    AESWord(0x01, 0x00, 0x22, 0x02)};
+    int expected_indexes[5] = {5, 22, 31, 38, 51};
+
+    for (int i = 0; i < 5; i++){
+        EXPECT_EQ(expected_words[i], expended_key.at(expected_indexes[i]));
+    }
+}
+
+TEST(AESKeyExpansion_Tests, aes256_keyexpansion_test) {
+
+    unsigned char key_256[32] = {0x60, 0x3d, 0xeb, 0x10, 0x15, 0xca, 0x71, 0xbe, 0x2b, 0x73, 0xae, 0xf0, 0x85, 0x7d, 0x77, 0x81, 0x1f, 0x35, 0x2c, 0x07, 0x3b, 0x61, 0x08, 0xd7, 0x2d, 0x98, 0x10, 0xa3, 0x09, 0x14, 0xdf, 0xf4};
+    std::vector<AESWord> expended_key = AESKey::keyExpansion(key_256, AES_KEY_256);
+
+    AESWord expected_words[5] = {   AESWord(0x09, 0x14, 0xdf, 0xf4),
+                                    AESWord(0xb7, 0x5d, 0x5b, 0x9a),
+                                    AESWord(0xc8, 0x14, 0xe2, 0x04),
+                                    AESWord(0x18, 0x50, 0x1d, 0xda),
+                                    AESWord(0x70, 0x6c, 0x63, 0x1e)};
+    int expected_indexes[5] = {7, 15, 36, 49, 59};
+
+    for (int i = 0; i < 5; i++){
+        EXPECT_EQ(expected_words[i], expended_key.at(expected_indexes[i]));
+    }
+}

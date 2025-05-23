@@ -24,9 +24,8 @@ TEST(AESState_Tests, mixColumnsTest){
     s.mixColumns();
     printf("Mixed Columns\n");
     s.printState();
-    for (int i = 0; i < 16; i++){
-        EXPECT_EQ(s.getByte(i), exp_mix[i]);
-    }
+    AESState s_expected = AESState(exp_mix);
+    EXPECT_EQ(s, s_expected);
 }
 
 TEST(AESState_Tests, inverseMixColumnsTest){
@@ -38,9 +37,8 @@ TEST(AESState_Tests, inverseMixColumnsTest){
     printf("Inverse Mixed Columns\n");
     s.invMixColumns();
     s.printState();
-    for (int i = 0; i < 16; i++){
-        EXPECT_EQ(s.getByte(i), mix_col_example[i]);
-    }
+    AESState s_expected = AESState(mix_col_example);
+    EXPECT_EQ(s, s_expected);
 }
 
 TEST(AESState_Tests, subBytesTest){
@@ -52,12 +50,8 @@ TEST(AESState_Tests, subBytesTest){
     s.subBytes();
     printf("Substituted Bytes\n");
     s.printState();
-    for (int i = 0; i < 16; i++){
-        EXPECT_EQ(s.getByte(i), exp_sub[i]);
-    }
-    printf("Inverse Substituted Bytes\n");
-    s.invSubBytes();
-    s.printState();
+    AESState s_expected = AESState(exp_sub);
+    EXPECT_EQ(s, s_expected);
 }
 
 TEST(AESState_Tests, inverseSubBytesTest){
@@ -69,9 +63,8 @@ TEST(AESState_Tests, inverseSubBytesTest){
     printf("Inverse Substituted Bytes\n");
     s.invSubBytes();
     s.printState();
-    for (int i = 0; i < 16; i++){
-        EXPECT_EQ(s.getByte(i), sub_example[i]);
-    }
+    AESState s_expected = AESState(sub_example);
+    EXPECT_EQ(s, s_expected);
 }
 
 TEST(AESState_Tests, shiftRowsTest){
@@ -83,9 +76,8 @@ TEST(AESState_Tests, shiftRowsTest){
     s.shiftRows();
     printf("Shifted Rows\n");
     s.printState();
-    for (int i = 0; i < 16; i++){
-        EXPECT_EQ(s.getByte(i), exp_shift[i]);
-    }
+    AESState s_expected = AESState(exp_shift);
+    EXPECT_EQ(s, s_expected);
 }
 
 TEST(AESState_Tests, inverseShiftRowsTest){
@@ -97,7 +89,6 @@ TEST(AESState_Tests, inverseShiftRowsTest){
     s.invShiftRows();
     printf("Inverse Shifted Rows\n");
     s.printState();
-    for (int i = 0; i < 16; i++){
-        EXPECT_EQ(s.getByte(i), shift_example[i]);
-    }
+    AESState s_expected = AESState(shift_example);
+    EXPECT_EQ(s, s_expected);
 }

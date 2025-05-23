@@ -13,6 +13,7 @@ target_sources(AES_lib
         src/AESConstants.cpp
         src/AESKey.cpp
         src/AES.cpp
+        src/AESWord.cpp
         )
 
 target_link_libraries(AES_app

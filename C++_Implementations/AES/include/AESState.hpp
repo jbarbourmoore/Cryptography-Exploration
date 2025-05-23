@@ -2,11 +2,14 @@
 #define AESState_HPP
 
 #include "AESConstants.hpp"
+#include "AESWord.hpp"
+
 #include <cstdio>
 
 struct AESState{
 
     private :
+        /// @brief The state stored as an unsigned character array of 16 items
         unsigned char s[16];
 
     public :
@@ -20,7 +23,7 @@ struct AESState{
         /// @brief This method gets the unsigned character at a given index
         /// @param index The index at which to get the unsigned character
         /// @return The byte that is at the index
-        unsigned char getByte(int index);
+        unsigned char getByte(int index) const;
 
         /// @brief This method performs the multiplication of a byte within galois field 2**8
         /// @param byte_to_multiply The byte which is being multiplied
@@ -42,7 +45,7 @@ struct AESState{
         void invMixColumns();
 
         /// @brief This method prints the state as a 4x4 matrix to the console
-        void printState();
+        void printState() const;
 
         /// @brief This method substitutes bytes according to the substitution matrix from Figure 2 in NIST FIPS 197  "Illustration of SUBBYTES()"
         void subBytes();
@@ -56,11 +59,20 @@ struct AESState{
         /// @brief This method performs the inverse shift rows function as defined in NIST FIPS 197 section 5.3.1 "INVSHIFTROWS()"
         void invShiftRows();
 
+        /// @brief This method performs the add round key function as defined in NIST FIPS 197 Section 5.1.4 "ADDROUNDKEY()"
+        /// @param round_key 
+        void addRoundKey(AESWord *round_key);
+
         /// @brief The function takes the modulus of a value in case the value is negative
         /// @param value the value that we are taking the modulus of
         /// @param modulo the modulus
         /// @return The modulus value that is calculated
         static unsigned char mod(unsigned char value, unsigned char modulo);
+
+        /// @brief This method overrides the == operator for AESState objects
+        /// @param other The other word that is being compared
+        /// @return A boolean that is true if all the bytes are the same
+        bool operator==(const AESState &other) const;
 };
 
 #endif

@@ -40,65 +40,6 @@ std::vector<AESWord> AESKey::keyExpansion(unsigned char *key, AESKeyTypes key_ty
     return w;
 }
 
-AESWord::AESWord(){
-    for (int i = 0; i < 4; i++){
-        word[i] = 0;
-    }
-}
-
-AESWord::AESWord(AESWord *input){
-    for (int i = 0; i  < 4; i++){
-        word[i] = input->word[i];
-    }
-}
-
-unsigned char AESWord::getByte(int index){
-    return word[index];
-}
-
-AESWord::AESWord(unsigned char* input){
-    for (int i = 0; i < 4; i++){
-        word[i] = input[i];
-    }
-}
-
-AESWord::AESWord(unsigned char first, unsigned char second, unsigned char third, unsigned char fourth){
-    word[0] = first;
-    word[1] = second;
-    word[2] = third;
-    word[3] = fourth;
-}
-
-void AESWord::xorWord(AESWord other){
-    for(int i = 0; i < 4; i ++){
-        word[i] = word[i] ^ other.getByte(i);
-    }
-}
-
-void AESWord::rotWord(){
-    unsigned char temp[4];
-    for (int i = 0; i < 4; i ++){
-        temp[i] = word[(i + 1) % 4];
-    }
-
-    for (int i = 0; i < 4; i ++){
-        word[i] = temp[i];
-    }
-}
-
-void AESWord::subWord(){
-    for (int i = 0; i < 4; i ++){
-        word[i] = AESConstants::SBOX[word[i]];
-    }
-}
-
-void AESWord::print(){
-    for(int i = 0; i < 4; i++){
-        printf("%.2x", word[i]);
-    }
-    printf("\n");
-}
-
 int AESKey::getKeyLength(AESKeyTypes key_type){
     int key_length = 192;
     if(key_type == AESKeyTypes::AES_KEY_192){

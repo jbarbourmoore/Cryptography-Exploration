@@ -1,41 +1,14 @@
+#ifndef AESKey_HPP
+#define AESKey_HPP
+
 #include "AESConstants.hpp"
+#include "AESWord.hpp"
 #include <vector>
 #include <stdio.h>
 
 
 enum AESKeyTypes{
     AES_KEY_128, AES_KEY_192, AES_KEY_256
-};
-
-class AESWord{
-    private :
-        unsigned char word[4];
-
-    public :
-        /// @brief This method initializes an AES key word of 0
-        AESWord();
-
-        /// @brief This method initializes an AES key word of a char array value
-        AESWord(unsigned char *input);
-
-        /// @brief This method initializes an AES word with the four input values
-        /// @param first The first value in the new word
-        /// @param second The second value in the new word
-        /// @param third The third value in the new word
-        /// @param fourth The fourth value in the new word
-        AESWord(unsigned char first, unsigned char second, unsigned char third, unsigned char fourth);
-
-        AESWord(AESWord *input);
-
-        void xorWord(AESWord other);
-
-        void rotWord();
-
-        void subWord();
-
-        unsigned char getByte(int index);
-
-        void print();
 };
 
 class AESKey{
@@ -53,5 +26,9 @@ class AESKey{
 
         static int getBlockSize();
 
+        static bool compareWordAtIndex(std::vector<AESWord> expanded_key, AESWord word_to_compare, int index);
+
 };
 
+
+#endif

@@ -3,6 +3,9 @@
 
 #include "AESConstants.hpp"
 #include "AESState.hpp"
+#include "AESWord.hpp"
+#include "AESKey.hpp"
+
 #include <cstdio>
 
 /// @brief This class should include the cypher and most of the necessary components for Advanced Encryption Standard

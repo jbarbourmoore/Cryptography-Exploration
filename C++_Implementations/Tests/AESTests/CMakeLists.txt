@@ -3,7 +3,7 @@ add_executable(AES_Tests)
 target_sources(AES_Tests 
     PRIVATE 
         src/AESStateTests.cpp
-
+        src/AESKeyExpansionTests.cpp
         )
 
 target_link_libraries(AES_Tests 
