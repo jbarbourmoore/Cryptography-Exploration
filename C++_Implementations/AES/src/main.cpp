@@ -101,5 +101,8 @@ int main(int argc, char const *argv[])
     printf("Inverse Cypher Result With AES 256\n");
     inverse_cypher_hex_256.print();
     printf("\n");
+    unsigned char a  = 0xff;
+    a = a >> 1;
+    printf("a : %u\n", a);
     return 0;
 }

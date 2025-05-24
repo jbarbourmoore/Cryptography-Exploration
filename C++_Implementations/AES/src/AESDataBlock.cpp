@@ -93,3 +93,57 @@ std::string AESDataBlock::hexStringFromDataBlocks(std::vector<AESDataBlock> inpu
     }
     return output;
 }
+
+void AESDataBlock::operator>>(int shift_bits){
+    int character_shift = shift_bits / 8;
+    int bit_shift = shift_bits % 8;
+    printf("total:%d char:%d bit:%d\n", shift_bits, character_shift, bit_shift);
+    if (character_shift!=0){
+        AESDataBlock temp = AESDataBlock();
+        for (int i = 15; i >= character_shift; i --){
+            temp.setByte(i, data_block[i - character_shift]);
+        }
+        for (int i = 0; i < 16; i++){
+            data_block[i] = temp.getByte(i);
+        }
+    }
+    if(bit_shift != 0){
+    unsigned char temp_bits = 0;
+        for (int i = 0; i < 16; i++){
+            unsigned char cur_block = getByte(i);
+            unsigned char left_over = cur_block << (8 - bit_shift);
+            printf("current block : %u temp bits : %u left_over : %u\n", cur_block, temp_bits, left_over);
+            data_block[i] = cur_block >> bit_shift;
+            printf("current block : %u \n", data_block[i]);
+            data_block[i] = data_block[i] ^ temp_bits;
+            temp_bits = left_over;
+        }
+    }
+}
+
+void AESDataBlock::operator<<(int shift_bits){
+    int character_shift = shift_bits / 8;
+    int bit_shift = shift_bits % 8;
+    printf("total:%d char:%d bit:%d\n", shift_bits, character_shift, bit_shift);
+    if (character_shift!=0){
+        AESDataBlock temp = AESDataBlock();
+        for (int i = 0; i < (16 - character_shift); i ++){
+            temp.setByte(i, data_block[i + character_shift]);
+        }
+        for (int i = 0; i < 16; i++){
+            data_block[i] = temp.getByte(i);
+        }
+    }
+    if(bit_shift != 0){
+        unsigned char temp_bits = 0;
+        for (int i = 15; i >= character_shift; i --){
+            unsigned char cur_block = getByte(i);
+            unsigned char left_over = cur_block >> (8 - bit_shift);
+            printf("current block : %u temp bits : %u left_over : %u\n", cur_block, temp_bits, left_over);
+            data_block[i] = cur_block << bit_shift;
+            printf("current block : %u \n", data_block[i]);
+            data_block[i] = data_block[i] ^ temp_bits;
+            temp_bits = left_over;
+        }
+    }
+}

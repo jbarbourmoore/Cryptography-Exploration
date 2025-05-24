@@ -62,6 +62,11 @@ class AESDataBlock {
         std::string getString() const;
 
         static std::string hexStringFromDataBlocks(std::vector<AESDataBlock> input);
+
+        void operator>>(int shift_bits);
+
+        void operator<<(int shift_bits);
+
 };
 
 #endif
