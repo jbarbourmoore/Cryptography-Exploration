@@ -61,7 +61,7 @@ class AESDataBlock {
 
         std::string getString() const;
 
-        std::string hexStringFromDataBlocks(std::vector<AESDataBlock> input);
+        static std::string hexStringFromDataBlocks(std::vector<AESDataBlock> input);
 };
 
 #endif

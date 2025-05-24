@@ -3,6 +3,8 @@
 
 #include "RSAKeyGeneration.hpp"
 #include "CreateHashDigest.hpp"
+#include "AES_ECB.hpp"
+#include "AES_CBC.hpp"
 #include <QMainWindow>
 #include <string.h>
 #include <chrono>
@@ -42,6 +44,17 @@ private slots:
     /// @brief This method moved the text from the output text box to the input text box when the button is clicked
     void on_rsa_swap_output_button_clicked();
 
+    void on_aes_swap_output_button_clicked();
+
+
+    void on_aes_key_gen_clicked();
+
+    void on_aes_iv_gen_clicked();
+    
+    void on_aes_encrypt_clicked();
+
+    void on_aes_decrypt_clicked();
+
 private:
     /// @brief This variable holds the instantiated key generation object to be used
     RSAKeyGeneration key_gen_;
@@ -51,6 +64,10 @@ private:
 
     /// @brief This method updated the key length for the key_gen_ based on user selections from the drop down
     void updateKeyLength();
+
+    string getRandom(int bits);
+
+    int getSelectedBits();
 
     /// @brief This method generated the rsa keys based on the information from the dropdowns such as key length and prime generation method.
     /// @param use_key_quintuple_form Whether the private key being generated should be in quintuple form
