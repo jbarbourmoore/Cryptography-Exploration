@@ -97,7 +97,7 @@ std::string AESDataBlock::hexStringFromDataBlocks(std::vector<AESDataBlock> inpu
 void AESDataBlock::operator>>(int shift_bits){
     int character_shift = shift_bits / 8;
     int bit_shift = shift_bits % 8;
-    printf("total:%d char:%d bit:%d\n", shift_bits, character_shift, bit_shift);
+    // printf("total:%d char:%d bit:%d\n", shift_bits, character_shift, bit_shift);
     if (character_shift!=0){
         AESDataBlock temp = AESDataBlock();
         for (int i = 15; i >= character_shift; i --){
@@ -112,9 +112,9 @@ void AESDataBlock::operator>>(int shift_bits){
         for (int i = 0; i < 16; i++){
             unsigned char cur_block = getByte(i);
             unsigned char left_over = cur_block << (8 - bit_shift);
-            printf("current block : %u temp bits : %u left_over : %u\n", cur_block, temp_bits, left_over);
+            // printf("current block : %u temp bits : %u left_over : %u\n", cur_block, temp_bits, left_over);
             data_block[i] = cur_block >> bit_shift;
-            printf("current block : %u \n", data_block[i]);
+            // printf("current block : %u \n", data_block[i]);
             data_block[i] = data_block[i] ^ temp_bits;
             temp_bits = left_over;
         }
@@ -124,7 +124,7 @@ void AESDataBlock::operator>>(int shift_bits){
 void AESDataBlock::operator<<(int shift_bits){
     int character_shift = shift_bits / 8;
     int bit_shift = shift_bits % 8;
-    printf("total:%d char:%d bit:%d\n", shift_bits, character_shift, bit_shift);
+    // printf("total:%d char:%d bit:%d\n", shift_bits, character_shift, bit_shift);
     if (character_shift!=0){
         AESDataBlock temp = AESDataBlock();
         for (int i = 0; i < (16 - character_shift); i ++){
@@ -136,14 +136,33 @@ void AESDataBlock::operator<<(int shift_bits){
     }
     if(bit_shift != 0){
         unsigned char temp_bits = 0;
-        for (int i = 15; i >= character_shift; i --){
+        for (int i = 15; i >= 0; i --){
             unsigned char cur_block = getByte(i);
             unsigned char left_over = cur_block >> (8 - bit_shift);
-            printf("current block : %u temp bits : %u left_over : %u\n", cur_block, temp_bits, left_over);
+            // printf("current block : %u temp bits : %u left_over : %u\n", cur_block, temp_bits, left_over);
             data_block[i] = cur_block << bit_shift;
-            printf("current block : %u \n", data_block[i]);
+            // printf("current block : %u \n", data_block[i]);
             data_block[i] = data_block[i] ^ temp_bits;
             temp_bits = left_over;
         }
     }
+}
+
+AESDataBlock AESDataBlock::getSegment(int start_bit, int size_bits){
+    // print();
+    AESDataBlock segment = AESDataBlock(data_block);\
+    // segment.print();
+    segment << (start_bit);
+    // segment.print();
+    segment >> (128 - size_bits);
+    // segment.print();
+    return segment;
+}
+
+void AESDataBlock::addSegment(AESDataBlock segment, int start_bit, int size_bits){
+        int distance = 128 - start_bit - size_bits;
+        // printf("distance %d\n", distance);
+        segment << (128 - start_bit - size_bits);
+        // segment.print();
+        xorBlock(segment);
 }

@@ -40,7 +40,7 @@ class AESDataBlock {
 
         /// @brief This method prints out the bytes from the data block
         /// @param with_char_formatting Whether the print statement should be spaced like a character array, default is true
-        void print(bool with_char_formatting = true) const;
+        void print(bool with_char_formatting = false) const;
 
         void setByte(int index, unsigned char byte_to_set);
 
@@ -66,6 +66,10 @@ class AESDataBlock {
         void operator>>(int shift_bits);
 
         void operator<<(int shift_bits);
+
+        AESDataBlock getSegment(int start_bit, int size_bits);
+
+        void addSegment(AESDataBlock segment, int start_bit, int size_bits);
 
 };
 

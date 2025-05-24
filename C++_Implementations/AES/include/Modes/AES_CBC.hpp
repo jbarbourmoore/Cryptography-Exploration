@@ -3,11 +3,9 @@
 
 #include "AES.hpp"
 
-#include <vector>
-#include <cstdio>
-
 class AES_CBC{
     public :
+
         static std::vector<AESDataBlock> AES128Cypher(std::string input, std::vector<AESWord> expanded_key, AESDataBlock initialization_vector);
         static std::vector<AESDataBlock> AES128Cypher(std::string input, std::string key, AESDataBlock initialization_vector);
         static std::vector<AESDataBlock> AES128Cypher(std::string input, unsigned char *key, AESDataBlock initialization_vector);
@@ -46,6 +44,7 @@ class AES_CBC{
         static std::vector<AESDataBlock> AES256InvCypher(std::vector<AESDataBlock> input, std::vector<AESWord> expanded_key, AESDataBlock initialization_vector);
         static std::vector<AESDataBlock> AES256InvCypher(std::vector<AESDataBlock> input, std::string key, AESDataBlock initialization_vector);
         static std::vector<AESDataBlock> AES256InvCypher(std::vector<AESDataBlock> input, unsigned char *key, AESDataBlock initialization_vector);
+        
 };
 
 #endif
