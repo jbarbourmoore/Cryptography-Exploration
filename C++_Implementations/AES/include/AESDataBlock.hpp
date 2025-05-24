@@ -32,9 +32,6 @@ class AESDataBlock {
 
         /// @brief This method initializes an AESDataBlock by copying over an unsigned char
         /// @param input 
-
-        /// @brief This method initializes an AESDataBlock by copying over an unsigned char
-        /// @param input 
         /// @param is_hex Whether the string is a hex string, default is true
         AESDataBlock(std::string input, bool is_hex = true);
 
@@ -42,6 +39,9 @@ class AESDataBlock {
         /// @param with_char_formatting Whether the print statement should be spaced like a character array, default is true
         void print(bool with_char_formatting = false) const;
 
+        /// @brief This method sets the value of a given byte in the data block
+        /// @param index The index at which to set the value
+        /// @param byte_to_set The new value for the byte
         void setByte(int index, unsigned char byte_to_set);
 
         /// @brief This method gets the Byte at a given index (constant method)
@@ -59,19 +59,42 @@ class AESDataBlock {
         /// @return the input as a vector of AES Data Blocks
         static std::vector<AESDataBlock> dataBlocksFromHexString(std::string input);
 
+        /// @brief This method gets the data block as a string of hexadecimal characters
+        /// @return The hexadecimal string relating to the datablock
         std::string getString() const;
 
+        /// @brief This method converts a vector of datablocks into a single string of hexadecimal characters
+        /// @param input The vector of AESDataBlocks 
+        /// @return The string representation of the inputs
         static std::string hexStringFromDataBlocks(std::vector<AESDataBlock> input);
 
+        /// @brief This method shifts the datablock to the right
+        /// @param shift_bits The amount to shift the data block in bits
         void operator>>(int shift_bits);
 
+        /// @brief This method shifts the datablock to the left
+        /// @param shift_bits The amount to shift the data block in bits
         void operator<<(int shift_bits);
 
+        /// @brief This method gets the segment of a datablock (the segment is in the right most bits of the returned data block, and all other bits are 0)
+        /// @param start_bit The start bit of the segment to be retrieved
+        /// @param size_bits The number of bits in the segment to be retrieved
+        /// @return The segment as the rightmost bits of the datablock
         AESDataBlock getSegment(int start_bit, int size_bits);
 
+        /// @brief This method adds a segment back to a larger data block by XORing it in a given position
+        /// @param segment The segment to be added back
+        /// @param start_bit The start bit of the segments position once added back
+        /// @param size_bits The number of bits in the segment
         void addSegment(AESDataBlock segment, int start_bit, int size_bits);
 
+
+        /// @brief This method increments the value in the data block
+        /// @param inc_amount The value by which to increment the block
         void increment(int inc_amount);
+
+        /// @brief The destructor for AESDataBlock
+        ~AESDataBlock();
 
 };
 

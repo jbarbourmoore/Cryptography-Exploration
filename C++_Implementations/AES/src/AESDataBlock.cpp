@@ -181,3 +181,7 @@ void AESDataBlock::increment(int inc_amount){
         }
     }
 }
+
+AESDataBlock::~AESDataBlock(){
+    
+}

@@ -20,6 +20,9 @@ class AES{
         /// @return The corresponding state 
         static AESState input2State(unsigned char *input);
 
+        /// @brief This method transforms the input into a state array based on Section 3.4 "The State" of NIST FIPS 197
+        /// @param input The input as an AESDataBlock
+        /// @return The corresponding state 
         static AESState input2State(const AESDataBlock &input);
 
         /// @brief This method transforms the state array into an output array based on Section 3.4 "The State" of NIST FIPS 197
@@ -37,8 +40,14 @@ class AES{
         /// @param input The input block
         /// @param Nr The number of rounds to perform
         /// @param w The expanded key
+        /// @return The state following the cypher
         static AESState cypher(AESDataBlock, int Nr,  std::vector<AESWord> w);
 
+        /// @brief This method performs the cypher operation on an input block as described in Section 5.2 "INVCIPHER()" from NIST FIPS 197
+        /// @param input The input block (cypher text)
+        /// @param Nr The number of rounds to perform
+        /// @param w The expanded key
+        /// @return The state following the inverse cypher
         static AESState invCypher(AESDataBlock input, int Nr, std::vector<AESWord> w);
 
     public:
