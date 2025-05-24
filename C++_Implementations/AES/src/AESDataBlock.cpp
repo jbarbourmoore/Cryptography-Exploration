@@ -166,3 +166,18 @@ void AESDataBlock::addSegment(AESDataBlock segment, int start_bit, int size_bits
         // segment.print();
         xorBlock(segment);
 }
+
+void AESDataBlock::increment(int inc_amount){
+    int index = 15;
+    while (inc_amount > 0 && index >= 0){
+        unsigned char temp = getByte(index);
+        setByte(index, temp + inc_amount);
+        int inc_total = inc_amount + temp;
+        if (inc_total >= 256){
+            inc_amount = inc_total / 256;
+            index --;
+        } else {
+            inc_amount = 0;
+        }
+    }
+}

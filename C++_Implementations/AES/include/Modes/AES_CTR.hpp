@@ -1,11 +1,10 @@
-#ifndef AES_CBC_HPP
-#define AES_CBC_HPP
+#ifndef AES_CTR_HPP
+#define AES_CTR_HPP
 
 #include "AES.hpp"
 
-class AES_CBC{
+class AES_CTR{
     public :
-
         static std::vector<AESDataBlock> AES128Cypher(std::string input, std::vector<AESWord> expanded_key, AESDataBlock initialization_vector);
         static std::vector<AESDataBlock> AES128Cypher(std::string input, std::string key, AESDataBlock initialization_vector);
         static std::vector<AESDataBlock> AES128Cypher(std::string input, unsigned char *key, AESDataBlock initialization_vector);

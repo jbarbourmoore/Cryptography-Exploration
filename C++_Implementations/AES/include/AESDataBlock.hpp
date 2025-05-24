@@ -71,6 +71,8 @@ class AESDataBlock {
 
         void addSegment(AESDataBlock segment, int start_bit, int size_bits);
 
+        void increment(int inc_amount);
+
 };
 
 #endif
