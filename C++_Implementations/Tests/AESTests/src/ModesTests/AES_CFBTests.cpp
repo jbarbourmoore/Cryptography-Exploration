@@ -42,14 +42,14 @@ TEST(AES_CFB_Tests, aes128_cfb_s1_test) {
     for(int i = 0 ; i < actual_cypher_text.size() ; i ++){
         actual_cypher_text.at(i).print();
     }
-    // printf("Inverse Cypher Result With AES 128\n");
-    // std::vector<AESDataBlock> actual_plain_text = AES_CBC::AES128InvCypher(actual_cypher_text, key_128, initialization_vector);
-    // for(int i = 0 ; i < actual_plain_text.size() ; i ++){
-    //     actual_plain_text.at(i).print();
-    // }
+    printf("Inverse Cypher Result With AES 128\n");
+    std::vector<AESDataBlock> actual_plain_text = AES_CFB::AES128InvCypher(actual_cypher_text, key_128, initialization_vector, 1);
+    for(int i = 0 ; i < actual_plain_text.size() ; i ++){
+        actual_plain_text.at(i).print();
+    }
 
     EXPECT_EQ(actual_cypher_text, given_cypher_text);
-    // EXPECT_EQ(actual_plain_text, given_plain_text);
+    EXPECT_EQ(actual_plain_text, given_plain_text);
 }
 
 TEST(AES_CFB_Tests, aes128_cfb_s128_test) {
@@ -66,12 +66,37 @@ TEST(AES_CFB_Tests, aes128_cfb_s128_test) {
     for(int i = 0 ; i < actual_cypher_text.size() ; i ++){
         actual_cypher_text.at(i).print();
     }
-    // printf("Inverse Cypher Result With AES 128\n");
-    // std::vector<AESDataBlock> actual_plain_text = AES_CBC::AES128InvCypher(actual_cypher_text, key_128, initialization_vector);
-    // for(int i = 0 ; i < actual_plain_text.size() ; i ++){
-    //     actual_plain_text.at(i).print();
-    // }
+    printf("Inverse Cypher Result With AES 128\n");
+    std::vector<AESDataBlock> actual_plain_text = AES_CFB::AES128InvCypher(actual_cypher_text, key_128, initialization_vector, 128);
+    for(int i = 0 ; i < actual_plain_text.size() ; i ++){
+        actual_plain_text.at(i).print();
+    }
 
     EXPECT_EQ(actual_cypher_text, given_cypher_text);
-    // EXPECT_EQ(actual_plain_text, given_plain_text);
+    EXPECT_EQ(actual_plain_text, given_plain_text);
+}
+
+TEST(AES_CFB_Tests, aes192_cfb_s8_test) {
+    std::string given_plain_string = "6BC1BEE22E409F96E93D7E117393172AAE2D8A571E03AC9C9EB76FAC45AF8E5130C81C46A35CE411E5FBC1191A0A52EFF69F2445DF4F9B17AD2B417BE66C3710";
+    std::string given_cypher_string = "CDA2521EF0A905CA44CD057CBF0D47A0678A7BCFB6AEAA3047B38936021F48BBB63CEFDAC02B2E840904EFCE6F4326BE228683739063DC30E937FFEDD63E3C94";
+    std::string initialization_vector = "000102030405060708090a0b0c0d0e0f";
+    int s_bits = 8;
+    unsigned char key_192[24] = {0x8e ,0x73 ,0xb0 ,0xf7 ,0xda ,0x0e, 0x64, 0x52, 0xc8, 0x10, 0xf3, 0x2b, 0x80, 0x90, 0x79, 0xe5, 0x62, 0xf8, 0xea, 0xd2, 0x52, 0x2c, 0x6b, 0x7b};
+    
+    std::vector<AESDataBlock> given_plain_text = AESDataBlock::dataBlocksFromHexString(given_plain_string);
+    std::vector<AESDataBlock> given_cypher_text = AESDataBlock::dataBlocksFromHexString(given_cypher_string);
+
+    printf("\nCypher Result With AES 128 (CFB 8 bit)\n");
+    std::vector<AESDataBlock> actual_cypher_text = AES_CFB::AES192Cypher(given_plain_string, key_192, initialization_vector, s_bits);
+    for(int i = 0 ; i < actual_cypher_text.size() ; i ++){
+        actual_cypher_text.at(i).print();
+    }
+    printf("Inverse Cypher Result With AES 192 (CFB 8 bit)\n");
+    std::vector<AESDataBlock> actual_plain_text = AES_CFB::AES192InvCypher(actual_cypher_text, key_192, initialization_vector, s_bits);
+    for(int i = 0 ; i < actual_plain_text.size() ; i ++){
+        actual_plain_text.at(i).print();
+    }
+
+    EXPECT_EQ(actual_cypher_text, given_cypher_text);
+    EXPECT_EQ(actual_plain_text, given_plain_text);
 }
