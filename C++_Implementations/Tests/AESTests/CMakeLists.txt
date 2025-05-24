@@ -9,6 +9,7 @@ target_sources(AES_Tests
         src/ModesTests/AES_ECBTests.cpp
         src/ModesTests/AES_CBCTests.cpp
         src/ModesTests/AES_CFBTests.cpp
+        src/ModesTests/AES_OFBTests.cpp
         )
 
 target_link_libraries(AES_Tests 

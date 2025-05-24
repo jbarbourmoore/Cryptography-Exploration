@@ -19,6 +19,7 @@ target_sources(AES_lib
         src/Modes/AES_ECB.cpp
         src/Modes/AES_CBC.cpp
         src/Modes/AES_CFB.cpp
+        src/Modes/AES_OFB.cpp
         )
 
 target_link_libraries(AES_app
