@@ -5,6 +5,9 @@
 #include "CreateHashDigest.hpp"
 #include "AES_ECB.hpp"
 #include "AES_CBC.hpp"
+#include "AES_CFB.hpp"
+#include "AES_OFB.hpp"
+#include "AES_CTR.hpp"
 #include <QMainWindow>
 #include <string.h>
 #include <chrono>
@@ -68,6 +71,12 @@ private:
     string getRandom(int bits);
 
     int getSelectedBits();
+
+    bool aes_is_padded;
+
+    QString removePadding(QString aes_out);
+
+    QString getInputAndPad();
 
     /// @brief This method generated the rsa keys based on the information from the dropdowns such as key length and prime generation method.
     /// @param use_key_quintuple_form Whether the private key being generated should be in quintuple form

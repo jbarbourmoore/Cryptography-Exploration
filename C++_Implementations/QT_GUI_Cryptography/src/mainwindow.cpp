@@ -203,10 +203,35 @@ int MainWindow::getSelectedBits(){
     return bits;
 }
 
+QString MainWindow::getInputAndPad(){
+    QString aes_in = ui->aes_in_text->toPlainText();
+    if (aes_in.size() % 32 != 0){
+        aes_is_padded = true;
+        aes_in.append("8");
+        int to_add = 32 - (aes_in.size() % 32);
+        for (int i = 0; i < to_add; i ++){
+            aes_in.append("0");
+        }
+    } else {
+        aes_is_padded = false;
+    }
+    // ui->aes_in_text->setPlainText(aes_in);
+    return aes_in;
+}
+
+QString MainWindow::removePadding(QString aes_out){
+    if (aes_is_padded){
+        int end_index = aes_out.lastIndexOf("8");
+        int pad_length = aes_out.size()-end_index;
+        aes_out.remove(end_index, pad_length);
+    }
+    return aes_out;
+}
+
 void MainWindow::on_aes_encrypt_clicked(){
     int bits = getSelectedBits();
     QString aes_key = ui->aes_key_text->text();
-    QString aes_in = ui->aes_in_text->toPlainText();
+    QString aes_in = getInputAndPad();
     QString aes_iv = ui->aes_iv_text->text();
     int aes_mode = ui->aes_mode_select->currentIndex();
     string result ="Error";
@@ -218,13 +243,25 @@ void MainWindow::on_aes_encrypt_clicked(){
                 vector<AESDataBlock> datablock = AES_ECB::AES128Cypher(aes_in.toStdString(), aes_key.toStdString());
                 result = AESDataBlock::hexStringFromDataBlocks(datablock);
             }
-        } else if (aes_mode == 1){
+        } else {
             if(aes_key.size() != 32 || aes_iv.size() != 32){
                 result = "Please enter appropriate length values for key and initialization vector";
             } else{
-                vector<AESDataBlock> datablock = AES_CBC::AES128Cypher(aes_in.toStdString(), aes_key.toStdString(), aes_iv.toStdString());
+                vector<AESDataBlock> datablock;
+                if (aes_mode == 1){
+                    datablock = AES_CBC::AES128Cypher(aes_in.toStdString(), aes_key.toStdString(), aes_iv.toStdString());
+                } else if (aes_mode == 2){
+                    datablock = AES_CFB::AES128Cypher(aes_in.toStdString(), aes_key.toStdString(), aes_iv.toStdString(), 1);
+                } else if (aes_mode == 3){
+                    datablock = AES_CFB::AES128Cypher(aes_in.toStdString(), aes_key.toStdString(), aes_iv.toStdString(), 8);
+                } else if (aes_mode == 4){
+                    datablock = AES_CFB::AES128Cypher(aes_in.toStdString(), aes_key.toStdString(), aes_iv.toStdString(), 128);
+                } else if (aes_mode == 5){
+                    datablock = AES_OFB::AES128Cypher(aes_in.toStdString(), aes_key.toStdString(), aes_iv.toStdString());
+                } else if (aes_mode == 6){
+                    datablock = AES_CTR::AES128Cypher(aes_in.toStdString(), aes_key.toStdString(), aes_iv.toStdString());
+                }
                 result = AESDataBlock::hexStringFromDataBlocks(datablock);
-
             }
         }
     }else if (bits == 192){
@@ -234,15 +271,26 @@ void MainWindow::on_aes_encrypt_clicked(){
             } else{
                 vector<AESDataBlock> datablock = AES_ECB::AES192Cypher(aes_in.toStdString(), aes_key.toStdString());
                 result = AESDataBlock::hexStringFromDataBlocks(datablock);
-
             }
-        } else if (aes_mode == 1){
+        } else {
             if(aes_key.size() != 48 || aes_iv.size() != 32){
                 result = "Please enter appropriate length values for key and initialization vector";
             } else{
-                vector<AESDataBlock> datablock = AES_CBC::AES192Cypher(aes_in.toStdString(), aes_key.toStdString(), aes_iv.toStdString());
+                vector<AESDataBlock> datablock;
+                if (aes_mode == 1){
+                    datablock = AES_CBC::AES192Cypher(aes_in.toStdString(), aes_key.toStdString(), aes_iv.toStdString());
+                } else if (aes_mode == 2){
+                    datablock = AES_CFB::AES192Cypher(aes_in.toStdString(), aes_key.toStdString(), aes_iv.toStdString(), 1);
+                } else if (aes_mode == 3){
+                    datablock = AES_CFB::AES192Cypher(aes_in.toStdString(), aes_key.toStdString(), aes_iv.toStdString(), 8);
+                } else if (aes_mode == 4){
+                    datablock = AES_CFB::AES192Cypher(aes_in.toStdString(), aes_key.toStdString(), aes_iv.toStdString(), 128);
+                } else if (aes_mode == 5){
+                    datablock = AES_OFB::AES192Cypher(aes_in.toStdString(), aes_key.toStdString(), aes_iv.toStdString());
+                } else if (aes_mode == 6){
+                    datablock = AES_CTR::AES192Cypher(aes_in.toStdString(), aes_key.toStdString(), aes_iv.toStdString());
+                }
                 result = AESDataBlock::hexStringFromDataBlocks(datablock);
-
             }
         }
     } else{
@@ -254,11 +302,24 @@ void MainWindow::on_aes_encrypt_clicked(){
                 result = AESDataBlock::hexStringFromDataBlocks(datablock);
 
             }
-        } else if (aes_mode == 1){
+        } else {
             if(aes_key.size() != 64 || aes_iv.size() != 32){
                 result = "Please enter appropriate length values for key and initialization vector";
             } else{
-                vector<AESDataBlock> datablock = AES_CBC::AES256Cypher(aes_in.toStdString(), aes_key.toStdString(), aes_iv.toStdString());
+                vector<AESDataBlock> datablock;
+                if (aes_mode == 1){
+                    datablock = AES_CBC::AES256Cypher(aes_in.toStdString(), aes_key.toStdString(), aes_iv.toStdString());
+                } else if (aes_mode == 2){
+                    datablock = AES_CFB::AES256Cypher(aes_in.toStdString(), aes_key.toStdString(), aes_iv.toStdString(), 1);
+                } else if (aes_mode == 3){
+                    datablock = AES_CFB::AES256Cypher(aes_in.toStdString(), aes_key.toStdString(), aes_iv.toStdString(), 8);
+                } else if (aes_mode == 4){
+                    datablock = AES_CFB::AES256Cypher(aes_in.toStdString(), aes_key.toStdString(), aes_iv.toStdString(), 128);
+                } else if (aes_mode == 5){
+                    datablock = AES_OFB::AES256Cypher(aes_in.toStdString(), aes_key.toStdString(), aes_iv.toStdString());
+                } else if (aes_mode == 6){
+                    datablock = AES_CTR::AES256Cypher(aes_in.toStdString(), aes_key.toStdString(), aes_iv.toStdString());
+                }
                 result = AESDataBlock::hexStringFromDataBlocks(datablock);
             }
         }
@@ -281,13 +342,25 @@ void MainWindow::on_aes_decrypt_clicked(){
                 vector<AESDataBlock> datablock = AES_ECB::AES128InvCypher(aes_in.toStdString(), aes_key.toStdString());
                 result = AESDataBlock::hexStringFromDataBlocks(datablock);
             }
-        } else if (aes_mode == 1){
+        } else {
             if(aes_key.size() != 32 || aes_iv.size() != 32){
                 result = "Please enter appropriate length values for key and initialization vector";
             } else{
-                vector<AESDataBlock> datablock = AES_CBC::AES128InvCypher(aes_in.toStdString(), aes_key.toStdString(), aes_iv.toStdString());
+                vector<AESDataBlock> datablock;
+                if (aes_mode == 1){
+                    datablock = AES_CBC::AES128InvCypher(aes_in.toStdString(), aes_key.toStdString(), aes_iv.toStdString());
+                } else if (aes_mode == 2){
+                    datablock = AES_CFB::AES128InvCypher(aes_in.toStdString(), aes_key.toStdString(), aes_iv.toStdString(), 1);
+                } else if (aes_mode == 3){
+                    datablock = AES_CFB::AES128InvCypher(aes_in.toStdString(), aes_key.toStdString(), aes_iv.toStdString(), 8);
+                } else if (aes_mode == 4){
+                    datablock = AES_CFB::AES128InvCypher(aes_in.toStdString(), aes_key.toStdString(), aes_iv.toStdString(), 128);
+                } else if (aes_mode == 5){
+                    datablock = AES_OFB::AES128InvCypher(aes_in.toStdString(), aes_key.toStdString(), aes_iv.toStdString());
+                } else if (aes_mode == 6){
+                    datablock = AES_CTR::AES128InvCypher(aes_in.toStdString(), aes_key.toStdString(), aes_iv.toStdString());
+                }
                 result = AESDataBlock::hexStringFromDataBlocks(datablock);
-
             }
         }
     }else if (bits == 192){
@@ -297,15 +370,26 @@ void MainWindow::on_aes_decrypt_clicked(){
             } else{
                 vector<AESDataBlock> datablock = AES_ECB::AES192InvCypher(aes_in.toStdString(), aes_key.toStdString());
                 result = AESDataBlock::hexStringFromDataBlocks(datablock);
-
             }
-        } else if (aes_mode == 1){
+        } else {
             if(aes_key.size() != 48 || aes_iv.size() != 32){
                 result = "Please enter appropriate length values for key and initialization vector";
             } else{
-                vector<AESDataBlock> datablock = AES_CBC::AES192InvCypher(aes_in.toStdString(), aes_key.toStdString(), aes_iv.toStdString());
+                vector<AESDataBlock> datablock;
+                if (aes_mode == 1){
+                    datablock = AES_CBC::AES192InvCypher(aes_in.toStdString(), aes_key.toStdString(), aes_iv.toStdString());
+                } else if (aes_mode == 2){
+                    datablock = AES_CFB::AES192InvCypher(aes_in.toStdString(), aes_key.toStdString(), aes_iv.toStdString(), 1);
+                } else if (aes_mode == 3){
+                    datablock = AES_CFB::AES192InvCypher(aes_in.toStdString(), aes_key.toStdString(), aes_iv.toStdString(), 8);
+                } else if (aes_mode == 4){
+                    datablock = AES_CFB::AES192InvCypher(aes_in.toStdString(), aes_key.toStdString(), aes_iv.toStdString(), 128);
+                } else if (aes_mode == 5){
+                    datablock = AES_OFB::AES192InvCypher(aes_in.toStdString(), aes_key.toStdString(), aes_iv.toStdString());
+                } else if (aes_mode == 5){
+                    datablock = AES_CTR::AES192InvCypher(aes_in.toStdString(), aes_key.toStdString(), aes_iv.toStdString());
+                }
                 result = AESDataBlock::hexStringFromDataBlocks(datablock);
-
             }
         }
     } else{
@@ -315,17 +399,30 @@ void MainWindow::on_aes_decrypt_clicked(){
             } else{
                 vector<AESDataBlock> datablock = AES_ECB::AES256InvCypher(aes_in.toStdString(), aes_key.toStdString());
                 result = AESDataBlock::hexStringFromDataBlocks(datablock);
-
             }
-        } else if (aes_mode == 1){
+        } else {
             if(aes_key.size() != 64 || aes_iv.size() != 32){
                 result = "Please enter appropriate length values for key and initialization vector";
             } else{
-                vector<AESDataBlock> datablock = AES_CBC::AES256InvCypher(aes_in.toStdString(), aes_key.toStdString(), aes_iv.toStdString());
+                vector<AESDataBlock> datablock;
+                if (aes_mode == 1){
+                    datablock = AES_CBC::AES256InvCypher(aes_in.toStdString(), aes_key.toStdString(), aes_iv.toStdString());
+                } else if (aes_mode == 2){
+                    datablock = AES_CFB::AES256InvCypher(aes_in.toStdString(), aes_key.toStdString(), aes_iv.toStdString(), 1);
+                } else if (aes_mode == 3){
+                    datablock = AES_CFB::AES256InvCypher(aes_in.toStdString(), aes_key.toStdString(), aes_iv.toStdString(), 8);
+                } else if (aes_mode == 4){
+                    datablock = AES_CFB::AES256InvCypher(aes_in.toStdString(), aes_key.toStdString(), aes_iv.toStdString(), 128);
+                } else if (aes_mode == 5){
+                    datablock = AES_OFB::AES256InvCypher(aes_in.toStdString(), aes_key.toStdString(), aes_iv.toStdString());
+                } else if (aes_mode == 6){
+                    datablock = AES_CTR::AES256InvCypher(aes_in.toStdString(), aes_key.toStdString(), aes_iv.toStdString());
+                }
                 result = AESDataBlock::hexStringFromDataBlocks(datablock);
-
             }
         }
     }
-    ui->aes_out_text->setPlainText(result.c_str());
+
+    QString result_qstring = removePadding(QString(result.c_str()));
+    ui->aes_out_text->setPlainText(result_qstring);
 }

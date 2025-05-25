@@ -80,7 +80,7 @@ std::string AESDataBlock::getString() const{
     std::string result = "";
     for(int i = 0; i < byte_length; i ++){
         char buffer[3];
-        sprintf(buffer, "%.2x", data_block[i]);
+        sprintf(buffer, "%.2X", data_block[i]);
         result.append(buffer);
     }
     return result;

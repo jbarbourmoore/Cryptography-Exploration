@@ -733,6 +733,31 @@
               <string>Cypher Block Chaining (CBC)</string>
              </property>
             </item>
+            <item>
+             <property name="text">
+              <string>1 Bit Cypher Feedack (CFB)</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>8 Bit Cypher Feedback (CFB)</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>128 Bit Cypher Feedback (CFB)</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Output Feedback (OFB)</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Counter (CFB)</string>
+             </property>
+            </item>
            </widget>
           </item>
          </layout>
