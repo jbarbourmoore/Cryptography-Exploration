@@ -46,7 +46,8 @@ target_link_libraries(QT_GUI_Cryptography
                                 Qt${QT_VERSION_MAJOR}::Widgets
                                 RSA_lib
                                 Hash_lib
-                                AES_lib)
+                                AES_lib
+                                BigNumHelpers_lib)
 
 if(${QT_VERSION} VERSION_LESS 6.1.0)
   set(BUNDLE_ID_OPTION MACOSX_BUNDLE_GUI_IDENTIFIER com.example.QT_GUI_Cryptography)

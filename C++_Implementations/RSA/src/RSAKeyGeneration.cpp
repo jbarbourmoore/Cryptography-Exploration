@@ -185,4 +185,6 @@ void RSAKeyGeneration::generatePseudoRandomNumber(BIGNUM* result, int iteration_
 
     // seed = pseed + iterations + 1. 
     BN_add_word(seed, iteration_count + 1);
+    BN_CTX_end(pseudo_gen_ctx);
+    BN_CTX_free(pseudo_gen_ctx);
 }

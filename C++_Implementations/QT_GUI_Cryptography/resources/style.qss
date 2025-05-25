@@ -96,13 +96,36 @@ QComboBox {
     border-radius: 3px;
     padding: 1px 18px 1px 3px;
     min-width: 6em;
-    background: black;
+    background: #1c171c;
     color: white;
+    selection-color: black;
+    selection-background-color: #23b5f0;
+}
+
+
+QComboBox::drop-down {
+    subcontrol-origin: padding;
+    subcontrol-position: top right;
+    width: 20px;
+    border-left-width: 1px;
+    border-left-color: #23b5f0;
+    border-left-style: solid; /* just a single line */
+    border-top-right-radius: 3px; /* same radius as the QComboBox */
+    border-bottom-right-radius: 3px;
 }
 
 QComboBox::down-arrow {
-    color:#23b5f0;
+    image: url(:/down_arrow.png);
+    width: 15px;
+    height: 15px;
 }
+
+QComboBox:on { /* shift the text when the popup opens */
+    padding-top: 3px;
+    padding-left: 4px;
+}
+
 QLineEdit {
     border: 1px solid #23b5f0;
+    background-color: #1c171c;
 }
