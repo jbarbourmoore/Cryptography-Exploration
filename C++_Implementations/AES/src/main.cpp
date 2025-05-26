@@ -3,7 +3,8 @@
 /// Author        : Jamie Barbour-Moore
 /// Created       : 05/22/25
 
-#include "AES.hpp"
+#include "AES_GCM.hpp"
+#include "GCMBlock.hpp"
 #include <cassert>
 
 int main(int argc, char const *argv[])
@@ -104,5 +105,9 @@ int main(int argc, char const *argv[])
     unsigned char a  = 0xff;
     a = a >> 1;
     printf("a : %u\n", a);
+
+    GCMBlock block = GCMBlock("00ffab");
+    
+    block.print();
     return 0;
 }

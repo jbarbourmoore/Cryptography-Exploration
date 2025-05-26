@@ -21,6 +21,8 @@ target_sources(AES_lib
         src/Modes/AES_CFB.cpp
         src/Modes/AES_OFB.cpp
         src/Modes/AES_CTR.cpp
+        src/Modes/AES_GCM.cpp
+        src/Modes/GCMBlock.cpp
         )
 
 target_link_libraries(AES_app

@@ -11,6 +11,8 @@ target_sources(AES_Tests
         src/ModesTests/AES_CFBTests.cpp
         src/ModesTests/AES_OFBTests.cpp
         src/ModesTests/AES_CTRTests.cpp
+        src/ModesTests/AES_GCMTests.cpp
+        src/ModesTests/GCMBlockTests.cpp
         )
 
 target_link_libraries(AES_Tests 
