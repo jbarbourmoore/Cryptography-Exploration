@@ -25,7 +25,7 @@ The GUI application allows the user to generate RSA keys based on their selectio
 
 <img 
     style="display: block; margin-left: auto; margin-right: auto; width: 100%;"
-    src="https://github.com/jbarbourmoore/Cryptography-Exploration/blob/5708e0550a5e65e35e2383104d694ea2432ef33d/C%2B%2B_Implementations/QT_GUI_Cryptography/Screenshots/RSAEncrypt.png" 
+    src="https://github.com/jbarbourmoore/Cryptography-Exploration/blob/bb1fd545859f8546ffd0924de751c5bfc9f92c0a/C%2B%2B_Implementations/QT_GUI_Cryptography/Screenshots/RSAEncrypt.png" 
     alt="This shows the key generation and encryption of Hex String in the GUI Application.">
 </img>   
 
@@ -33,7 +33,7 @@ In order to decrypt the value that they had entered, the user may use the "Move 
 
 <img 
     style="display: block; margin-left: auto; margin-right: auto; width: 100%;"
-    src="https://github.com/jbarbourmoore/Cryptography-Exploration/blob/5708e0550a5e65e35e2383104d694ea2432ef33d/C%2B%2B_Implementations/QT_GUI_Cryptography/Screenshots/RSADecrypt.png" 
+    src="https://github.com/jbarbourmoore/Cryptography-Exploration/blob/bb1fd545859f8546ffd0924de751c5bfc9f92c0a/C%2B%2B_Implementations/QT_GUI_Cryptography/Screenshots/RSADecrypt.png" 
     alt="This shows the decryption of Hex String in the GUI Application.">
 </img>   
 
@@ -67,7 +67,7 @@ I have implemented both SHA1 and SHA in C++ and they can be used to hash string 
 
 <img 
     style="display: block; margin-left: auto; margin-right: auto; width: 100%;"
-    src="https://github.com/jbarbourmoore/Cryptography-Exploration/blob/5708e0550a5e65e35e2383104d694ea2432ef33d/C%2B%2B_Implementations/QT_GUI_Cryptography/Screenshots/SHA.png" 
+    src="https://github.com/jbarbourmoore/Cryptography-Exploration/blob/bb1fd545859f8546ffd0924de751c5bfc9f92c0a/C%2B%2B_Implementations/QT_GUI_Cryptography/Screenshots/SHA.png" 
     alt="This shows the generation of SHA digests in the GUI Application.">
 </img>   
 
