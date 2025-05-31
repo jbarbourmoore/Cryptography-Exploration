@@ -47,6 +47,28 @@ void AESDataBlock::print(bool with_char_formatting) const{
     printf("\n");
 }
 
+AESDataBlock AESDataBlock::galoisMultiplication(AESDataBlock const &X, AESDataBlock const &Y){
+    AESDataBlock R = AESDataBlock("E1000000000000000000000000000000");
+    AESDataBlock Z = AESDataBlock();
+    AESDataBlock V = AESDataBlock(X);
+    for(int i = 0; i <= 127; i++){
+        if(Y.checkBit(i)){
+            Z = Z ^ V;
+        }
+        if(!V.checkBit(127)){
+            V >> 1;
+        } else {
+            V >> 1;
+            V.xorBlock(R);
+        }
+    }
+    return Z;
+}
+
+bool AESDataBlock::checkBit(int index) const{
+
+}
+
 unsigned char AESDataBlock::getByte(int index) const{
     return data_block[index];
 }

@@ -93,6 +93,14 @@ class AESDataBlock {
         /// @param inc_amount The value by which to increment the block
         void increment(int inc_amount);
 
+        /// @brief This finds the multiplication in the galois field for use with Galois / Counter Mode
+        /// @param X The first number to be multiplied
+        /// @param Y The second number to be multiplied
+        /// @return An AESDataBlock with the result of the multiplication
+        AESDataBlock galoisMultiplication(AESDataBlock const &X, AESDataBlock const &Y);
+
+        bool checkBit(int index) const;
+
         /// @brief The destructor for AESDataBlock
         ~AESDataBlock();
 
