@@ -97,7 +97,7 @@ class AESDataBlock {
         /// @param X The first number to be multiplied
         /// @param Y The second number to be multiplied
         /// @return An AESDataBlock with the result of the multiplication
-        AESDataBlock galoisMultiplication(AESDataBlock const &X, AESDataBlock const &Y);
+        static AESDataBlock galoisMultiplication(AESDataBlock const &X, AESDataBlock const &Y);
 
         /// @brief This method checks whether a bit is set in a given data block
         /// @param index The specific index of the bit to be checked
