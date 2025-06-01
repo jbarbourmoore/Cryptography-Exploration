@@ -99,6 +99,9 @@ class AESDataBlock {
         /// @return An AESDataBlock with the result of the multiplication
         AESDataBlock galoisMultiplication(AESDataBlock const &X, AESDataBlock const &Y);
 
+        /// @brief This method checks whether a bit is set in a given data block
+        /// @param index The specific index of the bit to be checked
+        /// @return True if the bit is set, otherwise false
         bool checkBit(int index) const;
 
         /// @brief The destructor for AESDataBlock

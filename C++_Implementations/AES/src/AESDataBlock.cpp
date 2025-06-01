@@ -53,7 +53,7 @@ AESDataBlock AESDataBlock::galoisMultiplication(AESDataBlock const &X, AESDataBl
     AESDataBlock V = AESDataBlock(X);
     for(int i = 0; i <= 127; i++){
         if(Y.checkBit(i)){
-            Z = Z ^ V;
+            Z.xorBlock(V);
         }
         if(!V.checkBit(127)){
             V >> 1;
@@ -66,7 +66,10 @@ AESDataBlock AESDataBlock::galoisMultiplication(AESDataBlock const &X, AESDataBl
 }
 
 bool AESDataBlock::checkBit(int index) const{
+    int character_index = index / 8;
+    int bit_index = index % 8;
 
+    return (data_block[character_index] >> (7 - bit_index)) & 1;
 }
 
 unsigned char AESDataBlock::getByte(int index) const{
