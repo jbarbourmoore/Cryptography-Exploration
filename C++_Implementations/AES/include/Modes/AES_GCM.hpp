@@ -15,7 +15,13 @@ class AES_GCM{
         /// @return The AESDataBlock Y, that is the result of the GHASH
         AESDataBlock GHASH(AESDataBlock H, std::vector<AESDataBlock> X);
 
-        void GTCR();
+        /// @brief This function performs GCTR as defined in Section 6.5 "GCTR Function"
+        /// @param key_type The enum value for the bit length of the AES Key 
+        /// @param key The key as a hex string
+        /// @param ICB The initital counter block
+        /// @param hex_input The input as a hex string
+        /// @return The encrypted message as a hex string
+        std::string GTCR(AESKeyTypes key_type, std::string key, AESDataBlock ICB, std::string hex_input);
 
 };
 

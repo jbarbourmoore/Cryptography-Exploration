@@ -10,6 +10,6 @@ AESDataBlock AES_GCM::GHASH(AESDataBlock H, std::vector<AESDataBlock> X){
     return Y;
 }
 
-void AES_GCM::GTCR(){
+std::string AES_GCM::GTCR(AESKeyTypes key_type, std::string key, AESDataBlock ICB, std::string hex_input){
 
 }
