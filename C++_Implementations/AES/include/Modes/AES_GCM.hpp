@@ -9,7 +9,11 @@ class AES_GCM{
 
     public:
 
-        void GHASH();
+        /// @brief This method performs the GHASH algorithm as defined in section 6.4 "GHASH Function"
+        /// @param H The hash subkey
+        /// @param X The input data to the GHASH
+        /// @return The AESDataBlock Y, that is the result of the GHASH
+        AESDataBlock GHASH(AESDataBlock H, std::vector<AESDataBlock> X);
 
         void GTCR();
 
