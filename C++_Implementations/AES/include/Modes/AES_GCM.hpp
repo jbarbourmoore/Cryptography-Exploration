@@ -13,7 +13,7 @@ class AES_GCM{
         /// @param H The hash subkey
         /// @param X The input data to the GHASH
         /// @return The AESDataBlock Y, that is the result of the GHASH
-        AESDataBlock GHASH(AESDataBlock H, std::vector<AESDataBlock> X);
+        static AESDataBlock GHASH(AESDataBlock H, std::vector<AESDataBlock> X);
 
         /// @brief This function performs GCTR as defined in Section 6.5 "GCTR Function"
         /// @param key_type The enum value for the bit length of the AES Key 
