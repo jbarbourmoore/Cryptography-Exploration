@@ -23,5 +23,4 @@ TEST(AES_GCM_Tests, ghash_test) {
     AESDataBlock result_block = AES_GCM::GHASH(hash_block, input_blocks);
 
     EXPECT_EQ(result_block, expected_block);
-
 }

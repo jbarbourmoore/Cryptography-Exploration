@@ -23,6 +23,8 @@ class AES_GCM{
         /// @return The encrypted message as a hex string
         std::string GTCR(AESKeyTypes key_type, std::string key, AESDataBlock ICB, std::string hex_input);
 
+        AESDataBlock cipher(AESDataBlock input, AESKeyTypes key_type, std::vector<AESWord> expanded_key);
+
 };
 
 #endif
