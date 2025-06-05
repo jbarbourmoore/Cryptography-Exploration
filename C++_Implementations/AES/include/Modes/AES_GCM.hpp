@@ -23,8 +23,24 @@ class AES_GCM{
         /// @return The encrypted message as a hex string
         std::string GTCR(AESKeyTypes key_type, std::string key, AESDataBlock ICB, std::string hex_input);
 
+        /// @brief This method handles the AES cipher for use in the gcm implementation
+        /// @param input The input to the cipher as a single AESDataBlock
+        /// @param key_type The key type (128, 192 or 256 bit)
+        /// @param expanded_key The key for the AES in its expanded form
+        /// @return The AESDataBlock that is the cipher text corresponding to the input
         AESDataBlock cipher(AESDataBlock input, AESKeyTypes key_type, std::vector<AESWord> expanded_key);
 
+        /// @brief This method performs the authenticated encryption as laid out in Nist SP 800-38D Algorithm 4: "GCM-AEK (IV, P, A)"
+        /// @param P The plain text as a hex string that is to be encrypted
+        /// @param key_type The key type (128, 192, or 256 bit)
+        /// @param K The key as a hex string
+        /// @param t The (approved) tag length
+        /// @param IV The initialization vector
+        /// @param A Additional authentication data when applicable
+        /// @return The hex string of the cipher text correspdoning to the input
+        std::string authenticatedEncryption(AESDataBlock P, AESKeyTypes key_type, std::string K, int t, AESDataBlock IV, std::string A);
+
+        void authenticatedDecryption();
 };
 
 #endif

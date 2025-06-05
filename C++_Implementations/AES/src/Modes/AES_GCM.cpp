@@ -12,25 +12,33 @@ AESDataBlock AES_GCM::GHASH(AESDataBlock H, std::vector<AESDataBlock> X){
 
 std::string AES_GCM::GTCR(AESKeyTypes key_type, std::string key, AESDataBlock ICB, std::string hex_input){
     std::vector<AESWord> expanded_key = AESKey::keyExpansion(key);
-    std::string result = "";
+    std::string Y = "";
     int block_length = 128 / 4;
-    if (result != ""){
+    if (hex_input != ""){
         int input_length = hex_input.size();
         int n = input_length / block_length;
-        if (input_length % block_length != 0){
-            n ++;
-        }
         AESDataBlock CB = AESDataBlock(ICB);
         for(int i = 1; i < n; i ++){
             AESDataBlock X = AESDataBlock(hex_input.substr(i * block_length, block_length));
-            X.xorBlock(cipher(CB, key_type, expanded_key));
-            
+            AESDataBlock Y_i = cipher(CB, key_type, expanded_key);
+            Y_i.xorBlock(X);
             CB.increment(1);
+            Y.append(Y_i.getString());
         }
-
+        if (input_length % block_length != 0){
+            int final_block_length = input_length % block_length;
+            AESDataBlock Y_n = cipher(CB, key_type, expanded_key);
+            std::string final_hex = hex_input.substr(n * block_length, final_block_length);
+            for (int i = 0; i < final_block_length; i ++){
+                final_hex.append("0");
+            }
+            AESDataBlock X = AESDataBlock(final_hex);
+            Y_n.xorBlock(X);
+            std::string partial_out_string = Y_n.getString();
+            Y.append(partial_out_string.substr(0, final_block_length));
+        }
     }
-
-    return result;
+    return Y;
 }
 
 AESDataBlock AES_GCM::cipher(AESDataBlock input, AESKeyTypes key_type, std::vector<AESWord> expanded_key){
@@ -47,4 +55,8 @@ AESDataBlock AES_GCM::cipher(AESDataBlock input, AESKeyTypes key_type, std::vect
         }
     }
     return cipher_text;
+}
+
+std::string AES_GCM::authenticatedEncryption(AESDataBlock P, AESKeyTypes key_type, std::string K, int t, AESDataBlock IV, std::string A){
+
 }
