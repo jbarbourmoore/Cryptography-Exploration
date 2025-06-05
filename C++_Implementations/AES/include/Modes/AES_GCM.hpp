@@ -2,6 +2,8 @@
 #define AES_GCM_HPP
 
 #include "AES.hpp"
+#include "inttypes.h"
+
 
 /// @brief This class contains the functions for AES in Galois / Counter Mode as defined in NIST SP 800 -38d
 /// https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38d.pdf
@@ -38,9 +40,20 @@ class AES_GCM{
         /// @param IV The initialization vector
         /// @param A Additional authentication data when applicable
         /// @return The hex string of the cipher text correspdoning to the input
-        std::string authenticatedEncryption(AESDataBlock P, AESKeyTypes key_type, std::string K, int t, AESDataBlock IV, std::string A);
+        std::string authenticatedEncryption(std::string P, AESKeyTypes key_type, std::string K, int t, std::string IV, std::string A);
 
         void authenticatedDecryption();
+
+        /// @brief This method returns an unsigned 64 bit integer as a hexadecimal string with 16 characters
+        /// @param input The unsigned 64 bit integer
+        /// @return The value as a hexadecimal string
+        std::string getInt64AsString(u_int64_t input);
+
+        /// @brief This method calculates the positive modulus of a given value
+        /// @param input The input value
+        /// @param modulus The modulus field to be calculating within
+        /// @return The modulus value (positive)
+        u_int64_t mod(u_int64_t input, int modulus);
 };
 
 #endif
