@@ -80,7 +80,7 @@ GCM_EncyptionResult AES_GCM::authenticatedEncryption(std::string P, AESKeyTypes 
         for (int i = 0 ; i < s + 16; i ++){
             IV.append("0");
         }
-        IV.append(getInt64AsString(iv_length));
+        IV.append(getInt64AsString(iv_length * 4));
         J0 = GHASH(H, AESDataBlock::dataBlocksFromHexString(IV));
     }
     printf("J0 is %s\n",J0.getString().c_str());
