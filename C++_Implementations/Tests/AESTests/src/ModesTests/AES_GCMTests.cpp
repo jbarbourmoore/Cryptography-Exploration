@@ -298,3 +298,140 @@ TEST(AES_GCM_Tests, test012_aes192_longiv){
     EXPECT_TRUE(decrypt_result.status_);
     EXPECT_EQ(decrypt_result.plain_text_, plain_text);
 }
+
+/// This method tests AES GCM with a 0 bit plain text length
+/// Test Case 13 from "The Galois/Counter Mode of Operation (GCM)" : Appendix B "AES Test Vectors"
+/// https://csrc.nist.rip/groups/ST/toolkit/BCM/documents/proposedmodes/gcm/gcm-spec.pdf
+TEST(AES_GCM_Tests, test013_aes256_0bitpt){
+    std::string key = "0000000000000000000000000000000000000000000000000000000000000000";
+    AESKeyTypes key_type = AESKeyTypes::AES_KEY_256;
+    std::string initialization_vector = "000000000000000000000000";
+    std::string plain_text = "";
+    std::string expected_tag = "530F8AFBC74536B9A963B4F1C4CB738B";
+    std::string expected_cypher = "";
+    int tag_length = 32;
+    std::string additional_data = "";
+
+    GCM_EncyptionResult result = AES_GCM::authenticatedEncryption(plain_text, key_type, key, tag_length, initialization_vector, additional_data);
+    EXPECT_EQ(result.cipher_text_, expected_cypher);
+    EXPECT_EQ(result.tag_, expected_tag);
+
+    GCM_DecryptionResult decrypt_result = AES_GCM::authenticatedDecryption(result.cipher_text_, key_type, key, result.tag_, tag_length, initialization_vector, additional_data);
+    EXPECT_TRUE(decrypt_result.status_);
+    EXPECT_EQ(decrypt_result.plain_text_, plain_text);
+}
+
+/// This method tests AES GCM with a 128 bit plain text length
+/// Test Case 14 from "The Galois/Counter Mode of Operation (GCM)" : Appendix B "AES Test Vectors"
+/// https://csrc.nist.rip/groups/ST/toolkit/BCM/documents/proposedmodes/gcm/gcm-spec.pdf
+TEST(AES_GCM_Tests, test014_aes256_128bitpt){
+    std::string key = "0000000000000000000000000000000000000000000000000000000000000000";
+    AESKeyTypes key_type = AESKeyTypes::AES_KEY_256;
+    std::string initialization_vector = "000000000000000000000000";
+    std::string plain_text = "00000000000000000000000000000000";
+    std::string expected_tag = "D0D1C8A799996BF0265B98B5D48AB919";
+    std::string expected_cypher = "CEA7403D4D606B6E074EC5D3BAF39D18";
+    int tag_length = 32;
+    std::string additional_data = "";
+
+    GCM_EncyptionResult result = AES_GCM::authenticatedEncryption(plain_text, key_type, key, tag_length, initialization_vector, additional_data);
+
+    EXPECT_EQ(result.cipher_text_, expected_cypher);
+    EXPECT_EQ(result.tag_, expected_tag);
+
+    GCM_DecryptionResult decrypt_result = AES_GCM::authenticatedDecryption(result.cipher_text_, key_type, key, result.tag_, tag_length, initialization_vector, additional_data);
+    EXPECT_TRUE(decrypt_result.status_);
+    EXPECT_EQ(decrypt_result.plain_text_, plain_text);
+}
+
+/// This method tests AES GCM with a several block plain text length
+/// Test Case 15 from "The Galois/Counter Mode of Operation (GCM)" : Appendix B "AES Test Vectors"
+/// https://csrc.nist.rip/groups/ST/toolkit/BCM/documents/proposedmodes/gcm/gcm-spec.pdf
+TEST(AES_GCM_Tests, test015_aes256_severalblockpt){
+    std::string key = "feffe9928665731c6d6a8f9467308308feffe9928665731c6d6a8f9467308308";
+    AESKeyTypes key_type = AESKeyTypes::AES_KEY_256;
+    std::string initialization_vector = "cafebabefacedbaddecaf888";
+    std::string plain_text = "D9313225F88406E5A55909C5AFF5269A86A7A9531534F7DA2E4C303D8A318A721C3C0C95956809532FCF0E2449A6B525B16AEDF5AA0DE657BA637B391AAFD255";
+    std::string expected_tag = "B094DAC5D93471BDEC1A502270E3CC6C";
+    std::string expected_cypher = "522DC1F099567D07F47F37A32A84427D643A8CDCBFE5C0C97598A2BD2555D1AA8CB08E48590DBB3DA7B08B1056828838C5F61E6393BA7A0ABCC9F662898015AD";
+    int tag_length = 32;
+    std::string additional_data = "";
+
+    GCM_EncyptionResult result = AES_GCM::authenticatedEncryption(plain_text, key_type, key, tag_length, initialization_vector, additional_data);
+    EXPECT_EQ(result.cipher_text_, expected_cypher);
+    EXPECT_EQ(result.tag_, expected_tag);
+    
+    GCM_DecryptionResult decrypt_result = AES_GCM::authenticatedDecryption(result.cipher_text_, key_type, key, result.tag_, tag_length, initialization_vector, additional_data);
+    EXPECT_TRUE(decrypt_result.status_);
+    EXPECT_EQ(decrypt_result.plain_text_, plain_text);
+}
+
+/// This method tests AES GCM with a partial block length of plain text
+/// Test Case 16 from "The Galois/Counter Mode of Operation (GCM)" : Appendix B "AES Test Vectors"
+/// https://csrc.nist.rip/groups/ST/toolkit/BCM/documents/proposedmodes/gcm/gcm-spec.pdf
+TEST(AES_GCM_Tests, test016_aes256_partialblockpt){
+    std::string key = "feffe9928665731c6d6a8f9467308308feffe9928665731c6d6a8f9467308308";
+    AESKeyTypes key_type = AESKeyTypes::AES_KEY_256;
+    std::string initialization_vector = "cafebabefacedbaddecaf888";
+    std::string plain_text = "D9313225F88406E5A55909C5AFF5269A86A7A9531534F7DA2E4C303D8A318A721C3C0C95956809532FCF0E2449A6B525B16AEDF5AA0DE657BA637B39";
+    std::string expected_tag = "76FC6ECE0F4E1768CDDF8853BB2D551B";
+    std::string expected_cypher = "522DC1F099567D07F47F37A32A84427D643A8CDCBFE5C0C97598A2BD2555D1AA8CB08E48590DBB3DA7B08B1056828838C5F61E6393BA7A0ABCC9F662";
+    int tag_length = 32;
+    std::string additional_data = "feedfacedeadbeeffeedfacedeadbeefabaddad2";
+
+    GCM_EncyptionResult result = AES_GCM::authenticatedEncryption(plain_text, key_type, key, tag_length, initialization_vector, additional_data);
+
+    EXPECT_EQ(result.cipher_text_, expected_cypher);
+    EXPECT_EQ(result.tag_, expected_tag);
+
+    GCM_DecryptionResult decrypt_result = AES_GCM::authenticatedDecryption(result.cipher_text_, key_type, key, result.tag_, tag_length, initialization_vector, additional_data);
+    EXPECT_TRUE(decrypt_result.status_);
+    EXPECT_EQ(decrypt_result.plain_text_, plain_text);
+}
+
+/// This method tests AES GCM with a short initialization vector
+/// Test Case 17 from "The Galois/Counter Mode of Operation (GCM)" : Appendix B "AES Test Vectors"
+/// https://csrc.nist.rip/groups/ST/toolkit/BCM/documents/proposedmodes/gcm/gcm-spec.pdf
+TEST(AES_GCM_Tests, test017_aes256_shortiv){
+    std::string key = "feffe9928665731c6d6a8f9467308308feffe9928665731c6d6a8f9467308308";
+    AESKeyTypes key_type = AESKeyTypes::AES_KEY_256;
+    std::string initialization_vector = "cafebabefacedbad";
+    std::string plain_text = "D9313225F88406E5A55909C5AFF5269A86A7A9531534F7DA2E4C303D8A318A721C3C0C95956809532FCF0E2449A6B525B16AEDF5AA0DE657BA637B39";
+    std::string expected_tag = "3A337DBF46A792C45E454913FE2EA8F2";
+    std::string expected_cypher = "C3762DF1CA787D32AE47C13BF19844CBAF1AE14D0B976AFAC52FF7D79BBA9DE0FEB582D33934A4F0954CC2363BC73F7862AC430E64ABE499F47C9B1F";
+    int tag_length = 32;
+    std::string additional_data = "feedfacedeadbeeffeedfacedeadbeefabaddad2";
+
+    GCM_EncyptionResult result = AES_GCM::authenticatedEncryption(plain_text, key_type, key, tag_length, initialization_vector, additional_data);
+
+    EXPECT_EQ(result.cipher_text_, expected_cypher);
+    EXPECT_EQ(result.tag_, expected_tag);
+
+    GCM_DecryptionResult decrypt_result = AES_GCM::authenticatedDecryption(result.cipher_text_, key_type, key, result.tag_, tag_length, initialization_vector, additional_data);
+    EXPECT_TRUE(decrypt_result.status_);
+    EXPECT_EQ(decrypt_result.plain_text_, plain_text);
+}
+
+/// This method tests AES GCM with a long initialization vector
+/// Test Case 18 from "The Galois/Counter Mode of Operation (GCM)" : Appendix B "AES Test Vectors"
+/// https://csrc.nist.rip/groups/ST/toolkit/BCM/documents/proposedmodes/gcm/gcm-spec.pdf
+TEST(AES_GCM_Tests, test018_aes256_longiv){
+    std::string key = "feffe9928665731c6d6a8f9467308308feffe9928665731c6d6a8f9467308308";
+    AESKeyTypes key_type = AESKeyTypes::AES_KEY_256;
+    std::string initialization_vector = "9313225df88406e555909c5aff5269aa6a7a9538534f7da1e4c303d2a318a728c3c0c95156809539fcf0e2429a6b525416aedbf5a0de6a57a637b39b";
+    std::string plain_text = "D9313225F88406E5A55909C5AFF5269A86A7A9531534F7DA2E4C303D8A318A721C3C0C95956809532FCF0E2449A6B525B16AEDF5AA0DE657BA637B39";
+    std::string expected_tag = "A44A8266EE1C8EB0C8B5D4CF5AE9F19A";
+    std::string expected_cypher = "5A8DEF2F0C9E53F1F75D7853659E2A20EEB2B22AAFDE6419A058AB4F6F746BF40FC0C3B780F244452DA3EBF1C5D82CDEA2418997200EF82E44AE7E3F";
+    int tag_length = 32;
+    std::string additional_data = "feedfacedeadbeeffeedfacedeadbeefabaddad2";
+
+    GCM_EncyptionResult result = AES_GCM::authenticatedEncryption(plain_text, key_type, key, tag_length, initialization_vector, additional_data);
+
+    EXPECT_EQ(result.cipher_text_, expected_cypher);
+    EXPECT_EQ(result.tag_, expected_tag);
+
+    GCM_DecryptionResult decrypt_result = AES_GCM::authenticatedDecryption(result.cipher_text_, key_type, key, result.tag_, tag_length, initialization_vector, additional_data);
+    EXPECT_TRUE(decrypt_result.status_);
+    EXPECT_EQ(decrypt_result.plain_text_, plain_text);
+}
+
