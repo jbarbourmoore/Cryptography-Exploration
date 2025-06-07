@@ -11,8 +11,7 @@ AESDataBlock AES_GCM::GHASH(AESDataBlock H, std::vector<AESDataBlock> X){
     return Y;
 }
 
-std::string AES_GCM::GTCR(AESKeyTypes key_type, std::string key, AESDataBlock ICB, std::string hex_input){
-    std::vector<AESWord> expanded_key = AESKey::keyExpansion(key);
+std::string AES_GCM::GTCR(AESKeyTypes key_type, std::vector<AESWord> expanded_key, AESDataBlock ICB, std::string hex_input){
     std::string Y = "";
     int block_length = 128 / 4;
     if (hex_input != ""){
@@ -68,8 +67,19 @@ AESDataBlock AES_GCM::cipher(AESDataBlock input, AESKeyTypes key_type, std::vect
 
 GCM_EncyptionResult AES_GCM::authenticatedEncryption(std::string P, AESKeyTypes key_type, std::string key, int t, std::string IV, std::string A){
     std::vector<AESWord> expanded_key = AESKey::keyExpansion(key);
-    int block_length_hex = 32;
     AESDataBlock H = cipher(AESDataBlock(), key_type, expanded_key);
+    AESDataBlock J0 = calculateJ0(expanded_key, key_type, IV, H);
+    printf("J0 is %s\n",J0.getString().c_str());
+    AESDataBlock inc_J0 = AESDataBlock(J0);
+    inc_J0.increment(1);
+    std::string C = GTCR(key_type, expanded_key, inc_J0, P);
+    printf("C is %s\n",C.c_str());
+    std::string tag = calculateTag(C, A, expanded_key, key_type, IV, J0, H);
+    return GCM_EncyptionResult(C, tag);
+}
+
+AESDataBlock AES_GCM::calculateJ0(std::vector<AESWord> expanded_key, AESKeyTypes key_type, std::string IV, AESDataBlock H){
+    int block_length_hex = 32;
     u_int64_t iv_length = IV.size();
     AESDataBlock J0;
     if (iv_length == 96 / 4){
@@ -81,13 +91,13 @@ GCM_EncyptionResult AES_GCM::authenticatedEncryption(std::string P, AESKeyTypes 
             IV.append("0");
         }
         IV.append(getInt64AsString(iv_length * 4));
-        J0 = GHASH(H, AESDataBlock::dataBlocksFromHexString(IV));
+        J0 = GHASH(cipher(AESDataBlock(), key_type, expanded_key), AESDataBlock::dataBlocksFromHexString(IV));
     }
-    printf("J0 is %s\n",J0.getString().c_str());
-    AESDataBlock inc_J0 = AESDataBlock(J0);
-    inc_J0.increment(1);
-    std::string C = GTCR(key_type, key, inc_J0, P);
-    printf("C is %s\n",C.c_str());
+    return J0;
+}
+
+std::string AES_GCM::calculateTag(std::string C, std::string A, std::vector<AESWord> expanded_key, AESKeyTypes key_type, std::string IV, AESDataBlock J0, AESDataBlock H){
+    int block_length_hex = 32;
     u_int64_t U = mod(C.size(), block_length_hex);
     u_int64_t V = mod(A.size(), block_length_hex);
     std::string S_input = "";
@@ -102,8 +112,28 @@ GCM_EncyptionResult AES_GCM::authenticatedEncryption(std::string P, AESKeyTypes 
     S_input.append(getInt64AsString(A.size() * 4));
     S_input.append(getInt64AsString(C.size() * 4));
     AESDataBlock S = GHASH(H, AESDataBlock::dataBlocksFromHexString(S_input));
-    std::string tag = GTCR(key_type, key, J0, S.getString());
-    return GCM_EncyptionResult(C, tag);
+    std::string tag = GTCR(key_type, expanded_key, J0, S.getString());
+    return tag;
+}
+
+GCM_DecryptionResult AES_GCM::authenticatedDecryption(std::string C, AESKeyTypes key_type, std::string key, std::string tag, int t, std::string IV, std::string A){
+    std::vector<AESWord> expanded_key = AESKey::keyExpansion(key);
+    AESDataBlock H = cipher(AESDataBlock(), key_type, expanded_key);
+    AESDataBlock J0 = calculateJ0(expanded_key, key_type, IV, H);
+    printf("J0 is %s\n",J0.getString().c_str());
+    AESDataBlock inc_J0 = AESDataBlock(J0);
+    inc_J0.increment(1);
+    std::string P = GTCR(key_type, expanded_key, inc_J0, C);
+    printf("C is %s\n",C.c_str());
+    std::string calculated_tag = calculateTag(C, A, expanded_key, key_type, IV, J0, H);
+
+    GCM_DecryptionResult result;
+    if (calculated_tag == tag){
+        result = GCM_DecryptionResult(true, P);
+    } else {
+        result = GCM_DecryptionResult(false, "");
+    }
+    return result;
 }
 
 std::string AES_GCM::getInt64AsString(u_int64_t input){
@@ -125,4 +155,9 @@ u_int64_t AES_GCM::mod(u_int64_t input, int modulus){
 GCM_EncyptionResult::GCM_EncyptionResult(std::string cipher_text, std::string tag){
     cipher_text_ = cipher_text;
     tag_ = tag;
+}
+
+GCM_DecryptionResult::GCM_DecryptionResult(bool status, std::string plain_text){
+    status_ = status;
+    plain_text_ = plain_text;
 }
