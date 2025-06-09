@@ -243,6 +243,9 @@ void MainWindow::on_aes_encrypt_clicked(){
                 vector<AESDataBlock> datablock = AES_ECB::AES128Cypher(aes_in.toStdString(), aes_key.toStdString());
                 result = AESDataBlock::hexStringFromDataBlocks(datablock);
             }
+        } else if (aes_mode == 7){
+            GCM_EncyptionResult gcmresult = AES_GCM::authenticatedEncryption(aes_in.toStdString(), AES_KEY_128, aes_key.toStdString(), 32, aes_iv.toStdString(),"");
+            result = gcmresult.cipher_text_;
         } else {
             if(aes_key.size() != 32 || aes_iv.size() != 32){
                 result = "Please enter appropriate length values for key and initialization vector";

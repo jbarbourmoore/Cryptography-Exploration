@@ -755,7 +755,12 @@
             </item>
             <item>
              <property name="text">
-              <string>Counter (CFB)</string>
+              <string>Counter (CTR)</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Galois / Counter (GCM)</string>
              </property>
             </item>
            </widget>

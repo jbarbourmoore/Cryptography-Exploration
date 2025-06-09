@@ -8,6 +8,7 @@
 #include "AES_CFB.hpp"
 #include "AES_OFB.hpp"
 #include "AES_CTR.hpp"
+#include "AES_GCM.hpp"
 #include <QMainWindow>
 #include <string.h>
 #include <chrono>
