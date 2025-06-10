@@ -667,218 +667,242 @@
        <attribute name="title">
         <string>AES</string>
        </attribute>
-       <layout class="QVBoxLayout" name="verticalLayout_13">
-        <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_7">
-          <item>
-           <widget class="QLabel" name="label_7">
-            <property name="maximumSize">
-             <size>
-              <width>125</width>
-              <height>16777215</height>
-             </size>
-            </property>
-            <property name="text">
-             <string>Key Length</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QComboBox" name="aes_key_length_select">
-            <property name="maximumSize">
-             <size>
-              <width>200</width>
-              <height>16777215</height>
-             </size>
-            </property>
-            <item>
-             <property name="text">
-              <string>128 Bit</string>
+       <widget class="QWidget" name="">
+        <property name="geometry">
+         <rect>
+          <x>-1</x>
+          <y>9</y>
+          <width>931</width>
+          <height>651</height>
+         </rect>
+        </property>
+        <layout class="QVBoxLayout" name="verticalLayout_13">
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_7">
+           <item>
+            <widget class="QLabel" name="label_7">
+             <property name="maximumSize">
+              <size>
+               <width>125</width>
+               <height>16777215</height>
+              </size>
              </property>
-            </item>
-            <item>
              <property name="text">
-              <string>192 Bit</string>
+              <string>Key Length</string>
              </property>
-            </item>
-            <item>
+            </widget>
+           </item>
+           <item>
+            <widget class="QComboBox" name="aes_key_length_select">
+             <property name="maximumSize">
+              <size>
+               <width>200</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <item>
+              <property name="text">
+               <string>128 Bit</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>192 Bit</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>256 Bit</string>
+              </property>
+             </item>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_8">
+             <property name="maximumSize">
+              <size>
+               <width>125</width>
+               <height>16777215</height>
+              </size>
+             </property>
              <property name="text">
-              <string>256 Bit</string>
+              <string>Mode</string>
              </property>
-            </item>
-           </widget>
-          </item>
-          <item>
-           <widget class="QLabel" name="label_8">
-            <property name="maximumSize">
-             <size>
-              <width>125</width>
-              <height>16777215</height>
-             </size>
-            </property>
-            <property name="text">
-             <string>Mode</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QComboBox" name="aes_mode_select">
-            <item>
+            </widget>
+           </item>
+           <item>
+            <widget class="QComboBox" name="aes_mode_select">
+             <item>
+              <property name="text">
+               <string>Electronic Cookbook (ECB)</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Cypher Block Chaining (CBC)</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>1 Bit Cypher Feedack (CFB)</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>8 Bit Cypher Feedback (CFB)</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>128 Bit Cypher Feedback (CFB)</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Output Feedback (OFB)</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Counter (CTR)</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Galois / Counter (GCM)</string>
+              </property>
+             </item>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_8">
+           <item>
+            <widget class="QLabel" name="label_9">
              <property name="text">
-              <string>Electronic Cookbook (ECB)</string>
+              <string>Key</string>
              </property>
-            </item>
-            <item>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="aes_key_text"/>
+           </item>
+           <item>
+            <widget class="QPushButton" name="aes_key_gen_button">
              <property name="text">
-              <string>Cypher Block Chaining (CBC)</string>
+              <string>Generate</string>
              </property>
-            </item>
-            <item>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_9">
+           <item>
+            <widget class="QLabel" name="label_10">
              <property name="text">
-              <string>1 Bit Cypher Feedack (CFB)</string>
+              <string>Initialization Vector</string>
              </property>
-            </item>
-            <item>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="aes_iv_text"/>
+           </item>
+           <item>
+            <widget class="QPushButton" name="aes_iv_gen_button">
              <property name="text">
-              <string>8 Bit Cypher Feedback (CFB)</string>
+              <string>Generate</string>
              </property>
-            </item>
-            <item>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_11">
+           <item>
+            <widget class="QLabel" name="aes_in_label">
+             <property name="minimumSize">
+              <size>
+               <width>100</width>
+               <height>0</height>
+              </size>
+             </property>
              <property name="text">
-              <string>128 Bit Cypher Feedback (CFB)</string>
+              <string>Hex Input</string>
              </property>
-            </item>
-            <item>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPlainTextEdit" name="aes_in_text"/>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_14">
+           <item>
+            <widget class="QLabel" name="label_11">
              <property name="text">
-              <string>Output Feedback (OFB)</string>
+              <string>AES GCM Tag</string>
              </property>
-            </item>
-            <item>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="aes_gcm_tag_edit"/>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_13">
+           <item>
+            <widget class="QPushButton" name="aes_encrypt_button">
              <property name="text">
-              <string>Counter (CTR)</string>
+              <string>Encrypt</string>
              </property>
-            </item>
-            <item>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="aes_swap_out_button">
              <property name="text">
-              <string>Galois / Counter (GCM)</string>
+              <string>Move Output To Input</string>
              </property>
-            </item>
-           </widget>
-          </item>
-         </layout>
-        </item>
-        <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_8">
-          <item>
-           <widget class="QLabel" name="label_9">
-            <property name="text">
-             <string>Key</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QLineEdit" name="aes_key_text"/>
-          </item>
-          <item>
-           <widget class="QPushButton" name="aes_key_gen_button">
-            <property name="text">
-             <string>Generate</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </item>
-        <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_9">
-          <item>
-           <widget class="QLabel" name="label_10">
-            <property name="text">
-             <string>Initialization Vector</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QLineEdit" name="aes_iv_text"/>
-          </item>
-          <item>
-           <widget class="QPushButton" name="aes_iv_gen_button">
-            <property name="text">
-             <string>Generate</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </item>
-        <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_11">
-          <item>
-           <widget class="QLabel" name="aes_in_label">
-            <property name="minimumSize">
-             <size>
-              <width>100</width>
-              <height>0</height>
-             </size>
-            </property>
-            <property name="text">
-             <string>Hex Input</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPlainTextEdit" name="aes_in_text"/>
-          </item>
-         </layout>
-        </item>
-        <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_13">
-          <item>
-           <widget class="QPushButton" name="aes_encrypt_button">
-            <property name="text">
-             <string>Encrypt</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="aes_swap_out_button">
-            <property name="text">
-             <string>Move Output To Input</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="aes_decrypt_button">
-            <property name="text">
-             <string>Decrypt</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </item>
-        <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_12">
-          <item>
-           <widget class="QLabel" name="aes_out_label">
-            <property name="minimumSize">
-             <size>
-              <width>100</width>
-              <height>0</height>
-             </size>
-            </property>
-            <property name="text">
-             <string>Hex Output</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPlainTextEdit" name="aes_out_text">
-            <property name="readOnly">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </item>
-       </layout>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="aes_decrypt_button">
+             <property name="text">
+              <string>Decrypt</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_12">
+           <item>
+            <widget class="QLabel" name="aes_out_label">
+             <property name="minimumSize">
+              <size>
+               <width>100</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>Hex Output</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPlainTextEdit" name="aes_out_text">
+             <property name="readOnly">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </widget>
       </widget>
      </widget>
     </item>

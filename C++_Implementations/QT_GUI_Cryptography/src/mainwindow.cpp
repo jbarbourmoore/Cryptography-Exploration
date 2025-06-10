@@ -246,6 +246,7 @@ void MainWindow::on_aes_encrypt_clicked(){
         } else if (aes_mode == 7){
             GCM_EncyptionResult gcmresult = AES_GCM::authenticatedEncryption(aes_in.toStdString(), AES_KEY_128, aes_key.toStdString(), 32, aes_iv.toStdString(),"");
             result = gcmresult.cipher_text_;
+            ui->aes_gcm_tag_edit->setText(gcmresult.tag_.c_str());
         } else {
             if(aes_key.size() != 32 || aes_iv.size() != 32){
                 result = "Please enter appropriate length values for key and initialization vector";
@@ -275,6 +276,10 @@ void MainWindow::on_aes_encrypt_clicked(){
                 vector<AESDataBlock> datablock = AES_ECB::AES192Cypher(aes_in.toStdString(), aes_key.toStdString());
                 result = AESDataBlock::hexStringFromDataBlocks(datablock);
             }
+        } else if (aes_mode == 7){
+            GCM_EncyptionResult gcmresult = AES_GCM::authenticatedEncryption(aes_in.toStdString(), AES_KEY_192, aes_key.toStdString(), 32, aes_iv.toStdString(),"");
+            result = gcmresult.cipher_text_;
+            ui->aes_gcm_tag_edit->setText(gcmresult.tag_.c_str());
         } else {
             if(aes_key.size() != 48 || aes_iv.size() != 32){
                 result = "Please enter appropriate length values for key and initialization vector";
@@ -305,6 +310,10 @@ void MainWindow::on_aes_encrypt_clicked(){
                 result = AESDataBlock::hexStringFromDataBlocks(datablock);
 
             }
+        } else if (aes_mode == 7){
+            GCM_EncyptionResult gcmresult = AES_GCM::authenticatedEncryption(aes_in.toStdString(), AES_KEY_256, aes_key.toStdString(), 32, aes_iv.toStdString(),"");
+            result = gcmresult.cipher_text_;
+            ui->aes_gcm_tag_edit->setText(gcmresult.tag_.c_str());
         } else {
             if(aes_key.size() != 64 || aes_iv.size() != 32){
                 result = "Please enter appropriate length values for key and initialization vector";
@@ -345,6 +354,14 @@ void MainWindow::on_aes_decrypt_clicked(){
                 vector<AESDataBlock> datablock = AES_ECB::AES128InvCypher(aes_in.toStdString(), aes_key.toStdString());
                 result = AESDataBlock::hexStringFromDataBlocks(datablock);
             }
+        } else if (aes_mode == 7){
+            QString aes_gcm_tag = ui->aes_gcm_tag_edit->text();
+            GCM_DecryptionResult gcmresult = AES_GCM::authenticatedDecryption(aes_in.toStdString(), AES_KEY_128, aes_key.toStdString(), aes_gcm_tag.toStdString(), 32, aes_iv.toStdString(),"");
+            if (gcmresult.status_ == true){
+                result = gcmresult.plain_text_;
+            } else {
+                result = std::string("The encrypted message was unable to be authenticated");
+            }
         } else {
             if(aes_key.size() != 32 || aes_iv.size() != 32){
                 result = "Please enter appropriate length values for key and initialization vector";
@@ -374,6 +391,14 @@ void MainWindow::on_aes_decrypt_clicked(){
                 vector<AESDataBlock> datablock = AES_ECB::AES192InvCypher(aes_in.toStdString(), aes_key.toStdString());
                 result = AESDataBlock::hexStringFromDataBlocks(datablock);
             }
+        } else if (aes_mode == 7){
+            QString aes_gcm_tag = ui->aes_gcm_tag_edit->text();
+            GCM_DecryptionResult gcmresult = AES_GCM::authenticatedDecryption(aes_in.toStdString(), AES_KEY_192, aes_key.toStdString(), aes_gcm_tag.toStdString(), 32, aes_iv.toStdString(),"");
+            if (gcmresult.status_ == true){
+                result = gcmresult.plain_text_;
+            } else {
+                result = std::string("The encrypted message was unable to be authenticated");
+            }
         } else {
             if(aes_key.size() != 48 || aes_iv.size() != 32){
                 result = "Please enter appropriate length values for key and initialization vector";
@@ -402,6 +427,14 @@ void MainWindow::on_aes_decrypt_clicked(){
             } else{
                 vector<AESDataBlock> datablock = AES_ECB::AES256InvCypher(aes_in.toStdString(), aes_key.toStdString());
                 result = AESDataBlock::hexStringFromDataBlocks(datablock);
+            }
+        } else if (aes_mode == 7){
+            QString aes_gcm_tag = ui->aes_gcm_tag_edit->text();
+            GCM_DecryptionResult gcmresult = AES_GCM::authenticatedDecryption(aes_in.toStdString(), AES_KEY_256, aes_key.toStdString(), aes_gcm_tag.toStdString(), 32, aes_iv.toStdString(),"");
+            if (gcmresult.status_ == true){
+                result = gcmresult.plain_text_;
+            } else {
+                result = std::string("The encrypted message was unable to be authenticated");
             }
         } else {
             if(aes_key.size() != 64 || aes_iv.size() != 32){
