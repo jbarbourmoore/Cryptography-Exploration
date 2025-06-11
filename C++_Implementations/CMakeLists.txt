@@ -18,5 +18,6 @@ add_subdirectory(HashingAlgorithms)
 add_subdirectory(HelperFunctions)
 add_subdirectory(Tests)
 add_subdirectory(QT_GUI_Cryptography)
+add_subdirectory(EllipticCurveCryptography)
 
 include(CTest)
