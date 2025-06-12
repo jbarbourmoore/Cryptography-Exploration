@@ -6,7 +6,10 @@
 
 class Point{
     private:
+        /// @brief The x coordinate of the point
         BIGNUM *x_;
+
+        /// @brief The y coordinate of the point
         BIGNUM *y_;
 
     public:
@@ -32,6 +35,9 @@ class Point{
         /// @brief This method returns a string containg the point as hexadecimal values
         /// @return (X,Y) of the point as hexadecimal strings
         std::string toString();
+
+        /// @brief This method cleans up the bignums used for this point
+        void deletePoint();
 };
 
 #endif
