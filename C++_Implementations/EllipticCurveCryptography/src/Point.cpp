@@ -18,3 +18,24 @@ void Point::deletePoint(){
     BN_clear_free(x_);
     BN_clear_free(y_);
 }
+
+std::string Point::toString(){
+    std::string output = std::string("(");
+    output.append(BN_bn2hex(x_));
+    output.append(", ");
+    output.append(BN_bn2hex(y_));
+    output.append(")");
+    return output;
+}
+
+void Point::print(){
+    printf("%s\n", toString());
+}
+
+BIGNUM* Point::getY(){
+    return y_;
+}
+
+BIGNUM* Point::getX(){
+    return x_;
+}
