@@ -20,16 +20,19 @@ class WeirrstrassCurve : public EllipticCurve{
     private:
         BIGNUM* a_;
         BIGNUM* b_;
+        BIGNUM* finite_field_;
         Point origin_;
 
     public:
-        WeirrstrassCurve(const BIGNUM* a, const BIGNUM* b);
+        WeirrstrassCurve(const BIGNUM* a, const BIGNUM* b, const BIGNUM* finite_field);
 
         void deleteCurve() override;
-        
+
         std::string toString() override;
 
         void printCurveDetails() override;
+
+        bool validatePointOnCurve(Point p) override;
 };
 
 #endif

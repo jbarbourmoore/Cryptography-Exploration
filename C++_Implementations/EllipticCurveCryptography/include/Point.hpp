@@ -38,6 +38,11 @@ class Point{
 
         /// @brief This method cleans up the bignums used for this point
         void deletePoint();
+
+        /// @brief This method overrides the == operator in order to compare two points
+        /// @param input The other point that it is being compared to
+        /// @return True if the two points are the same;
+        bool Point::operator==(const Point &input);
 };
 
 #endif

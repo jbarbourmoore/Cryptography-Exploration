@@ -39,3 +39,11 @@ BIGNUM* Point::getY(){
 BIGNUM* Point::getX(){
     return x_;
 }
+
+bool Point::operator==(const Point &input){
+    int x_comp = BN_cmp(x_, input.x_);
+    int y_comp = BN_cmp(y_, input.y_);
+    
+    bool result = x_comp == 0 && y_comp == 0;
+    return result;
+}
