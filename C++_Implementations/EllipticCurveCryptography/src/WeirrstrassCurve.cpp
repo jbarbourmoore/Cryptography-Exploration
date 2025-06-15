@@ -40,11 +40,26 @@ bool WeirrstrassCurve::validatePointOnCurve(Point p){
         bool x_in_field = BN_cmp(x, finite_field_) == -1;
         bool y_in_field = BN_cmp(y, finite_field_) == -1;
         if (x_in_field && y_in_field) {
-            BIGNUM* value = BN_new();
             BN_CTX* calc_ctx = BN_CTX_new();
             BN_CTX_start(calc_ctx);
-            BN_mul(value, x, x, calc_ctx);
-            
+            BIGNUM* x_cubed = BN_CTX_get(calc_ctx);
+            BIGNUM* a_x = BN_CTX_get(calc_ctx);
+            BIGNUM* y_squared = BN_CTX_get(calc_ctx);
+            BIGNUM* calculation = BN_CTX_get(calc_ctx);
+            BN_mul(x_cubed, x, x, calc_ctx);
+            BN_mul(x_cubed, x, x_cubed, calc_ctx);
+            BN_mul(a_x, a_, x, calc_ctx);
+            BN_mul(y_squared, y, y, calc_ctx);
+            BN_add(calculation, x_cubed, a_x);
+            BN_add(calculation, calculation, b_);
+            BN_sub(calculation, y_squared, calculation);
+            BN_mod(calculation, finite_field_, calculation, calc_ctx);
+            int is_zero = BN_is_zero(calculation);
+            if(is_zero == 1){
+                result = true;
+            }
+            BN_CTX_end(calc_ctx);
+            BN_CTX_free(calc_ctx);
         }
     }
     return result;
