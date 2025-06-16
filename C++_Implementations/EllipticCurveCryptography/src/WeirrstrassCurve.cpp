@@ -11,6 +11,16 @@ WeirrstrassCurve::WeirrstrassCurve(const BIGNUM* a, const BIGNUM* b, const BIGNU
     
 }
 
+WeirrstrassCurve::WeirrstrassCurve(std::string a_hex, std::string b_hex, std::string finite_field_hex){
+    a_ = BN_new();
+    BN_hex2bn(&a_, a_hex.c_str());
+    b_ = BN_new();
+    BN_hex2bn(&b_, b_hex.c_str());
+    finite_field_ = BN_new();
+    BN_hex2bn(&finite_field_, finite_field_hex.c_str());
+    origin_ = Point();
+}
+
 void WeirrstrassCurve::deleteCurve(){
     BN_clear_free(a_);
     BN_clear_free(b_);
@@ -18,7 +28,7 @@ void WeirrstrassCurve::deleteCurve(){
     origin_.deletePoint();
 }
 
-std::string WeirrstrassCurve::toString(){
+std::string WeirrstrassCurve::getEquation(){
     std::string result = std::string("y^2 = x^3 + ");
     result.append(BN_bn2hex(a_));
     result.append(" x + ");
@@ -28,7 +38,7 @@ std::string WeirrstrassCurve::toString(){
 
 void WeirrstrassCurve::printCurveDetails(){
     char* finite_field_str = BN_bn2hex(finite_field_);
-    printf("This is a weirstrass curve with the equation %s in the finite field %s\n", toString().c_str(),finite_field_str);
+    printf("This is a weirstrass curve with the equation %s in the finite field %s\n", getEquation().c_str(),finite_field_str);
 }
 
 bool WeirrstrassCurve::validatePointOnCurve(Point p){
@@ -66,4 +76,34 @@ bool WeirrstrassCurve::validatePointOnCurve(Point p){
         BN_CTX_free(calc_ctx);
     }
     return result;
+}
+
+std::string WeirrstrassCurve::getFiniteFieldAsHex(){
+    std::string result = std::string(BN_bn2hex(finite_field_));
+    return result;
+}
+
+std::string WeirrstrassCurve::getAAsHex(){
+    std::string result = std::string(BN_bn2hex(a_));
+    return result;
+}
+        
+std::string WeirrstrassCurve::getBAsHex(){
+    std::string result = std::string(BN_bn2hex(b_));
+    return result;
+}
+
+Point WeirrstrassCurve::calculatePointMultiplicationByConstant(Point p, BIGNUM* k){
+    Point point = Point();
+    return point;
+}
+
+Point WeirrstrassCurve::calculatePointInverse(Point p){
+    Point point = Point();
+    return point;
+}
+
+Point WeirrstrassCurve::calculatePointAddition(Point p, Point q){
+    Point point = Point();
+    return point;
 }

@@ -3,7 +3,7 @@ add_executable(ECC_Tests)
 target_sources(ECC_Tests 
     PRIVATE 
         src/PointTests.cpp
-
+        src/WeirrstrassCurveTests.cpp
         )
 
 target_link_libraries(ECC_Tests 
