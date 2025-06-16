@@ -42,7 +42,7 @@ class Point{
         /// @brief This method overrides the == operator in order to compare two points
         /// @param input The other point that it is being compared to
         /// @return True if the two points are the same;
-        bool Point::operator==(const Point &input);
+        bool operator==(const Point &input);
 };
 
 #endif

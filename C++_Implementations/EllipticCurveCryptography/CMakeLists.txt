@@ -10,6 +10,8 @@ target_include_directories(ECC_lib
 target_sources(ECC_lib
     PRIVATE
         src/EllipticCurve.cpp
+        src/Point.cpp
+        src/WeirrstrassCurve.cpp
         )
 
 target_link_libraries(ECC_lib
