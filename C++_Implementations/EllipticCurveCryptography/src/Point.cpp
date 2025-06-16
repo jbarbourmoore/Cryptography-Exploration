@@ -14,6 +14,13 @@ Point::Point(BIGNUM *x, BIGNUM *y){
     BN_copy(y_, y);
 }
 
+Point::Point(std::string hex_x, std::string hex_y){
+    x_ = BN_new();
+    BN_hex2bn(&x_, hex_x.c_str());
+    y_ = BN_new();
+    BN_hex2bn(&y_, hex_y.c_str());
+}
+
 void Point::deletePoint(){
     BN_clear_free(x_);
     BN_clear_free(y_);
