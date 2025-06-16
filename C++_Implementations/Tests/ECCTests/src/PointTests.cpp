@@ -29,3 +29,19 @@ TEST(ECC_Tests, HexStringToPointOutput){
     std::string expected = std::string("(A123, B4582A)");
     EXPECT_EQ(expected, point.toString());
 }
+
+TEST(ECC_Tests, GetXAsHexString){
+    std::string hex_x = "BCDEF1ABAB12";
+    std::string hex_y = "514ED226710923";
+    Point point = Point(hex_x, hex_y);
+    point.print();
+    EXPECT_EQ(hex_x, point.getXAsHexStr());
+}
+
+TEST(ECC_Tests, GetYAsHexString){
+    std::string hex_x = "BCDEF1ABAB12";
+    std::string hex_y = "514ED226710923";
+    Point point = Point(hex_x, hex_y);
+    point.print();
+    EXPECT_EQ(hex_y, point.getYAsHexStr());
+}

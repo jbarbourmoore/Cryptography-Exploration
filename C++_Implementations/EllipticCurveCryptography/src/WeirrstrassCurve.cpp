@@ -35,13 +35,15 @@ bool WeirrstrassCurve::validatePointOnCurve(Point p){
     if (p == origin_) {
         result = true;
     } else {
-        BIGNUM *x = p.getX();
-        BIGNUM *y = p.getY();
+        BN_CTX* calc_ctx = BN_CTX_new();
+        BN_CTX_start(calc_ctx);
+        BIGNUM *x = BN_CTX_get(calc_ctx);
+        BIGNUM *y = BN_CTX_get(calc_ctx);
+        BN_copy(x, p.getXAsBN());
+        BN_copy(y, p.getYAsBN());
         bool x_in_field = BN_cmp(x, finite_field_) == -1;
         bool y_in_field = BN_cmp(y, finite_field_) == -1;
         if (x_in_field && y_in_field) {
-            BN_CTX* calc_ctx = BN_CTX_new();
-            BN_CTX_start(calc_ctx);
             BIGNUM* x_cubed = BN_CTX_get(calc_ctx);
             BIGNUM* a_x = BN_CTX_get(calc_ctx);
             BIGNUM* y_squared = BN_CTX_get(calc_ctx);
@@ -58,9 +60,9 @@ bool WeirrstrassCurve::validatePointOnCurve(Point p){
             if(is_zero == 1){
                 result = true;
             }
-            BN_CTX_end(calc_ctx);
-            BN_CTX_free(calc_ctx);
         }
+        BN_CTX_end(calc_ctx);
+        BN_CTX_free(calc_ctx);
     }
     return result;
 }

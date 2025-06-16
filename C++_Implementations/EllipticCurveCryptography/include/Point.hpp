@@ -25,11 +25,19 @@ class Point{
 
         /// @brief This method returns the value of x for the point
         /// @return The BIGNUM containing X
-        BIGNUM* getX();
+        BIGNUM* getXAsBN();
 
         /// @brief This method returns the value of y for the point
         /// @return The BIGNUM containing Y
-        BIGNUM* getY();
+        BIGNUM* getYAsBN();
+
+        /// @brief This method gets the value of X as a hexadecimal string
+        /// @return The value of X as a hexadecimal string
+        std::string getXAsHexStr();
+
+        /// @brief This method gets the value of Y as a hexadecimal string
+        /// @return The value of Y as a hexadecimal string
+        std::string getYAsHexStr();
 
         /// @brief This method prints the point to the console
         void print();

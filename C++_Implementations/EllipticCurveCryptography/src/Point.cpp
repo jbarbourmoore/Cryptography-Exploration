@@ -36,14 +36,14 @@ std::string Point::toString(){
 }
 
 void Point::print(){
-    printf("%s\n", toString());
+    printf("%s\n", toString().c_str());
 }
 
-BIGNUM* Point::getY(){
+BIGNUM* Point::getYAsBN(){
     return y_;
 }
 
-BIGNUM* Point::getX(){
+BIGNUM* Point::getXAsBN(){
     return x_;
 }
 
@@ -52,5 +52,15 @@ bool Point::operator==(const Point &input){
     int y_comp = BN_cmp(y_, input.y_);
     
     bool result = x_comp == 0 && y_comp == 0;
+    return result;
+}
+
+std::string Point::getXAsHexStr(){
+    std::string result = std::string(BN_bn2hex(x_));
+    return result;
+}
+
+std::string Point::getYAsHexStr(){
+    std::string result = std::string(BN_bn2hex(y_));
     return result;
 }
