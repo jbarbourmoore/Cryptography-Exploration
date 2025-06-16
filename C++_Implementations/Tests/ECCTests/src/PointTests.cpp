@@ -3,14 +3,14 @@
 
 #include "Point.hpp"
 
-TEST(ECC_Tests, DefaultPointOutput) {
+TEST(ECC_Tests, Point_DefaultOutput) {
     Point point = Point();
     point.print();
     std::string expected = std::string("(0, 0)");
     EXPECT_EQ(expected, point.toString());
 }
 
-TEST(ECC_Tests, PointOutput){
+TEST(ECC_Tests, Point_Output){
     BIGNUM *x = BN_new();
     BIGNUM *y = BN_new();
     BN_set_word(x, 7);
@@ -21,7 +21,7 @@ TEST(ECC_Tests, PointOutput){
     EXPECT_EQ(expected, point.toString());
 }
 
-TEST(ECC_Tests, HexStringToPointOutput){
+TEST(ECC_Tests, Point_HexStringOutput){
     std::string hex_x = "A123";
     std::string hex_y = "B4582A";
     Point point = Point(hex_x, hex_y);
@@ -30,7 +30,7 @@ TEST(ECC_Tests, HexStringToPointOutput){
     EXPECT_EQ(expected, point.toString());
 }
 
-TEST(ECC_Tests, GetXAsHexString){
+TEST(ECC_Tests, Point_GetXAsHexString){
     std::string hex_x = "BCDEF1ABAB12";
     std::string hex_y = "514ED226710923";
     Point point = Point(hex_x, hex_y);
@@ -38,10 +38,34 @@ TEST(ECC_Tests, GetXAsHexString){
     EXPECT_EQ(hex_x, point.getXAsHexStr());
 }
 
-TEST(ECC_Tests, GetYAsHexString){
+TEST(ECC_Tests, Point_GetYAsHexString){
     std::string hex_x = "BCDEF1ABAB12";
     std::string hex_y = "514ED226710923";
     Point point = Point(hex_x, hex_y);
     point.print();
     EXPECT_EQ(hex_y, point.getYAsHexStr());
+}
+
+TEST(ECC_Tests, Point_EqualsOperator){
+    BIGNUM *x = BN_new();
+    BIGNUM *y = BN_new();
+    BN_set_word(x, 10);
+    BN_set_word(y, 17);
+    Point p = Point(x, y);
+    std::string hex_x = "0A";
+    std::string hex_y = "11";
+    Point q = Point(hex_x, hex_y);
+    EXPECT_EQ(p, q);
+}
+
+TEST(ECC_Tests, Point_EqualsOperatorNot){
+    BIGNUM *x = BN_new();
+    BIGNUM *y = BN_new();
+    BN_set_word(x, 11);
+    BN_set_word(y, 17);
+    Point p = Point(x, y);
+    std::string hex_x = "0A";
+    std::string hex_y = "11";
+    Point q = Point(hex_x, hex_y);
+    EXPECT_FALSE(p == q);
 }

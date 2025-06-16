@@ -23,6 +23,7 @@ std::string WeirrstrassCurve::toString(){
     result.append(BN_bn2hex(a_));
     result.append(" x + ");
     result.append(BN_bn2hex(b_));
+    return result;
 }
 
 void WeirrstrassCurve::printCurveDetails(){

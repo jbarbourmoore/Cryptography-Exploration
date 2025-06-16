@@ -47,7 +47,7 @@ BIGNUM* Point::getXAsBN(){
     return x_;
 }
 
-bool Point::operator==(const Point &input){
+bool Point::operator==(const Point &input) const{
     int x_comp = BN_cmp(x_, input.x_);
     int y_comp = BN_cmp(y_, input.y_);
     
