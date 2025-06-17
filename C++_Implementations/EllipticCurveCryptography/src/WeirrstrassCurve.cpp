@@ -103,11 +103,87 @@ Point WeirrstrassCurve::calculatePointMultiplicationByConstant(Point p, BIGNUM* 
 }
 
 Point WeirrstrassCurve::calculatePointInverse(Point p){
-    Point point = Point();
+    Point point;
+    if (p == origin_) {
+        point = Point(origin_);
+    } else {
+        BIGNUM *y_r = BN_new();
+        BN_copy(y_r, p.getYAsBN());
+        BN_set_negative(y_r, 1);
+        BN_mod(y_r, y_r, finite_field_, nullptr);
+        point = Point(p.getXAsBN(), y_r);
+        BN_clear_free(y_r);
+    }
     return point;
 }
 
 Point WeirrstrassCurve::calculatePointAddition(Point p, Point q){
-    Point point = Point();
+    Point point;
+    if (validatePointOnCurve(p) && validatePointOnCurve(q)) {
+        if(p == origin_){
+            point = Point(q);
+        } else if (q == origin_){
+            point = Point(p);
+        } else if (p == calculatePointInverse(q)) {
+            point = Point(origin_);
+        } else {
+            BN_CTX *calc_ctx = BN_CTX_new();
+            BN_CTX_start(calc_ctx);
+
+            BIGNUM *x_p = BN_CTX_get(calc_ctx);
+            BIGNUM *y_p = BN_CTX_get(calc_ctx);
+            BIGNUM *x_q = BN_CTX_get(calc_ctx);
+            BIGNUM *y_q = BN_CTX_get(calc_ctx);
+
+            BIGNUM *dydx = BN_CTX_get(calc_ctx);
+            BIGNUM *mod_inv = BN_CTX_get(calc_ctx);
+
+            BIGNUM *x_r = BN_CTX_get(calc_ctx);
+            BIGNUM *y_r = BN_CTX_get(calc_ctx);
+
+            BN_copy(x_p, p.getXAsBN());
+            BN_copy(y_p, p.getYAsBN());
+            BN_copy(x_q, q.getXAsBN());
+            BN_copy(y_q, q.getYAsBN());
+
+            if (p == q) {
+                // dydx = (3 * x_p**2 + a) * ModInv(2 * y_p, finite_field)
+                BN_copy(mod_inv, y_p);
+                BN_mul_word(mod_inv, 2);
+                BN_mod_inverse(mod_inv, mod_inv, finite_field_, calc_ctx);
+                BN_mul(dydx, x_p, x_p, calc_ctx);
+                BN_mul_word(dydx, 2);
+                BN_add(dydx, dydx, a_);
+                BN_mul(dydx, dydx, mod_inv, calc_ctx);
+            } else {
+                // dydx = (y_q - y_p) * ModInv(x_q - x_p, finite_field)
+                BN_sub(mod_inv, x_q, x_p);
+                BN_mod_inverse(mod_inv, mod_inv, finite_field_, calc_ctx);
+                BN_sub(dydx, y_q, y_p);
+                BN_mul(dydx, dydx, mod_inv, calc_ctx);
+            }
+
+            // x_r = (dydx**2 - x_p - x_q) % self.finite_field
+            BN_mul(x_r, dydx, dydx, calc_ctx);
+            BN_sub(x_r, x_r, x_p);
+            BN_sub(x_r, x_r, x_q);
+            BN_mod(x_r, x_r, finite_field_, calc_ctx);
+
+            // y_r = (dydx * (x_p - x_r) - y_p) % finite_field
+            BN_copy(y_r, x_p);
+            BN_sub(y_r, y_r, x_r);
+            BN_mul(y_r, y_r, dydx, calc_ctx);
+            BN_sub(y_r, y_r, y_p);
+            BN_mod(y_r, y_r, finite_field_, calc_ctx);
+            
+            Point potential = Point(x_r, y_r);
+            if(validatePointOnCurve(potential)){
+                point = potential;
+            }
+
+            BN_CTX_end(calc_ctx);
+            BN_CTX_free(calc_ctx);
+        }
+    }
     return point;
 }

@@ -21,6 +21,13 @@ Point::Point(std::string hex_x, std::string hex_y){
     BN_hex2bn(&y_, hex_y.c_str());
 }
 
+Point::Point(const Point &point){
+    x_ = BN_new();
+    BN_copy(x_, point.x_);
+    y_ = BN_new();
+    BN_copy(y_, point.y_);
+}
+
 void Point::deletePoint(){
     BN_clear_free(x_);
     BN_clear_free(y_);

@@ -21,6 +21,8 @@ class Point{
         /// @param y The y coordinate for the point
         Point(BIGNUM *x, BIGNUM *y);
 
+        Point(const Point &point);
+
         Point(std::string hex_x, std::string hex_y);
 
         /// @brief This method returns the value of x for the point
