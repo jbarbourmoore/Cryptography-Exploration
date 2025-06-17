@@ -107,17 +107,24 @@ Point WeirrstrassCurve::calculatePointInverse(Point p){
     if (p == origin_) {
         point = Point(origin_);
     } else {
+        BN_CTX *calc_ctx = BN_CTX_new();
         BIGNUM *y_r = BN_new();
         BN_copy(y_r, p.getYAsBN());
-        BN_set_negative(y_r, 1);
-        BN_mod(y_r, y_r, finite_field_, nullptr);
+        if(BN_is_negative(y_r) == 1){
+            BN_set_negative(y_r, 0);
+        } else {
+            BN_set_negative(y_r, 1);
+        }
+        BN_mod(y_r, y_r, finite_field_, calc_ctx);
         point = Point(p.getXAsBN(), y_r);
         BN_clear_free(y_r);
+        BN_CTX_free(calc_ctx);
     }
     return point;
 }
 
 Point WeirrstrassCurve::calculatePointAddition(Point p, Point q){
+    printf("starting point addition\n");
     Point point;
     if (validatePointOnCurve(p) && validatePointOnCurve(q)) {
         if(p == origin_){
@@ -151,18 +158,24 @@ Point WeirrstrassCurve::calculatePointAddition(Point p, Point q){
                 BN_copy(mod_inv, y_p);
                 BN_mul_word(mod_inv, 2);
                 BN_mod_inverse(mod_inv, mod_inv, finite_field_, calc_ctx);
+                printf("mod_inv = %s\n", BN_bn2dec(mod_inv));
                 BN_mul(dydx, x_p, x_p, calc_ctx);
-                BN_mul_word(dydx, 2);
+                BN_mul_word(dydx, 3);
                 BN_add(dydx, dydx, a_);
                 BN_mul(dydx, dydx, mod_inv, calc_ctx);
+                
             } else {
                 // dydx = (y_q - y_p) * ModInv(x_q - x_p, finite_field)
                 BN_sub(mod_inv, x_q, x_p);
+                BN_set_negative(mod_inv, 0);
                 BN_mod_inverse(mod_inv, mod_inv, finite_field_, calc_ctx);
                 BN_sub(dydx, y_q, y_p);
+                BN_set_negative(dydx, 0);
                 BN_mul(dydx, dydx, mod_inv, calc_ctx);
+                BN_mod(dydx, dydx, finite_field_,calc_ctx);
             }
 
+            printf("dydx = %s\n", BN_bn2dec(dydx));
             // x_r = (dydx**2 - x_p - x_q) % self.finite_field
             BN_mul(x_r, dydx, dydx, calc_ctx);
             BN_sub(x_r, x_r, x_p);
@@ -171,12 +184,18 @@ Point WeirrstrassCurve::calculatePointAddition(Point p, Point q){
 
             // y_r = (dydx * (x_p - x_r) - y_p) % finite_field
             BN_copy(y_r, x_p);
+            printf("y_r = %s\n", BN_bn2dec(y_r));
             BN_sub(y_r, y_r, x_r);
+            printf("y_r = %s\n", BN_bn2dec(y_r));
             BN_mul(y_r, y_r, dydx, calc_ctx);
+            printf("y_r = %s\n", BN_bn2dec(y_r));
             BN_sub(y_r, y_r, y_p);
+            printf("y_r = %s\n", BN_bn2dec(y_r));
             BN_mod(y_r, y_r, finite_field_, calc_ctx);
             
             Point potential = Point(x_r, y_r);
+            printf("x_r = %s\n", BN_bn2dec(x_r));
+            printf("y_r = %s\n", BN_bn2dec(y_r));
             if(validatePointOnCurve(potential)){
                 point = potential;
             }

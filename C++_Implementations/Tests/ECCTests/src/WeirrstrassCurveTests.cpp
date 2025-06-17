@@ -76,3 +76,29 @@ TEST(ECC_Tests, WeirrstrassCurve_SimplePointNotOnCurve){
     bool is_point_on_curve = curve.validatePointOnCurve(point);
     EXPECT_FALSE(is_point_on_curve);
 }
+
+TEST(ECC_Tests, WeirrstrassCurve_SimpleAddSamePoints){
+    std::string a_hex = "0";
+    std::string b_hex = "7";
+    std::string finite_field_hex = "11";
+    WeirrstrassCurve curve = WeirrstrassCurve(a_hex, b_hex, finite_field_hex);
+    Point point_1 = Point("F","D");
+    Point point_2 = Point("F","D");
+    Point expected = Point("2", "A");
+    curve.printCurveDetails();
+    Point result = curve.calculatePointAddition(point_1, point_2);
+    EXPECT_EQ(result, expected);
+}
+
+TEST(ECC_Tests, WeirrstrassCurve_SimpleAddDifferentPoints){
+    std::string a_hex = "0";
+    std::string b_hex = "7";
+    std::string finite_field_hex = "11";
+    WeirrstrassCurve curve = WeirrstrassCurve(a_hex, b_hex, finite_field_hex);
+    Point point_1 = Point("F","D");
+    Point point_2 = Point("2", "A");
+    Point expected = Point("8", "3");
+    curve.printCurveDetails();
+    Point result = curve.calculatePointAddition(point_1, point_2);
+    EXPECT_EQ(result, expected);
+}
