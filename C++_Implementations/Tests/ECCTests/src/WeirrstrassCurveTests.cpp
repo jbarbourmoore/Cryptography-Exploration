@@ -43,3 +43,36 @@ TEST(ECC_Tests, WeirrstrassCurve_getB){
     std::string retrieved_hex = curve.getBAsHex();
     EXPECT_EQ(retrieved_hex, b_hex);
 }
+
+TEST(ECC_Tests, WeirrstrassCurve_SimpleOriginOnCurve){
+    std::string a_hex = "0";
+    std::string b_hex = "7";
+    std::string finite_field_hex = "11";
+    WeirrstrassCurve curve = WeirrstrassCurve(a_hex, b_hex, finite_field_hex);
+    Point point = Point("0","0");
+    curve.printCurveDetails();
+    bool is_point_on_curve = curve.validatePointOnCurve(point);
+    EXPECT_TRUE(is_point_on_curve);
+}
+
+TEST(ECC_Tests, WeirrstrassCurve_SimplePointOnCurve){
+    std::string a_hex = "0";
+    std::string b_hex = "7";
+    std::string finite_field_hex = "11";
+    WeirrstrassCurve curve = WeirrstrassCurve(a_hex, b_hex, finite_field_hex);
+    Point point = Point("F","D");
+    curve.printCurveDetails();
+    bool is_point_on_curve = curve.validatePointOnCurve(point);
+    EXPECT_TRUE(is_point_on_curve);
+}
+
+TEST(ECC_Tests, WeirrstrassCurve_SimplePointNotOnCurve){
+    std::string a_hex = "0";
+    std::string b_hex = "7";
+    std::string finite_field_hex = "11";
+    WeirrstrassCurve curve = WeirrstrassCurve(a_hex, b_hex, finite_field_hex);
+    Point point = Point("1","2");
+    curve.printCurveDetails();
+    bool is_point_on_curve = curve.validatePointOnCurve(point);
+    EXPECT_FALSE(is_point_on_curve);
+}

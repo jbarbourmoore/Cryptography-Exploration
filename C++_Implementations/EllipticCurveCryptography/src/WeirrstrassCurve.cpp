@@ -61,12 +61,16 @@ bool WeirrstrassCurve::validatePointOnCurve(Point p){
             BIGNUM* calculation = BN_CTX_get(calc_ctx);
             BN_mul(x_cubed, x, x, calc_ctx);
             BN_mul(x_cubed, x, x_cubed, calc_ctx);
+            // printf("x^3 = %s\n", BN_bn2dec(x_cubed));
             BN_mul(a_x, a_, x, calc_ctx);
+            // printf("a*x = %s\n", BN_bn2dec(a_x));
             BN_mul(y_squared, y, y, calc_ctx);
+            // printf("y*2 = %s\n", BN_bn2dec(y_squared));
             BN_add(calculation, x_cubed, a_x);
             BN_add(calculation, calculation, b_);
             BN_sub(calculation, y_squared, calculation);
-            BN_mod(calculation, finite_field_, calculation, calc_ctx);
+            // printf("calculation = %s\n", BN_bn2dec(calculation));
+            BN_mod(calculation, calculation, finite_field_, calc_ctx);
             int is_zero = BN_is_zero(calculation);
             if(is_zero == 1){
                 result = true;
