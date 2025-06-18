@@ -98,8 +98,24 @@ std::string WeirrstrassCurve::getBAsHex(){
 }
 
 Point WeirrstrassCurve::calculatePointMultiplicationByConstant(Point p, BIGNUM* k){
-    Point point = Point();
-    return point;
+    Point r;
+
+    if (p == origin_ || BN_is_zero(k) == 1) {
+        r = Point();
+    } else if (BN_is_one(k) == 1){
+        r = Point(p);
+    } else {
+        r = Point(p);
+        int bit_length = BN_num_bits(k);
+        for (int i = 0; i < bit_length; i ++){
+            int bit_value = BN_is_bit_set(k, i);
+            r = calculatePointAddition(r, r);
+            if(bit_value == 1){
+                r = calculatePointAddition(r, p);
+            }
+        }
+    }
+    return r;
 }
 
 Point WeirrstrassCurve::calculatePointInverse(Point p){
