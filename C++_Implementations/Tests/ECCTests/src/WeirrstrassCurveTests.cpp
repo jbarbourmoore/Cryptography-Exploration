@@ -140,3 +140,11 @@ TEST(ECC_Tests, WeirrstrassCurve_secp129r1Setup){
     curve.printCurveDetails();
     EXPECT_EQ(result, expected);
 }
+
+TEST(ECC_Tests, WeirrstrassCurve_secp129r1PointOnCurve){
+    WeirrstrassCurve curve = secp192r1();
+    Point point = Point::getPointFromDecimalStrings("602046282375688656758213480587526111916698976636884684818","174050332293622031404857552280219410364023488927386650641");
+    curve.printCurveDetails();
+    bool is_point_on_curve = curve.validatePointOnCurve(point);
+    EXPECT_TRUE(is_point_on_curve);
+}

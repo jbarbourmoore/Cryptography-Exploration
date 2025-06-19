@@ -28,6 +28,17 @@ Point::Point(const Point &point){
     BN_copy(y_, point.y_);
 }
 
+Point Point::getPointFromDecimalStrings(std::string x_dec, std::string y_dec){
+    BIGNUM *x = BN_new();
+    BN_dec2bn(&x, x_dec.c_str());
+    BIGNUM *y = BN_new();
+    BN_dec2bn(&y, y_dec.c_str());
+    Point point = Point(x, y);
+    BN_clear_free(x);
+    BN_clear_free(y);
+    return point;
+}
+
 void Point::deletePoint(){
     BN_clear_free(x_);
     BN_clear_free(y_);

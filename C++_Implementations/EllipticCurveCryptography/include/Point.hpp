@@ -55,6 +55,8 @@ class Point{
         /// @param input The other point that it is being compared to
         /// @return True if the two points are the same;
         bool operator==(const Point &input) const;
+
+        static Point getPointFromDecimalStrings(std::string x_dec, std::string y_dec);
 };
 
 #endif
