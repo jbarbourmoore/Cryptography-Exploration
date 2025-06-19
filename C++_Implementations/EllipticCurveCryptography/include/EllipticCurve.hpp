@@ -47,4 +47,13 @@ class WeirrstrassCurve : public EllipticCurve{
         Point calculatePointAddition(Point p, Point q) override;
 };
 
+class secp192r1 : public WeirrstrassCurve{
+
+    public  : 
+        secp192r1() : WeirrstrassCurve("fffffffffffffffffffffffffffffffefffffffffffffffc", 
+            "64210519e59c80e70fa7e9ab72243049feb8deecc146b9b1", 
+            "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFFFFFFFFFFFFFFFF"){};
+
+};
+
 #endif

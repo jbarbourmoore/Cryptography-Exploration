@@ -132,3 +132,11 @@ TEST(ECC_Tests, WeirrstrassCurve_SimpleMultiplyByNineteen){
     result.print();
     EXPECT_EQ(result, expected);
 }
+
+TEST(ECC_Tests, WeirrstrassCurve_secp129r1Setup){
+    WeirrstrassCurve curve = secp192r1();
+    std::string result = curve.getEquation();
+    std::string expected = "y^2 = x^3 + FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFFFFFFFFFFFFFFFC x + 64210519E59C80E70FA7E9AB72243049FEB8DEECC146B9B1";
+    curve.printCurveDetails();
+    EXPECT_EQ(result, expected);
+}
