@@ -133,7 +133,7 @@ TEST(ECC_Tests, WeirrstrassCurve_SimpleMultiplyByNineteen){
     EXPECT_EQ(result, expected);
 }
 
-TEST(ECC_Tests, WeirrstrassCurve_secp129r1Setup){
+TEST(ECC_Tests, WeirrstrassCurve_secp192r1Setup){
     WeirrstrassCurve curve = secp192r1();
     std::string result = curve.getEquation();
     std::string expected = "y^2 = x^3 + FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFFFFFFFFFFFFFFFC x + 64210519E59C80E70FA7E9AB72243049FEB8DEECC146B9B1";
@@ -141,18 +141,55 @@ TEST(ECC_Tests, WeirrstrassCurve_secp129r1Setup){
     EXPECT_EQ(result, expected);
 }
 
-TEST(ECC_Tests, WeirrstrassCurve_secp129r1PointOnCurve){
+TEST(ECC_Tests, WeirrstrassCurve_secp192r1PointOnCurve){
     WeirrstrassCurve curve = secp192r1();
     Point point = Point::getPointFromDecimalStrings("602046282375688656758213480587526111916698976636884684818","174050332293622031404857552280219410364023488927386650641");
     curve.printCurveDetails();
     bool is_point_on_curve = curve.validatePointOnCurve(point);
     EXPECT_TRUE(is_point_on_curve);
 }
-TEST(ECC_Tests, WeirrstrassCurve_secp129r1AddSamePoints){
+
+TEST(ECC_Tests, WeirrstrassCurve_secp192r1AddSamePoints){
     WeirrstrassCurve curve = secp192r1();
     Point point = Point::getPointFromDecimalStrings("602046282375688656758213480587526111916698976636884684818","174050332293622031404857552280219410364023488927386650641");
     curve.printCurveDetails();
     Point result = curve.calculatePointAddition(point, point);
     Point expected = Point::getPointFromDecimalStrings("5369744403678710563432458361254544170966096384586764429448","5429234379789071039750654906915254128254326554272718558123");
+    EXPECT_EQ(result, expected);
+}
+
+TEST(ECC_Tests, WeirrstrassCurve_secp192r1MultiplyByTwo){
+    WeirrstrassCurve curve = secp192r1();
+    Point point = Point::getPointFromDecimalStrings("602046282375688656758213480587526111916698976636884684818","174050332293622031404857552280219410364023488927386650641");
+    Point expected = Point::getPointFromDecimalStrings("5369744403678710563432458361254544170966096384586764429448","5429234379789071039750654906915254128254326554272718558123");
+    curve.printCurveDetails();
+    BIGNUM *k = BN_new();
+    BN_set_word(k, 2);
+    Point result = curve.calculatePointMultiplicationByConstant(point, k);
+    result.print();
+    EXPECT_EQ(result, expected);
+}
+
+TEST(ECC_Tests, WeirrstrassCurve_secp192r1MultiplyBy104){
+    WeirrstrassCurve curve = secp192r1();
+    Point point = Point::getPointFromDecimalStrings("602046282375688656758213480587526111916698976636884684818","174050332293622031404857552280219410364023488927386650641");
+    Point expected = Point::getPointFromDecimalStrings("5124267969112884640430558489079512598372932209181558738984","5241168070499360885696850377502882660536951875217754938315");
+    curve.printCurveDetails();
+    BIGNUM *k = BN_new();
+    BN_set_word(k, 104);
+    Point result = curve.calculatePointMultiplicationByConstant(point, k);
+    result.print();
+    EXPECT_EQ(result, expected);
+}
+
+TEST(ECC_Tests, WeirrstrassCurve_secp192r1MultiplyBy237568){
+    WeirrstrassCurve curve = secp192r1();
+    Point point = Point::getPointFromDecimalStrings("602046282375688656758213480587526111916698976636884684818","174050332293622031404857552280219410364023488927386650641");
+    Point expected = Point::getPointFromDecimalStrings("871023611157170972703611374923345710780774914879018003341","1903816589192018542033229449349641804651012623594677678608");
+    curve.printCurveDetails();
+    BIGNUM *k = BN_new();
+    BN_set_word(k, 237568);
+    Point result = curve.calculatePointMultiplicationByConstant(point, k);
+    result.print();
     EXPECT_EQ(result, expected);
 }
