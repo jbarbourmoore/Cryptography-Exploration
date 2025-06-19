@@ -107,8 +107,10 @@ Point WeirrstrassCurve::calculatePointMultiplicationByConstant(Point p, BIGNUM* 
     } else {
         r = Point(p);
         int bit_length = BN_num_bits(k);
-        for (int i = 0; i < bit_length; i ++){
-            int bit_value = BN_is_bit_set(k, i);
+        printf("bit length is %d\n", bit_length);
+        for (int i = 1; i < bit_length; i ++){
+            int bit_value = BN_is_bit_set(k, bit_length - i - 1);
+            printf("bit is %d\n", bit_value);
             r = calculatePointAddition(r, r);
             if(bit_value == 1){
                 r = calculatePointAddition(r, p);

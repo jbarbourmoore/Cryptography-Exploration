@@ -102,3 +102,18 @@ TEST(ECC_Tests, WeirrstrassCurve_SimpleAddDifferentPoints){
     Point result = curve.calculatePointAddition(point_1, point_2);
     EXPECT_EQ(result, expected);
 }
+
+TEST(ECC_Tests, WeirrstrassCurve_SimpleMultiplyByTwo){
+    std::string a_hex = "0";
+    std::string b_hex = "7";
+    std::string finite_field_hex = "11";
+    WeirrstrassCurve curve = WeirrstrassCurve(a_hex, b_hex, finite_field_hex);
+    Point point = Point("F","D");
+    Point expected = Point("2", "A");
+    curve.printCurveDetails();
+    BIGNUM *k = BN_new();
+    BN_set_word(k, 2);
+    Point result = curve.calculatePointMultiplicationByConstant(point, k);
+    result.print();
+    EXPECT_EQ(result, expected);
+}
