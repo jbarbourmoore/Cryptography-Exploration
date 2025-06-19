@@ -7,7 +7,7 @@ Point::Point(){
     BN_set_word(y_, 0);
 }
 
-Point::Point(BIGNUM *x, BIGNUM *y){
+Point::Point(const BIGNUM *x, const BIGNUM *y){
     x_ = BN_new();
     BN_copy(x_, x);
     y_ = BN_new();

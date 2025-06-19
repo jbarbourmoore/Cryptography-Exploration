@@ -19,7 +19,7 @@ class Point{
         /// @brief This method instantiates a point with the given x and y coordinates
         /// @param x The x coordinate for the point
         /// @param y The y coordinate for the point
-        Point(BIGNUM *x, BIGNUM *y);
+        Point(const BIGNUM *x, const BIGNUM *y);
 
         Point(const Point &point);
 
