@@ -137,6 +137,7 @@ Point WeirrstrassCurve::calculatePointInverse(Point p){
         if(BN_is_negative(y_r) == 1){
             BN_add(y_r, finite_field_, y_r);
         }
+        calculatePositiveMod(y_r, finite_field_, calc_ctx);
         point = Point(p.getXAsBN(), y_r);
         BN_clear_free(y_r);
         BN_CTX_free(calc_ctx);
@@ -188,26 +189,17 @@ Point WeirrstrassCurve::calculatePointAddition(Point p, Point q){
             } else {
                 // dydx = (y_q - y_p) * ModInv(x_q - x_p, finite_field)
                 BN_sub(mod_inv, x_q, x_p);
-                // BN_set_negative(mod_inv, 0);
                 BN_mod_inverse(mod_inv, mod_inv, finite_field_, calc_ctx);
                 BN_sub(dydx, y_q, y_p);
-                // BN_set_negative(dydx, 0);
                 BN_mul(dydx, dydx, mod_inv, calc_ctx);
-                BN_mod(dydx, dydx, finite_field_,calc_ctx);
-                if(BN_is_negative(dydx) == 1){
-                    BN_add(dydx, finite_field_, dydx);
-                }
             }
-
+            calculatePositiveMod(dydx, finite_field_, calc_ctx);
             printf("dydx = %s\n", BN_bn2dec(dydx));
             // x_r = (dydx**2 - x_p - x_q) % self.finite_field
             BN_mul(x_r, dydx, dydx, calc_ctx);
             BN_sub(x_r, x_r, x_p);
             BN_sub(x_r, x_r, x_q);
-            BN_mod(x_r, x_r, finite_field_, calc_ctx);
-            if(BN_is_negative(x_r) == 1){
-                BN_add(x_r, finite_field_, x_r);
-            }
+            calculatePositiveMod(x_r, finite_field_, calc_ctx);
 
             // y_r = (dydx * (x_p - x_r) - y_p) % finite_field
             BN_copy(y_r, x_p);
@@ -218,11 +210,8 @@ Point WeirrstrassCurve::calculatePointAddition(Point p, Point q){
             printf("y_r = %s\n", BN_bn2dec(y_r));
             BN_sub(y_r, y_r, y_p);
             printf("y_r = %s\n", BN_bn2dec(y_r));
-            BN_mod(y_r, y_r, finite_field_, calc_ctx);
+            calculatePositiveMod(y_r, finite_field_, calc_ctx);
             
-            if(BN_is_negative(y_r) == 1){
-                BN_add(y_r, finite_field_, y_r);
-            }
             Point potential = Point(x_r, y_r);
             printf("x_r = %s\n", BN_bn2dec(x_r));
             printf("y_r = %s\n", BN_bn2dec(y_r));
