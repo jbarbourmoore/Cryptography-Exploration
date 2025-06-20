@@ -12,6 +12,7 @@ target_sources(ECC_lib
         src/EllipticCurve.cpp
         src/Point.cpp
         src/WeirrstrassCurve.cpp
+        src/ECDSA.cpp
         )
 
 target_link_libraries(ECC_lib

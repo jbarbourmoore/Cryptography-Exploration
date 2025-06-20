@@ -1,5 +1,13 @@
 #include "EllipticCurve.hpp"
 
+WeirrstrassCurve::WeirrstrassCurve(){
+    a_ = BN_new();
+    b_ = BN_new();
+    finite_field_ = BN_new();
+    origin_ = Point();
+    g_ = Point();
+}
+
 WeirrstrassCurve::WeirrstrassCurve(const BIGNUM* a, const BIGNUM* b, const BIGNUM* finite_field, const BIGNUM* gx, const BIGNUM* gy){
     a_ = BN_new();
     BN_copy(a_, a);
@@ -11,7 +19,7 @@ WeirrstrassCurve::WeirrstrassCurve(const BIGNUM* a, const BIGNUM* b, const BIGNU
     g_ = Point(gx, gy);
 }
 
-WeirrstrassCurve::WeirrstrassCurve(std::string a_hex, std::string b_hex, std::string finite_field_hex, std::string gx_hex, std::string gy_hex){
+WeirrstrassCurve::WeirrstrassCurve(std::string a_hex, std::string b_hex, std::string finite_field_hex, std::string gx_hex, std::string gy_hex, std::string n_hex){
     a_ = BN_new();
     BN_hex2bn(&a_, a_hex.c_str());
     b_ = BN_new();
@@ -20,6 +28,8 @@ WeirrstrassCurve::WeirrstrassCurve(std::string a_hex, std::string b_hex, std::st
     BN_hex2bn(&finite_field_, finite_field_hex.c_str());
     origin_ = Point();
     g_ = Point(gx_hex, gy_hex);
+    n_ = BN_new();
+    BN_hex2bn(&n_, n_hex.c_str());
 }
 
 void WeirrstrassCurve::deleteCurve(){
@@ -28,6 +38,15 @@ void WeirrstrassCurve::deleteCurve(){
     BN_clear_free(finite_field_);
     origin_.deletePoint();
     g_.deletePoint();
+    BN_clear_free(n_);
+}
+
+BIGNUM* WeirrstrassCurve::getN(){
+    return n_;
+}
+
+Point WeirrstrassCurve::getG(){
+    return g_;
 }
 
 std::string WeirrstrassCurve::getEquation(){

@@ -9,7 +9,8 @@ TEST(ECC_Tests, WeirrstrassCurve_GetEquation) {
     std::string finite_field_hex = "ABCDEF1234567890";
     std::string gx_hex = "ABC";
     std::string gy_hex = "DEF";
-    WeirrstrassCurve curve = WeirrstrassCurve(a_hex, b_hex, finite_field_hex, gx_hex, gy_hex);
+    std::string n_hex = "ABCDEF1234567889";
+    WeirrstrassCurve curve = WeirrstrassCurve(a_hex, b_hex, finite_field_hex, gx_hex, gy_hex, n_hex);
     curve.printCurveDetails();
     std::string curve_equation = curve.getEquation();
     std::string expected_equation = "y^2 = x^3 + ABCD x + 12345678";
@@ -22,7 +23,8 @@ TEST(ECC_Tests, WeirrstrassCurve_getFiniteField){
     std::string finite_field_hex = "ABCDEF1234567890";
     std::string gx_hex = "ABC";
     std::string gy_hex = "DEF";
-    WeirrstrassCurve curve = WeirrstrassCurve(a_hex, b_hex, finite_field_hex, gx_hex, gy_hex);
+    std::string n_hex = "ABCDEF1234567889";
+    WeirrstrassCurve curve = WeirrstrassCurve(a_hex, b_hex, finite_field_hex, gx_hex, gy_hex, n_hex);
     curve.printCurveDetails();
     std::string retrieved_hex = curve.getFiniteFieldAsHex();
     EXPECT_EQ(retrieved_hex, finite_field_hex);
@@ -34,7 +36,8 @@ TEST(ECC_Tests, WeirrstrassCurve_getA){
     std::string finite_field_hex = "ABCDEF1234567890";
     std::string gx_hex = "ABC";
     std::string gy_hex = "DEF";
-    WeirrstrassCurve curve = WeirrstrassCurve(a_hex, b_hex, finite_field_hex, gx_hex, gy_hex);
+    std::string n_hex = "ABCDEF1234567889";
+    WeirrstrassCurve curve = WeirrstrassCurve(a_hex, b_hex, finite_field_hex, gx_hex, gy_hex, n_hex);
     curve.printCurveDetails();
     std::string retrieved_hex = curve.getAAsHex();
     EXPECT_EQ(retrieved_hex, a_hex);
@@ -46,7 +49,8 @@ TEST(ECC_Tests, WeirrstrassCurve_getB){
     std::string finite_field_hex = "ABCDEF1234567890";
     std::string gx_hex = "ABC";
     std::string gy_hex = "DEF";
-    WeirrstrassCurve curve = WeirrstrassCurve(a_hex, b_hex, finite_field_hex, gx_hex, gy_hex);
+    std::string n_hex = "ABCDEF1234567889";
+    WeirrstrassCurve curve = WeirrstrassCurve(a_hex, b_hex, finite_field_hex, gx_hex, gy_hex, n_hex);
     curve.printCurveDetails();
     std::string retrieved_hex = curve.getBAsHex();
     EXPECT_EQ(retrieved_hex, b_hex);
