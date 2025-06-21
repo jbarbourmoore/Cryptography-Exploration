@@ -4,6 +4,7 @@ target_sources(ECC_Tests
     PRIVATE 
         src/PointTests.cpp
         src/WeirrstrassCurveTests.cpp
+        src/ECDSATests.cpp
         )
 
 target_link_libraries(ECC_Tests 

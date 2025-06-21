@@ -22,6 +22,8 @@ struct ECDSA_Signature {
         BIGNUM* s_;
 
         ECDSA_Signature(BIGNUM *r, BIGNUM *s);
+        ECDSA_Signature(std::string r_hex, std::string s_hex);
+        bool operator==(const ECDSA_Signature &input) const;
 };
 
 class ECDSA {
@@ -36,6 +38,8 @@ class ECDSA {
         ECDSA(EllipticCurves curve_type);
 
         ECDSA_Signature SignatureGeneration(std::string M_hex, BIGNUM *d);
+
+        ECDSA_Signature SignatureGeneration(std::string message, std::string d_hex);
 
 };
 
