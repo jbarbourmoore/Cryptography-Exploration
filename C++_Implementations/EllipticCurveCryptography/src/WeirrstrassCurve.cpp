@@ -128,10 +128,10 @@ Point WeirrstrassCurve::calculatePointMultiplicationByConstant(Point p, BIGNUM* 
     } else {
         r = Point(p);
         int bit_length = BN_num_bits(k);
-        printf("bit length is %d\n", bit_length);
+        // printf("bit length is %d\n", bit_length);
         for (int i = 1; i < bit_length; i ++){
             int bit_value = BN_is_bit_set(k, bit_length - i - 1);
-            printf("bit is %d\n", bit_value);
+            // printf("bit is %d\n", bit_value);
             r = calculatePointAddition(r, r);
             if(bit_value == 1){
                 r = calculatePointAddition(r, p);
@@ -167,7 +167,7 @@ Point WeirrstrassCurve::calculatePointInverse(Point p){
 }
 
 Point WeirrstrassCurve::calculatePointAddition(Point p, Point q){
-    printf("starting point addition\n");
+    // printf("starting point addition\n");
     Point point;
     if (validatePointOnCurve(p) && validatePointOnCurve(q)) {
         if(p == origin_){
@@ -201,7 +201,7 @@ Point WeirrstrassCurve::calculatePointAddition(Point p, Point q){
                 BN_copy(mod_inv, y_p);
                 BN_mul_word(mod_inv, 2);
                 BN_mod_inverse(mod_inv, mod_inv, finite_field_, calc_ctx);
-                printf("mod_inv = %s\n", BN_bn2dec(mod_inv));
+                 /// printf("mod_inv = %s\n", BN_bn2dec(mod_inv));
                 BN_mul(dydx, x_p, x_p, calc_ctx);
                 BN_mul_word(dydx, 3);
                 BN_add(dydx, dydx, a_);
@@ -215,7 +215,7 @@ Point WeirrstrassCurve::calculatePointAddition(Point p, Point q){
                 BN_mul(dydx, dydx, mod_inv, calc_ctx);
             }
             calculatePositiveMod(dydx, finite_field_, calc_ctx);
-            printf("dydx = %s\n", BN_bn2dec(dydx));
+            // printf("dydx = %s\n", BN_bn2dec(dydx));
             // x_r = (dydx**2 - x_p - x_q) % self.finite_field
             BN_mul(x_r, dydx, dydx, calc_ctx);
             BN_sub(x_r, x_r, x_p);
@@ -224,18 +224,18 @@ Point WeirrstrassCurve::calculatePointAddition(Point p, Point q){
 
             // y_r = (dydx * (x_p - x_r) - y_p) % finite_field
             BN_copy(y_r, x_p);
-            printf("y_r = %s\n", BN_bn2dec(y_r));
+            // printf("y_r = %s\n", BN_bn2dec(y_r));
             BN_sub(y_r, y_r, x_r);
-            printf("y_r = %s\n", BN_bn2dec(y_r));
+            // printf("y_r = %s\n", BN_bn2dec(y_r));
             BN_mul(y_r, y_r, dydx, calc_ctx);
-            printf("y_r = %s\n", BN_bn2dec(y_r));
+            // printf("y_r = %s\n", BN_bn2dec(y_r));
             BN_sub(y_r, y_r, y_p);
-            printf("y_r = %s\n", BN_bn2dec(y_r));
+            // printf("y_r = %s\n", BN_bn2dec(y_r));
             calculatePositiveMod(y_r, finite_field_, calc_ctx);
             
             Point potential = Point(x_r, y_r);
-            printf("x_r = %s\n", BN_bn2dec(x_r));
-            printf("y_r = %s\n", BN_bn2dec(y_r));
+            // printf("x_r = %s\n", BN_bn2dec(x_r));
+            // printf("y_r = %s\n", BN_bn2dec(y_r));
             if(validatePointOnCurve(potential)){
                 point = potential;
             }

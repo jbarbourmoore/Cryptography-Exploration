@@ -64,7 +64,7 @@ PerMessageSecret::PerMessageSecret(BIGNUM* n){
     value_ = BN_CTX_get(gen_ctx);
     inverse_ = BN_CTX_get(gen_ctx);
     BN_priv_rand_range(value_, n);
-    BN_mod_inverse(inverse_, n, value_, gen_ctx);
+    BN_mod_inverse(inverse_, value_, n, gen_ctx);
 }
 
 PerMessageSecret::PerMessageSecret(){
@@ -80,17 +80,17 @@ PerMessageSecret::PerMessageSecret(std::string k_hex, BIGNUM* n){
     value_ = BN_CTX_get(gen_ctx);
     inverse_ = BN_CTX_get(gen_ctx);
     BN_hex2bn(&value_, k_hex.c_str());
-    BN_mod_inverse(inverse_, n, value_, gen_ctx);
+    BN_mod_inverse(inverse_, value_, n, gen_ctx);
 }
 
 void PerMessageSecret::generateSecret(BIGNUM *n){
     BN_priv_rand_range(value_, n);
-    BN_mod_inverse(inverse_, n, value_, gen_ctx);
+    BN_mod_inverse(inverse_, value_, n, gen_ctx);
 }
 
 void PerMessageSecret::loadSecret(std::string k_hex, BIGNUM *n){
     BN_hex2bn(&value_, k_hex.c_str());
-    BN_mod_inverse(inverse_, n, value_, gen_ctx);
+    BN_mod_inverse(inverse_, value_, n, gen_ctx);
 }
 
 void PerMessageSecret::deleteSecret(){
@@ -139,6 +139,7 @@ ECDSA_Signature ECDSA::SignatureGeneration(std::string M_hex, BIGNUM *d, std::st
     hash(M, H);
     BN_copy(E, H);
     printf("starting\n");
+    printf("E : %s\n", BN_bn2hex(E));
 
     // temporary break out of infinite loop, remove once debugged
     int count = 0;
@@ -152,6 +153,7 @@ ECDSA_Signature ECDSA::SignatureGeneration(std::string M_hex, BIGNUM *d, std::st
             k.loadSecret(k_hex,  curve_.getN());
         }
         printf("k : %s\n", BN_bn2hex(k.value_));
+        printf("k inv : %s\n", BN_bn2hex(k.inverse_));
         printf("n : %s\n", BN_bn2hex(curve_.getN()));
 
         Point R = curve_.calculatePointMultiplicationByConstant(curve_.getG(), k.value_);
