@@ -12,7 +12,11 @@ struct PerMessageSecret {
         BIGNUM* value_;
         BIGNUM* inverse_;
         BN_CTX *gen_ctx;
+        PerMessageSecret();
         PerMessageSecret(BIGNUM *n);
+        PerMessageSecret(std::string k_hex, BIGNUM* n);
+        void generateSecret(BIGNUM *n);
+        void loadSecret(std::string k_hex, BIGNUM *n);
         void deleteSecret();
 };
 
@@ -23,6 +27,7 @@ struct ECDSA_Signature {
 
         ECDSA_Signature(BIGNUM *r, BIGNUM *s);
         ECDSA_Signature(std::string r_hex, std::string s_hex);
+        void print();
         bool operator==(const ECDSA_Signature &input) const;
 };
 
@@ -37,9 +42,11 @@ class ECDSA {
     public : 
         ECDSA(EllipticCurves curve_type);
 
-        ECDSA_Signature SignatureGeneration(std::string M_hex, BIGNUM *d);
+        ECDSA_Signature SignatureGeneration(std::string M_hex, BIGNUM *d, std::string k_hex = "");
 
         ECDSA_Signature SignatureGeneration(std::string message, std::string d_hex);
+
+        ECDSA_Signature SignatureGeneration(std::string message, std::string d_hex, std::string k_hex);
 
 };
 

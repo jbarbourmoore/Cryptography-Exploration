@@ -67,6 +67,32 @@ PerMessageSecret::PerMessageSecret(BIGNUM* n){
     BN_mod_inverse(inverse_, n, value_, gen_ctx);
 }
 
+PerMessageSecret::PerMessageSecret(){
+    gen_ctx = BN_CTX_secure_new();
+    BN_CTX_start(gen_ctx);
+    value_ = BN_CTX_get(gen_ctx);
+    inverse_ = BN_CTX_get(gen_ctx);
+}
+
+PerMessageSecret::PerMessageSecret(std::string k_hex, BIGNUM* n){
+    gen_ctx = BN_CTX_secure_new();
+    BN_CTX_start(gen_ctx);
+    value_ = BN_CTX_get(gen_ctx);
+    inverse_ = BN_CTX_get(gen_ctx);
+    BN_hex2bn(&value_, k_hex.c_str());
+    BN_mod_inverse(inverse_, n, value_, gen_ctx);
+}
+
+void PerMessageSecret::generateSecret(BIGNUM *n){
+    BN_priv_rand_range(value_, n);
+    BN_mod_inverse(inverse_, n, value_, gen_ctx);
+}
+
+void PerMessageSecret::loadSecret(std::string k_hex, BIGNUM *n){
+    BN_hex2bn(&value_, k_hex.c_str());
+    BN_mod_inverse(inverse_, n, value_, gen_ctx);
+}
+
 void PerMessageSecret::deleteSecret(){
     BN_CTX_end(gen_ctx);
     BN_CTX_free(gen_ctx);
@@ -86,6 +112,11 @@ ECDSA_Signature::ECDSA_Signature(std::string r_hex, std::string s_hex){
     BN_hex2bn(&s_, s_hex.c_str());
 }
 
+void ECDSA_Signature::print(){
+    printf("r: %s\n", BN_bn2hex(r_));
+    printf("s: %s\n", BN_bn2hex(s_));
+}
+
 bool ECDSA_Signature::operator==(const ECDSA_Signature &input) const{
     int s_comp = BN_cmp(s_, input.s_);
     int r_comp = BN_cmp(r_, input.r_);
@@ -94,7 +125,7 @@ bool ECDSA_Signature::operator==(const ECDSA_Signature &input) const{
     return result;
 }
 
-ECDSA_Signature ECDSA::SignatureGeneration(std::string M_hex, BIGNUM *d){
+ECDSA_Signature ECDSA::SignatureGeneration(std::string M_hex, BIGNUM *d, std::string k_hex){
     BN_CTX *gen_ctx = BN_CTX_secure_new();
 
     BIGNUM *M = BN_CTX_get(gen_ctx);
@@ -114,7 +145,12 @@ ECDSA_Signature ECDSA::SignatureGeneration(std::string M_hex, BIGNUM *d){
 
     while((BN_is_zero(s) == 1 || BN_is_zero(r) == 1) && count < 5 ){
         count ++;
-        PerMessageSecret k = PerMessageSecret(curve_.getN());
+        PerMessageSecret k;
+        if(k_hex == ""){
+            k.generateSecret(curve_.getN());
+        } else {
+            k.loadSecret(k_hex,  curve_.getN());
+        }
         printf("k : %s\n", BN_bn2hex(k.value_));
         printf("n : %s\n", BN_bn2hex(curve_.getN()));
 
@@ -150,4 +186,21 @@ ECDSA_Signature ECDSA::SignatureGeneration(std::string message, std::string d_he
     }
 
     return SignatureGeneration(m_hex, d);
+}
+
+ECDSA_Signature ECDSA::SignatureGeneration(std::string message, std::string d_hex, std::string k_hex){
+    BIGNUM *d = BN_new();
+    BN_hex2bn(&d, d_hex.c_str());
+
+    // printf("message : %s\n", message.c_str());
+    int length = message.size();
+    std::string m_hex = "";
+
+    for (int i = 0; i < length; i++){
+        char new_char[3];
+        sprintf(new_char, "%02X", message[i]);
+        m_hex = m_hex + new_char[0] + new_char[1];
+    }
+
+    return SignatureGeneration(m_hex, d, k_hex);
 }
