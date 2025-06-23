@@ -44,3 +44,17 @@ TEST(ECC_Tests, ECDSA_secp384r1SignatureGeneration) {
     signature.print();
     EXPECT_EQ(expected, signature);
 }
+
+//test values from https://csrc.nist.gov/CSRC/media/Projects/Cryptographic-Standards-and-Guidelines/documents/examples/P521_SHA512.pdf 
+TEST(ECC_Tests, ECDSA_secp521r1SignatureGeneration) {
+    ECDSA ecdsa = ECDSA(EllipticCurves::SECP521R1_);
+    std::string message_string = "Example of ECDSA with P-521";
+    std::string given_k_hex = "C91E2349EF6CA22D2DE39DD51819B6AAD922D3AECDEAB452BA172F7D63E370CECD70575F597C09A174BA76BED05A48E562BE0625336D16B8703147A6A231D6BF";
+    std::string expected_r = "140C8EDCA57108CE3F7E7A240DDD3AD74D81E2DE62451FC1D558FDC79269ADACD1C2526EEEEF32F8C0432A9D56E2B4A8A732891C37C9B96641A9254CCFE5DC3E2BA";
+    std::string expected_s = "D72F15229D0096376DA6651D9985BFD7C07F8D49583B545DB3EAB20E0A2C1E8615BD9E298455BDEB6B61378E77AF1C54EEE2CE37B2C61F5C9A8232951CB988B5B1";
+    ECDSA_Signature expected = ECDSA_Signature(expected_r, expected_s);
+    std::string d_hex = "100085F47B8E1B8B11B7EB33028C0B2888E304BFC98501955B45BBA1478DC184EEEDF09B86A5F7C21994406072787205E69A63709FE35AA93BA333514B24F961722";
+    ECDSA_Signature signature = ecdsa.SignatureGeneration(message_string, d_hex, given_k_hex);
+    signature.print();
+    EXPECT_EQ(expected, signature);
+}
