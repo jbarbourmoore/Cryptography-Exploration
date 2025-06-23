@@ -16,3 +16,17 @@ TEST(ECC_Tests, ECDSA_secp224r1SignatureGeneration) {
     signature.print();
     EXPECT_EQ(expected, signature);
 }
+
+//test values from https://csrc.nist.gov/CSRC/media/Projects/Cryptographic-Standards-and-Guidelines/documents/examples/P256_SHA256.pdf 
+TEST(ECC_Tests, ECDSA_secp256r1SignatureGeneration) {
+    ECDSA ecdsa = ECDSA(EllipticCurves::SECP256R1_);
+    std::string message_string = "Example of ECDSA with P-256";
+    std::string given_k_hex = "7A1A7E52797FC8CAAA435D2A4DACE39158504BF204FBE19F14DBB427FAEE50AE";
+    std::string expected_r = "2B42F576D07F4165FF65D1F3B1500F81E44C316F1F0B3EF57325B69ACA46104F";
+    std::string expected_s = "DC42C2122D6392CD3E3A993A89502A8198C1886FE69D262C4B329BDB6B63FAF1";
+    ECDSA_Signature expected = ECDSA_Signature(expected_r, expected_s);
+    std::string d_hex = "C477F9F65C22CCE20657FAA5B2D1D8122336F851A508A1ED04E479C34985BF96";
+    ECDSA_Signature signature = ecdsa.SignatureGeneration(message_string, d_hex, given_k_hex);
+    signature.print();
+    EXPECT_EQ(expected, signature);
+}
