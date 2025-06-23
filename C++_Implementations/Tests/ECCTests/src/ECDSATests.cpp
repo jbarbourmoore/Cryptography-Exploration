@@ -30,3 +30,17 @@ TEST(ECC_Tests, ECDSA_secp256r1SignatureGeneration) {
     signature.print();
     EXPECT_EQ(expected, signature);
 }
+
+//test values from https://csrc.nist.gov/CSRC/media/Projects/Cryptographic-Standards-and-Guidelines/documents/examples/P384_SHA384.pdf 
+TEST(ECC_Tests, ECDSA_secp384r1SignatureGeneration) {
+    ECDSA ecdsa = ECDSA(EllipticCurves::SECP384R1_);
+    std::string message_string = "Example of ECDSA with P-384";
+    std::string given_k_hex = "2E44EF1F8C0BEA8394E3DDA81EC6A7842A459B534701749E2ED95F054F0137680878E0749FC43F85EDCAE06CC2F43FEF";
+    std::string expected_r = "30EA514FC0D38D8208756F068113C7CADA9F66A3B40EA3B313D040D9B57DD41A332795D02CC7D507FCEF9FAF01A27088";
+    std::string expected_s = "CC808E504BE414F46C9027BCBF78ADF067A43922D6FCAA66C4476875FBB7B94EFD1F7D5DBE620BFB821C46D549683AD8";
+    ECDSA_Signature expected = ECDSA_Signature(expected_r, expected_s);
+    std::string d_hex = "F92C02ED629E4B48C0584B1C6CE3A3E3B4FAAE4AFC6ACB0455E73DFC392E6A0AE393A8565E6B9714D1224B57D83F8A08";
+    ECDSA_Signature signature = ecdsa.SignatureGeneration(message_string, d_hex, given_k_hex);
+    signature.print();
+    EXPECT_EQ(expected, signature);
+}
