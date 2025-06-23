@@ -141,11 +141,7 @@ ECDSA_Signature ECDSA::SignatureGeneration(std::string M_hex, BIGNUM *d, std::st
     printf("starting\n");
     printf("E : %s\n", BN_bn2hex(E));
 
-    // temporary break out of infinite loop, remove once debugged
-    int count = 0;
-
-    while((BN_is_zero(s) == 1 || BN_is_zero(r) == 1) && count < 5 ){
-        count ++;
+    while(BN_is_zero(s) == 1 || BN_is_zero(r) == 1){
         PerMessageSecret k;
         if(k_hex == ""){
             k.generateSecret(curve_.getN());
@@ -194,15 +190,42 @@ ECDSA_Signature ECDSA::SignatureGeneration(std::string message, std::string d_he
     BIGNUM *d = BN_new();
     BN_hex2bn(&d, d_hex.c_str());
 
-    // printf("message : %s\n", message.c_str());
-    int length = message.size();
-    std::string m_hex = "";
+    std::string m_hex = stringToHexString(message);
+
+    return SignatureGeneration(m_hex, d, k_hex);
+}
+
+bool ECDSA::SignatureVerification(std::string M_hex, BIGNUM *Q, ECDSA_Signature signature){
+    bool result = false;
+
+    int r_in_range = BN_cmp(signature.r_, curve_.getN());
+    int s_in_range = BN_cmp(signature.s_, curve_.getN());
+
+    if(r_in_range == -1 && s_in_range == -1){
+
+    }
+
+    return result;
+}
+
+bool ECDSA::SignatureVerification(std::string message, std::string Q_hex, ECDSA_Signature signature){
+    BIGNUM *Q = BN_new();
+    BN_hex2bn(&Q, Q_hex.c_str());
+
+    std::string m_hex = stringToHexString(message);
+
+    return SignatureVerification(m_hex, Q, signature);
+}
+
+std::string ECDSA::stringToHexString(std::string input){
+    int length = input.size();
+    std::string hex_string = "";
 
     for (int i = 0; i < length; i++){
         char new_char[3];
-        sprintf(new_char, "%02X", message[i]);
-        m_hex = m_hex + new_char[0] + new_char[1];
+        sprintf(new_char, "%02X", input[i]);
+        hex_string = hex_string + new_char[0] + new_char[1];
     }
 
-    return SignatureGeneration(m_hex, d, k_hex);
+    return hex_string;
 }
