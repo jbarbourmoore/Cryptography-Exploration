@@ -15,6 +15,14 @@ TEST(ECC_Tests, ECDSA_secp224r1SignatureGeneration) {
     ECDSA_Signature signature = ecdsa.SignatureGeneration(message_string, d_hex, given_k_hex);
     signature.print();
     EXPECT_EQ(expected, signature);
+
+    Point Q = Point("E84FB0B8E7000CB657D7973CF6B42ED78B301674276DF744AF130B3E", "4376675C6FC5612C21A0FF2D2A89D2987DF7A2BC52183B5982298555");
+    bool verified = ecdsa.SignatureVerification(message_string, Q, signature);
+    EXPECT_TRUE(verified);
+
+    Point not_Q = Point("E84FB0B8E7000CB657D7973CF6B42ED78B301674276DF744AF130B3A", "4376675C6FC5612C21A0FF2D2A89D2987DF7A2BC52183B5982298555");
+    bool not_verified = ecdsa.SignatureVerification(message_string, not_Q, signature);
+    EXPECT_FALSE(not_verified);
 }
 
 //test values from https://csrc.nist.gov/CSRC/media/Projects/Cryptographic-Standards-and-Guidelines/documents/examples/P256_SHA256.pdf 
@@ -29,6 +37,14 @@ TEST(ECC_Tests, ECDSA_secp256r1SignatureGeneration) {
     ECDSA_Signature signature = ecdsa.SignatureGeneration(message_string, d_hex, given_k_hex);
     signature.print();
     EXPECT_EQ(expected, signature);
+
+    Point Q = Point("B7E08AFDFE94BAD3F1DC8C734798BA1C62B3A0AD1E9EA2A38201CD0889BC7A19", "3603F747959DBF7A4BB226E41928729063ADC7AE43529E61B563BBC606CC5E09");
+    bool verified = ecdsa.SignatureVerification(message_string, Q, signature);
+    EXPECT_TRUE(verified);
+
+    Point not_Q = Point("B7E08AFDFE94BAD3F1DC8C734798BA1C62B3A0AD1E9EA2A38201CD0889BC7A19", "3603F747959DBF7A4BB226E41928719063ADC7AE43529E61B563BBC606CC5E09");
+    bool not_verified = ecdsa.SignatureVerification(message_string, not_Q, signature);
+    EXPECT_FALSE(not_verified);
 }
 
 //test values from https://csrc.nist.gov/CSRC/media/Projects/Cryptographic-Standards-and-Guidelines/documents/examples/P384_SHA384.pdf 
@@ -65,4 +81,12 @@ TEST(ECC_Tests, ECDSA_secp521r1SignatureGeneration) {
     ECDSA_Signature signature = ecdsa.SignatureGeneration(message_string, d_hex, given_k_hex);
     signature.print();
     EXPECT_EQ(expected, signature);
+
+    Point Q = Point("98E91EEF9A68452822309C52FAB453F5F117C1DA8ED796B255E9AB8F6410CCA16E59DF403A6BDC6CA467A37056B1E54B3005D8AC030DECFEB68DF18B171885D5C4", "164350C321AECFC1CCA1BA4364C9B15656150B4B78D6A48D7D28E7F31985EF17BE8554376B72900712C4B83AD668327231526E313F5F092999A4632FD50D946BC2E");
+    bool verified = ecdsa.SignatureVerification(message_string, Q, signature);
+    EXPECT_TRUE(verified);
+
+    Point not_Q = Point("98E91EEF9A68452822309C52FAB453F5F117C1DA8ED796B255E9AB8F6410CCA16E59DF403A6BDC6CA467A37056B1E54B3005D8AC030DECFEB68DF18B171885D5C4", "164350C321AECFC1CCA1BA4364C9B15656150B4B78D6A48D7D28E7F31985EF17BE8554376B72900712C4B83AD668327231526E313F5F092999A4632FD50D946BC2D");
+    bool not_verified = ecdsa.SignatureVerification(message_string, not_Q, signature);
+    EXPECT_FALSE(not_verified);
 }
