@@ -43,6 +43,14 @@ TEST(ECC_Tests, ECDSA_secp384r1SignatureGeneration) {
     ECDSA_Signature signature = ecdsa.SignatureGeneration(message_string, d_hex, given_k_hex);
     signature.print();
     EXPECT_EQ(expected, signature);
+
+    Point Q = Point("3BF701BC9E9D36B4D5F1455343F09126F2564390F2B487365071243C61E6471FB9D2AB74657B82F9086489D9EF0F5CB5", "D1A358EAFBF952E68D533855CCBDAA6FF75B137A5101443199325583552A6295FFE5382D00CFCDA30344A9B5B68DB855");
+    bool verified = ecdsa.SignatureVerification(message_string, Q, signature);
+    EXPECT_TRUE(verified);
+
+    Point not_Q = Point("1BF701BC9E9D36B4D5F1455343F09126F2564390F2B487365071243C61E6471FB9D2AB74657B82F9086489D9EF0F5CB5", "D1A358EAFBF952E68D533855CCBDAA6FF75B137A5101443199325583552A6295FFE5382D00CFCDA30344A9B5B68DB855");
+    bool not_verified = ecdsa.SignatureVerification(message_string, not_Q, signature);
+    EXPECT_FALSE(not_verified);
 }
 
 //test values from https://csrc.nist.gov/CSRC/media/Projects/Cryptographic-Standards-and-Guidelines/documents/examples/P521_SHA512.pdf 

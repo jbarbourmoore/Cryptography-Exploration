@@ -260,7 +260,7 @@ bool ECDSA::SignatureVerificationFromHex(std::string M_hex, Point Q, ECDSA_Signa
 bool ECDSA::SignatureVerification(std::string message, Point Q, ECDSA_Signature signature){
     std::string m_hex = stringToHexString(message);
 
-    return SignatureVerification(m_hex, Q, signature);
+    return SignatureVerificationFromHex(m_hex, Q, signature);
 }
 
 std::string ECDSA::stringToHexString(std::string input){
