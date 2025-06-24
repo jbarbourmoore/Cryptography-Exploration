@@ -125,19 +125,30 @@ bool ECDSA_Signature::operator==(const ECDSA_Signature &input) const{
     return result;
 }
 
+void ECDSA::calculateE(BIGNUM *result, BIGNUM *M){
+    BIGNUM *H = BN_new();
+    hash(M, H);
+    int hash_length = BN_num_bits(M);
+    int n_length = BN_num_bits(curve_.getN());
+    if( n_length > hash_length){
+        BN_copy(result, H);
+    } else {
+        BN_rshift(result, H, hash_length - n_length);
+    }
+    BN_clear_free(H);
+}
+
 ECDSA_Signature ECDSA::SignatureGeneration(std::string M_hex, BIGNUM *d, std::string k_hex){
     BN_CTX *gen_ctx = BN_CTX_secure_new();
 
     BIGNUM *M = BN_CTX_get(gen_ctx);
-    BIGNUM *H = BN_CTX_get(gen_ctx);
     BIGNUM *E = BN_CTX_get(gen_ctx);
     BIGNUM *r = BN_CTX_get(gen_ctx);
     BIGNUM *s = BN_CTX_get(gen_ctx);
 
     BN_hex2bn(&M, M_hex.c_str());
 
-    hash(M, H);
-    BN_copy(E, H);
+    calculateE(E, M);
     printf("starting\n");
     printf("E : %s\n", BN_bn2hex(E));
 
@@ -183,7 +194,11 @@ ECDSA_Signature ECDSA::SignatureGeneration(std::string message, std::string d_he
         m_hex = m_hex + new_char[0] + new_char[1];
     }
 
-    return SignatureGeneration(m_hex, d);
+    ECDSA_Signature signature = SignatureGeneration(m_hex, d);
+
+    BN_clear_free(d);
+
+    return signature;
 }
 
 ECDSA_Signature ECDSA::SignatureGeneration(std::string message, std::string d_hex, std::string k_hex){
@@ -192,26 +207,57 @@ ECDSA_Signature ECDSA::SignatureGeneration(std::string message, std::string d_he
 
     std::string m_hex = stringToHexString(message);
 
-    return SignatureGeneration(m_hex, d, k_hex);
+    ECDSA_Signature signature = SignatureGeneration(m_hex, d, k_hex);
+
+    BN_clear_free(d);
+
+    return signature;
 }
 
-bool ECDSA::SignatureVerification(std::string M_hex, BIGNUM *Q, ECDSA_Signature signature){
+bool ECDSA::SignatureVerificationFromHex(std::string M_hex, Point Q, ECDSA_Signature signature){
     bool result = false;
 
-    int r_in_range = BN_cmp(signature.r_, curve_.getN());
-    int s_in_range = BN_cmp(signature.s_, curve_.getN());
+    bool r_in_range = BN_cmp(signature.r_, curve_.getN()) == -1 && BN_is_negative(signature.r_) == 0;
+    int s_in_range = BN_cmp(signature.s_, curve_.getN()) == -1 && BN_is_negative(signature.s_) == 0;
 
-    if(r_in_range == -1 && s_in_range == -1){
+    if(r_in_range && s_in_range){
 
+        BN_CTX *ver_ctx = BN_CTX_secure_new();
+
+        BIGNUM *M = BN_CTX_get(ver_ctx);
+        BIGNUM *E = BN_CTX_get(ver_ctx);
+        BIGNUM *s_inv = BN_CTX_get(ver_ctx);
+        BIGNUM *u = BN_CTX_get(ver_ctx);
+        BIGNUM *v = BN_CTX_get(ver_ctx);
+        BIGNUM *r1 = BN_CTX_get(ver_ctx);
+
+        BN_hex2bn(&M, M_hex.c_str());
+
+        calculateE(E, M);
+
+        BN_mod_inverse(s_inv, signature.s_, curve_.getN(), ver_ctx);
+
+        BN_mul(u, E, s_inv, ver_ctx);
+        BN_mul(v, signature.r_, s_inv, ver_ctx);
+
+        Point uG = curve_.calculatePointMultiplicationByConstant(curve_.getG(), u);
+        Point vQ = curve_.calculatePointMultiplicationByConstant(Q, v);
+
+        Point R1 = curve_.calculatePointAddition(uG, vQ);
+        Point identity_point = Point();
+        if(!(R1 == identity_point)){
+            BN_copy(r1, R1.getXAsBN());
+            curve_.calculatePositiveMod(r1, curve_.getN(), ver_ctx);
+            if(BN_cmp(signature.r_, r1) == 0){
+                result = true;
+            }
+        }
     }
 
     return result;
 }
 
-bool ECDSA::SignatureVerification(std::string message, std::string Q_hex, ECDSA_Signature signature){
-    BIGNUM *Q = BN_new();
-    BN_hex2bn(&Q, Q_hex.c_str());
-
+bool ECDSA::SignatureVerification(std::string message, Point Q, ECDSA_Signature signature){
     std::string m_hex = stringToHexString(message);
 
     return SignatureVerification(m_hex, Q, signature);

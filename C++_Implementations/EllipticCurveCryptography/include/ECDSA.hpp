@@ -39,6 +39,10 @@ class ECDSA {
 
         void hash(BIGNUM *value, BIGNUM *result);
 
+        std::string stringToHexString(std::string input);
+
+        void calculateE(BIGNUM *result, BIGNUM *M);
+
     public : 
         ECDSA(EllipticCurves curve_type);
 
@@ -47,6 +51,10 @@ class ECDSA {
         ECDSA_Signature SignatureGeneration(std::string message, std::string d_hex);
 
         ECDSA_Signature SignatureGeneration(std::string message, std::string d_hex, std::string k_hex);
+
+        bool SignatureVerificationFromHex(std::string M_hex, Point Q, ECDSA_Signature signature);
+
+        bool SignatureVerification(std::string message, Point Q, ECDSA_Signature signature);
 
 };
 
