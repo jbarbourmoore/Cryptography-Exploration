@@ -187,52 +187,44 @@ Point EdwardsCurve::calculatePointAddition(Point p, Point q){
             BIGNUM *x_q = BN_CTX_get(calc_ctx);
             BIGNUM *y_q = BN_CTX_get(calc_ctx);
 
-            BIGNUM *dydx = BN_CTX_get(calc_ctx);
-            BIGNUM *mod_inv = BN_CTX_get(calc_ctx);
+            BIGNUM *xp_yq = BN_CTX_get(calc_ctx);
+            BIGNUM *yp_yq = BN_CTX_get(calc_ctx);
+
+            BIGNUM* d_xp_xq_yp_yq = BN_CTX_get(calc_ctx);
 
             BIGNUM *x_r = BN_CTX_get(calc_ctx);
+            BIGNUM *x_r_d = BN_CTX_get(calc_ctx);
             BIGNUM *y_r = BN_CTX_get(calc_ctx);
+            BIGNUM *y_r_d = BN_CTX_get(calc_ctx);
 
             BN_copy(x_p, p.getXAsBN());
             BN_copy(y_p, p.getYAsBN());
             BN_copy(x_q, q.getXAsBN());
             BN_copy(y_q, q.getYAsBN());
 
-            if (p == q) {
-                // dydx = (3 * x_p**2 + a) * ModInv(2 * y_p, finite_field)
-                BN_copy(mod_inv, y_p);
-                BN_mul_word(mod_inv, 2);
-                BN_mod_inverse(mod_inv, mod_inv, finite_field_, calc_ctx);
-                 /// printf("mod_inv = %s\n", BN_bn2dec(mod_inv));
-                BN_mul(dydx, x_p, x_p, calc_ctx);
-                BN_mul_word(dydx, 3);
-                BN_add(dydx, dydx, a_);
-                BN_mul(dydx, dydx, mod_inv, calc_ctx);
-                
-            } else {
-                // dydx = (y_q - y_p) * ModInv(x_q - x_p, finite_field)
-                BN_sub(mod_inv, x_q, x_p);
-                BN_mod_inverse(mod_inv, mod_inv, finite_field_, calc_ctx);
-                BN_sub(dydx, y_q, y_p);
-                BN_mul(dydx, dydx, mod_inv, calc_ctx);
-            }
-            calculatePositiveMod(dydx, finite_field_, calc_ctx);
-            // printf("dydx = %s\n", BN_bn2dec(dydx));
-            // x_r = (dydx**2 - x_p - x_q) % self.finite_field
-            BN_mul(x_r, dydx, dydx, calc_ctx);
-            BN_sub(x_r, x_r, x_p);
-            BN_sub(x_r, x_r, x_q);
+            BN_mul(xp_yq, x_p, y_q, calc_ctx);
+            BN_mul(x_r, x_q, y_p, calc_ctx);
+            BN_add(x_r, x_r, xp_yq);
+
+            BN_mul(d_xp_xq_yp_yq, x_p, x_q, calc_ctx);
+            BN_mul(d_xp_xq_yp_yq, d_xp_xq_yp_yq, y_p, calc_ctx);
+            BN_mul(d_xp_xq_yp_yq, d_xp_xq_yp_yq, y_q, calc_ctx);
+            BN_mul(d_xp_xq_yp_yq, d_xp_xq_yp_yq, d_, calc_ctx);
+
+            BN_copy(x_r_d, d_xp_xq_yp_yq);
+            BN_add_word(x_r_d, 1);
+            BN_mod_inverse(x_r_d, x_r_d, finite_field_, calc_ctx);
+            BN_mul(x_r, x_r, x_r_d, calc_ctx);
             calculatePositiveMod(x_r, finite_field_, calc_ctx);
 
-            // y_r = (dydx * (x_p - x_r) - y_p) % finite_field
-            BN_copy(y_r, x_p);
-            // printf("y_r = %s\n", BN_bn2dec(y_r));
-            BN_sub(y_r, y_r, x_r);
-            // printf("y_r = %s\n", BN_bn2dec(y_r));
-            BN_mul(y_r, y_r, dydx, calc_ctx);
-            // printf("y_r = %s\n", BN_bn2dec(y_r));
-            BN_sub(y_r, y_r, y_p);
-            // printf("y_r = %s\n", BN_bn2dec(y_r));
+            BN_mul(yp_yq, y_p, y_q, calc_ctx);
+            BN_mul(y_r, x_p, x_q, calc_ctx);
+            BN_add(y_r, y_r, yp_yq);
+
+            BN_set_word(y_r_d, 1);
+            BN_sub(y_r_d, y_r_d, d_xp_xq_yp_yq);
+            BN_mod_inverse(y_r_d, y_r_d, finite_field_, calc_ctx);
+            BN_mul(y_r, y_r, y_r_d, calc_ctx);
             calculatePositiveMod(y_r, finite_field_, calc_ctx);
             
             Point potential = Point(x_r, y_r);
