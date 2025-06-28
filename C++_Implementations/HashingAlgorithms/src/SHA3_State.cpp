@@ -36,3 +36,18 @@ void SHA3_State::printBits(){
         printf("\n");
     }
 }
+
+std::bitset<1600> SHA3_State::getValueAsBitset(){
+    std::bitset<1600> result = std::bitset<1600>();
+    for (int x = 0; x < 5; x ++){
+        for (int y = 0; y < 5; y ++){
+            for(int z = 0; z < w_; z ++){
+                if (checkBit(x, y, z)){
+                    setBit(true, x, y, z);
+                    result.set(w_ * (5 * y + x) + z, true);
+                }
+            }
+        }
+    }
+    return result;
+}
