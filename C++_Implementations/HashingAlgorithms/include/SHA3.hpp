@@ -13,11 +13,22 @@ class SHA3 : public SHA{
 class SHA3_State {
 
     private :
-        int w = 64;
+        int w_ = 64;
 
-        std::array<std::array<std::bitset<64>, 5>, 5> s;
+        std::array<std::array<std::bitset<64>, 5>, 5> a_;
 
     public :
+
+        SHA3_State();
+
+        SHA3_State(std::bitset<1600> bitset_input);
+
+        void setBit(bool value, int x, int y, int z);
+
+        bool checkBit(int x, int y, int z);
+
+        void printBits();
+
         std::bitset<1600> getValueAsBitset();
 
         std::string getValueAsHex();

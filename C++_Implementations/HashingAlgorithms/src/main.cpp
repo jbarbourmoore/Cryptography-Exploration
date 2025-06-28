@@ -4,6 +4,7 @@
 /// Created       : 05/19/25
 
 #include "CreateHashDigest.hpp"
+#include "SHA3.hpp"
 
 int main(int argc, char const *argv[])
 {
@@ -22,5 +23,9 @@ int main(int argc, char const *argv[])
     printf("SHA512/224 digest : %s\n", hex_result.c_str());
     hex_result = CreateHashDigest::fromString(string_input, HashType::SHA512_256_DIGEST);
     printf("SHA512/256 digest : %s\n", hex_result.c_str());
+
+    SHA3_State state = SHA3_State();
+    state.printBits();
+    
     return 0;
 }
