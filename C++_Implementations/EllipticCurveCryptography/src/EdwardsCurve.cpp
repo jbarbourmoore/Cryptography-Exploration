@@ -240,15 +240,3 @@ Point EdwardsCurve::calculatePointAddition(Point p, Point q){
     }
     return point;
 }
-
-class edwards25519 : public EdwardsCurve{
-    public  : 
-        edwards25519() : EdwardsCurve(
-            "-1",   // a (x coefficient)
-            "52036cee2b6ffe738cc740797779e89800700a4d4141d8ab75eb4dca135978a3",   // d (y coefficient)
-            "1000000000000000000000000000000014DEF9DEA2F79CD65812631A5CF5D3ED",   // p (finite field)
-            "216936d3cd6e53fec0a4e231fdd6dc5c692cc7609525a7b2c9562d608f25d51a",   // g_x (The x coordinate of the generator point)
-            "6666666666666666666666666666666666666666666666666666666666666658",   // g_y (The y coordinate of the generator point)
-            "7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFED"   // n (The order of the curve)
-        ){};
-};
