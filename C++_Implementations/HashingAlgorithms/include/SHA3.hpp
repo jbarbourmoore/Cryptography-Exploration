@@ -5,6 +5,7 @@
 #include <array>
 #include <bitset>
 #include <string>
+#include <cmath>
 
 class SHA3 : public SHA{
 
