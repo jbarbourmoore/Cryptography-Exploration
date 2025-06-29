@@ -26,6 +26,7 @@ int main(int argc, char const *argv[])
 
     SHA3_State state = SHA3_State();
     state.printBits();
+    state.printHex();
     
     return 0;
 }

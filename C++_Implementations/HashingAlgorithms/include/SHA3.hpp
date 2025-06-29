@@ -30,6 +30,8 @@ class SHA3_State {
 
         void printBits();
 
+        void printHex();
+
         std::bitset<1600> getValueAsBitset();
 
         std::string getValueAsHex();

@@ -37,6 +37,10 @@ void SHA3_State::printBits(){
     }
 }
 
+void SHA3_State::printHex(){
+    printf("%s\n", getValueAsHex().c_str());
+}
+
 std::bitset<1600> SHA3_State::getValueAsBitset(){
     std::bitset<1600> result = std::bitset<1600>();
     for (int x = 0; x < 5; x ++){
@@ -55,14 +59,13 @@ std::bitset<1600> SHA3_State::getValueAsBitset(){
 std::string SHA3_State::getValueAsHex(){
 
     ///Algorithm 11: b2h(S) from NIST FIPS 202
-    
+
     std::string res = "";
     std::bitset<1600> bits = getValueAsBitset();
     std::string hex_values = "0123456789ABCDEF";
     int m = 1600 / 8;
     for (int i = 0; i < m; i ++){
-        for (int j = 0; j < 8; j ++){
-            int index = i * 8 + j;
+            int index = i * 8;
             int value = 0;
             for (int bit_position = 0; bit_position < 8; bit_position++){
                 value += bits.test(index + bit_position) * pow(2, 7 - bit_position);
@@ -71,7 +74,6 @@ std::string SHA3_State::getValueAsHex(){
             int divisor = (value - remainder) / 16;
             res.push_back(hex_values.at(divisor));
             res.push_back(hex_values.at(remainder));
-        }
     }
     return res;
 }
