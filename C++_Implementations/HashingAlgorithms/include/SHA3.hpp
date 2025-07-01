@@ -16,6 +16,8 @@ class SHA3_State {
     private :
         int w_ = 64;
 
+        void bitsetToState(std::bitset<1600> bits_input);
+
         std::array<std::array<std::bitset<64>, 5>, 5> a_;
 
     public :
@@ -23,6 +25,8 @@ class SHA3_State {
         SHA3_State();
 
         SHA3_State(std::bitset<1600> bitset_input);
+
+        SHA3_State(std::string hex_input);
 
         void setBit(bool value, int x, int y, int z);
 

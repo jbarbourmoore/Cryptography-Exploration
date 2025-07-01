@@ -6,6 +6,10 @@ SHA3_State::SHA3_State(){
 
 SHA3_State::SHA3_State(std::bitset<1600> bitset_input){
     a_ = std::array<std::array<std::bitset<64>, 5>, 5>();
+    bitsetToState(bitset_input);
+}
+
+void SHA3_State::bitsetToState(std::bitset<1600> bitset_input){
     for (int x = 0; x < 5; x ++){
         for (int y = 0; y < 5; y ++){
             for(int z = 0; z < w_; z ++){
@@ -15,6 +19,31 @@ SHA3_State::SHA3_State(std::bitset<1600> bitset_input){
             }
         }
     }
+}
+
+SHA3_State::SHA3_State(std::string hex_input){
+    std::bitset<1600> bits = std::bitset<1600>();
+    a_ = std::array<std::array<std::bitset<64>, 5>, 5>();
+    int hex_length = hex_input.size();
+    std::string hex_values = "0123456789ABCDEF";
+    if (hex_length == 1600 / 4){
+        for (int i = 0; i < hex_length; i += 2){
+            int value = hex_values.find(hex_input.at(i));
+            value *= 16;
+            value += hex_values.find(hex_input.at(i + 1));
+
+            for (int bit_location = 0 ; bit_location < 8 ; bit_location ++){
+                if(value > pow(2, 7 - bit_location)){
+                    bits.set((i / 2) * 8 + bit_location, true);
+                    value -= pow(2, 7 - bit_location);
+                    
+                }
+                printf("%d", (i / 2) * 8 + bit_location);
+            }
+            printf("\n");
+        }
+    }
+    bitsetToState(bits);
 }
 
 void SHA3_State::setBit(bool value, int x, int y, int z){
