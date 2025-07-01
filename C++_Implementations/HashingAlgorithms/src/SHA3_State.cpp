@@ -22,10 +22,14 @@ void SHA3_State::bitsetToState(std::bitset<1600> bitset_input){
 }
 
 SHA3_State::SHA3_State(std::string hex_input){
+
+    // Algorithm 10: h2b(H, n) from NIST FIPS 202
+
     std::bitset<1600> bits = std::bitset<1600>();
     a_ = std::array<std::array<std::bitset<64>, 5>, 5>();
     int hex_length = hex_input.size();
     std::string hex_values = "0123456789ABCDEF";
+
     if (hex_length == 1600 / 4){
         for (int i = 0; i < hex_length; i += 2){
             int value = hex_values.find(hex_input.at(i));
@@ -36,7 +40,6 @@ SHA3_State::SHA3_State(std::string hex_input){
                 if(value >= pow(2, 7 - bit_location)){
                     bits.set((i / 2) * 8 + bit_location, true);
                     value -= pow(2, 7 - bit_location);
-                    
                 }
             }
         }
@@ -104,4 +107,28 @@ std::string SHA3_State::getValueAsHex(){
             res.push_back(hex_values.at(remainder));
     }
     return res;
+}
+
+std::bitset<5> SHA3_State::getRow(int y, int z){
+    std::bitset<5> row = std::bitset<5>();
+    for (int i = 0 ; i < 5 ; i ++){
+        row.set(i, checkBit(i, y, z));
+    }
+    return row;
+}
+
+std::bitset<5> SHA3_State::getColumns(int x, int z){
+    std::bitset<5> column = std::bitset<5>();
+    for (int i = 0 ; i < 5 ; i ++){
+        column.set(i, checkBit(x, i, z));
+    }
+    return column;
+}
+
+std::bitset<64> SHA3_State::getLane(int x, int y){
+    std::bitset<64> lane = std::bitset<64>();
+    for (int i = 0 ; i < w_ ; i ++){
+        lane.set(i, checkBit(x, y, i));
+    }
+    return lane;
 }
