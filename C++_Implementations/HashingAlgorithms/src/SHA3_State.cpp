@@ -187,3 +187,22 @@ void SHA3_State::theta(){
         }
     }
 }
+
+
+void SHA3_State::rho(){
+    // Algorithm 2: ρ(A) from NIST FIPS 202
+
+    std::array<std::array<int, 5>, 5> rho_matrix ={{{0,36,3,41,18}, {1,44,10,45,2}, {62,6,43,15,61}, {28,55,25,21,56}, {27,20,39,8,14}}};
+
+    std::array<std::array<std::bitset<64>, 5>, 5> a_prime = std::array<std::array<std::bitset<64>, 5>, 5>();
+    for (int x = 0 ; x < 5 ; x ++ ){
+        for (int y = 0 ; y < 5 ; y ++){
+            int select = rho_matrix.at(x).at(y);
+            for (int z = 0 ; z < w_ ; z ++){
+                bool select_bit = checkBit(x, y, mod(z - select, w_));
+                a_prime.at(x).at(y).set(z, select_bit);
+            }
+        }
+    }
+    a_ = a_prime;
+}

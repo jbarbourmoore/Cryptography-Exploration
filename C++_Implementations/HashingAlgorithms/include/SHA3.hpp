@@ -18,6 +18,8 @@ class SHA3_State {
 
         void bitsetToState(std::bitset<1600> bits_input);
 
+        int mod(int val, int modulus);
+
         std::array<std::array<std::bitset<64>, 5>, 5> a_;
 
     public :
@@ -54,9 +56,7 @@ class SHA3_State {
 
         void theta();
 
-        static SHA3_State getStateFromHex(std::string hex_input);
-
-        static SHA3_State getStateFromBitset(std::bitset<1600> bitset_input);
+        void rho();
 
 };
 
