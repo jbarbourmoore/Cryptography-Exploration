@@ -208,7 +208,7 @@ void SHA3_State::rho(){
 }
 
 void SHA3_State::pi(){
-    // Algorithm 2: ρ(A) from NIST FIPS 202
+    // Algorithm 3: π(A) from NIST FIPS 202
 
     std::array<std::array<std::bitset<64>, 5>, 5> a_prime = std::array<std::array<std::bitset<64>, 5>, 5>();
     for (int x = 0 ; x < 5 ; x ++ ){
@@ -220,4 +220,38 @@ void SHA3_State::pi(){
         }
     }
     a_ = a_prime;
+}
+
+void SHA3_State::chi(){
+    // Algorithm 4: χ(A) from NIST FIPS 202
+
+    std::array<std::array<std::bitset<64>, 5>, 5> a_prime = std::array<std::array<std::bitset<64>, 5>, 5>();
+    for (int x = 0 ; x < 5 ; x ++ ){
+        for (int y = 0 ; y < 5 ; y ++){
+            for (int z = 0 ; z < w_ ; z ++){
+                bool a_x = checkBit(x, y, z);
+                bool a_x1 = checkBit(mod(x - 1, 5), y, z);
+                bool a_x2 = checkBit(mod(x - 2, 5), y, z);
+                a_prime.at(x).at(y).set(z, a_x ^ (a_x1 ^ 1) ^ a_x2);
+            }
+        }
+    }
+    a_ = a_prime;
+}
+
+void SHA3_State::iota(int ir){
+    // Algorithm 5: rc(t) from NIST FIPS 202
+    
+    std::array<long unsigned int, 24> iota_round_constants = {
+            0x0000000000000001, 0x0000000000008082, 0x800000000000808A, 0x8000000080008000, 0x000000000000808B, 0x0000000080000001,
+            0x8000000080008081, 0x8000000000008009, 0x000000000000008A, 0x0000000000000088, 0x0000000080008009, 0x000000008000000A,
+            0x000000008000808B, 0x800000000000008B, 0x8000000000008089, 0x8000000000008003, 0x8000000000008002, 0x8000000000000080,
+            0x000000000000800A, 0x800000008000000A, 0x8000000080008081, 0x8000000000008080, 0x0000000080000001, 0x8000000080008008};
+
+    long unsigned int constant = iota_round_constants.at(ir);
+
+    for (int z = 0 ; z < w_ ; z ++){
+        bool new_bit = checkBit(0, 0, z) ^ ((constant >> z) & 1);
+        setBit(new_bit, 0, 0, z);
+    }
 }

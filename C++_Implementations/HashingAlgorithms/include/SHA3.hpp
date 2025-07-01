@@ -60,6 +60,10 @@ class SHA3_State {
 
         void pi();
 
+        void chi();
+
+        void iota(int ir);
+
 };
 
 #endif
