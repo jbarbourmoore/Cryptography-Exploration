@@ -117,12 +117,24 @@ std::bitset<5> SHA3_State::getRow(int y, int z){
     return row;
 }
 
-std::bitset<5> SHA3_State::getColumns(int x, int z){
+void SHA3_State::setRow(int y, int z, bitset<5> input_row){
+    for (int i = 0 ; i < 5 ; i ++){
+        setBit(i, y, z, input_row.test(i));
+    }
+}
+
+std::bitset<5> SHA3_State::getColumn(int x, int z){
     std::bitset<5> column = std::bitset<5>();
     for (int i = 0 ; i < 5 ; i ++){
         column.set(i, checkBit(x, i, z));
     }
     return column;
+}
+
+void SHA3_State::setColumn(int x, int z, bitset<5> input_column){
+    for (int i = 0 ; i < 5 ; i ++){
+        setBit(x, i, z, input_column.test(i));
+    }
 }
 
 std::bitset<64> SHA3_State::getLane(int x, int y){
@@ -131,4 +143,47 @@ std::bitset<64> SHA3_State::getLane(int x, int y){
         lane.set(i, checkBit(x, y, i));
     }
     return lane;
+}
+
+void SHA3_State::setLane(int x, int y, std::bitset<64> input_lane){
+    for (int i = 0 ; i < 64 ; i ++){
+        setBit(x, y, i, input_lane.test(i));
+    }
+}
+
+int SHA3_State::mod(int val, int modulus){
+    return (val % modulus + modulus) % modulus;
+}
+
+void SHA3_State::theta(){
+    // Algorithm 1: θ(A) from NIST FIPS 202
+
+    std::array<std::bitset<64>, 5> c = std::array<std::bitset<64>, 5>();
+    for (int x = 0 ; x < 5 ; x ++){
+        for (int z = 0 ; z < w_ ; z ++){
+            bool c_xz0 = a_.at(x).at(0).test(z);
+            bool c_xz1 = a_.at(x).at(1).test(z);
+            bool c_xz2 = a_.at(x).at(2).test(z);
+            bool c_xz3 = a_.at(x).at(3).test(z);
+            bool c_xz4 = a_.at(x).at(4).test(z);
+            c.at(x).set(z, c_xz0 ^ c_xz1 ^ c_xz2 ^ c_xz3 ^ c_xz4);
+        }
+    }
+
+    std::array<std::bitset<64>, 5> d = std::array<std::bitset<64>, 5>();
+    for (int x = 0 ; x < 5 ; x ++){
+        for (int z = 0 ; z < w_ ; z ++){
+            bool c_xmin = c.at(mod(x - 1, 5)).test(z);
+            bool c_zmin = c.at(mod(x + 1, 5)).test(mod(z - 1, w_));
+            d.at(x).set(z, c_xmin ^ c_zmin);
+        }
+    }
+
+    for (int x = 0 ; x < 5 ; x ++){
+        for (int y = 0 ; y < 5 ; y ++){
+            for (int z = 0 ; z < w_ ; z ++){
+                setBit(checkBit(x, y, z) ^ d.at(x).test(z), x, y, z);
+            }
+        }
+    }
 }

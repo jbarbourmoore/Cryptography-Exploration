@@ -40,6 +40,20 @@ class SHA3_State {
 
         std::string getValueAsHex();
 
+        std::bitset<5> getRow(int y, int z);
+
+        void setRow(int y, int z, std::bitset<5> input_row);
+
+        std::bitset<5> getColumn(int x, int z);
+
+        void setColumn(int x, int z, std::bitset<5> input_column);
+
+        std::bitset<64> getLane(int x, int y);
+
+        void setLane(int x, int y, std::bitset<64> input_lane);
+
+        void theta();
+
         static SHA3_State getStateFromHex(std::string hex_input);
 
         static SHA3_State getStateFromBitset(std::bitset<1600> bitset_input);
