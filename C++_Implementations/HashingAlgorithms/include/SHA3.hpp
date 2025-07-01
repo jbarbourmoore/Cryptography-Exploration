@@ -58,6 +58,8 @@ class SHA3_State {
 
         void rho();
 
+        void pi();
+
 };
 
 #endif

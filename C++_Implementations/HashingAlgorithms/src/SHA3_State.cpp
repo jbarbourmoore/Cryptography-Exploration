@@ -206,3 +206,18 @@ void SHA3_State::rho(){
     }
     a_ = a_prime;
 }
+
+void SHA3_State::pi(){
+    // Algorithm 2: ρ(A) from NIST FIPS 202
+
+    std::array<std::array<std::bitset<64>, 5>, 5> a_prime = std::array<std::array<std::bitset<64>, 5>, 5>();
+    for (int x = 0 ; x < 5 ; x ++ ){
+        for (int y = 0 ; y < 5 ; y ++){
+            for (int z = 0 ; z < w_ ; z ++){
+                bool select_bit = checkBit(mod(x + 3 * y, 5), x, z);
+                a_prime.at(x).at(y).set(z, select_bit);
+            }
+        }
+    }
+    a_ = a_prime;
+}
