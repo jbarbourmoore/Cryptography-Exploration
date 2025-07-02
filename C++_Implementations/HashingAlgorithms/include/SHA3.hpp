@@ -14,38 +14,79 @@ class SHA3 : public SHA{
 class SHA3_State {
 
     private :
+        /// @brief The w value (dimension of the z bit set)
         int w_ = 64;
 
+        /// @brief This method converts a single bitset to a state consisting of a 5 x 5 x 64 bit array
+        /// @param bits_input 
         void bitsetToState(std::bitset<1600> bits_input);
 
+        /// @brief This method calculated the positive modulus value 
+        /// @param val The value of which the modulus is being calculated
+        /// @param modulus The modulus
+        /// @return The modulus of the given value as an int
         int mod(int val, int modulus);
 
+        /// @brief The state array 5 x 5 x 64 bits
         std::array<std::array<std::bitset<64>, 5>, 5> a_;
 
     public :
 
+        /// @brief This method initializes a SHA3 state with a value of 0
         SHA3_State();
 
+        /// @brief This method initializes a SHA3 state from a single dimension bitset
+        /// @param bitset_input The single dimension bitset to be converted into the state array
         SHA3_State(std::bitset<1600> bitset_input);
 
+        /// @brief This method initializes a SHA3 state from a hexadecimal string
+        /// @param hex_input The hexadecimal input converted into a SHA3_state object
         SHA3_State(std::string hex_input);
 
+        /// @brief The method sets a single bit within the state array 
+        /// @param value The value to set the bit 
+        /// @param x The x coordinate of the bit to be set
+        /// @param y The y coordinate of the bit to be set
+        /// @param z The z coordinate of the bit to be set
         void setBit(bool value, int x, int y, int z);
 
+        /// @brief This method checks the current value of a bit within the state array
+        /// @param x The x coordinate of the bit to be set
+        /// @param y The y coordinate of the bit to be set
+        /// @param z The z coordinate of the bit to be set
+        /// @return The current value of the bit
         bool checkBit(int x, int y, int z);
 
+        /// @brief This method prints the bits of the state array to the console 
         void printBits();
 
+        /// @brief This method prints the value of the state array to the console as hexadecimal
         void printHex();
 
+        /// @brief This method gets the value of the state array as a single bitset
+        /// @return The bitset corresponding to the value of the state array
         std::bitset<1600> getValueAsBitset();
 
+        /// @brief This method gets the value of the state array as a hexadecimal string
+        /// @return The hexadecimal string corresponding to the value of the state array
         std::string getValueAsHex();
 
+        /// @brief This method gets a single row from the state array
+        /// @param y The y coordinate of the row
+        /// @param z The z coordinate of the row
+        /// @return The row of x bits at the y and z coordinate
         std::bitset<5> getRow(int y, int z);
 
+        /// @brief This method sets a single row from the state array
+        /// @param y The y coordinate of the row
+        /// @param z The z coordinate of the row
+        /// @param input_row The new row of x bits at the y and z coordinate
         void setRow(int y, int z, std::bitset<5> input_row);
 
+        /// @brief This method gets a single column from the state array
+        /// @param x The x coordinate of the column
+        /// @param z The z coordinate of the column
+        /// @return The column of y bits at the x and z coordinate
         std::bitset<5> getColumn(int x, int z);
 
         void setColumn(int x, int z, std::bitset<5> input_column);
@@ -64,6 +105,7 @@ class SHA3_State {
 
         void iota(int ir);
 
+        void round(int ir);
 };
 
 #endif

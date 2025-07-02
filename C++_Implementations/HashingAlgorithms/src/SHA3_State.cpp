@@ -241,7 +241,7 @@ void SHA3_State::chi(){
 
 void SHA3_State::iota(int ir){
     // Algorithm 5: rc(t) from NIST FIPS 202
-    
+
     std::array<long unsigned int, 24> iota_round_constants = {
             0x0000000000000001, 0x0000000000008082, 0x800000000000808A, 0x8000000080008000, 0x000000000000808B, 0x0000000080000001,
             0x8000000080008081, 0x8000000000008009, 0x000000000000008A, 0x0000000000000088, 0x0000000080008009, 0x000000008000000A,
@@ -254,4 +254,13 @@ void SHA3_State::iota(int ir){
         bool new_bit = checkBit(0, 0, z) ^ ((constant >> z) & 1);
         setBit(new_bit, 0, 0, z);
     }
+}
+
+void SHA3_State::round(int ir){
+    // Rnd(A, ir) from NIST FIPS 202
+    theta();
+    rho();
+    pi();
+    chi();
+    iota(ir);
 }
