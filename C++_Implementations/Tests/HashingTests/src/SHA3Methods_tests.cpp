@@ -15,6 +15,7 @@ TEST(SHA3Methods_Tests, sha3_theta) {
 
     SHA3_State state = SHA3_State(before_theta);
     state.printHex();
+    state.printBits();
     state.theta();
     state.printHex();
 

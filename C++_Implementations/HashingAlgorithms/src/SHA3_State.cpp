@@ -38,7 +38,7 @@ SHA3_State::SHA3_State(std::string hex_input){
 
             for (int bit_location = 0 ; bit_location < 8 ; bit_location ++){
                 if(value >= pow(2, 7 - bit_location)){
-                    bits.set((i / 2) * 8 + bit_location, true);
+                    bits.set((i / 2) * 8 + 7 - bit_location, true);
                     value -= pow(2, 7 - bit_location);
                 }
             }
@@ -99,7 +99,7 @@ std::string SHA3_State::getValueAsHex(){
             int value = 0;
            
             for (int bit_position = 0; bit_position < 8; bit_position++){
-                value += bits.test(index + bit_position) * pow(2, 7 - bit_position);
+                value += bits.test(index + bit_position) * pow(2, bit_position);
             }
             int remainder = value % 16;
             int divisor = (value - remainder) / 16;
