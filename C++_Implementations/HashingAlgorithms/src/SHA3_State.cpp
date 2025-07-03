@@ -167,7 +167,9 @@ void SHA3_State::theta(){
             bool c_xz3 = a_.at(x).at(3).test(z);
             bool c_xz4 = a_.at(x).at(4).test(z);
             c.at(x).set(z, c_xz0 ^ c_xz1 ^ c_xz2 ^ c_xz3 ^ c_xz4);
+            printf("%d",c_xz0 ^ c_xz1 ^ c_xz2 ^ c_xz3 ^ c_xz4);
         }
+        printf("\n");
     }
 
     std::array<std::bitset<64>, 5> d = std::array<std::bitset<64>, 5>();
