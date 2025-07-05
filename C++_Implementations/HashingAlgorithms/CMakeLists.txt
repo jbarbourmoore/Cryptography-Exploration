@@ -20,6 +20,7 @@ target_sources(Hash_lib
         src/SHA384.cpp
         src/CreateHashDigest.cpp
         src/SHA3_State.cpp
+        src/SHA3.cpp
         )
 
 target_link_libraries(Hash_app

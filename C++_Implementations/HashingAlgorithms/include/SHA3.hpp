@@ -7,9 +7,7 @@
 #include <string>
 #include <cmath>
 
-class SHA3 : public SHA{
 
-};
 
 class SHA3_State {
 
@@ -106,6 +104,16 @@ class SHA3_State {
         void iota(int ir);
 
         void round(int ir);
+};
+
+class SHA3 : public SHA{
+
+    private :
+
+        std::vector<std::bitset<1600>> padBitMessage(std::vector<bool> bit_message);
+
+        std::vector<std::bitset<1600>> padHexMessage(std::string hex_message);
+
 };
 
 #endif
