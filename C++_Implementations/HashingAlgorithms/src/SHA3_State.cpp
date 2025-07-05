@@ -232,9 +232,9 @@ void SHA3_State::chi(){
         for (int y = 0 ; y < 5 ; y ++){
             for (int z = 0 ; z < w_ ; z ++){
                 bool a_x = checkBit(x, y, z);
-                bool a_x1 = checkBit(mod(x - 1, 5), y, z);
-                bool a_x2 = checkBit(mod(x - 2, 5), y, z);
-                a_prime.at(x).at(y).set(z, a_x ^ (a_x1 ^ 1) ^ a_x2);
+                bool a_x1 = checkBit(mod(x + 1, 5), y, z);
+                bool a_x2 = checkBit(mod(x + 2, 5), y, z);
+                a_prime.at(x).at(y).set(z, a_x ^ ((a_x1 ^ 1) * a_x2));
             }
         }
     }
