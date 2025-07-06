@@ -19,16 +19,15 @@ class SHA3_State {
         /// @param bits_input 
         void bitsetToState(std::bitset<1600> bits_input);
 
-        /// @brief This method calculated the positive modulus value 
-        /// @param val The value of which the modulus is being calculated
-        /// @param modulus The modulus
-        /// @return The modulus of the given value as an int
-        int mod(int val, int modulus);
-
         /// @brief The state array 5 x 5 x 64 bits
         std::array<std::array<std::bitset<64>, 5>, 5> a_;
 
     public :
+         /// @brief This method calculated the positive modulus value 
+        /// @param val The value of which the modulus is being calculated
+        /// @param modulus The modulus
+        /// @return The modulus of the given value as an int
+        static int mod(int val, int modulus);
 
         /// @brief This method initializes a SHA3 state with a value of 0
         SHA3_State();
@@ -87,10 +86,22 @@ class SHA3_State {
         /// @return The column of y bits at the x and z coordinate
         std::bitset<5> getColumn(int x, int z);
 
+        /// @brief This method sets a single column from the state array
+        /// @param z The z coordinate of the column
+        /// @param z The z coordinate of the column
+        /// @param input_column The new column of x bits at the x and z coordinate
         void setColumn(int x, int z, std::bitset<5> input_column);
 
+        /// @brief This method gets a single lane from the state array
+        /// @param x The x coordinate of the lane
+        /// @param z The y coordinate of the lane
+        /// @return The lane of z bits at the x and y coordinate
         std::bitset<64> getLane(int x, int y);
 
+        /// @brief This method sets a single lane from the state array
+        /// @param z The z coordinate of the lane
+        /// @param z The y coordinate of the lane
+        /// @param input_lane The new lane of z bits at the x and y coordinate
         void setLane(int x, int y, std::bitset<64> input_lane);
 
         void theta();
@@ -110,9 +121,21 @@ class SHA3 : public SHA{
 
     private :
 
+        /// @brief the number of bits in each internal block to be processed
+        const int block_bit_size_ = 1600;
+
+        /// @brief The number of hexadecimal charaters in each internal block to be processed
+        const int block_hex_size_ = 400;
+
+        /// @brief This method pads a binary message and breaks it into appropriate blocks for internal processing
+        /// @param bit_message The binary message to be hashed
+        /// @return The list of all binary blocks to be processed
         std::vector<std::bitset<1600>> padBitMessage(std::vector<bool> bit_message);
 
-        std::vector<std::bitset<1600>> padHexMessage(std::string hex_message);
+        /// @brief This method pads a hexadecimal message and breaks it into appropriate blocks for internal processing
+        /// @param hex_message The hexadecimal message to be hashed
+        /// @return The list of all hexadecimal blocks to be processed
+        std::vector<std::string> padHexMessage(std::string hex_message);
 
 };
 
