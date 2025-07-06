@@ -122,20 +122,23 @@ class SHA3 : public SHA{
     private :
 
         /// @brief the number of bits in each internal block to be processed
-        const int block_bit_size_ = 1600;
+        static const int block_bit_size_ = 1600;
 
         /// @brief The number of hexadecimal charaters in each internal block to be processed
-        const int block_hex_size_ = 400;
+        static const int block_hex_size_ = 400;
 
         /// @brief This method pads a binary message and breaks it into appropriate blocks for internal processing
         /// @param bit_message The binary message to be hashed
         /// @return The list of all binary blocks to be processed
-        std::vector<std::bitset<1600>> padBitMessage(std::vector<bool> bit_message);
+        static std::vector<std::bitset<1600>> padBitMessage(std::vector<bool> bit_message, int digest_length);
 
-        /// @brief This method pads a hexadecimal message and breaks it into appropriate blocks for internal processing
-        /// @param hex_message The hexadecimal message to be hashed
-        /// @return The list of all hexadecimal blocks to be processed
-        std::vector<std::string> padHexMessage(std::string hex_message);
+        static std::vector<bool> sponge(std::vector<std::bitset<1600>> P);
+
+        static void keccak_f_1600();
+        // /// @brief This method pads a hexadecimal message and breaks it into appropriate blocks for internal processing
+        // /// @param hex_message The hexadecimal message to be hashed
+        // /// @return The list of all hexadecimal blocks to be processed
+        // std::vector<std::string> padHexMessage(std::string hex_message, int digest_length);
 
 };
 
