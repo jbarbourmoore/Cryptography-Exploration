@@ -119,7 +119,7 @@ class SHA3_State {
 
 class SHA3 : public SHA{
 
-    private :
+    protected :
 
         /// @brief the number of bits in each internal block to be processed
         static const int block_bit_size_ = 1600;
@@ -134,11 +134,40 @@ class SHA3 : public SHA{
 
         static std::vector<bool> sponge(std::vector<std::bitset<1600>> P, int digest_length);
 
-        static std::bitset<1600> keccak_f_1600(std::bitset<1600> input_bits);
-        // /// @brief This method pads a hexadecimal message and breaks it into appropriate blocks for internal processing
-        // /// @param hex_message The hexadecimal message to be hashed
-        // /// @return The list of all hexadecimal blocks to be processed
-        // std::vector<std::string> padHexMessage(std::string hex_message, int digest_length);
+        static std::bitset<1600> keccakF1600(std::bitset<1600> input_bits);
+
+        static std::bitset<1600> sponge(std::vector<std::bitset<1600>> P);
+
+        static std::vector<bool> h2b(std::string input_hex);
+
+};
+
+class SHA3_224 : private SHA3{
+    private :
+        static const int d_ = 224;
+
+        static std::string b2h(std::bitset<224> bits);
+
+    public :
+        /// @brief The input as bits in a vector of booleans
+        /// @param bit_message The message as bits
+        /// @return The bitset containing the SHA3 hash value
+        static std::bitset<224> hashAsBitset(std::vector<bool> bit_message);
+
+        /// @brief The input as a string of hexadecimal
+        /// @param bit_message The message as hex
+        /// @return The bitset containing the SHA3 hash value
+        static std::bitset<224> hashAsBitset(std::string hex_input);
+
+        /// @brief The input as bits in a vector of booleans
+        /// @param bit_message The message as bits
+        /// @return The hexadecimal value containing the SHA3 hash value
+        static std::string hashAsHex(std::vector<bool> bit_message);
+
+        /// @brief The input as bits in a string of hexadecimal
+        /// @param bit_message The message as hex
+        /// @return The hexadecimal value containing the SHA3 hash value
+        static std::string hashAsHex(std::string hex_input);
 
 };
 
