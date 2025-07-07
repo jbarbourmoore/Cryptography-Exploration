@@ -27,7 +27,29 @@ std::vector<std::bitset<1600>> SHA3::padBitMessage(std::vector<bool> bit_message
 }
 
 std::bitset<1600> SHA3::keccak_f_1600(std::bitset<1600> input_bits){
+    // as defined in Algorithm 7: KECCAK-p[b, nr](S) and Section 3.4 keccak f of NIST FIPS 202
+    SHA3_State state = SHA3_State(input_bits);
 
+    for (int i = 0 ; i < 24 ; i ++){
+        state.round(i);
+    }
+
+    return state.getValueAsBitset();
+}
+
+std::vector<bool> SHA3::sponge(std::vector<std::bitset<1600>> P, int digest_length){
+    // as defined in Algorithm 8: SPONGE[f, pad, r](N, d) of NIST FIPS 202
+    int n = P.size();
+    std::bitset<1600> S = std::bitset<1600>();
+    for(int i = 0 ; i < n ; i ++){
+        S = S ^ P.at(i);
+        S = keccak_f_1600(S);
+    }
+    std::vector<bool> Z = std::vector<bool>(digest_length);
+    for (int i = 0 ; i < digest_length ; i ++){
+        Z.at(i) = S.test(i);
+    }
+    return Z;
 }
 // std::vector<std::string> SHA3::padHexMessage(std::string hex_message, int digest_length){
 //     int input_hex_length = hex_message.size();

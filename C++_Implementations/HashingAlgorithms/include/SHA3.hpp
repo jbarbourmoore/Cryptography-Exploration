@@ -132,9 +132,9 @@ class SHA3 : public SHA{
         /// @return The list of all binary blocks to be processed
         static std::vector<std::bitset<1600>> padBitMessage(std::vector<bool> bit_message, int digest_length);
 
-        static std::vector<bool> sponge(std::vector<std::bitset<1600>> P);
+        static std::vector<bool> sponge(std::vector<std::bitset<1600>> P, int digest_length);
 
-        static void keccak_f_1600();
+        static std::bitset<1600> keccak_f_1600(std::bitset<1600> input_bits);
         // /// @brief This method pads a hexadecimal message and breaks it into appropriate blocks for internal processing
         // /// @param hex_message The hexadecimal message to be hashed
         // /// @return The list of all hexadecimal blocks to be processed
