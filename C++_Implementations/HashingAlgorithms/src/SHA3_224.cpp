@@ -1,6 +1,8 @@
 #include "SHA3.hpp"
 
 std::bitset<224> SHA3_224::hashAsBitset(std::vector<bool> bit_message){
+    bit_message.push_back(false);
+    bit_message.push_back(true);
     std::vector<std::bitset<1600>> blocks = padBitMessage(bit_message, d_);
     std::bitset<1600> S = sponge(blocks);
     std::bitset<224> hash = std::bitset<224>();
@@ -10,7 +12,7 @@ std::bitset<224> SHA3_224::hashAsBitset(std::vector<bool> bit_message){
     return hash;
 };
 
-static std::string b2h(std::bitset<224> bits){
+std::string SHA3_224::b2h(std::bitset<224> bits){
     std::string res = "";
     std::string hex_values = "0123456789ABCDEF";
     int m = 224 / 8;
@@ -31,6 +33,9 @@ static std::string b2h(std::bitset<224> bits){
 
 std::string SHA3_224::hashAsHex(std::vector<bool> bit_message){
     std::bitset<224> hash = hashAsBitset(bit_message);
+    for (int i = 0; i < 224 ; i ++){
+        printf("%d",hash.test(i));
+    }
     std::string hex_hash = b2h(hash);
     return hex_hash;
 };
