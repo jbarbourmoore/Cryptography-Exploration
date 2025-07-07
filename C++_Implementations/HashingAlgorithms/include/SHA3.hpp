@@ -198,4 +198,115 @@ class SHA3_256 : private SHA3 {
         static std::string hashAsHex(std::string hex_input);
 };
 
+class SHA3_384 : private SHA3 {
+    private :
+        static const int d_ = 384;
+
+        static std::string b2h(std::bitset<d_> bits);
+
+    public :
+        /// @brief The input as bits in a vector of booleans
+        /// @param bit_message The message as bits
+        /// @return The bitset containing the SHA3 hash value
+        static std::bitset<d_> hashAsBitset(std::vector<bool> bit_message);
+
+        /// @brief The input as a string of hexadecimal
+        /// @param bit_message The message as hex
+        /// @return The bitset containing the SHA3 hash value
+        static std::bitset<d_> hashAsBitset(std::string hex_input);
+
+        /// @brief The input as bits in a vector of booleans
+        /// @param bit_message The message as bits
+        /// @return The hexadecimal value containing the SHA3 hash value
+        static std::string hashAsHex(std::vector<bool> bit_message);
+
+        /// @brief The input as bits in a string of hexadecimal
+        /// @param bit_message The message as hex
+        /// @return The hexadecimal value containing the SHA3 hash value
+        static std::string hashAsHex(std::string hex_input);
+};
+
+class SHA3_512 : private SHA3 {
+    private :
+        static const int d_ = 512;
+
+        static std::string b2h(std::bitset<d_> bits);
+
+    public :
+        /// @brief The input as bits in a vector of booleans
+        /// @param bit_message The message as bits
+        /// @return The bitset containing the SHA3 hash value
+        static std::bitset<d_> hashAsBitset(std::vector<bool> bit_message);
+
+        /// @brief The input as a string of hexadecimal
+        /// @param bit_message The message as hex
+        /// @return The bitset containing the SHA3 hash value
+        static std::bitset<d_> hashAsBitset(std::string hex_input);
+
+        /// @brief The input as bits in a vector of booleans
+        /// @param bit_message The message as bits
+        /// @return The hexadecimal value containing the SHA3 hash value
+        static std::string hashAsHex(std::vector<bool> bit_message);
+
+        /// @brief The input as bits in a string of hexadecimal
+        /// @param bit_message The message as hex
+        /// @return The hexadecimal value containing the SHA3 hash value
+        static std::string hashAsHex(std::string hex_input);
+};
+
+class SHAKE128 : private SHA3 {
+    private :
+        static const int d_ = 128;
+
+        static std::string b2h(std::vector<bool> bits);
+
+    public :
+        /// @brief The input as bits in a vector of booleans
+        /// @param bit_message The message as bits
+        /// @return The boolean vector containing the SHA3 hash value
+        static std::vector<bool> hashAsBitset(std::vector<bool> bit_message, int digest_length);
+
+        /// @brief The input as a string of hexadecimal
+        /// @param bit_message The message as hex
+        /// @return The boolean vector containing the SHA3 hash value
+        static std::vector<bool> hashAsBitset(std::string hex_input, int digest_length);
+
+        /// @brief The input as bits in a vector of booleans
+        /// @param bit_message The message as bits
+        /// @return The hexadecimal value containing the SHA3 hash value
+        static std::string hashAsHex(std::vector<bool> bit_message, int digest_length);
+
+        /// @brief The input as bits in a string of hexadecimal
+        /// @param bit_message The message as hex
+        /// @return The hexadecimal value containing the SHA3 hash value
+        static std::string hashAsHex(std::string hex_input, int digest_length);
+};
+
+class SHAKE256 : private SHA3 {
+    private :
+        static const int d_ = 256;
+
+        static std::string b2h(std::vector<bool> bits);
+
+    public :
+        /// @brief The input as bits in a vector of booleans
+        /// @param bit_message The message as bits
+        /// @return The boolean vector containing the SHA3 hash value
+        static std::vector<bool> hashAsBitset(std::vector<bool> bit_message, int digest_length);
+
+        /// @brief The input as a string of hexadecimal
+        /// @param bit_message The message as hex
+        /// @return The boolean vector containing the SHA3 hash value
+        static std::vector<bool> hashAsBitset(std::string hex_input, int digest_length);
+
+        /// @brief The input as bits in a vector of booleans
+        /// @param bit_message The message as bits
+        /// @return The hexadecimal value containing the SHA3 hash value
+        static std::string hashAsHex(std::vector<bool> bit_message, int digest_length);
+
+        /// @brief The input as bits in a string of hexadecimal
+        /// @param bit_message The message as hex
+        /// @return The hexadecimal value containing the SHA3 hash value
+        static std::string hashAsHex(std::string hex_input, int digest_length);
+};
 #endif
