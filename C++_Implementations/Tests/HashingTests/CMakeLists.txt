@@ -10,7 +10,7 @@ target_sources(Hash_Tests
         src/SHA512_224_tests.cpp
         src/SHA512_256_tests.cpp
         src/SHA3Methods_tests.cpp
-        src/SHA3_224_tests.cpp
+        src/SHA3_tests.cpp
         )
 
 target_link_libraries(Hash_Tests 

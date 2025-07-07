@@ -22,6 +22,7 @@ target_sources(Hash_lib
         src/SHA3_State.cpp
         src/SHA3.cpp
         src/SHA3_224.cpp
+        src/SHA3_256.cpp
         )
 
 target_link_libraries(Hash_app
