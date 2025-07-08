@@ -256,10 +256,11 @@ class SHA3_512 : private SHA3 {
         static std::string hashAsHex(std::string hex_input);
 };
 
-class SHAKE128 : private SHA3 {
+class SHAKE128 : protected SHA3 {
     private :
         static const int d_ = 128;
 
+    protected :
         static std::string b2h(std::vector<bool> bits);
 
     public :
@@ -284,14 +285,9 @@ class SHAKE128 : private SHA3 {
         static std::string hashAsHex(std::string hex_input, int digest_length);
 };
 
-class SHAKE256 : private SHA3 {
+class SHAKE256 : private SHAKE128 {
     private :
         static const int d_ = 256;
-
-        static std::string b2h(std::vector<bool> bits);
-
-    protected :
-        static std::vector<bool> sponge(std::vector<std::bitset<1600>> P, int internal_digest_length, int digest_length);
 
     public :
         /// @brief The input as bits in a vector of booleans
