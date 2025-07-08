@@ -87,28 +87,23 @@ std::vector<bool> SHA3::h2b(std::string hex_input){
     return bits;
 }
 
-// std::vector<std::string> SHA3::padHexMessage(std::string hex_message, int digest_length){
-//     int input_hex_length = hex_message.size();
-//     int j = SHA3_State::mod(-1 * input_hex_length - 2, block_hex_size_);
 
-//     // as block size is divisible by 4 it is possible to add the padding in a hex form consisting of 8 0* 1 instead of 1 0* 1
-//     // hex 8 is equivalent to binary 1 0 0 0 
-//     hex_message.append("8");
-
-//     for (int i = 0 ; i < j ; i ++){
-//         hex_message.append("0");
-//     }
-//     // hex 1 is equivalent to binary 0 0 0 1
-//     hex_message.append("1");
-
-//     int block_count = hex_message.size() / block_hex_size_;
-
-//     std::vector<std::string> result = std::vector<std::string>();
-
-//     for ( int block = 0 ; block < block_count ; block ++){
-//         result.push_back(hex_message.substr(block * block_hex_size_, block_hex_size_));
-//     }
-
-//     return result;
-// }
-
+std::vector<bool> SHA3::sponge(std::vector<std::bitset<1600>> P, int internal_digest_length, int digest_length){
+    // as defined in Algorithm 8: SPONGE[f, pad, r](N, d) of NIST FIPS 202
+    int n = P.size();
+    int r = 1600 - (2 * internal_digest_length);
+    std::bitset<1600> S = std::bitset<1600>();
+    for(int i = 0 ; i < n ; i ++){
+        S = S ^ P.at(i);
+        S = keccakF1600(S);
+    }
+    std::vector<bool> Z = std::vector<bool>();
+    while (Z.size() < digest_length){
+        for (int i = 0 ; i < r ; i ++){
+            Z.push_back(S.test(i));
+        }
+        S = keccakF1600(S);
+    }
+    Z = {Z.begin(), Z.begin() + digest_length};
+    return Z;
+}
