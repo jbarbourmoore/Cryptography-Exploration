@@ -138,6 +138,8 @@ class SHA3 {
 
         static std::bitset<1600> sponge(std::vector<std::bitset<1600>> P);
 
+        static std::vector<bool> sponge(std::vector<std::bitset<1600>> P, int internal_digest_length, int digest_length);
+
         static std::vector<bool> h2b(std::string input_hex);
 
 };
@@ -287,6 +289,9 @@ class SHAKE256 : private SHA3 {
         static const int d_ = 256;
 
         static std::string b2h(std::vector<bool> bits);
+
+    protected :
+        static std::vector<bool> sponge(std::vector<std::bitset<1600>> P, int internal_digest_length, int digest_length);
 
     public :
         /// @brief The input as bits in a vector of booleans

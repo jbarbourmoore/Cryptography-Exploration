@@ -101,3 +101,17 @@ TEST(SHA3_Tests, sha3_512_30_bit_input) {
     
     EXPECT_EQ(expected_result, hex_result);
 }
+
+TEST(SHAKE128_Tests, SHAKE128_5_bit_input) {
+    // test values taken from https://csrc.nist.gov/CSRC/media/Projects/Cryptographic-Standards-and-Guidelines/documents/examples/SHA3-512_Msg5.pdf
+    
+    std:vector<bool> input_bits = {true, true, false, false, true};
+    int digest_length = 4096;
+
+    std::string expected_result = "2E 0A BF BA 83 E6 72 0B FB C2 25 FF 6B 7A B9 FF CE 58 BA 02 7E E3 D8 98 76 4F EF 28 7D DE CC CA 3E 6E 59 98 41 1E 7D DB 32 F6 75 38 F5 00 B1 8C 8C 97 C4 52 C3 70 EA 2C F0 AF CA 3E 05 DE 7E 4D E2 7F A4 41 A9 CB 34 FD 17 C9 78 B4 2D 5B 7E 7F 9A B1 8F FE FF C3 C5 AC 2F 3A 45 5E EB FD C7 6C EA EB 0A 2C CA 22 EE F6 E6 37 F4 CA BE 5C 51 DE D2 E3 FA D8 B9 52 70 A3 21 84 56 64 F1 07 D1 64 96 BB 7A BF BE 75 04 B6 ED E2 E8 9E 4B 99 6F B5 8E FD C4 18 1F 91 63 38 1C BE 7B C0 06 A7 A2 05 98 9C 52 6C D1 BD 68 98 36 93 B4 BD C5 37 28 B2 41 C1 CF F4 2B B6 11 50 2C 35 20 5C AB B2 88 75 56 55 D6 20 C6 79 94 F0 64 51 18 7F 6F D1 7E 04 66 82 BA 12 86 06 3F F8 8F E2 50 8D 1F CA F9 03 5A 12 31 AD 41 50 A9 C9 B2 4C 9B 2D 66 B2 AD 1B DE 0B D0 BB CB 8B E0 5B 83 52 29 EF 79 19 73 73 23 42 44 01 E1 D8 37 B6 6E B4 E6 30 FF 1D E7 0C B3 17 C2 BA CB 08 00 1D 34 77 B7 A7 0A 57 6D 20 86 90 33 58 9D 85 A0 1D DB 2B 66 46 C0 43 B5 9F C0 11 31 1D A6 66 FA 5A D1 D6 38 7F A9 BC 40 15 A3 8A 51 D1 DA 1E A6 1D 64 8D C8 E3 9A 88 B9 D6 22 BD E2 07 FD AB C6 F2 82 7A 88 0C 33 0B BF 6D F7 33 77 4B 65 3E 57 30 5D 78 DC E1 12 F1 0A 2C 71 F4 CD AD 92 ED 11 3E 1C EA 63 B9 19 25 ED 28 19 1E 6D BB B5 AA 5A 2A FD A5 1F C0 5A 3A F5 25 8B 87 66 52 43 55 0F 28 94 8A E2 B8 BE B6 BC 9C 77 0B 35 F0 67 EA A6 41 EF E6 5B 1A 44 90 9D 1B 14 9F 97 EE A6 01 39 1C 60 9E C8 1D 19 30 F5 7C 18 A4 E0 FA B4 91 D1 CA DF D5 04 83 44 9E DC 0F 07 FF B2 4D 2C 6F 9A 9A 3B FF 39 AE 3D 57 F5 60 65 4D 7D 75 C9 08 AB E6 25 64 75 3E AC 39 D7 50 3D A6 D3 7C 2E 32 E1 AF 3B 8A EC 8A E3 06 9C D9";
+    expected_result.erase(std::remove(expected_result.begin(), expected_result.end(), ' '), expected_result.end());
+
+    std::string hex_result = SHAKE128::hashAsHex(input_bits, digest_length);
+    printf("digest size : %ld \n", expected_result.size() * 4);
+    EXPECT_EQ(expected_result, hex_result);
+}

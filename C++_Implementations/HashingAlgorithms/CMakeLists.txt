@@ -25,6 +25,7 @@ target_sources(Hash_lib
         src/SHA3_256.cpp
         src/SHA3_384.cpp
         src/SHA3_512.cpp
+        src/SHAKE128.cpp
         )
 
 target_link_libraries(Hash_app
