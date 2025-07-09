@@ -100,6 +100,18 @@ class edwards25519 : public EdwardsCurve{
             "1000000000000000000000000000000014DEF9DEA2F79CD65812631A5CF5D3ED",   // p (finite field)
             "216936d3cd6e53fec0a4e231fdd6dc5c692cc7609525a7b2c9562d608f25d51a",   // g_x (The x coordinate of the generator point)
             "6666666666666666666666666666666666666666666666666666666666666658",   // g_y (The y coordinate of the generator point)
-            "7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFED"   // n (The order of the curve)
+            "7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFED"    // n (The order of the curve)
+        ){};
+};
+
+class edwards448 : public EdwardsCurve{
+    public  : 
+        edwards448() : EdwardsCurve(
+            "1",   // a (x coefficient)
+            "fffffffffffffffffffffffffffffffffffffffffffffffffffffffeffffffffffffffffffffffffffffffffffffffffffffffffffff6756",   // d (y coefficient)
+            "fffffffffffffffffffffffffffffffffffffffffffffffffffffffeffffffffffffffffffffffffffffffffffffffffffffffffffffffff",   // p (finite field)
+            "4f1970c66bed0ded221d15a622bf36da9e146570470f1767ea6de324a3d3a46412ae1af72ab66511433b80e18b00938e2626a82bc70cc05e",   // g_x (The x coordinate of the generator point)
+            "693f46716eb6bc248876203756c9c7624bea73736ca3984087789c1e05a0c2d73ad3ff1ce67c39c4fdbd132c4ed7c8ad9808795bf230fa14",   // g_y (The y coordinate of the generator point)
+            "3fffffffffffffffffffffffffffffffffffffffffffffffffffffff7cca23e9c44edb49aed63690216cc2728dc58f552378c292ab5844f3"    // n (The order of the curve)
         ){};
 };
