@@ -8,6 +8,67 @@
 
 #include "BigNumHelpers.hpp"
 #include "CreateHashDigest.hpp"
+#include "SHA3.hpp"
+
+void BigNumHelpers::sha3_224BigNum(BIGNUM* result, BIGNUM* input_bn){
+    char *hex_to_hash = BN_bn2hex(input_bn);
+    std::string str = std::string(hex_to_hash);
+
+    std::string hex_result = SHA3_224::hashAsHex(str);
+    BN_hex2bn(&result, hex_result.c_str());
+
+    OPENSSL_free(hex_to_hash);
+};
+
+void BigNumHelpers::sha3_256BigNum(BIGNUM* result, BIGNUM* input_bn){
+    char *hex_to_hash = BN_bn2hex(input_bn);
+    std::string str = std::string(hex_to_hash);
+
+    std::string hex_result = SHA3_256::hashAsHex(str);
+    BN_hex2bn(&result, hex_result.c_str());
+
+    OPENSSL_free(hex_to_hash);
+};
+
+void BigNumHelpers::sha3_384BigNum(BIGNUM* result, BIGNUM* input_bn){
+    char *hex_to_hash = BN_bn2hex(input_bn);
+    std::string str = std::string(hex_to_hash);
+
+    std::string hex_result = SHA3_384::hashAsHex(str);
+    BN_hex2bn(&result, hex_result.c_str());
+
+    OPENSSL_free(hex_to_hash);
+};
+
+void BigNumHelpers::sha3_512BigNum(BIGNUM* result, BIGNUM* input_bn){
+    char *hex_to_hash = BN_bn2hex(input_bn);
+    std::string str = std::string(hex_to_hash);
+
+    std::string hex_result = SHA3_512::hashAsHex(str);
+    BN_hex2bn(&result, hex_result.c_str());
+
+    OPENSSL_free(hex_to_hash);
+};
+
+void BigNumHelpers::shake128BigNum(BIGNUM* result, BIGNUM* input_bn, int digest_length){
+    char *hex_to_hash = BN_bn2hex(input_bn);
+    std::string str = std::string(hex_to_hash);
+
+    std::string hex_result = SHAKE128::hashAsHex(str, digest_length);
+    BN_hex2bn(&result, hex_result.c_str());
+
+    OPENSSL_free(hex_to_hash);
+}
+
+void BigNumHelpers::shake256BigNum(BIGNUM* result, BIGNUM* input_bn, int digest_length){
+    char *hex_to_hash = BN_bn2hex(input_bn);
+    std::string str = std::string(hex_to_hash);
+
+    std::string hex_result = SHAKE256::hashAsHex(str, digest_length);
+    BN_hex2bn(&result, hex_result.c_str());
+
+    OPENSSL_free(hex_to_hash);
+}
 
 void BigNumHelpers::sha224BigNum(BIGNUM* result, BIGNUM* input_bn){
     char *hex_to_hash = BN_bn2hex(input_bn);

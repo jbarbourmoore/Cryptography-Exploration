@@ -70,6 +70,36 @@ class BigNumHelpers{
         /// @param input_bn The pointer to the BIGNUM to be hashed
         static void sha512BigNum(BIGNUM* result, BIGNUM* input_bn);
 
+        /// @brief This method finds the SHA3 224 hash of a given BIGNUM
+        /// @param result The pointer to the BIGNUM where the hash digest will be placed
+        /// @param input_bn The pointer to the BIGNUM to be hashed
+        static void sha3_224BigNum(BIGNUM* result, BIGNUM* input_bn);
+
+        /// @brief This method finds the SHA3 256 hash of a given BIGNUM
+        /// @param result The pointer to the BIGNUM where the hash digest will be placed
+        /// @param input_bn The pointer to the BIGNUM to be hashed
+        static void sha3_256BigNum(BIGNUM* result, BIGNUM* input_bn);
+
+        /// @brief This method finds the SHA3 384 hash of a given BIGNUM
+        /// @param result The pointer to the BIGNUM where the hash digest will be placed
+        /// @param input_bn The pointer to the BIGNUM to be hashed
+        static void sha3_384BigNum(BIGNUM* result, BIGNUM* input_bn);
+
+        /// @brief This method finds the SHA3-512 hash of a given BIGNUM
+        /// @param result The pointer to the BIGNUM where the hash digest will be placed
+        /// @param input_bn The pointer to the BIGNUM to be hashed
+        static void sha3_512BigNum(BIGNUM* result, BIGNUM* input_bn);
+
+        /// @brief This method finds the SHAKE224 xof of a given BIGNUM
+        /// @param result The pointer to the BIGNUM where the hash digest will be placed
+        /// @param input_bn The pointer to the BIGNUM to be hashed
+        static void shake128BigNum(BIGNUM* result, BIGNUM* input_bn, int digest_length);
+
+        /// @brief This method finds the SHAKE256 xof of a given BIGNUM
+        /// @param result The pointer to the BIGNUM where the hash digest will be placed
+        /// @param input_bn The pointer to the BIGNUM to be hashed
+        static void shake256BigNum(BIGNUM* result, BIGNUM* input_bn, int digest_length);
+
         /// @brief This method calculates the gcd of a value minus one and a second value
         /// @param result The pointer for the result of the BN of the result
         /// @param first_value The value from which we subtract one
