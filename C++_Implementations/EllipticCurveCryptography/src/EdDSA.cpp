@@ -19,6 +19,9 @@ void EdDSA::hash(BIGNUM *input_bn, BIGNUM *result){
         case (EllipticCurves::ED25519_):{
             BigNumHelpers::sha512BigNum(result, input_bn);
             break;
+        } case (EllipticCurves::ED448_):{
+            BigNumHelpers::shake256BigNum(result, input_bn, 114);
+            break;
         }
         default:{
             BigNumHelpers::sha512BigNum(result, input_bn);

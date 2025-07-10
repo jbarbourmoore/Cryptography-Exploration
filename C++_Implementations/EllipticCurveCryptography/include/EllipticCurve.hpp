@@ -18,7 +18,7 @@ class EllipticCurve{
 };
 
 enum EllipticCurves {
-    SECP192R1_, SECP224R1_, SECP256R1_, SECP384R1_, SECP521R1_, ED25519_, ED443_
+    SECP192R1_, SECP224R1_, SECP256R1_, SECP384R1_, SECP521R1_, ED25519_, ED448_
 };
 
 class WeirrstrassCurve : public EllipticCurve{
