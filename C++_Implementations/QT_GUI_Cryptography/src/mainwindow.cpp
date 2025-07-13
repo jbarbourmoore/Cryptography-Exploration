@@ -158,7 +158,39 @@ void MainWindow::on_hash_button_clicked(){
         ui->sha512_224_digest_text->setPlainText(hash_digest.c_str());
         hash_digest = CreateHashDigest::fromString(input_qstring.toStdString(),HashType::SHA512_256_DIGEST);
         ui->sha512_256_digest_text->setPlainText(hash_digest.c_str());
+
+        hash_digest = SHA3_224::hashAsHex(input_qstring.toStdString());
+        hash_digest = addSpacing(hash_digest);
+
+        ui->sha3_224_digest_text->setPlainText(hash_digest.c_str());
+        hash_digest = SHA3_256::hashAsHex(input_qstring.toStdString());
+        hash_digest = addSpacing(hash_digest);
+
+        ui->sha3_256_digest_text->setPlainText(hash_digest.c_str());
+        hash_digest = SHA3_384::hashAsHex(input_qstring.toStdString());
+        hash_digest = addSpacing(hash_digest);
+
+        ui->sha3_384_digest_text->setPlainText(hash_digest.c_str());
+        hash_digest = SHA3_512::hashAsHex(input_qstring.toStdString());
+        hash_digest = addSpacing(hash_digest);
+        ui->sha3_512_digest_text->setPlainText(hash_digest.c_str());
+
     }
+}
+
+std::string MainWindow::addSpacing(std::string input){
+    int segments = input.size()/16;
+    std::string output = "";
+    int segment_length = 16;
+    for (int i = 0 ; i < segments ; i++) {
+        printf("%d\n", i);
+        if(input.size() - i * 16 < 16){
+            segment_length = input.size() - i * 16;
+        }
+        output.append(input.substr(i * 16, segment_length));
+        output.append(" ");
+    }
+    return output;
 }
 
 void MainWindow::on_rsa_swap_output_button_clicked(){

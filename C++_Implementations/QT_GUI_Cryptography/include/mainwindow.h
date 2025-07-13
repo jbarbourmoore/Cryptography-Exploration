@@ -9,6 +9,7 @@
 #include "AES_OFB.hpp"
 #include "AES_CTR.hpp"
 #include "AES_GCM.hpp"
+#include "SHA3.hpp"
 #include <QMainWindow>
 #include <string.h>
 #include <chrono>
@@ -78,6 +79,8 @@ private:
     QString removePadding(QString aes_out);
 
     QString getInputAndPad();
+
+    std::string addSpacing(std::string input);
 
     /// @brief This method generated the rsa keys based on the information from the dropdowns such as key length and prime generation method.
     /// @param use_key_quintuple_form Whether the private key being generated should be in quintuple form
