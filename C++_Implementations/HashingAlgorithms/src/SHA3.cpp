@@ -107,3 +107,16 @@ std::vector<bool> SHA3::sponge(std::vector<std::bitset<1600>> P, int internal_di
     Z = {Z.begin(), Z.begin() + digest_length};
     return Z;
 }
+
+std::string SHA3::stringToHex(std::string input){
+    int length = input.size();
+    string hex = "";
+
+    for (int i = 0; i < length; i++){
+        char new_char[3];
+        sprintf(new_char, "%02X", input[i]);
+        hex = hex + new_char[0] + new_char[1];
+    }
+
+    return hex;
+}

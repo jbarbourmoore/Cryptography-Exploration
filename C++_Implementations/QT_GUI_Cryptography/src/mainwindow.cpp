@@ -183,7 +183,6 @@ std::string MainWindow::addSpacing(std::string input){
     std::string output = "";
     int segment_length = 16;
     for (int i = 0 ; i < segments ; i++) {
-        printf("%d\n", i);
         if(input.size() - i * 16 < 16){
             segment_length = input.size() - i * 16;
         }

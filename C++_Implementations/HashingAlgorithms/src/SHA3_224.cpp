@@ -46,3 +46,8 @@ std::string SHA3_224::hashAsHex(std::string hex_input){
     std::vector<bool> bits = h2b(hex_input);
     return hashAsHex(bits);
 };
+
+std::string SHA3_224::hashStringAsHex(std::string string_input){
+    std::string hex_input = stringToHex(string_input);
+    return hashAsHex(hex_input);
+}

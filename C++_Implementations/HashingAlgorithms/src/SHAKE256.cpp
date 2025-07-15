@@ -26,3 +26,8 @@ std::string SHAKE256::hashAsHex(std::string hex_input, int digest_length){
     std::vector<bool> bits = h2b(hex_input);
     return hashAsHex(bits, digest_length);
 };
+
+std::string SHAKE256::hashStringAsHex(std::string string_input, int digest_length){
+    std::string hex_input = stringToHex(string_input);
+    return hashAsHex(hex_input, digest_length);
+}

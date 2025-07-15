@@ -185,6 +185,8 @@ class SHA3 {
         /// @param bits The input binary value as a vector of booleans
         /// @return The hexadecimal representation of the binary input as a string 
         static std::string b2h(std::vector<bool> bits);
+
+        static std::string stringToHex(std::string string_input);
 };
 
 class SHA3_224 : private SHA3 {
@@ -213,6 +215,11 @@ class SHA3_224 : private SHA3 {
         /// @param bit_message The message as hex
         /// @return The hexadecimal value containing the SHA3 hash value
         static std::string hashAsHex(std::string hex_input);
+
+        /// @brief The input as bits in a string of hexadecimal
+        /// @param string_input The message as a string
+        /// @return The hexadecimal value containing the SHA3 hash value
+        static std::string hashStringAsHex(std::string string_input);
 };
 
 class SHA3_256 : private SHA3 {
@@ -241,6 +248,11 @@ class SHA3_256 : private SHA3 {
         /// @param bit_message The message as hex
         /// @return The hexadecimal value containing the SHA3 hash value
         static std::string hashAsHex(std::string hex_input);
+
+        /// @brief The input as bits in a string of hexadecimal
+        /// @param string_input The message as a string
+        /// @return The hexadecimal value containing the SHA3 hash value
+        static std::string hashStringAsHex(std::string string_input);
 };
 
 class SHA3_384 : private SHA3 {
@@ -269,6 +281,11 @@ class SHA3_384 : private SHA3 {
         /// @param bit_message The message as hex
         /// @return The hexadecimal value containing the SHA3 hash value
         static std::string hashAsHex(std::string hex_input);
+
+        /// @brief The input as bits in a string of hexadecimal
+        /// @param string_input The message as a string
+        /// @return The hexadecimal value containing the SHA3 hash value
+        static std::string hashStringAsHex(std::string string_input);
 };
 
 class SHA3_512 : private SHA3 {
@@ -297,6 +314,11 @@ class SHA3_512 : private SHA3 {
         /// @param bit_message The message as hex
         /// @return The hexadecimal value containing the SHA3 hash value
         static std::string hashAsHex(std::string hex_input);
+
+        /// @brief The input as bits in a string of hexadecimal
+        /// @param string_input The message as a string
+        /// @return The hexadecimal value containing the SHA3 hash value
+        static std::string hashStringAsHex(std::string string_input);
 };
 
 class SHAKE128 : protected SHA3 {
@@ -323,6 +345,11 @@ class SHAKE128 : protected SHA3 {
         /// @param bit_message The message as hex
         /// @return The hexadecimal value containing the SHA3 hash value
         static std::string hashAsHex(std::string hex_input, int digest_length);
+
+        /// @brief The input as bits in a string of hexadecimal
+        /// @param string_input The message as a string
+        /// @return The hexadecimal value containing the SHA3 hash value
+        static std::string hashStringAsHex(std::string string_input, int digest_length);
 };
 
 class SHAKE256 : private SHAKE128 {
@@ -349,5 +376,10 @@ class SHAKE256 : private SHAKE128 {
         /// @param bit_message The message as hex
         /// @return The hexadecimal value containing the SHA3 hash value
         static std::string hashAsHex(std::string hex_input, int digest_length);
+
+        /// @brief The input as bits in a string of hexadecimal
+        /// @param string_input The message as a string
+        /// @return The hexadecimal value containing the SHA3 hash value
+        static std::string hashStringAsHex(std::string string_input, int digest_length);
 };
 #endif
