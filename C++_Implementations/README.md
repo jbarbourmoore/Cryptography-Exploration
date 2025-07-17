@@ -3,8 +3,8 @@ This folder contains the information for my C++ implementations while exploring 
 
 <img 
     style="display: block; margin-left: auto; margin-right: auto; width: 100%;"
-    src="https://github.com/jbarbourmoore/Cryptography-Exploration/blob/b64503c1bfa82b46574c159d853ab17ae7a76e9a/CryptographySchemes/OutputImages/C%2B%2BGuiApplication.jpg" 
-    alt="This is screenshots from the C++ GUI application. It shows the use of C++ to generate RSA Keys and use them to both encrypt and decrypt simple hexadecimal strings. The other image shows the use of SHA1 and SHA2 to create hash digests of the string input. The last image shows the use of AES to encrypt data.">
+    src="https://github.com/jbarbourmoore/Cryptography-Exploration/blob/de4da4abfeeba2b7ba4e313fc3852a2475a66807/CryptographySchemes/OutputImages/C%2B%2BGuiApplication.jpg" 
+    alt="This is screenshots from the C++ GUI application. It shows the use of C++ to generate RSA Keys and use them to both encrypt and decrypt simple hexadecimal strings. The other image shows the use of SHA1, SHA2 and SHA3 to create hash digests of the string input. The last image shows the use of AES to encrypt data.">
 </img>  
 
 ## Table of Contents
@@ -14,6 +14,7 @@ This folder contains the information for my C++ implementations while exploring 
 2. Hashing Algorithms - [README Section](#hashing-algorithms)
      1. Secure Hash Algoithm 1 (SHA1) - [README Section](#secure-hash-algoithm-1-sha1) - [C++ Code](https://github.com/jbarbourmoore/Cryptography-Exploration/blob/main/C%2B%2B_Implementations/HashingAlgorithms/src/SHA1.cpp) - [C++ Tests](https://github.com/jbarbourmoore/Cryptography-Exploration/blob/main/C%2B%2B_Implementations/Tests/HashingTests/src/SHA1_tests.cpp)
     2. Secure Hash Algorithm 2 (SHA2) - [README Section](#secure-hash-algorithm-2-sha2) - [C++ Code](https://github.com/jbarbourmoore/Cryptography-Exploration/blob/main/C%2B%2B_Implementations/HashingAlgorithms/src/SHA256.cpp) - [C++ Tests](https://github.com/jbarbourmoore/Cryptography-Exploration/blob/0a5b12a1dcd05a0785b3af13584fc09e29bb1590/CryptographySchemes/UnitTest/SHA2_UnitTests.py)
+    3. Secure Hash Algorithm 3 (SHA3) 
 3. Advanced Encryption Standard (AES) - [README Section](#advanced-encryption-standard-aes) - [C++ Code](https://github.com/jbarbourmoore/Cryptography-Exploration/blob/b64503c1bfa82b46574c159d853ab17ae7a76e9a/C%2B%2B_Implementations/AES/src/AES.cpp) - [C++ Tests](https://github.com/jbarbourmoore/Cryptography-Exploration/blob/b64503c1bfa82b46574c159d853ab17ae7a76e9a/C%2B%2B_Implementations/Tests/AESTests/src/AESCypherTests.cpp)
     1.  Basic Modes of Operation - [README Section](#basic-modes-of-operation) - [C++ Code](https://github.com/jbarbourmoore/Cryptography-Exploration/blob/b64503c1bfa82b46574c159d853ab17ae7a76e9a/C%2B%2B_Implementations/AES/src/Modes/AES_CFB.cpp) - [C++ Tests](https://github.com/jbarbourmoore/Cryptography-Exploration/blob/b64503c1bfa82b46574c159d853ab17ae7a76e9a/C%2B%2B_Implementations/Tests/AESTests/src/ModesTests/AES_CFBTests.cpp)
 
@@ -25,16 +26,16 @@ The GUI application allows the user to generate RSA keys based on their selectio
 
 <img 
     style="display: block; margin-left: auto; margin-right: auto; width: 100%;"
-    src="https://github.com/jbarbourmoore/Cryptography-Exploration/blob/bb1fd545859f8546ffd0924de751c5bfc9f92c0a/C%2B%2B_Implementations/QT_GUI_Cryptography/Screenshots/RSAEncrypt.png" 
-    alt="This shows the key generation and encryption of Hex String in the GUI Application.">
+    src="https://github.com/jbarbourmoore/Cryptography-Exploration/blob/3458ff06ad86ff5eba3f146de1dbf981b140c40a/C%2B%2B_Implementations/QT_GUI_Cryptography/Screenshots/RSAEncrypt.png" 
+    alt="This shows the key generation and encryption of Hex String in the GUI Application using RSA.">
 </img>   
 
 In order to decrypt the value that they had entered, the user may use the "Move Output To Input" button to move the result of the encryption into the input field. Then the user can use the "Decrypt" button in order to decrypt the value using the generated private key.
 
 <img 
     style="display: block; margin-left: auto; margin-right: auto; width: 100%;"
-    src="https://github.com/jbarbourmoore/Cryptography-Exploration/blob/bb1fd545859f8546ffd0924de751c5bfc9f92c0a/C%2B%2B_Implementations/QT_GUI_Cryptography/Screenshots/RSADecrypt.png" 
-    alt="This shows the decryption of Hex String in the GUI Application.">
+    src="https://github.com/jbarbourmoore/Cryptography-Exploration/blob/3458ff06ad86ff5eba3f146de1dbf981b140c40a/C%2B%2B_Implementations/QT_GUI_Cryptography/Screenshots/RSADecrypt.png" 
+    alt="This shows the decryption of Hex String in the GUI Application using RSA.">
 </img>   
 
 ### RSA Key Generation
@@ -67,7 +68,7 @@ I have implemented both SHA1 and SHA in C++ and they can be used to hash string 
 
 <img 
     style="display: block; margin-left: auto; margin-right: auto; width: 100%;"
-    src="https://github.com/jbarbourmoore/Cryptography-Exploration/blob/bb1fd545859f8546ffd0924de751c5bfc9f92c0a/C%2B%2B_Implementations/QT_GUI_Cryptography/Screenshots/SHA.png" 
+    src="https://github.com/jbarbourmoore/Cryptography-Exploration/blob/3458ff06ad86ff5eba3f146de1dbf981b140c40a/C%2B%2B_Implementations/QT_GUI_Cryptography/Screenshots/SHA.png" 
     alt="This shows the generation of SHA digests in the GUI Application.">
 </img>   
 
@@ -81,6 +82,12 @@ I implemented a version of the SHA1 hashing algorithm as laid out in NIST FIPS 1
 
 I implemented versions of the SHA2 hashing algorithms as laid out in NIST FIPS 180-4, ["Secure Hash Standard (SHS)"](https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.180-4.pdf). Much like SHA1, SHA2 was initial developed by the NSA and was published in 2001. SHA2 is really a collection of algorithms with varying hash digest lengths that are built upon some of the characteristics of SHA1. Particularly, SHA-256 also rely upon the use of the ch and maj functions on 32 bit words, though they do not use the parity function and also add sigma functions. SHA-512 builds on the foundations of the SHA-256 functions, however it uses them on 64-bit words. The other algorithms within the SHA2 family all are strongly connected with either SHA-256 or SHA-512. SHA-224 has different starting hash values than SHA-256 and truncates the ouput to 224 bit, but otherwise is the same internally. SHA-384, SHA-512/224 and SHA-512/256 share a similar relationship with SHA-512. I used the GTest framework to create unit tests showing that the SHA1 and SHA2 implementations accurately produce the results provided by NIST in their [Cryptographic Standards and Guidelines: Example Values](https://csrc.nist.gov/projects/cryptographic-standards-and-guidelines/example-values).
 
+### Secure Hash Algorithm 3 (SHA3)
+
+#### (SHA3-224, SHA3-256, SHA3-384, SHA3-512, SHAKE128 and SHAKE256)
+
+I implemented versions of the SHA3 hashing algorithms as laid out in NIST FIPS 202, ["SHA-3 Standard: Permutation-Based Hash and Extendable-Output Functions)"](https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.202.pdf). SHA3 is an entirely separate algorithm compared to SHA1 and SHA2. It is based on Keccak which was described in "Keccek implementation overview" by Guido Bertoni, Joan Daemen, Michaël Peeters, Gilles Van Assche and Ronny Van Keer from 2012. The internal state of the SHA3 algorithm is stored in a 3 dimensional bit array where x is between 0 and 4, y is between 0 and 4 and z is between 0 and 63. It is based on a sponge construction and each iteration it performs a series of function on the state array, theta, rho, pi, chi and iota. SHA3-224, SHA3-256, SHA3-384 and SHA3-512 each produce hashes of a set length and the largest difference between each of them is how much capacity there is in each iteration. SHAKE128 and SHAKE256 both allow the user to specify the length of the digest to be produced but still vary based on the internal capcity. SHA3 does have its own algorithms for translating bit strings into hex strings and back as specified in the appendix of NIST FIPS 202. I used the GTest framework to create unit tests showing that the SHA1 and SHA2 implementations accurately produce the results provided by NIST in their [Cryptographic Standards and Guidelines: Example Values](https://csrc.nist.gov/projects/cryptographic-standards-and-guidelines/example-values).
+
 ### Advanced Encryption Standard (AES)
 
 Using C++, I implemented a version of the Advanced Encryption Standard as laid out in [NIST FIPS 197](https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.197-upd1.pdf). It operates on blocks of 128 bits of the input at a time. AES has several variants based on the length of the key and I implemented AES-128, AES-192 and AES-256. . As the Advanced Encryption Standard is a symetric encryption algorithm, so it is necessary to have the same key to encrypt the message as you use to decrypt the message. For the example sequence shown below, I relied on the use of Elliptic Curve Diffie Hellman key exchange in order to use the shared secret to generate the same key as both the originator and the receiver. Symmetric Block Ciphers such as AES also operate in various modes in order to increase security or provide various supplemental functionality such as verifying authenticity.     
@@ -89,7 +96,7 @@ In the GUI application the user selects the key length and mode they would like 
 
 <img 
     style="display: block; margin-left: auto; margin-right: auto; width: 100%;"
-    src="https://github.com/jbarbourmoore/Cryptography-Exploration/blob/8feff989f4c1bbe5bd6ea6e80756d3e59350e203/C%2B%2B_Implementations/QT_GUI_Cryptography/Screenshots/AESEncrypt.png" 
+    src="https://github.com/jbarbourmoore/Cryptography-Exploration/blob/3458ff06ad86ff5eba3f146de1dbf981b140c40a/C%2B%2B_Implementations/QT_GUI_Cryptography/Screenshots/AESEncrypt.png" 
     alt="This shows the AES version of key generation and encryption of Hex String in the GUI Application.">
 </img>   
 
@@ -97,10 +104,21 @@ In order to decrypt the value that they had entered, the user may use the "Move 
 
 <img 
     style="display: block; margin-left: auto; margin-right: auto; width: 100%;"
-    src="https://github.com/jbarbourmoore/Cryptography-Exploration/blob/8feff989f4c1bbe5bd6ea6e80756d3e59350e203/C%2B%2B_Implementations/QT_GUI_Cryptography/Screenshots/AESDecrypt.png" 
+    src="https://github.com/jbarbourmoore/Cryptography-Exploration/blob/3458ff06ad86ff5eba3f146de1dbf981b140c40a/C%2B%2B_Implementations/QT_GUI_Cryptography/Screenshots/AESDecrypt.png" 
     alt="This shows the AES version of decryption of a Hex String in the GUI Application.">
 
 #### Basic Modes of Operation   
 ##### Electronic Cookbook (ECB), Cipher Block Chaining (CBC), Cipher Feedback (CFB), Output Feedback (OFB) and Counter (CTR)
 
 There are several modes of operation outlined in NIST SP 800-38A ["Recommendation for Block Cipher Modes of Operation"](https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38a.pdf). Electronic Cookbook (ECB) Mode simply applies the same AES cypher to each block of the input. The other modes rely on the use of an initialization vector, which is a separate block of input from the key that does not need to be secret, but should be unpredictable and different each time. Cipher Block Chaining (CBC) Mode uses xor with the initialization vector and the first block of input before running that through the AES Cipher. Each following block is xored with the result of the previous cypher in the place of the initialization block. Cipher Feedback Mode (CFB) does not apply the AES cipher directly to the input, but to the initialization vector and then xors that with the input. Each successive block uses the result of the xor operation from the previous block in the place of the initialization vector. It also allows the user to select an 's', which is the number of bits of the input to use in each block. The other bits are the least significant bits from the initialization vector concatenated with the previous cipher values. Output Feedback Mode (OFB) also does not apply the AES cipher directly to the input. The initialization vector for each subsequent block is the result of the cipher operation in the previous block. Counter Mode (CTR) also does not apply the apply the cipher directly to the input, but to the initialization vector which it xors with the input. The initialization vector is incremented for each successive block. Each of these modes can be selected using the drop down in the GUI applications. For the cipher feedback mode, the user may select from three of the most common 's' values, 1 bit, 8 bit and 128 bit.     
+
+#### Galois / Counter Mode (GCM)    
+
+Galois / Counter Mode generates tag value to allow for authenticating the messages. If the tag does not authenticate the message shall not be decrypted. 
+
+<img 
+    style="display: block; margin-left: auto; margin-right: auto; width: 100%;"
+    src="https://github.com/jbarbourmoore/Cryptography-Exploration/blob/3458ff06ad86ff5eba3f146de1dbf981b140c40a/C%2B%2B_Implementations/QT_GUI_Cryptography/Screenshots/AESDecrypt_WrongGCMTag.png" 
+    alt="This shows the AES version of decryption of a Hex String in the GUI Application where the GCM tag does not authenticate.">
+
+Galois / Counter Mode is laid out in NIST SP 800-38D ["Recommendation for Block Cipher Modes of Operation: Galois/Counter Mode (GCM) and GMAC"](https://github.com/jbarbourmoore/Cryptography-Exploration/blob/21d2d0c8f185f773bf07ad21e2de559f8f14cbb2/CryptographySchemes/OutputImages/AES_GCM_Examples.png). GCM relies on the use of an initialization vector, which is a separate block of input from the key that does not need to be secret, but should be unpredictable and different each time. The IV is incremented for processing each subsequent block of input. Operations on blocks are performed within the Galois Field, 2**128. The Galois / Counter Mode produces a unique tag based on all of the input which allows for the authenticity to be verified, as well as the encrypted cypher text. I was able to use the Google Test framework to implement tests based on the example data from Appendix B "AES Test Vectors" of ["The Galois/Counter Mode of Operation (GCM)"](https://csrc.nist.rip/groups/ST/toolkit/BCM/documents/proposedmodes/gcm/gcm-spec.pdf). This allowed me to verify both encryption and decryption, as well as the creation of the appropriate tags, against several known hex strings, in order to be sure my implementations were operating appropriately
