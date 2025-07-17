@@ -17,6 +17,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->aes_swap_out_button, SIGNAL(clicked()), this, SLOT(on_aes_swap_output_button_clicked()));
     connect(ui->aes_encrypt_button, SIGNAL(clicked()), this, SLOT(on_aes_encrypt_clicked()));
     connect(ui->aes_decrypt_button, SIGNAL(clicked()), this, SLOT(on_aes_decrypt_clicked()));
+    connect(ui->ecdsa_generate_key_button, SIGNAL(clicked()), this, SLOT(on_ecdsa_key_gen_clicked()));
 
 }
 
@@ -504,4 +505,41 @@ void MainWindow::on_aes_decrypt_clicked(){
 
     QString result_qstring = removePadding(QString(result.c_str()));
     ui->aes_out_text->setPlainText(result_qstring);
+}
+
+ECDSA MainWindow::getSelectedECDSACurve(){
+    int ecdsa_curve_index = ui->ecdsa_curve_select->currentIndex();
+    EllipticCurves curve_selected;
+    switch(ecdsa_curve_index){
+        case 0 : {
+            curve_selected = EllipticCurves::SECP192R1_;
+            break;
+        }
+        case 1 : {
+            curve_selected = EllipticCurves::SECP224R1_;
+            break;
+        }
+        case 2 : {
+            curve_selected = EllipticCurves::SECP256R1_;
+            break;
+        }
+        case 3 : {
+            curve_selected = EllipticCurves::SECP384R1_;
+            break;
+        }
+        case 4 : {
+            curve_selected = EllipticCurves::SECP521R1_;
+            break;
+        }
+        default : {
+            curve_selected = EllipticCurves::SECP521R1_;
+            break;
+        }
+    }
+    return ECDSA(curve_selected);
+}
+
+void MainWindow::on_ecdsa_key_gen_clicked(){
+    std::string generated_hex = getSelectedECDSACurve().generateHexStringPrivateKey();
+    ui->ecdsa_private_edit->setText(generated_hex.c_str());
 }

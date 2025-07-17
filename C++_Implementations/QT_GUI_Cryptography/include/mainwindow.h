@@ -10,6 +10,7 @@
 #include "AES_CTR.hpp"
 #include "AES_GCM.hpp"
 #include "SHA3.hpp"
+#include "ECDSA.hpp"
 #include <QMainWindow>
 #include <string.h>
 #include <chrono>
@@ -51,7 +52,6 @@ private slots:
 
     void on_aes_swap_output_button_clicked();
 
-
     void on_aes_key_gen_clicked();
 
     void on_aes_iv_gen_clicked();
@@ -59,6 +59,8 @@ private slots:
     void on_aes_encrypt_clicked();
 
     void on_aes_decrypt_clicked();
+
+    void on_ecdsa_key_gen_clicked();
 
 private:
     /// @brief This variable holds the instantiated key generation object to be used
@@ -73,6 +75,8 @@ private:
     string getRandom(int bits);
 
     int getSelectedBits();
+
+    ECDSA getSelectedECDSACurve();
 
     bool aes_is_padded;
 

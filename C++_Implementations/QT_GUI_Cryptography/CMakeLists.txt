@@ -47,6 +47,7 @@ target_link_libraries(QT_GUI_Cryptography
                                 RSA_lib
                                 Hash_lib
                                 AES_lib
+                                ECC_lib
                                 BigNumHelpers_lib)
 
 if(${QT_VERSION} VERSION_LESS 6.1.0)
