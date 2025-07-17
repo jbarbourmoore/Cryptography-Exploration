@@ -62,6 +62,14 @@ private slots:
 
     void on_ecdsa_key_gen_clicked();
 
+    void on_ecdsa_curve_selected();
+
+    void on_ecdsa_calc_pub_key_clicked();
+
+    void on_ecdsa_sig_gen_clicked();
+
+    void on_ecdsa_sig_ver_clicked();
+
 private:
     /// @brief This variable holds the instantiated key generation object to be used
     RSAKeyGeneration key_gen_;
@@ -77,6 +85,8 @@ private:
     int getSelectedBits();
 
     ECDSA getSelectedECDSACurve();
+
+    WeirrstrassCurve getSelectedECDSAWeirrstrassCurve();
 
     bool aes_is_padded;
 

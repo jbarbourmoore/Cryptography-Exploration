@@ -48,7 +48,7 @@
        <enum>QTabWidget::TabShape::Rounded</enum>
       </property>
       <property name="currentIndex">
-       <number>3</number>
+       <number>0</number>
       </property>
       <property name="elideMode">
        <enum>Qt::TextElideMode::ElideNone</enum>
@@ -1006,6 +1006,11 @@
             <widget class="QComboBox" name="ecdsa_curve_select">
              <item>
               <property name="text">
+               <string>Select</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
                <string>secp192r1</string>
               </property>
              </item>
@@ -1175,6 +1180,18 @@
               <widget class="QLineEdit" name="ecdsa_public_y_edit"/>
              </item>
             </layout>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QGroupBox" name="groupBox_5">
+          <property name="title">
+           <string>Message</string>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout_17">
+           <item>
+            <widget class="QPlainTextEdit" name="ecdsa_message_edit"/>
            </item>
           </layout>
          </widget>

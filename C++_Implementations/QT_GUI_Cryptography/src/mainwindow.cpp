@@ -18,6 +18,10 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->aes_encrypt_button, SIGNAL(clicked()), this, SLOT(on_aes_encrypt_clicked()));
     connect(ui->aes_decrypt_button, SIGNAL(clicked()), this, SLOT(on_aes_decrypt_clicked()));
     connect(ui->ecdsa_generate_key_button, SIGNAL(clicked()), this, SLOT(on_ecdsa_key_gen_clicked()));
+    connect(ui->ecdsa_curve_select, SIGNAL(currentIndexChanged(int)), this, SLOT(on_ecdsa_curve_selected()));
+    connect(ui->ecdsa_calculate_public_key_button, SIGNAL(clicked()), this, SLOT(on_ecdsa_calc_pub_key_clicked()));
+    connect(ui->ecdsa_sig_gen_button, SIGNAL(clicked()), this, SLOT(on_ecdsa_sig_gen_clicked()));
+    connect(ui->ecdsa_sig_ver_button, SIGNAL(clicked()), this, SLOT(on_ecdsa_sig_ver_clicked()));
 
 }
 
@@ -511,35 +515,136 @@ ECDSA MainWindow::getSelectedECDSACurve(){
     int ecdsa_curve_index = ui->ecdsa_curve_select->currentIndex();
     EllipticCurves curve_selected;
     switch(ecdsa_curve_index){
-        case 0 : {
+        case 1 : {
             curve_selected = EllipticCurves::SECP192R1_;
             break;
         }
-        case 1 : {
+        case 2 : {
             curve_selected = EllipticCurves::SECP224R1_;
             break;
         }
-        case 2 : {
+        case 3 : {
             curve_selected = EllipticCurves::SECP256R1_;
             break;
         }
-        case 3 : {
+        case 4 : {
             curve_selected = EllipticCurves::SECP384R1_;
             break;
         }
-        case 4 : {
+        case 5 : {
             curve_selected = EllipticCurves::SECP521R1_;
             break;
         }
         default : {
-            curve_selected = EllipticCurves::SECP521R1_;
+            curve_selected = EllipticCurves::SECP192R1_;
             break;
         }
     }
     return ECDSA(curve_selected);
 }
 
+WeirrstrassCurve MainWindow::getSelectedECDSAWeirrstrassCurve(){
+    int ecdsa_curve_index = ui->ecdsa_curve_select->currentIndex();
+    WeirrstrassCurve curve_selected;
+    switch(ecdsa_curve_index){
+        case 1 : {
+            curve_selected = secp192r1();
+            break;
+        }
+        case 2 : {
+            curve_selected = secp224r1();
+            break;
+        }
+        case 3 : {
+            curve_selected = secp256r1();
+            break;
+        }
+        case 4 : {
+            curve_selected = secp384r1();
+            break;
+        }
+        case 5 : {
+            curve_selected = secp521r1();
+            break;
+        }
+        default : {
+            curve_selected = secp192r1();
+            break;
+        }
+    }
+    return curve_selected;
+}
+
 void MainWindow::on_ecdsa_key_gen_clicked(){
     std::string generated_hex = getSelectedECDSACurve().generateHexStringPrivateKey();
     ui->ecdsa_private_edit->setText(generated_hex.c_str());
+}
+
+void MainWindow::on_ecdsa_curve_selected(){
+    int ecdsa_curve_index = ui->ecdsa_curve_select->currentIndex();
+    if(ecdsa_curve_index != 0){
+        WeirrstrassCurve curve = getSelectedECDSAWeirrstrassCurve();
+        ui->ecdsa_equation_edit->setText(curve.getEquation().c_str());
+        ui->ecdsa_finitefield_edit->setText(curve.getFiniteFieldAsHex().c_str());
+        ui->ecdsa_genx_edit->setText(curve.getG().getXAsHexStr().c_str());
+        ui->ecdsa_geny_edit->setText(curve.getG().getYAsHexStr().c_str());
+        std::string order = BN_bn2hex(curve.getN());
+        ui->ecdsa_order_edit->setText(order.c_str());
+    } else {
+        ui->ecdsa_equation_edit->setText("");
+        ui->ecdsa_finitefield_edit->setText("");
+        ui->ecdsa_genx_edit->setText("");
+        ui->ecdsa_geny_edit->setText("");
+        ui->ecdsa_order_edit->setText("");
+    }
+}
+
+void MainWindow::on_ecdsa_calc_pub_key_clicked(){
+    ECDSA ecdsa = getSelectedECDSACurve();
+    QString private_key = ui->ecdsa_private_edit->text();
+    Point public_key = ecdsa.calculatePublicKey(private_key.toStdString());
+    ui->ecdsa_public_x_edit->setText(public_key.getXAsHexStr().c_str());
+    ui->ecdsa_public_y_edit->setText(public_key.getYAsHexStr().c_str());
+}
+
+void MainWindow::on_ecdsa_sig_gen_clicked(){
+    int ecdsa_curve_index = ui->ecdsa_curve_select->currentIndex();
+    if(ecdsa_curve_index == 0){
+        ui->ecdsa_verification_edit->setText("Please select a curve");
+    }else{
+        ECDSA ecdsa = getSelectedECDSACurve();
+        QString private_key = ui->ecdsa_private_edit->text();
+        QString message = ui->ecdsa_message_edit->toPlainText();
+
+        ECDSA_Signature signature = ecdsa.SignatureGeneration(message.toStdString(), private_key.toStdString());
+        ui->ecdsa_sig_r_edit->setText(BN_bn2hex(signature.r_));
+        ui->ecdsa_sig_s_edit->setText(BN_bn2hex(signature.s_));
+        ui->ecdsa_verification_edit->setText("");
+    }
+
+}
+
+void MainWindow::on_ecdsa_sig_ver_clicked(){
+    int ecdsa_curve_index = ui->ecdsa_curve_select->currentIndex();
+    if(ecdsa_curve_index == 0){
+        ui->ecdsa_verification_edit->setText("Please select a curve");
+    }else{
+        ECDSA ecdsa = getSelectedECDSACurve();
+        QString public_x = ui->ecdsa_public_x_edit->text();
+        QString public_y = ui->ecdsa_public_y_edit->text();
+        QString message = ui->ecdsa_message_edit->toPlainText();
+        QString sig_r = ui->ecdsa_sig_r_edit->text();
+        QString sig_s = ui->ecdsa_sig_s_edit->text();
+
+        Point Q = Point(public_x.toStdString(), public_y.toStdString());
+        ECDSA_Signature signature = ECDSA_Signature(sig_r.toStdString(), sig_s.toStdString());
+
+        bool verified = ecdsa.SignatureVerification(message.toStdString(), Q, signature);
+        
+        if (verified){
+            ui->ecdsa_verification_edit->setText("Successfully Verified");
+        } else {
+            ui->ecdsa_verification_edit->setText("Failed to Verify Signature");
+        }
+    }
 }
