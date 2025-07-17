@@ -280,5 +280,24 @@ std::string ECDSA::generateHexStringPrivateKey(){
     BIGNUM* random_number = BN_secure_new();
     BN_priv_rand_range(random_number, curve_.getN());
     std::string hex_private_key = BN_bn2hex(random_number);
+    BN_clear_free(random_number);
     return hex_private_key;
+}
+
+Point ECDSA::calculatePublicKey(std::string private_key){
+    BIGNUM* k = BN_secure_new();
+    BN_hex2bn(&k, private_key.c_str());
+    Point result = curve_.calculatePointMultiplicationByConstant(curve_.getG(), k);
+    BN_clear_free(k);
+    return result;
+}
+
+std::string ECDSA::calculateHexStringPublicKeyX(std::string private_key){
+    Point key = calculatePublicKey(private_key);
+    return key.getXAsHexStr();
+}
+
+std::string ECDSA::calculateHexStringPublicKeyY(std::string private_key){
+    Point key = calculatePublicKey(private_key);
+    return key.getYAsHexStr();
 }

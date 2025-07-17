@@ -56,6 +56,14 @@ class ECDSA {
 
         bool SignatureVerification(std::string message, Point Q, ECDSA_Signature signature);
 
+        std::string generateHexStringPrivateKey();
+
+        Point calculatePublicKey(std::string private_key);
+
+        std::string calculateHexStringPublicKeyX(std::string private_key);
+
+        std::string calculateHexStringPublicKeyY(std::string private_key);
+
 };
 
 #endif
