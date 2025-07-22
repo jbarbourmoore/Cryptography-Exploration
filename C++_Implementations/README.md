@@ -3,8 +3,8 @@ This folder contains the information for my C++ implementations while exploring 
 
 <img 
     style="display: block; margin-left: auto; margin-right: auto; width: 100%;"
-    src="https://github.com/jbarbourmoore/Cryptography-Exploration/blob/de4da4abfeeba2b7ba4e313fc3852a2475a66807/CryptographySchemes/OutputImages/C%2B%2BGuiApplication.jpg" 
-    alt="This is screenshots from the C++ GUI application. It shows the use of C++ to generate RSA Keys and use them to both encrypt and decrypt simple hexadecimal strings. The other image shows the use of SHA1, SHA2 and SHA3 to create hash digests of the string input. The last image shows the use of AES to encrypt data.">
+    src="https://github.com/jbarbourmoore/Cryptography-Exploration/blob/8326a330db482b89a248ea3926b94f454bce63b1/CryptographySchemes/OutputImages/C%2B%2BGuiApplication.jpg" 
+    alt="This is screenshots from the C++ GUI application. The top left screenshot shows the use of C++ to generate RSA Keys and use them to both encrypt and decrypt simple hexadecimal strings. The top right screenshot shows the use of SHA1, SHA2 and SHA3 to create hash digests of the string input. The bottom left screenshot shows the use of AES to encrypt data. The bottom right screenshot shows the use of ECDSA to generate and verify a signature.">
 </img>  
 
 ## Table of Contents
@@ -17,6 +17,8 @@ This folder contains the information for my C++ implementations while exploring 
     3. Secure Hash Algorithm 3 (SHA3) 
 3. Advanced Encryption Standard (AES) - [README Section](#advanced-encryption-standard-aes) - [C++ Code](https://github.com/jbarbourmoore/Cryptography-Exploration/blob/b64503c1bfa82b46574c159d853ab17ae7a76e9a/C%2B%2B_Implementations/AES/src/AES.cpp) - [C++ Tests](https://github.com/jbarbourmoore/Cryptography-Exploration/blob/b64503c1bfa82b46574c159d853ab17ae7a76e9a/C%2B%2B_Implementations/Tests/AESTests/src/AESCypherTests.cpp)
     1.  Basic Modes of Operation - [README Section](#basic-modes-of-operation) - [C++ Code](https://github.com/jbarbourmoore/Cryptography-Exploration/blob/b64503c1bfa82b46574c159d853ab17ae7a76e9a/C%2B%2B_Implementations/AES/src/Modes/AES_CFB.cpp) - [C++ Tests](https://github.com/jbarbourmoore/Cryptography-Exploration/blob/b64503c1bfa82b46574c159d853ab17ae7a76e9a/C%2B%2B_Implementations/Tests/AESTests/src/ModesTests/AES_CFBTests.cpp)
+    2.  Galois / Counter Mode (GCM) - [README Section](#galois--counter-mode-gcm) - [C++ Code](https://github.com/jbarbourmoore/Cryptography-Exploration/blob/main/C%2B%2B_Implementations/AES/include/Modes/AES_GCM.hpp) - [C++ Tests](https://github.com/jbarbourmoore/Cryptography-Exploration/blob/main/C%2B%2B_Implementations/Tests/AESTests/src/ModesTests/AES_GCMTests.cpp)
+4. Elliptic Curve Digital Signature Algorithm (ECDSA)  
 
 ## RSA Cryptography Scheme  
 
@@ -26,7 +28,7 @@ The GUI application allows the user to generate RSA keys based on their selectio
 
 <img 
     style="display: block; margin-left: auto; margin-right: auto; width: 100%;"
-    src="https://github.com/jbarbourmoore/Cryptography-Exploration/blob/3458ff06ad86ff5eba3f146de1dbf981b140c40a/C%2B%2B_Implementations/QT_GUI_Cryptography/Screenshots/RSAEncrypt.png" 
+    src="https://github.com/jbarbourmoore/Cryptography-Exploration/blob/main/C%2B%2B_Implementations/QT_GUI_Cryptography/Screenshots/RSAEncrypt.png" 
     alt="This shows the key generation and encryption of Hex String in the GUI Application using RSA.">
 </img>   
 
@@ -34,7 +36,7 @@ In order to decrypt the value that they had entered, the user may use the "Move 
 
 <img 
     style="display: block; margin-left: auto; margin-right: auto; width: 100%;"
-    src="https://github.com/jbarbourmoore/Cryptography-Exploration/blob/3458ff06ad86ff5eba3f146de1dbf981b140c40a/C%2B%2B_Implementations/QT_GUI_Cryptography/Screenshots/RSADecrypt.png" 
+    src="https://github.com/jbarbourmoore/Cryptography-Exploration/blob/main/C%2B%2B_Implementations/QT_GUI_Cryptography/Screenshots/RSADecrypt.png" 
     alt="This shows the decryption of Hex String in the GUI Application using RSA.">
 </img>   
 
@@ -68,7 +70,7 @@ I have implemented both SHA1 and SHA in C++ and they can be used to hash string 
 
 <img 
     style="display: block; margin-left: auto; margin-right: auto; width: 100%;"
-    src="https://github.com/jbarbourmoore/Cryptography-Exploration/blob/3458ff06ad86ff5eba3f146de1dbf981b140c40a/C%2B%2B_Implementations/QT_GUI_Cryptography/Screenshots/SHA.png" 
+    src="https://github.com/jbarbourmoore/Cryptography-Exploration/blob/main/C%2B%2B_Implementations/QT_GUI_Cryptography/Screenshots/SHA.png" 
     alt="This shows the generation of SHA digests in the GUI Application.">
 </img>   
 
@@ -96,7 +98,7 @@ In the GUI application the user selects the key length and mode they would like 
 
 <img 
     style="display: block; margin-left: auto; margin-right: auto; width: 100%;"
-    src="https://github.com/jbarbourmoore/Cryptography-Exploration/blob/3458ff06ad86ff5eba3f146de1dbf981b140c40a/C%2B%2B_Implementations/QT_GUI_Cryptography/Screenshots/AESEncrypt.png" 
+    src="https://github.com/jbarbourmoore/Cryptography-Exploration/blob/main/C%2B%2B_Implementations/QT_GUI_Cryptography/Screenshots/AESEncrypt.png" 
     alt="This shows the AES version of key generation and encryption of Hex String in the GUI Application.">
 </img>   
 
@@ -104,7 +106,7 @@ In order to decrypt the value that they had entered, the user may use the "Move 
 
 <img 
     style="display: block; margin-left: auto; margin-right: auto; width: 100%;"
-    src="https://github.com/jbarbourmoore/Cryptography-Exploration/blob/3458ff06ad86ff5eba3f146de1dbf981b140c40a/C%2B%2B_Implementations/QT_GUI_Cryptography/Screenshots/AESDecrypt.png" 
+    src="https://github.com/jbarbourmoore/Cryptography-Exploration/blob/main/C%2B%2B_Implementations/QT_GUI_Cryptography/Screenshots/AESDecrypt.png" 
     alt="This shows the AES version of decryption of a Hex String in the GUI Application.">
 
 #### Basic Modes of Operation   
@@ -118,7 +120,26 @@ Galois / Counter Mode generates tag value to allow for authenticating the messag
 
 <img 
     style="display: block; margin-left: auto; margin-right: auto; width: 100%;"
-    src="https://github.com/jbarbourmoore/Cryptography-Exploration/blob/3458ff06ad86ff5eba3f146de1dbf981b140c40a/C%2B%2B_Implementations/QT_GUI_Cryptography/Screenshots/AESDecrypt_WrongGCMTag.png" 
+    src="https://github.com/jbarbourmoore/Cryptography-Exploration/blob/main/C%2B%2B_Implementations/QT_GUI_Cryptography/Screenshots/AESDecrypt_WrongGCMTag.png" 
     alt="This shows the AES version of decryption of a Hex String in the GUI Application where the GCM tag does not authenticate.">
 
 Galois / Counter Mode is laid out in NIST SP 800-38D ["Recommendation for Block Cipher Modes of Operation: Galois/Counter Mode (GCM) and GMAC"](https://github.com/jbarbourmoore/Cryptography-Exploration/blob/21d2d0c8f185f773bf07ad21e2de559f8f14cbb2/CryptographySchemes/OutputImages/AES_GCM_Examples.png). GCM relies on the use of an initialization vector, which is a separate block of input from the key that does not need to be secret, but should be unpredictable and different each time. The IV is incremented for processing each subsequent block of input. Operations on blocks are performed within the Galois Field, 2**128. The Galois / Counter Mode produces a unique tag based on all of the input which allows for the authenticity to be verified, as well as the encrypted cypher text. I was able to use the Google Test framework to implement tests based on the example data from Appendix B "AES Test Vectors" of ["The Galois/Counter Mode of Operation (GCM)"](https://csrc.nist.rip/groups/ST/toolkit/BCM/documents/proposedmodes/gcm/gcm-spec.pdf). This allowed me to verify both encryption and decryption, as well as the creation of the appropriate tags, against several known hex strings, in order to be sure my implementations were operating appropriately
+
+### Elliptic Curve Digital Signature Algorithm (ECDSA)   
+
+I implemented version of Elliptic Curve Digital Signature Algorithm as laid out in [NIST FIPS 186-6](https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.186-5.pdf), [NIST FIPS 186-4](https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.186-4.pdf) and [NIST SP 800-186](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-186.pdf). As ECDSA does require the use of a hashing algorithm I was able to use my implementation of SHA3, after verifying the hash output matched the NIST examples in the Digital Signatures section of ["Cryptographic Standards and Guidelines"](https://csrc.nist.gov/projects/cryptographic-standards-and-guidelines/example-values). The elliptic curves that I have implemented at this time follow the Weirstrass Form of y**2 = x**3 +ax +b. The curves shown in the application below are from [NIST FIPS 186-4](https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.186-4.pdf) Section D.1.2 "Curves over Prime Fields".
+
+<img 
+    style="display: block; margin-left: auto; margin-right: auto; width: 100%;"
+    src="https://github.com/jbarbourmoore/Cryptography-Exploration/blob/main/C%2B%2B_Implementations/QT_GUI_Cryptography/Screenshots/ECDSA_Generate.png" 
+    alt="This shows the screen for generating a ECDSA Private Key and creating a signature">
+</img>  
+
+<img 
+    style="display: block; margin-left: auto; margin-right: auto; width: 100%;"
+    src="https://github.com/jbarbourmoore/Cryptography-Exploration/blob/main/C%2B%2B_Implementations/QT_GUI_Cryptography/Screenshots/ECDSA_Verify.png" 
+    alt="This is a sequence diagram for a calculating the ECDSA Public Key and verifying a signature matches the public key">
+</img>  
+
+I was able to get NIST  examples for a couple of the curves and hashing algorithms including [Curve P-521 with SHA3-512](https://csrc.nist.gov/CSRC/media/Projects/Cryptographic-Standards-and-Guidelines/documents/examples/P521_SHA3-512.pdf) in order to verify that my Elliptic Curve Digital Signature Algorithms function as expected, including the intermediate values. I used these values to create unit tests using the Google Test suite.
+
