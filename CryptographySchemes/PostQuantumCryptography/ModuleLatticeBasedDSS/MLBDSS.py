@@ -46,7 +46,7 @@ def BitsToInteger(y, alpha):
     return x
 
 '''
-    This funtion creates a bit array representation of x mod 256 ** alpha
+    This funtion creates a byte array representation of x mod 256 ** alpha
     According to Algorithm 11 of NIST FIPS 204
 
     note: little endian
@@ -68,3 +68,23 @@ def IntegerToBytes(x, alpha):
         y[i] = x_prime % 256
         x_prime = x_prime / 256
     return y
+
+'''
+    This funtion converts a bit array to a byte array
+    According to Algorithm 12 of NIST FIPS 204
+
+    Parameters : 
+        y : [int]
+            The bit array representing the value
+        
+    Returns : 
+        z : [int]
+            The byte array representing the value
+'''
+def BitsToBytes(y:list[int]) -> list[int]:
+    alpha = len(y)
+    a_prime = alpha / 8
+    z : list[int] = [0] * a_prime
+    for i in range (0, alpha):
+        z[i / 8] = z[i / 8] + y[i] * 2 ** (i % 8)
+    return z
