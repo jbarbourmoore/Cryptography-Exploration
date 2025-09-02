@@ -88,3 +88,25 @@ def BitsToBytes(y:list[int]) -> list[int]:
     for i in range (0, alpha):
         z[i / 8] = z[i / 8] + y[i] * 2 ** (i % 8)
     return z
+
+'''
+    This funtion converts a byte array to a bit array
+    According to Algorithm 13 of NIST FIPS 204
+
+    Parameters : 
+        z : [int]
+            The byte array representing the value
+        
+    Returns : 
+        y : [int]
+            The bit array representing the value
+'''
+def BytesToBits(z:list[int]):
+    alpha = len(z)
+    z_prime = z.copy()
+    y = [0] * (alpha * 8)
+    for i in range (0, alpha):
+        for j in range (0, 8):
+            y[8 * i + j] = z_prime[i] % 2
+            z_prime[i] = z_prime[i] / 2
+    return y
