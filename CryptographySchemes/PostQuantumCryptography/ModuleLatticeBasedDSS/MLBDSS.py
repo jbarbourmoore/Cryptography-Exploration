@@ -110,3 +110,32 @@ def BytesToBits(z:list[int]):
             y[8 * i + j] = z_prime[i] % 2
             z_prime[i] = z_prime[i] / 2
     return y
+
+'''
+    This funtion converts three bytes to a coefficinent modulo q
+    According to Algorithm 14 of NIST FIPS 204
+
+    Parameters : 
+        b_0 : int
+            The byte in the lowest position
+        b_1 : int
+            The byte in the middle position
+        b_2 : int 
+            The byte in the highest position
+        q : int
+            The modulo value
+        
+    Returns : 
+        z : int 
+            The integer value for the coefficient, -1 if it fails
+'''
+def CoeffFromThreeBytes(b_0:int, b_1:int, b_2:int, q:int):
+    b_2_prime = b_2
+    if b_2_prime > 127:
+        b_2_prime -= 128
+    
+    z = (2 ** 16) * b_2_prime + (2 ** 8) * b_1 + b_0
+    if z < q:
+        return q
+    else :
+        return -1
