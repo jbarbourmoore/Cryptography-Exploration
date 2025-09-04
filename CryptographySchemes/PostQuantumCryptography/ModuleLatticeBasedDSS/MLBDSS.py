@@ -172,13 +172,14 @@ def CoeffFromHalfByte(eta:int, b:int) -> set[bool, int]:
 
 '''
     This function converts a polynomial into a bit string consisting of bit values of equal lengths
+    All coefficients are less than b but greater than 0
     As laid out in algorithm 16 of NIST FIPS 204
 
     Parameters:
         w : list[int]
             The coefficients for the polynomial
         b : int 
-            The modulo value for the coefficients such that all coefficients are less than b
+            The modulo value for the coefficients such that all coefficients are less than b but greater than 0
     
     Returns:
         z : list[int]
@@ -190,5 +191,32 @@ def SimpleBitPack(w:list[int], b:int)->list[int]:
 
     for i in range(0, 256):
         z = z + IntegerToBits(w[i], bitlen)
+    
+    return z
+
+'''
+    This function converts a polynomial into a bit string consisting of bit values of equal lengths
+    All coefficients are less than b but greater than a
+    As laid out in algorithm 17 of NIST FIPS 204
+
+    Parameters:
+        w : list[int]
+            The coefficients for the polynomial
+        a : int
+            The lower bounds for the coefficients
+        b : int 
+            The upper bounds for the coefficients
+    
+    Returns:
+        z : list[int]
+            The bit array consisting of the coefficients as equal length bit strings
+'''
+def BitPack(w:list[int], a:int, b:int)->list[int]:
+    z = []
+    c = b - a
+    bitlen = c.bit_length()
+
+    for i in range(0, 256):
+        z = z + IntegerToBits(b - w[i], bitlen)
     
     return z
