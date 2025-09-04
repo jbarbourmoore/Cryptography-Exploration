@@ -128,14 +128,44 @@ def BytesToBits(z:list[int]):
     Returns : 
         z : int 
             The integer value for the coefficient, -1 if it fails
+        success : bool
+            Whether the coefficient was successfully calculated
 '''
-def CoeffFromThreeBytes(b_0:int, b_1:int, b_2:int, q:int):
+def CoeffFromThreeBytes(b_0:int, b_1:int, b_2:int, q:int) -> set[bool, int]:
     b_2_prime = b_2
     if b_2_prime > 127:
         b_2_prime -= 128
     
     z = (2 ** 16) * b_2_prime + (2 ** 8) * b_1 + b_0
     if z < q:
-        return q
+        return True, q
     else :
-        return -1
+        return False, -1
+    
+'''
+    This funtion calculates the coefficient based on half a byte
+    According to Algorithm 15 of NIST FIPS 204
+
+    Parameters : 
+        eta : int
+            The bounds for the coefficient from - n to + n
+        b : int
+            The half byte to be calculated from
+        
+    Returns : 
+        success : bool
+            Whether the coefficient was successfully calculated
+        z : int 
+            The integer value for the coefficient, -1 if it fails
+'''
+def CoeffFromHalfByte(eta:int, b:int) -> set[bool, int]:
+    success = False
+    z = -1
+    if eta == 2 and b < 16:
+        success = True
+        z = 2 - (b % 5)
+    elif eta == 4 and b < 9:
+        success = True
+        z = 4 - b
+    
+    return success, z
