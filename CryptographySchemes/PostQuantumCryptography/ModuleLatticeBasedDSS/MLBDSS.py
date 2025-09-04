@@ -112,7 +112,7 @@ def BytesToBits(z:list[int]):
     return y
 
 '''
-    This funtion converts three bytes to a coefficinent modulo q
+    This funtion converts three bytes to a coefficinent modulo q of a polynomial
     According to Algorithm 14 of NIST FIPS 204
 
     Parameters : 
@@ -143,7 +143,7 @@ def CoeffFromThreeBytes(b_0:int, b_1:int, b_2:int, q:int) -> set[bool, int]:
         return False, -1
     
 '''
-    This funtion calculates the coefficient based on half a byte
+    This funtion calculates the coefficient of a polynomial based on half a byte
     According to Algorithm 15 of NIST FIPS 204
 
     Parameters : 
@@ -169,3 +169,26 @@ def CoeffFromHalfByte(eta:int, b:int) -> set[bool, int]:
         z = 4 - b
     
     return success, z
+
+'''
+    This function converts a polynomial into a bit string consisting of bit values of equal lengths
+    As laid out in algorithm 16 of NIST FIPS 204
+
+    Parameters:
+        w : list[int]
+            The coefficients for the polynomial
+        b : int 
+            The modulo value for the coefficients such that all coefficients are less than b
+    
+    Returns:
+        z : list[int]
+            The bit array consisting of the coefficients as equal length bit strings
+'''
+def SimpleBitPack(w:list[int], b:int)->list[int]:
+    z = []
+    bitlen = b.bit_length()
+
+    for i in range(0, 256):
+        z = z + IntegerToBits(w[i], bitlen)
+    
+    return z
