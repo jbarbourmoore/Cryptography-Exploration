@@ -245,3 +245,31 @@ def SimpleBitUnpack(v:list[int], b:int)->list[int]:
         w = w + BitsToInteger(z[i * c : (i + 1) * c], c)
 
     return w
+
+'''
+    This function reverses the procedure for bit pack
+    According to Algorithm 19 of NIST FIPS 204
+
+    Parameters :
+        v : list[int]
+            The bit array to be unpacked
+        a : int 
+            The minimum value for every coefficient
+        b : int 
+            The modulous value that every coefficient falls below
+
+    Returns :
+        w : list[int]
+            The byte array of coefficients
+'''
+def BitUnpaxk(v:list[int], a:int, b:int):
+    c = b - a
+    c = c.bit_length()
+
+    z = v.copy()
+    w = []
+
+    for i in range(0, 256):
+        w = w + BitsToInteger(z[i * c : (i + 1) * c], c)
+
+    return w
