@@ -222,7 +222,7 @@ def BitPack(w:list[int], a:int, b:int)->list[int]:
     return z
 
 '''
-    This function reverses the procedure for simple bit pack
+    This function reverses the procedure for simple bit unpack
     According to Algorithm 18 of NIST FIPS 204
 
     Parameters :
@@ -247,7 +247,7 @@ def SimpleBitUnpack(v:list[int], b:int)->list[int]:
     return w
 
 '''
-    This function reverses the procedure for bit pack
+    This function reverses the procedure for bit unpack
     According to Algorithm 19 of NIST FIPS 204
 
     Parameters :
@@ -262,7 +262,7 @@ def SimpleBitUnpack(v:list[int], b:int)->list[int]:
         w : list[int]
             The byte array of coefficients
 '''
-def BitUnpaxk(v:list[int], a:int, b:int):
+def BitUnpack(v:list[int], a:int, b:int):
     c = b - a
     c = c.bit_length()
 
@@ -273,3 +273,28 @@ def BitUnpaxk(v:list[int], a:int, b:int):
         w = w + BitsToInteger(z[i * c : (i + 1) * c], c)
 
     return w
+
+'''
+    This function reverses the procedure for hint bit pack
+    According to Algorithm 20 of NIST FIPS 204
+
+    Parameters :
+        h : list[int]
+            The byte array of coefficients to be packed
+        w : int
+        k : int
+
+    Returns :
+        w : list[int]
+            The byte array resulting from the packing
+'''
+def HintBitPack(h:list[int], w:int, k:int):
+    y = [0] * (w + k)
+    index = 0
+    for i in range(0, k):
+        for j in range(0, 256):
+            if h[i] != 0:
+                y[index] = j
+                index += 1
+        y[w+i] = index
+    return y
