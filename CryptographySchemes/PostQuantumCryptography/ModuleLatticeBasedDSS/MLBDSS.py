@@ -347,7 +347,7 @@ def HintBitUnpack(y:list[int], w:int, k:int):
             The encoded primary key
 
 '''
-def pkEncode(p, t, k, q:int, d):
+def pkEncode(p:list[int], t:list[int], k:int, q:int, d:int) -> list[int]:
     pk = p
     bits = q - 1
     bits = bits.bit_length()
@@ -356,6 +356,33 @@ def pkEncode(p, t, k, q:int, d):
 
 
     for i in range (0, k):
-        pk = pk + SimpleBitPack(t[i], mod)
+        pk = pk + SimpleBitPack(IntegerToBits(t[i]), mod)
     
     return pk
+
+'''
+    This function decodes a public key from a byte string
+    According to Algorithm 23 of NIST FIPS 204
+
+    Parameters :
+        pk: list[int]
+            The encoded public key
+
+    Returns :
+        p : list[int]
+        t : list[int]
+'''
+def pkDecode(pk:list[int], k:int, q:int, d:int) -> list[list[int], list[int]]:
+    p = pk[0:k]
+    z = pk[k:]
+    t = [0]*k
+
+    bits = q - 1
+    bits = bits.bit_length()
+    bits = bits - d
+    mod = 2 ** bits - 1
+
+    for i in range(0, k):
+        t[i] = SimpleBitUnpack(IntegerToBits(z[i]), mod)
+
+    return p, t
