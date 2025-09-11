@@ -336,6 +336,16 @@ def HintBitUnpack(y:list[int], w:int, k:int):
     This function encodes a public key into a byte string
     According to Algorithm 22 of NIST FIPS 204
 
+    Parameters :
+        p : list[int]
+            The primary key to encode
+        k : int 
+            Length of the key
+
+    Returns :
+        pk : list[int]
+            The encoded primary key
+
 '''
 def pkEncode(p, t, k, q:int, d):
     pk = p
