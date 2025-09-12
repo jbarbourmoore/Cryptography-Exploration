@@ -364,6 +364,8 @@ def pkEncode(p:list[int], t:list[int], k:int, q:int, d:int) -> list[int]:
     This function decodes a public key from a byte string
     According to Algorithm 23 of NIST FIPS 204
 
+    This function is designed to only return values in the correct range in case one is decoding a key from an untrusted source
+
     Parameters :
         pk: list[int]
             The encoded public key
@@ -386,3 +388,12 @@ def pkDecode(pk:list[int], k:int, q:int, d:int) -> list[list[int], list[int]]:
         t[i] = SimpleBitUnpack(IntegerToBits(z[i]), mod)
 
     return p, t
+
+def skEncode(p: list[int], K:list[int], tr:list[int], s1:list[int], s2:list[int], t0:int, n:int):
+    sk = p + K + tr
+
+    for i in range(0, len(s1)):
+        sk += BitPack(s1, n, n)
+
+    for i in range(0, len(s2)):
+        sk += BitPack(s2, n, n)
