@@ -389,6 +389,25 @@ def pkDecode(pk:list[int], k:int, q:int, d:int) -> list[list[int], list[int]]:
 
     return p, t
 
+'''
+    This function encodes a secret / private key into a byte string
+    According to Algorithm 24 of NIST FIPS 204
+
+    Parameters :
+        p : list[int]
+            The private key to encode
+        K : list[int]
+        tr : list[int]
+        s1 : list[int]
+        s2 : list[int]
+        t0 : int
+        n : int 
+        d : int
+
+    Returns :
+        sk : list[int]
+            The encoded private key
+'''
 def skEncode(p: list[int], K:list[int], tr:list[int], s1:list[int], s2:list[int], t0:int, n:int, d: int):
     sk = p + K + tr
 
