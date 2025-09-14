@@ -389,11 +389,18 @@ def pkDecode(pk:list[int], k:int, q:int, d:int) -> list[list[int], list[int]]:
 
     return p, t
 
-def skEncode(p: list[int], K:list[int], tr:list[int], s1:list[int], s2:list[int], t0:int, n:int):
+def skEncode(p: list[int], K:list[int], tr:list[int], s1:list[int], s2:list[int], t0:int, n:int, d: int):
     sk = p + K + tr
 
     for i in range(0, len(s1)):
         sk += BitPack(s1, n, n)
 
-    for i in range(0, len(s2)):
+    k = len(s2)
+
+    for i in range(0, k):
         sk += BitPack(s2, n, n)
+
+    for i in range(0, k):
+        sk += BitPack(BytesToBits(tr[i], 2**d-1, 2**d))
+
+    return sk
