@@ -435,8 +435,10 @@ def skDecode(sk: list[int], n, l, d, k):
     for i in range(0, l):
         y[i] = sk[128 + segment_length * i:128 + segment_length * (i + 1)]
     y = sk[128:end_y]
-    end_z = 32 * two_n.bit_length + end_y
-    z = sk[end_y:end_z]
+    end_z = segment_length * k + end_y
+    z:list[list[int]] = [] * l
+    for i in range(0, k):
+        z[i] = sk[end_y + segment_length * i:end_y + segment_length * (i + 1)]
     w = sk[end_z:end_z + 32 * d]
 
 
