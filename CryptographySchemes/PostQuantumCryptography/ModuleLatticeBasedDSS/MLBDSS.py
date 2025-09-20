@@ -444,4 +444,15 @@ def skDecode(sk: list[int], n, l, d, k):
     for i in range (0, k):
         w[i] = sk[end_z + w_length * i:end_z + w_length * (i + 1)]
 
+    s1:list[list[int]] = [] * l
+    for i in range (0, l):
+        s1[i] = BitUnpack(y[i],n,n)
 
+    s2:list[list[int]] = [] * k
+    t0:list[list[int]] = [] * k
+    bit_limit = 2 ** (d-1)
+    for i in range(0, k):
+        s2[i] = BitUnpack(z[i],n,n)
+        t0[i] = BitUnpack(w[i],bit_limit-1,bit_limit)
+
+    return p, K, tr, s1, s2, t0
