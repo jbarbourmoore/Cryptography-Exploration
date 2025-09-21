@@ -423,8 +423,27 @@ def skEncode(p: list[int], K:list[int], tr:list[int], s1:list[int], s2:list[int]
         sk += BitPack(BytesToBits(tr[i], 2**d-1, 2**d))
 
     return sk
+'''
+    This function enables a secret / private key to be decoded from a byte array
+    According to Algorithm 25 of NIST FIPS 204
 
-def skDecode(sk: list[int], n, l, d, k):
+    Parameters :
+        sk : list[int]
+            The encoded secret key
+        n : int
+        l : int
+        d : int
+        k : int
+
+    Returns
+        p : list[int]
+        K : list[int]
+        tr : list[int]
+        s1 : list[int]
+        s2 : list[int]
+        t0 : ilst[int]
+'''
+def skDecode(sk: list[int], n:int, l:int, d:int, k:int):
     p = sk[:32]
     K = sk[32:64]
     tr = sk[64:128]
@@ -450,9 +469,9 @@ def skDecode(sk: list[int], n, l, d, k):
 
     s2:list[list[int]] = [] * k
     t0:list[list[int]] = [] * k
-    bit_limit = 2 ** (d-1)
+    bit_limit = 2 ** (d - 1)
     for i in range(0, k):
         s2[i] = BitUnpack(z[i],n,n)
-        t0[i] = BitUnpack(w[i],bit_limit-1,bit_limit)
+        t0[i] = BitUnpack(w[i], bit_limit - 1, bit_limit)
 
     return p, K, tr, s1, s2, t0
