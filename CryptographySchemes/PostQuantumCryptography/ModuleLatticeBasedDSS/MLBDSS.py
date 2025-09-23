@@ -412,12 +412,12 @@ def skEncode(p: list[int], K:list[int], tr:list[int], s1:list[list[int]], s2:lis
     sk = p + K + tr
 
     for i in range(0, len(s1)):
-        sk += BitPack(s1, n, n)
+        sk += BitPack(s1[i], n, n)
 
     k = len(s2)
 
     for i in range(0, k):
-        sk += BitPack(s2, n, n)
+        sk += BitPack(s2[i], n, n)
 
     for i in range(0, k):
         sk += BitPack(BytesToBits(tr[i], 2**d-1, 2**d))
