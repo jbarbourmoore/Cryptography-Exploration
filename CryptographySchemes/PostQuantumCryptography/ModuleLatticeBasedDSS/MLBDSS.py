@@ -408,7 +408,7 @@ def pkDecode(pk:list[int], k:int, q:int, d:int) -> list[list[int], list[int]]:
         sk : list[int]
             The encoded private key
 '''
-def skEncode(p: list[int], K:list[int], tr:list[int], s1:list[int], s2:list[int], t0:int, n:int, d: int):
+def skEncode(p: list[int], K:list[int], tr:list[int], s1:list[list[int]], s2:list[list[int]], t0:int, n:int, d: int):
     sk = p + K + tr
 
     for i in range(0, len(s1)):
