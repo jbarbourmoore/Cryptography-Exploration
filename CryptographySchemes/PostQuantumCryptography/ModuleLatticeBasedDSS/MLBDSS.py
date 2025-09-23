@@ -475,3 +475,28 @@ def skDecode(sk: list[int], n:int, l:int, d:int, k:int):
         t0[i] = BitUnpack(w[i], bit_limit - 1, bit_limit)
 
     return p, K, tr, s1, s2, t0
+
+'''
+    This function enables a signature to be encoded to a byte array
+    According to Algorithm 26 of NIST FIPS 204
+
+    Parameters :
+        c : list[int]
+        z : list[list[int]]
+        h : list[int]
+        l
+        y
+
+    Returns
+        ohm : list[int]
+            The encoded byte array representing the signature
+'''
+def sigEncode(c: list[int], z: list[list[int]], h: list[int], l:int, y:int):
+    ohm = c
+
+    for i in range(0, l):
+        ohm = ohm + BitPack(z[i], y - 1, y)
+
+    ohm = ohm + HintBitPack(h)
+
+    return ohm
