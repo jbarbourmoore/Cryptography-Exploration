@@ -501,7 +501,23 @@ def sigEncode(c: list[int], z: list[list[int]], h: list[int], l:int, y:int):
 
     return ohm
 
-def sigDecode(ohm:list[int], h: list[int], l:int, y:int):
+'''
+    This function decodes a signature from a byte string
+    According to algorithm 27 of NIST FIPS 204
+
+    Parameters :
+        ohm : list[int]
+            The encoded signature
+        l : int
+        y : int
+    
+    Returns : 
+        c : list[int]
+        z : list[int]
+        h : list[int]
+
+'''
+def sigDecode(ohm:list[int], l:int, y:int):
     section_length = y-1
     section_length = section_length.bit_length() + 1
     section_length *= 32
@@ -516,3 +532,5 @@ def sigDecode(ohm:list[int], h: list[int], l:int, y:int):
     for i in range(0, l):
         z.append(BitUnpack(x[i], y - 1, y))
     h = HintBitUnpack(bwk)
+
+    return c, z, h
