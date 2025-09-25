@@ -500,3 +500,19 @@ def sigEncode(c: list[int], z: list[list[int]], h: list[int], l:int, y:int):
     ohm = ohm + HintBitPack(h)
 
     return ohm
+
+def sigDecode(ohm:list[int], h: list[int], l:int, y:int):
+    section_length = y-1
+    section_length = section_length.bit_length() + 1
+    section_length *= 32
+    c = ohm[:y/4]
+    x:list[list[int]] = []
+    index = y/4
+    for _ in range(0, l):
+        x.append(ohm[index, index+ section_length])
+        index += section_length
+    bwk = ohm[index:]
+    z:list[list[int]] = []
+    for i in range(0, l):
+        z.append(BitUnpack(x[i], y - 1, y))
+    h = HintBitUnpack(bwk)
