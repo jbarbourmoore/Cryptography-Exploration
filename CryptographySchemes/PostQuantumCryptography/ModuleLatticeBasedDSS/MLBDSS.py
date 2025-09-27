@@ -534,3 +534,12 @@ def sigDecode(ohm:list[int], l:int, y:int):
     h = HintBitUnpack(bwk)
 
     return c, z, h
+
+'''
+    According to Algorithm 28 of NIST FIPS 204
+'''
+def w1Encode(w1, q, y2, k):
+    w1_prime : list[int] = [];
+    for i in range (0, k):
+        w1_prime.append(SimpleBitPack(w1[i], (q-1)/(2*y2)-1))
+    return w1_prime
